@@ -1,0 +1,445 @@
+---
+title: 'Fireworks Case-study: Radar Data Preprocessing'
+author: "Bart Hoekstra"
+bibliography: fireworks.bib
+output:
+  html_document:
+    number_sections: TRUE
+---
+
+Weather radar data of the firework events at the turns of the years usually contain some degree of precipitation clutter. To filter out precipitation advanced algorithms such as MistNet have been developed, but as we are dealing with dual-pol data here, we can use a simpler and yet robust method using the depolarization ratio [@kilambi_simple_2018].
+
+To make sure our processed weather radar data does not contain any significant proportions of precipitation or ground clutter anymore, we process the data as follows:
+
+1. We remove electromagnetic interference based on a visual inspection of the scan and throw out all data of affected rays.
+2. We calculate the depolarization ratio [@kilambi_simple_2018] and separate biology from meteorology by classifying all range gates with a depolarization ratio > -12dB as biology. We subsequently ‘despeckle’ this, to remove obvious misclassifications.
+3. We average reflectivity over X scans before the time of the fireworks event and throw out the range-gates with the lowest variance in reflectivities.
+
+All these steps can be undertaken directly on the polar volume data, so we can subsequently simply plug the cleaned up volume into the range-bias correction.
+
+## Setting-up the pre-processing environment
+```{r include=FALSE}
+library(bioRad)
+library(plotly)
+setwd("~/Development/fireworks/")
+```
+
+## Removing electromagnetic interference
+
+We have determined the radar scan when birds are taking off based on the increase in reflectivity in that scan. Let's now look at this scan to see how much filtering for electromagnetic interference we need to do. The easiest way to determine which rays are subject to this interference is by plotting the scans in polar coordinates (range, azimuth), so interference stands out as horizontal lines of more or less constant, or very gradually changing reflectivities. Plotting using `plotly` package makes it easier to identify the specific problematic rays as one can zoom in to identify the exact azimuths.
+
+```{r warning=FALSE}
+pvolfile <- "data/raw/pvol/fireworks-2017-2018/RAD_NL62_VOL_NA_201712312310_ODIM.h5"
+pvol <- read_pvolfile(pvolfile, param = "all")
+scan <- plot(pvol$scans[[1]], param = "DBZH", xlim = c(0, 180)) + theme_dark()
+ggplotly(scan)
+```
+
+Right away we can see rays at two places are subject to electromagnetic interference. This is probably most problematic in the lowest elevations of the volume scan, but nevertheless we have to go through all the elevation scans to remove interference. This we do manually.
+
+```{r warning=FALSE}
+i = 1
+scan <- plot(pvol$scans[[i]], param = "DBZH", xlim = c(0, 180)) + theme_dark()
+ggplotly(scan)
+```
+
+By manually going through all the scans in the volume, we identify the following rays that are affected by electromagnetic interference (`ei_rays`), organised in a list with the scan number as keys.
+
+```{r}
+ei_rays <- list(c(201, 202, 214, 215), # scan 1
+                c(201, 202, 214, 215), # scan 2
+                c(201, 202, 214, 215), # scan 3
+                c(202, 214, 215))      # scan 4
+names(ei_rays) <- c(1, 2, 3, 4)
+```
+
+We can now remove the data for the affected rays in the corresponding scans by setting the values to `NA`.
+
+```{r}
+for (scan_id in as.integer(names(ei_rays))) {
+  for (param in pvol$scans[[scan_id]]$params) {
+    pvol$scans[[scan_id]]$params[[attributes(param)$param]][, as.integer(ei_rays[[as.character(scan_id)]])] <- NA
+  }
+}
+```
+
+### Verify removal of rays with EM interference
+Now let's compare with previous plots, to confirm the affected rays are indeed removed correctly.
+
+```{r warning=FALSE}
+i = 1
+plot(pvol$scans[[i]], param = "DBZH", xlim = c(0, 180)) + theme_dark()
+```
+
+That seems to work fine. The rays that are most affected by EM interference are now removed. Undoubtedly not everything is filtered out, and some weird 'artefacts' can be found in high elevation scans, but we'll leave these untouched as they do not occur so much where we expect birds to be.
+
+## Filter meteorology using the depolarization ratio
+
+Meteorology will be filtered using the depolarization ratio following [@kilambi_simple_2018]. We calculate the depolarization ratio for the raw `pvol` data after EM interference has been removed and subsequently 'despeckle' the results.
+
+Despeckling works by comparing the classification of the majority of neighbourhood rangegates with the classification of the rangegate at hand, and changing the latter to the majority of the neighbourhood classification if there is a difference. We define the 'neighbourhood' as the rangegates directly adjacent to the focal rangegate. Selecting the rangegates while taking the sphericity of the radar scan into account (e.g. ray 360 should be directly adjacent to ray 1) is made easier with the `window_coords()` helper function.
+
+```{r}
+# Window coordinates based on window center coords, height and width
+window_coords <- function(r, a, rwidth, awidth, rnum){
+  # Azimuths
+  amin <- (a - awidth) %% 360
+  amax <- (a + awidth) %% 360
+  if(amin <= 0){ amin <- amin + 360 }
+  if(amax <= 0){ amax <- amax + 360 }
+  aret <- c(amin:amax)
+  if(amin > amax){
+    aret <- c(c(amin:360), c(1:amax))
+  }
+  
+  # Ranges
+  rmin <- r - rwidth
+  rmax <- r + rwidth
+  if(rmax > rnum) { rmax <- rnum }
+  if(rmin > rnum) { rmin <- rnum }
+  if(rmin <= 1){ rmin <- 1 }
+  rret <- c(rmin:rmax)
+  
+  return(list(rret, aret))
+}
+
+# Despeckling function to remove erroneous classifications
+despeckle_scan_logical <- function(log_arr){
+  despeckled <- log_arr
+  
+  for(r in 1:nrow(log_arr)){
+    for(a in 1:ncol(log_arr)){
+      if(is.na(log_arr[r, a])){
+        next
+      }
+      window <- window_coords(r, a, 1, 1, nrow(log_arr))
+      sum_logical <- sum(log_arr[window[[1]], window[[2]]], na.rm = TRUE)
+      nr_cells <- length(window[[1]]) * length(window[[2]])
+      
+      if(sum_logical > (nr_cells / 2)){
+        out <- TRUE
+      }
+      else {
+        out <- FALSE
+      }
+      despeckled[r, a] <- out
+    }
+  }
+  return(despeckled)
+}
+```
+
+Now that the despeckling-algorithm is in place, we can:
+
+1. Calculate the depolarization (`DPR`)
+2. Classify biology as rangegates where `DPR > -12`, which results in the `scan` parameter `BIOLR` (Biology Raw)
+3. Despeckle the classification, which results in the `scan` parameter `BIOLD` (Biology Despeckled)
+
+```{r}
+# Calculate extra parameters for the entire pvol
+calculate_dpr <- function(pvol){
+  for (i in seq_along(pvol$scans)) {
+    # Calculate ZDR as ZDR = DBZH - DBZV
+    pvol$scans[[i]]$params$ZDR <- pvol$scans[[i]]$params$DBZH - pvol$scans[[i]]$params$DBZV
+    attributes(pvol$scans[[i]]$params$ZDR)$param <- "ZDR"
+    
+    # Calculate depolarization ratio
+    zdr_linear <- 10 ** (pvol$scans[[i]]$params$ZDR / 10)
+    dpr_linear <- (zdr_linear + 1 - 2 * sqrt(zdr_linear) * pvol$scans[[i]]$params$RHOHV) / 
+                  (zdr_linear + 1 + 2 * sqrt(zdr_linear) * pvol$scans[[i]]$params$RHOHV)
+    pvol$scans[[i]]$params$DPR <- 10 * log10(dpr_linear)
+    attributes(pvol$scans[[i]]$params$DPR)$param <- "DPR"
+    
+    # Classify based on depolarization ratio
+    biology <- (pvol$scans[[i]]$params$DPR > -12) * 1  # multiply by 1 to convert TRUE/FALSE to 1/0
+    class(biology) <- c("param", "matrix")
+    attributes(biology) <- attributes(pvol$scans[[i]]$params$DPR)  # copy attributes from DPR
+    attributes(biology)$param <- "BIOLR"
+    pvol$scans[[i]]$params$BIOLR <- biology
+    
+    # Despeckle biology classification
+    pvol$scans[[i]]$params$BIOLD <- pvol$scans[[i]]$params$BIOLR
+    pvol$scans[[i]]$params$BIOLD <- despeckle_scan_logical(pvol$scans[[i]]$params$BIOLD)
+    attributes(pvol$scans[[i]]$params$BIOLD)$param <- "BIOLD"
+  }
+  
+  return(pvol)
+}
+
+pvol <- suppressWarnings(calculate_dpr(pvol)) # Will throw NaN warning if not suppressed
+```
+
+### Verify DPR-based classification
+Now, let's plot some PPIs to verify the accuracy of DPR-based classification and the subsequent despeckling, by plotting `DBZH`, `VRADH`, `DPR`, `BIOLR` and `BIOLD`. 
+
+```{r warning=FALSE}
+scan <- pvol$scans[[1]]
+ppi <- project_as_ppi(scan, range_max = 100000)
+plot(ppi, param = 'DBZH')
+plot(ppi, param = 'VRADH')
+plot(ppi, param = 'DPR', zlim = c(-11, 25))
+plot(ppi, param = 'BIOLR', zlim = c(0, 1))
+plot(ppi, param = 'BIOLD', zlim = c(0, 1))
+```
+The plots show accurate classification of the obvious precipitation zones, except at the edges of these echoes, where `BIOLD` is a vast improvement over `BIOLR`, showing the value of despeckling. Similarly there is a lot of 'noise' where birds should be, but despeckling takes care of that quite nicely as well. Additionally, it seems that despeckling mostly turns 'biology' into 'meteorology' at longer distances away from the radar (and vice versa), which is exactly what one would expect. A few misclassifications that remain should not affect the results so much, as they are few in number and do not occur at the centres of precipitation echoes, so they are not likely to turn into numerical outliers.
+
+## Remove classified precipitation from polar volumes
+Now that we have accurate classifications of the rangegates based on depolarization ratios, we can start to remove the precipitation from the polar volumes, to retain a scan that comprises of only birds (with a few occasional misclassifications). As there are areas where `DPR` and `DBZH` do not overlap, we also have to remove all rangegates that are not classified.
+
+```{r}
+remove_precipitation <- function(pvol) {
+  for (scan in seq_along(pvol$scans)) {
+    for (param in pvol$scans[[scan]]$params) {
+      if (attributes(param)$param == "BIOLD" || attributes(param)$param == "BIOLR") {
+        next()
+      }
+      classification <- pvol$scans[[scan]]$params[["BIOLD"]]
+      pvol$scans[[scan]]$params[[attributes(param)$param]][classification == 0] <- NA
+      pvol$scans[[scan]]$params[[attributes(param)$param]][is.na(classification)] <- NA
+    }
+  }
+  return(pvol)
+}
+pvol <- remove_precipitation(pvol)
+```
+
+Plotting the same PPIs as before should now show a cleaned up/precipitation-free scan next to the classifications.
+
+```{r warning=FALSE}
+scan <- pvol$scans[[1]]
+ppi <- project_as_ppi(scan, range_max = 100000)
+plot(ppi, param = 'DBZH')
+plot(ppi, param = 'VRADH')
+plot(ppi, param = 'DPR', zlim = c(-11, 25))
+plot(ppi, param = 'BIOLR', zlim = c(0, 1))
+plot(ppi, param = 'BIOLD', zlim = c(0, 1))
+```
+
+And it does. :-)
+
+## Filter ground clutter
+
+We will filter out ground clutter by calculating summary statistics of the rangegate reflectivities over:
+
+1. The 36 scans preceding the scan selected for the study of the fireworks event (= 3 hours worth of scans)
+2. A day of clear weather closest in time to the 31st of December 2017.
+
+For each we will filter precipitation based on the *mean* `DBZH` values. Using the *variance* and *mad* values of the `DBZH` was considered, but has a few numerical problems: 1) *variance* is very sensitive to outliers caused by rangegates with `NA` values (detection below *mds* minimum detectable signal) occasionally switching to a noisy measurement, resulting in very high variances; 2) *mad* is much more robust to outliers, but to compute these values we need to set `NA` cells to the *mds*, which will result in *mad* values close to, or exactly 0 for cells that never reflected as well as true static clutter, so it's difficult to draw a line between those. Finally, a visual inspection showed the *mean* and some measure of the variance of `DBZH` do not differ much, but the *mean* is somewhat more ‘aggressive’ in filtering, which in this case is in fact quite good.
+
+Combining the clutter removal based on a clear day as well as the 36 preceding scans lets us account for both truly static clutter (e.g. buildings), as well as clutter that is more dynamic such as sea and wind park clutter, without also requiring us to resort to filtering of dynamic clutter using a `VRADH` threshold. The quality of the filtering is assessed visually.
+
+### Dynamic clutter
+
+We select 36 scans (3 hours worth of scans) preceding the fireworks event and add an additional margin of 6 scans (half an hour of scans).
+
+```{r}
+available_scans <- Sys.glob(file.path("data/raw/pvol/clutter-removal-20171231", "*NL62*20171231*"))
+selected_scan <- sub("fireworks-2017-2018", "clutter-removal-20171231", pvolfile)
+
+margin <- 6
+scans_nr <- 36
+selected_scan_id <- match(selected_scan, available_scans)
+
+usable_scans <- available_scans[(selected_scan_id-margin-scans_nr+1):(selected_scan_id-margin)]
+```
+
+We can now loop over the files one by one and store reflectivity data in a multidimensional array.
+
+```{r}
+pvol_clutter_dynamic <- pvol
+
+cat("Total # of scans to be processed: ", length(usable_scans), "\n")
+
+for (file in seq_along(usable_scans)) {
+  if (file %% 5 == 0) {
+    cat(file, ".. ")
+  }
+  
+  # Read pvol
+  pvol_in <- read_pvolfile(file = usable_scans[file], param = c("DBZH", "DBZV", "RHOHV"))  # The params we need to calculate DPR
+  
+  # Calculate DPR so we can filter precipitation
+  pvol_in <- suppressWarnings(calculate_dpr(pvol_in))
+  
+  # Now remove precipitation
+  pvol_in <- remove_precipitation(pvol_in)
+  
+  for (scan in seq_along(pvol_in$scans)) {
+    # Check if DBZH is already a 3D array
+    if (length(dim(pvol_clutter_dynamic$scans[[scan]]$params$DBZH)) != 3) {
+      # Apparently DBZH is no 3D array yet, so let's replace DBZH by a populated one
+      dims <- dim(pvol_clutter_dynamic$scans[[scan]]$params$DBZH)
+      pvol_clutter_dynamic$scans[[scan]]$params$DBZH <- array(numeric(), c(length(usable_scans), dims[1], dims[2]))
+    }
+    pvol_clutter_dynamic$scans[[scan]]$params$DBZH[file, , ] <- pvol_in$scans[[scan]]$params$DBZH
+  }
+}
+save(pvol_clutter_dynamic, file = "data/processed/clutter_dynamic.RData")
+```
+
+With all `DBZH` compiled in a single multidimensional array, we can calculate *mean* and *mad* statistics.
+
+```{r}
+load(file = "data/processed/clutter_dynamic.RData")
+
+mds <- -60  # Minimum detectable signal (MDS), probably higher than real value, but that should not affect results much
+
+for (i in seq_along(pvol_clutter_dynamic$scans)) {
+  pvol_clutter_dynamic$scans[[i]]$params$DBZH[is.na(pvol_clutter_dynamic$scans[[i]]$params$DBZH)] <- mds
+  
+  DBZH_mean <- apply(pvol_clutter_dynamic$scans[[i]]$params$DBZH, c(2, 3), mean)
+  
+  pvol_clutter_dynamic$scans[[i]]$params$DBZH_AVG <- DBZH_mean
+  class(pvol_clutter_dynamic$scans[[i]]$params$DBZH_AVG) <- c("param", "matrix")
+  attributes(pvol_clutter_dynamic$scans[[i]]$params$DBZH_AVG) <- attributes(pvol_clutter_dynamic$scans[[i]]$params$VRADH)
+  attributes(pvol_clutter_dynamic$scans[[i]]$params$DBZH_AVG)$param <- "DBZH_AVG"
+  
+  pvol_clutter_dynamic$scans[[i]]$params$DBZH <- NULL
+}
+```
+
+Let's see what that looks like on a basemap, using a `DBZH_AVG` threshold of $-10dBZ$, following [@dokter_bird_2011].
+
+```{r}
+scan <- pvol_clutter_dynamic$scans[[1]]
+ppi <- project_as_ppi(scan, range_max = 50000)
+basemap <- download_basemap(ppi, source = "osm")
+map(ppi, map = basemap, param = "DBZH_AVG", alpha = 0.5, radar_size = 0, zlim = c(-11, -10))
+plot(ppi, param = "DBZH_AVG", zlim = c(-11, -10)) + theme_dark()
+```
+
+Visually assessing this clutter map shows that it works quite well, selecting e.g. areas with wind parks, high buildings, industry, etc. Exactly what we hoped to achieve.
+
+### Static clutter
+
+Now, let's retry the same, but this time selecting a day with no precipitation, which can be done using [this tool](https://www.knmi.nl/nederland-nu/klimatologie/geografische-overzichten) by KNMI, so we can filter truly static clutter. We select December 29th, 2017 as no rain occurs that day within the measuring range of the Herwijnen radar and it's fairly close (in time) to the change of the years.
+
+```{r}
+# This time we can select all scans, rather than removing those after/before the fireworks event.
+available_scans <- Sys.glob(file.path("data/raw/pvol/clutter-removal-20171229", "*NL62*20171229*"))
+```
+
+```{r}
+pvol_clutter_static <- pvol
+
+cat("Total # of scans to be processed: ", length(available_scans), "\n")
+
+for (file in seq_along(available_scans)) {
+  if (file %% 10 == 0) {
+    cat(file, ".. ")
+  }
+  
+  # Read pvol
+  pvol_in <- read_pvolfile(file = available_scans[file], param = c("DBZH", "DBZV", "RHOHV"))  # The params we need to calculate DPR
+  
+  # Calculate DPR so we can filter precipitation
+  pvol_in <- suppressWarnings(calculate_dpr(pvol_in))
+  
+  # Now remove precipitation
+  pvol_in <- remove_precipitation(pvol_in)
+  
+  for (scan in seq_along(pvol_in$scans)) {
+    # Check if DBZH is already a 3D array
+    if (length(dim(pvol_clutter_static$scans[[scan]]$params$DBZH)) != 3) {
+      # Apparently DBZH is no 3D array yet, so let's replace DBZH by a populated one
+      dims <- dim(pvol_clutter_static$scans[[scan]]$params$DBZH)
+      pvol_clutter_static$scans[[scan]]$params$DBZH <- array(numeric(), c(length(available_scans), dims[1], dims[2]))
+    }
+    pvol_clutter_static$scans[[scan]]$params$DBZH[file, , ] <- pvol_in$scans[[scan]]$params$DBZH
+  }
+}
+save(pvol_clutter_static, file = "data/processed/clutter_static.RData")
+```
+
+```{r}
+load(file = "data/processed/clutter_static.RData")
+
+mds <- -60  # Minimum detectable signal (MDS), should probably be lower.
+
+for (i in seq_along(pvol_clutter_static$scans)) {
+  pvol_clutter_static$scans[[i]]$params$DBZH[is.na(pvol_clutter_static$scans[[i]]$params$DBZH)] <- mds
+  
+  DBZH_mean <- apply(pvol_clutter_static$scans[[i]]$params$DBZH, c(2, 3), mean)
+  
+  pvol_clutter_static$scans[[i]]$params$DBZH_AVG <- DBZH_mean
+  class(pvol_clutter_static$scans[[i]]$params$DBZH_AVG) <- c("param", "matrix")
+  attributes(pvol_clutter_static$scans[[i]]$params$DBZH_AVG) <- attributes(pvol_clutter_static$scans[[i]]$params$VRADH)
+  attributes(pvol_clutter_static$scans[[i]]$params$DBZH_AVG)$param <- "DBZH_AVG"
+  
+  pvol_clutter_static$scans[[i]]$params$DBZH <- NULL
+}
+```
+
+Once again, let's see what that looks like on a basemap, using a `DBZH_AVG` threshold of $-10dBZ$.
+
+```{r}
+scan <- pvol_clutter_static$scans[[1]]
+ppi <- project_as_ppi(scan, range_max = 50000)
+basemap <- download_basemap(ppi, source = "osm")
+map(ppi, map = basemap, param = "DBZH_AVG", alpha = 0.5, radar_size = 0, zlim = c(-11, -10))
+plot(ppi, param = "DBZH_AVG", zlim = c(-11, -10)) + theme_dark()
+```
+
+
+### Remove dynamic and static clutter
+
+Now that we have identified both dynamic and static clutter, we can create the final cleaned up polar volume.
+```{r}
+remove_groundclutter <- function(pvol, pvol_clutter) {
+  for (scan in seq_along(pvol$scans)) {
+    for (param in pvol$scans[[scan]]$params) {
+      if (attributes(param)$param == "BIOLD" || attributes(param)$param == "BIOLR") {
+        next()
+      }
+      DBZH_avg <- pvol_clutter$scans[[scan]]$params[["DBZH_AVG"]]
+      pvol$scans[[scan]]$params[[attributes(param)$param]][DBZH_avg > -10] <- NA
+    }
+  }
+  return(pvol)
+}
+
+pvol <- remove_groundclutter(pvol, pvol_clutter_dynamic)
+pvol <- remove_groundclutter(pvol, pvol_clutter_static)
+
+save(pvol, file = "data/processed/pvol_clean.RData")
+```
+
+## Range-bias correction
+
+With the dynamic and static clutter removed from the raw polar volume data, we can apply the range-bias correction.
+
+First we calculate the vertical profile using the `vol2bird` algorithm.
+
+```{r}
+vp <- calculate_vp(file = pvolfile, vpfile = "data/processed/vp/RAD_NL62_VOL_NA_201712312310.h5")
+plot(vp, quantity = "eta", zl )
+```
+
+We then generate the range-corrected PPIs.
+
+```{r}
+corrected_ppi <- integrate_to_ppi(pvol, vp, res = 500, xlim = c(-150000, 150000), ylim = c(-150000, 150000))
+save(corrected_ppi, file = "data/processed/corrected_ppi.RData")
+```
+
+```{r warning=FALSE}
+plot(corrected_ppi, param = "vir")
+plot(corrected_ppi, param = "correction_factor", zlim = c(0, 20))
+```
+
+It's a little hard to interpret with the PPI pixels that contain no birds set to 0, so let's see what it looks like on a map with the VIR values of 0 filtered out.
+
+```{r}
+filtered_corrected_ppi <- corrected_ppi
+filtered_corrected_ppi$data$vir[filtered_corrected_ppi$data$vir == 0] <- NA
+```
+
+Now plot these on top of a basemap. Use the arrow-keys to compare with a basemap without the data overlaid to see where birds take off.
+
+```{r fig.width=10, fig.height=10}
+basemap <- download_basemap(filtered_corrected_ppi, source = "osm")
+map(filtered_corrected_ppi, map = basemap, param = "vir", alpha = 0.6, radar_size = 0, zlim = c(0, 20000))
+map(filtered_corrected_ppi, map = basemap, param = "vir", alpha = 0.0, radar_size = 0, zlim = c(0, 20000))
+```
+
+We have saved the range-corrected PPI as `corrected_ppi` in `data/processed/corrected_ppi.RData`.
