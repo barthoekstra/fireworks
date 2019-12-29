@@ -37,3 +37,8 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# Project-specific
+data/raw/
+data/processed/
+.DS_Store
