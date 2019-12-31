@@ -45,7 +45,7 @@ for (scan in fireworks_scans) {
 ## 1.3. Generate time-series of vertical profiles
 
 ```{r}
-fireworks_vpfilepaths <- Sys.glob(file.path("data/processed/vp/fireworks-2017-2018", "*NL62*"))
+fireworks_vpfilepaths <- Sys.glob(file.path("data/processed/vp/fireworks-2017-2018", "*NL61*"))
 fireworks_vpfiles <- read_vpfiles(fireworks_vpfilepaths)
 fireworks_vpts <- bind_into_vpts(fireworks_vpfiles)
 ```
@@ -76,7 +76,7 @@ ggplot(integrated[indexes, ], aes(x = datetime)) +
   scale_color_manual(labels = c("VIR", expression(paste(Delta,"VIR/scan"))),
                      values = c("vir" = "black", "vir_deriv" = "red")) +
   labs(title = "Time series of Vertically Integrated Reflectivities (VIR)",
-       subtitle = "NYE 2017-2018",
+       subtitle = "NYE 2017-2018, Herwijnen Radar",
        x = "Time (CET)",
        y = "VIR",
        colour = NULL) +
