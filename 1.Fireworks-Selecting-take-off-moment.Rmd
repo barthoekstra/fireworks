@@ -37,7 +37,7 @@ for (scan in fireworks_scans) {
   }
   
   vpfile_out <- sub("raw/pvol/fireworks-2017-2018", "processed/vp/fireworks-2017-2018", scan)
-  calculate_vp(scan, vpfile = vpfile_out, verbose = FALSE, mount = dirname(fireworks_scans[1]))
+  try(calculate_vp(scan, vpfile = vpfile_out, verbose = FALSE, mount = dirname(fireworks_scans[1])))
   i = i + 1
 }
 ```
@@ -48,6 +48,7 @@ for (scan in fireworks_scans) {
 fireworks_vpfilepaths <- Sys.glob(file.path("data/processed/vp/fireworks-2017-2018", "*NL62*"))
 fireworks_vpfiles <- read_vpfiles(fireworks_vpfilepaths)
 fireworks_vpts <- bind_into_vpts(fireworks_vpfiles)
+fireworks_vpts <- regularize_vpts(fireworks_vpts, interval = 5)
 ```
 
 ```{r}
