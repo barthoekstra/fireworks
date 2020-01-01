@@ -42,3 +42,4 @@ vignettes/*.pdf
 data/raw/
 data/processed/
 .DS_Store
+*.html
