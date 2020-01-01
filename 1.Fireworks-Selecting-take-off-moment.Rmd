@@ -1,5 +1,5 @@
 ---
-title: 'Fireworks Case-study'
+title: "Fireworks Case-study"
 author: "Bart Hoekstra"
 bibliography: fireworks.bib
 output:
@@ -7,28 +7,36 @@ output:
     toc: true
     toc_float: true
     code_folding: show
+    df_print: kable
+    code_download: true
+    number_sections: true
+    smart: true
+full_repro: "`r full_repro <- FALSE`"
 ---
-# 1. Selecting firework take-off moment
+# Selecting firework take-off moment
 
-For this study we select the moment of ‘en masse’ take-off of birds at the turn of the year. To make sure birds are still sufficiently ‘close’ to the take-off habitat, we pick the moment where the increase in `VIR` (vertically integrated reflectivity) is the highest. Based on experience, we would expect this to occur between 00:05 and 00:15 on January 1st, 2018, as people light the fireworks right after they have shared new year's wishes with each other.
+For this study we select the moment of 'en masse' take-off of birds at the turn of the year. To make sure birds are still fairly 'close' to the take-off habitat, we therefore pick the moment where the increase in `VIR` (Vertically Integrated Reflectivity) is the highest. Based on experience, one would expect this to occur between 00:05 and 00:15 on January 1st, as people tend to light the fireworks right after they have shared New Year's wishes with each other.
 
-## 1.1 Setting-up the processing environment
+## Setting up the processing environment
 
-We use `vol2bird` included in the [bioRad package](http://adokter.github.io/bioRad) to calculate vertical profiles of reflectivity and to determine the take-off moment of birds. In this case that means we assume birds take off everywhere simultaneously, but that seems a realistic assumption given that lighting fireworks is synchronised by the time vs. the time of sunset.
+We use `vol2bird` included in the [bioRad package](http://adokter.github.io/bioRad) [@dokter_biorad_2019] to calculate the vertical profiles of reflectivity, from which we determine the exact take off moment of birds. This implies we assume birds take to the skies everywhere simultaneously, but that seems a realistic assumption given that the lighting of fireworks is synchronised by the local time, rather than the time of sunset/sunrise.
 
-```{r warning=FALSE}
+```{r warning=FALSE, message=FALSE}
 library(bioRad)
 library(ggplot2)
-setwd("~/Development/fireworks/")
+library(dplyr)
+library(tidyr)
 Sys.setenv(TZ = "UTC")
 ```
 
-## 1.2. Calculate the vertical profiles
+## Calculate the vertical profiles
 
-We calculate vertical profiles for the period between December 31st, 2017 22:00 and 01:00 UTC on January 1st, 2018, this corresponds with 23:00 til 02:00 Amsterdam time (UTC + 1).
+We calculate vertical profiles for the period between December 31st, 2017 22:00 and 01:00 UTC on January 1st, 2018, which corresponds with 23:00 til 02:00 local Amsterdam time (UTC + 1). It is not necessary to generate so many `vp` files, but it gives a better temporal overview if we add some 'temporal padding' around the fireworks event.
 
-```{r eval=FALSE, include=TRUE}
-fireworks_scans <- Sys.glob(file.path("data/raw/pvol/fireworks-2017-2018", "*NL62*"))
+*Beware: to calculate the vertical profiles, a running instance of [Docker](https://www.docker.com) is required. This code chunk will only run in [full-reproduction mode](A1.Full-reproduction-mode.html).*
+
+```{r eval=full_repro}
+fireworks_scans <- Sys.glob(file.path("data/raw/pvol/fireworks-2017-2018", "*_ODIM.h5"))
 cat("Files left to process: ", length(fireworks_scans), "\n")
 i = 1
 for (scan in fireworks_scans) {
@@ -42,60 +50,89 @@ for (scan in fireworks_scans) {
 }
 ```
 
-## 1.3. Generate time-series of vertical profiles
+## Generate time series of vertical profiles
+
+We can now generate a time series of vertical profiles and plot the bird densities to get an idea of what was going on during NYE of 2017-2018.
 
 ```{r}
-fireworks_vpfilepaths <- Sys.glob(file.path("data/processed/vp/fireworks-2017-2018", "*NL62*"))
-fireworks_vpfiles <- read_vpfiles(fireworks_vpfilepaths)
-fireworks_vpts <- bind_into_vpts(fireworks_vpfiles)
-fireworks_vpts <- regularize_vpts(fireworks_vpts, interval = 5)
-```
+fw_hrw_vpts <- Sys.glob(file.path("data/processed/vp/fireworks-2017-2018", "*NL62*")) %>%
+  read_vpfiles() %>%
+  bind_into_vpts() %>%
+  regularize_vpts(interval = 5)
 
-```{r}
+fw_dhl_vpts <- Sys.glob(file.path("data/processed/vp/fireworks-2017-2018", "*NL61*")) %>%
+  read_vpfiles() %>%
+  bind_into_vpts() %>%
+  regularize_vpts(interval = 5)
+
 start <- as.POSIXct("2017-12-31 22:00:00")
 end <- as.POSIXct("2018-01-01 01:00:00")
-indexes <- which(fireworks_vpts$datetime >= start & fireworks_vpts$datetime <= end)
-plot(fireworks_vpts[indexes])
+
+indexes_hrw <- which(fw_hrw_vpts$datetime >= start & fw_hrw_vpts$datetime <= end)
+indexes_dhl <- which(fw_dhl_vpts$datetime >= start & fw_dhl_vpts$datetime <= end) # Should mostly be identical
+
+title_hrw <- expression("Herwijnen: volume density [#/km"^3 * "]")
+title_dhl <- expression("Den Helder: volume density [#/km"^3 * "]")
+plot(fw_hrw_vpts[indexes_hrw], main = title_hrw)
+plot(fw_dhl_vpts[indexes_dhl], main = title_dhl)
 ```
 
-That plot shows exactly what we expect: low densities of birds aloft until roughly midnight (23:00 UTC), then very high densities of birds suddenly taking off.
+Both plots for Herwijnen and Den Helder show exactly what we would expect: fairly low densities of birds aloft leading up to midnight (23:00 CET), then suddenly a strong increase of birds right after midnight. For Herwijnen this peak is much more pronounced than for Den Helder, probably due to the different surroundings of the radar. As `vol2bird` only takes into account rangegates within 5-35km of the radar, in the case of Den Helder this contains a lot more sea surface, from which fewer birds can be expected to take off than from land.
 
-## 1.4 Identifying moment of take-off
+## Identifying moment of take-off
 
-We integrate the time series of veritcal profiles, so we can calculate the `vir` derivative and determine in what volume scan birds really take to the skies.
+We integrate the time series of vertical profiles, so we can calculate the `vir` derivatives and determine in what volume scan birds really take to the skies for each radar separately.
+
 ```{r}
-integrated <- integrate_profile(fireworks_vpts)
-```
+integrated_hrw <- integrate_profile(fw_hrw_vpts)
+integrated_dhl <- integrate_profile(fw_dhl_vpts)
 
-Plotting both the `vir` and its derivative.
-```{r}
+integrated_hrw$vir_deriv <- c(NA, diff(integrated_hrw$vir, 1))
+integrated_dhl$vir_deriv <- c(NA, diff(integrated_dhl$vir, 1))
+
+integrated_hrw$radar <- "Herwijnen"
+integrated_dhl$radar <- "Den Helder"
+
+integrated <- rbind(integrated_hrw, integrated_dhl)
+
+integrated_l <- integrated %>%
+  pivot_longer(-c("datetime", "radar"), names_to = "variable", values_to = "value") %>%
+  filter(variable == "vir" | variable == "vir_deriv") %>%
+  filter(datetime >= start & datetime <= end)
+
+max_vir_deriv <- integrated_l %>%
+  group_by(variable, radar) %>%
+  filter(variable == "vir_deriv") %>%
+  summarize(max_value = max(value), datetime = datetime[which.max(value)]) %>%
+  arrange(radar)  # Sort so order remains the same
+
 theme_set(theme_bw())
-integrated$vir_deriv <- c(NA, diff(integrated$vir, 1))
-ggplot(integrated[indexes, ], aes(x = datetime)) + 
-  geom_line(aes(y = vir, colour = "vir")) +
-  geom_line(aes(y = vir_deriv, colour = "vir_deriv")) +
-  scale_color_manual(labels = c("VIR", expression(paste(Delta,"VIR/scan"))),
-                     values = c("vir" = "black", "vir_deriv" = "red")) +
+ggplot(integrated_l, aes(x = datetime)) +
+  geom_line(aes(y = value, colour = radar, linetype = variable)) +
+  scale_x_datetime(breaks = "10 min", date_labels = "%H:%M", expand = c(0, 0)) + 
+  scale_color_manual(values = c("blue", "red")) +
+  scale_linetype_discrete(name = "Line type", labels = c("VIR", expression(paste(Delta,"VIR/scan")))) + 
   labs(title = "Time series of Vertically Integrated Reflectivities (VIR)",
        subtitle = "NYE 2017-2018",
        x = "Time (CET)",
        y = "VIR",
-       colour = NULL) +
-  scale_x_datetime(breaks = integrated[indexes, "datetime"], date_labels = "%H:%M") +
-  theme(axis.text.x = element_text(angle = -90, vjust = 0.1),
+       colour = "Radar",
+       linetype = "Linetype") +
+  theme(axis.text.x = element_text(angle = -90),
         panel.grid.minor = element_blank())
 ```
 
-We can now identify which scan contains the moment of take-off:
+The plot shows $\Delta VIR/{scan}$ peaks earlier for the Den Helder radar than for Herwijnen, but both at roughly the same level of `r round(max_vir_deriv[[1, 3]])` and `r round(max_vir_deriv[[2, 3]])` respectively.
+
+We can now identify which scans 'contain' the moment of take-off. The datetime values correspond with the start times of the scans and the filenames of the polar volume files.
 
 ```{r}
-id <- which.max(integrated$vir_deriv[indexes])
-integrated[id + min(indexes) - 1, ]
+max_vir_deriv[, 2:4]
 ```
 
-The datetime value for this record corresponds with the starttime of this scan, which we will continue to use in this study. We furthermore assume the moment of take-off in Den Helder is the same.
+So we will continue using the following files in this study:
 
-```{r}
-fireworks_vpfilepaths[id + min(indexes) - 1]
-```
+- **Herwijnen**: `RAD_NL62_VOL_NA_201712312310_ODIM.h5`
+- **Den Helder**: `RAD_NL61_VOL_NA_201712312305_ODIM.h5`
 
+## References
