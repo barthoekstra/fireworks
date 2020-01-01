@@ -130,9 +130,21 @@ We can now identify which scans 'contain' the moment of take-off. The datetime v
 max_vir_deriv[, 2:4]
 ```
 
+```{r}
+pvol_folder <- "data/raw/pvol/fireworks-2017-2018/"
+hrw_dt_str <- strftime(max_vir_deriv[[2, 4]], format = "%Y%m%d%H%M")
+dhl_dt_str <- strftime(max_vir_deriv[[1, 4]], format = "%Y%m%d%H%M")
+
+pvol_hrw <- paste(pvol_folder, "RAD_NL62_VOL_NA_", hrw_dt_str, "_ODIM.h5", sep = "")
+pvol_dhl <- paste(pvol_folder, "RAD_NL61_VOL_NA_", dhl_dt_str, "_ODIM.h5", sep = "")
+
+save(pvol_hrw, pvol_dhl, file = "data/processed/pvol_selection.RData")
+```
+
+
 So we will continue using the following files in this study:
 
-- **Herwijnen**: `RAD_NL62_VOL_NA_201712312310_ODIM.h5`
-- **Den Helder**: `RAD_NL61_VOL_NA_201712312305_ODIM.h5`
+- **Herwijnen**: ``r basename(pvol_hrw)``
+- **Den Helder**: ``r basename(pvol_dhl)``
 
 ## References
