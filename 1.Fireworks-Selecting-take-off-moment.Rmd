@@ -21,7 +21,7 @@ For this study we select the moment of 'en masse' take-off of birds at the turn 
 
 We use `vol2bird` included in the [bioRad package](http://adokter.github.io/bioRad) [@dokter_biorad_2019] to calculate the vertical profiles of reflectivity, from which we determine the exact take off moment of birds. This implies we assume birds take to the skies everywhere simultaneously, but that seems a realistic assumption given that the lighting of fireworks is synchronised by the local time, rather than the time of sunset/sunrise.
 
-```{r warning=FALSE, message=FALSE}
+```{r setup, warning=FALSE, message=FALSE}
 library(bioRad)
 library(ggplot2)
 library(dplyr)
@@ -35,7 +35,7 @@ We calculate vertical profiles for the period between December 31st, 2017 22:00 
 
 *Beware: to calculate the vertical profiles, a running instance of [Docker](https://www.docker.com) is required. This code chunk will only run in [full-reproduction mode](A1.Full-reproduction-mode.html).*
 
-```{r eval=full_repro}
+```{r generate_vps, eval=full_repro}
 fireworks_scans <- Sys.glob(file.path("data/raw/pvol/fireworks-2017-2018", "*_ODIM.h5"))
 cat("Files left to process: ", length(fireworks_scans), "\n")
 i = 1
@@ -54,7 +54,7 @@ for (scan in fireworks_scans) {
 
 We can now generate a time series of vertical profiles and plot the bird densities to get an idea of what was going on during NYE of 2017-2018.
 
-```{r}
+```{r generate_vp_timeseries}
 fw_hrw_vpts <- Sys.glob(file.path("data/processed/vp/fireworks-2017-2018", "*NL62*")) %>%
   read_vpfiles() %>%
   bind_into_vpts() %>%
@@ -83,7 +83,7 @@ Both plots for Herwijnen and Den Helder show exactly what we would expect: fairl
 
 We integrate the time series of vertical profiles, so we can calculate the `vir` derivatives and determine in what volume scan birds really take to the skies for each radar separately.
 
-```{r}
+```{r identify_takeoff}
 integrated_hrw <- integrate_profile(fw_hrw_vpts)
 integrated_dhl <- integrate_profile(fw_dhl_vpts)
 
@@ -126,11 +126,11 @@ The plot shows $\Delta VIR/{scan}$ peaks earlier for the Den Helder radar than f
 
 We can now identify which scans 'contain' the moment of take-off. The datetime values correspond with the start times of the scans and the filenames of the polar volume files.
 
-```{r}
+```{r identify_takeoff_scans}
 max_vir_deriv[, 2:4]
 ```
 
-```{r}
+```{r save_takeoff_scans}
 pvol_folder <- "data/raw/pvol/fireworks-2017-2018/"
 hrw_dt_str <- strftime(max_vir_deriv[[2, 4]], format = "%Y%m%d%H%M")
 dhl_dt_str <- strftime(max_vir_deriv[[1, 4]], format = "%Y%m%d%H%M")
