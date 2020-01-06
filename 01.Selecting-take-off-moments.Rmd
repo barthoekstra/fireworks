@@ -135,10 +135,10 @@ pvol_folder <- "data/raw/pvol/fireworks-2017-2018/"
 hrw_dt_str <- strftime(max_vir_deriv[[2, 4]], format = "%Y%m%d%H%M")
 dhl_dt_str <- strftime(max_vir_deriv[[1, 4]], format = "%Y%m%d%H%M")
 
-pvol_hrw <- paste(pvol_folder, "RAD_NL62_VOL_NA_", hrw_dt_str, "_ODIM.h5", sep = "")
-pvol_dhl <- paste(pvol_folder, "RAD_NL61_VOL_NA_", dhl_dt_str, "_ODIM.h5", sep = "")
+pvol_hrw_path <- paste(pvol_folder, "RAD_NL62_VOL_NA_", hrw_dt_str, "_ODIM.h5", sep = "")
+pvol_dhl_path <- paste(pvol_folder, "RAD_NL61_VOL_NA_", dhl_dt_str, "_ODIM.h5", sep = "")
 
-save(pvol_hrw, pvol_dhl, file = "data/processed/pvol_selection.RData")
+save(pvol_hrw_path, pvol_dhl_path, file = "data/processed/pvol_selection.RData")
 ```
 
 
