@@ -27,5 +27,7 @@ stack_rainfree_reflectivities <- function(pvols, outputfile) {
       pvol_stack$scans[[scan]]$params$DBZH[file, , ] <- pvol_in$scans[[scan]]$params$DBZH
     }
   }
+  cat("\n")
+  
   saveRDS(pvol_stack, file = outputfile)
 }
