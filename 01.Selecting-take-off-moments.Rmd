@@ -144,7 +144,7 @@ save(pvol_hrw_path, pvol_dhl_path, file = "data/processed/pvol_selection.RData")
 
 So we will continue using the following files in this study:
 
-- **Herwijnen**: ``r basename(pvol_hrw)``
-- **Den Helder**: ``r basename(pvol_dhl)``
+- **Herwijnen**: ``r basename(pvol_hrw_path)``
+- **Den Helder**: ``r basename(pvol_dhl_path)``
 
 ## References
