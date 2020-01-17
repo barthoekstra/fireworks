@@ -1,0 +1,300 @@
+---
+title: "Fireworks Case-study"
+author: "Bart Hoekstra"
+bibliography: fireworks.bib
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: show
+    df_print: kable
+    code_download: true
+    number_sections: true
+    smart: true
+full_repro: "`r full_repro <- FALSE`"
+---
+
+# Annotating the PPIs with land use parameters
+
+In this study we aim to calculate 'representative' radar cross sections for birds aloft, based on the take-off habitat, which is probably a good indicator for the bird species/species groups measured by the radar. In this notebook we will classify land use and calculate the distance to the nearest urbanised areas for each of the PPI 'pixels'.
+
+The land use is based on the [CORINE Land Cover](https://land.copernicus.eu/pan-european/corine-land-cover) dataset and specifically the [2018 version](https://land.copernicus.eu/pan-european/corine-land-cover/clc2018) (`CLC2018`), which should be most relevant for the 2017-2018 fireworks event.
+
+## Setting up the annotation environment
+
+```{r setup, warning=FALSE}
+library(raster)
+library(sf)
+library(dplyr)
+library(ggplot2)
+library(ggpubr)
+library(gridExtra)
+library(viridis)
+```
+
+## Converting the land use map
+
+To start, we need to convert the land use map to the same 1) resolution, and 2) extent of the radar PPIs as we can then simply 'overlay' both rasters on top of each other and do calculations. We load the PPIs and extract the CRS information contained in the `proj4` strings.
+
+```{r load_ppis_and_proj4}
+ppi_hrw <- readRDS("data/processed/corrected_ppi_hrw.RDS")
+ppi_dhl <- readRDS("data/processed/corrected_ppi_dhl.RDS")
+
+ppi_proj4_hrw <- ppi_hrw$data@proj4string
+ppi_proj4_dhl <- ppi_dhl$data@proj4string
+```
+
+And we load and prepare the land use map it's all about. To aid the classification process, we also load the land use classes contained in the entire `CLC2018` dataset, otherwise the classes will remain anonymous numbers.
+
+```{r load_landuse_map, warning=FALSE}
+landuse <- raster("data/raw/landuse/clc2018_clc2018_v2018_20_raster100m/CLC2018_CLC2018_V2018_20.tif")
+landuse_classes <- read.csv("data/raw/landuse/clc2018_clc2018_v2018_20_raster100m/Legend/CLC2018_CLC2018_V2018_20_QGIS.txt",
+                            col.names = c("landuse_id", "r", "g", "b", "x", "landuse_class"))[, c("landuse_id", "landuse_class")]
+```
+
+### Cropping the land use map
+
+As the `CLC2018` dataset is so large it does not fit in memory at all in the steps below, so we have to crop the raster dataset for further processing. Even then, it still requires a beefy computer to process these files. First we calculate a bounding box for the landuse raster based on the bounding boxes of the radar data.
+
+```{r calculate_bounding_boxes}
+padding <- 25000  # Padding in m to make sure we crop out of the land use map with a wide margin to compensate for edge-effects later
+bbox_meters <- abs(ppi_dhl$data@bbox[[1]]) + padding  # Assuming the PPI range of DHL and HRW are the same
+
+bbox_hrw <- st_bbox(c(xmin = -bbox_meters, ymin = -bbox_meters, xmax = bbox_meters, ymax = bbox_meters), crs = ppi_proj4_hrw)
+bbox_dhl <- st_bbox(c(xmin = -bbox_meters, ymin = -bbox_meters, xmax = bbox_meters, ymax = bbox_meters), crs = ppi_proj4_dhl)
+
+bbox_hrw %>%
+  st_as_sfc() %>%
+  st_transform(crs(landuse)) %>%
+  st_bbox -> bbox_landuse_hrw
+
+bbox_dhl %>%
+  st_as_sfc() %>%
+  st_transform(crs(landuse)) %>%
+  st_bbox -> bbox_landuse_dhl
+```
+
+We can now crop and plot the land use maps centered on the radar sites, with a `r padding` meter padding surrounding the extent of the radar data.
+
+```{r crop_landuse_maps}
+ext_hrw <- extent(c(bbox_landuse_hrw[1], bbox_landuse_hrw[3], bbox_landuse_hrw[2], bbox_landuse_hrw[4]))
+ext_dhl <- extent(c(bbox_landuse_dhl[1], bbox_landuse_dhl[3], bbox_landuse_dhl[2], bbox_landuse_dhl[4]))
+
+landuse_crop_hrw <- crop(landuse, ext_hrw)
+landuse_crop_dhl <- crop(landuse, ext_dhl)
+```
+
+And plot the result:
+
+```{r plot_cropped_landuse_maps}
+par(pty = "s", mfrow = c(1, 2))
+image(landuse_crop_hrw, main = "Herwijnen")
+image(landuse_crop_dhl, main = "Den Helder")
+```
+
+Apparantly large swathes of the North Sea are set to `NaN`, so we better convert those to 'Sea and ocean' as well.
+
+```{r}
+sea_id <- match('Sea and ocean', landuse_classes$landuse_class)
+landuse_crop_hrw[is.na(landuse_crop_hrw)] <- landuse_classes[sea_id, "landuse_id"]
+landuse_crop_dhl[is.na(landuse_crop_dhl)] <- landuse_classes[sea_id, "landuse_id"]
+
+par(pty = "s", mfrow = c(1, 2))
+image(landuse_crop_hrw, main = "Herwijnen")
+image(landuse_crop_dhl, main = "Den Helder")
+```
+
+### Reprojecting the land use map
+
+Now that the land use map is cropped, we can start the reprojecting to the CRS of the radar PPI. As we're dealing with categorical data, we set `method = "ngb"` to use nearest neighbour interpolation.
+
+```{r reproject_landuse_maps, warning=FALSE}
+landuse_hrw_reprojected <- projectRaster(landuse_crop_hrw, crs = ppi_proj4_hrw, method = "ngb")
+landuse_dhl_reprojected <- projectRaster(landuse_crop_dhl, crs = ppi_proj4_dhl, method = "ngb")
+levels(landuse_hrw_reprojected) <- levels(landuse_crop_hrw)
+levels(landuse_dhl_reprojected) <- levels(landuse_crop_dhl)
+```
+
+If the reprojection went successful, the CRS of the reprojected land use map and the radar PPI should be the same.
+
+```{r compare_reprojected_landuse_maps}
+compareCRS(ppi_hrw$data@proj4string, landuse_hrw_reprojected@crs)
+compareCRS(ppi_dhl$data@proj4string, landuse_dhl_reprojected@crs)
+```
+
+Apparently that is the case.
+
+### Resampling the land use map to a lower resolution
+
+The cellsize of the PPIs is `r ppi_dhl$data@grid@cellsize`x`r ppi_dhl$data@grid@cellsize` meters, but the land use map is much more finely detailed (~100x100m), so we need to resample the latter to derive a land use map at a `r ppi_dhl$data@grid@cellsize`x`r ppi_dhl$data@grid@cellsize` meter resolution as well.
+
+Simple nearest neighbour resampling was tested, but resulted in large parts of fairly small water bodies and especially the rivers 'disappearing' from the map, whereas these represent important habitats for birds to forage and roost. So instead, majority resampling, tweaked to retain more of the aforementioned water features was used to resize the land use raster to an appropriate resolution. The tweak constituted of setting the values of water courses and water bodies to the maximum value (total coverage of the assessed window) if half or more of the assessed window contained pixels classified as water courses or water bodies. The quality of this resampling was assessed visually.
+
+```{r define_majority_resampling_technique}
+majority_resampling <- function(raster, reference_raster, overwrite = FALSE) {
+  values <- c(sort(unique(getValues(raster))))
+  
+  # classes: multidimensional logical array for the classes contained within the land use map
+  classes <- layerize(raster, filename = paste("data/processed/landuse/layerize/", substitute(raster), sep = ""),
+                      format = "raster", bylayer = TRUE, classes = values, overwrite = overwrite)
+  # factor: nr of cells in both horizontal and vertical direction to aggregate
+  factor <- round(dim(raster)[1:2] / dim(reference_raster)[1:2])
+  # agg: aggregated version of classes (aggregation factor defined by factor) containing max values per class, so 1 if a class is present
+  agg <- aggregate(classes, factor, na.rm = TRUE, fun = max)
+  # x: resampled agg, now roughly containing land coverage percentages. Method must be bilinear, otherwise arbitrary choices keep being made.
+  x <- resample(agg, reference_raster)
+
+  # Tweak the importance of water courses and bodies
+  water_courses_id <- match(511, values)
+  water_bodies_id <- match(512, values)
+  x[[water_courses_id]][x[[water_courses_id]] >= 0.5] <- 1.1
+  x[[water_bodies_id]][x[[water_bodies_id]] >= 0.5] <- 1.1
+
+  # Flatten x in y
+  y <- which.max(x)
+
+  # Reclassify back to original values
+  values <- data.frame(seq(1, length(values)), values)
+  colnames(values) <- c("is", "becomes")
+  y <- reclassify(y, values)
+
+  return(y)
+}
+```
+
+```{r resize_landuse_with_majority_resampling}
+landuse_hrw <- majority_resampling(landuse_hrw_reprojected, as(ppi_hrw$data, "RasterLayer"), overwrite = TRUE)
+landuse_dhl <- majority_resampling(landuse_dhl_reprojected, as(ppi_dhl$data, "RasterLayer"), overwrite = TRUE)
+writeRaster(landuse_hrw, "data/processed/landuse/landuse_hrw_500m.tif", overwrite = TRUE)
+writeRaster(landuse_dhl, "data/processed/landuse/landuse_dhl_500m.tif", overwrite = TRUE)
+```
+
+By now the resampled land use raster should be very similar to the PPI raster, with the exception of — of course — the values contained within.
+
+```{r compare_resampled_landuse_rasters}
+compareRaster(landuse_hrw, as(ppi_hrw$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
+compareRaster(landuse_dhl, as(ppi_dhl$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
+```
+
+Ok, let's save a copy of what we have so far.
+```{r save_resampled_rasters}
+saveRDS(landuse_hrw, "data/processed/landuse/landuse_hrw.RDS")
+saveRDS(landuse_dhl, "data/processed/landuse/landuse_dhl.RDS")
+```
+
+
+## Adding land use classifications to the PPIs
+
+With the land use rasters overlapping exactly with the PPIs, we can simply extract the values of the resampled land use rasters and add these as additional parameters to the PPIs. Besides the code used, we will also add a description of the codes.
+
+```{r store_classification_values_in_ppis}
+landuse_hrw <- readRDS("data/processed/landuse/landuse_hrw.RDS")
+landuse_dhl <- readRDS("data/processed/landuse/landuse_dhl.RDS")
+
+values_hrw <- as.data.frame(landuse_hrw@data@values)
+values_dhl <- as.data.frame(landuse_dhl@data@values)
+
+ppi_hrw$data$landuse <- as.numeric(unlist(values_hrw))
+ppi_dhl$data$landuse <- as.numeric(unlist(values_dhl))
+
+ppi_hrw$data@data <- ppi_hrw$data@data %>%
+  left_join(landuse_classes, by = c("landuse" = "landuse_id"))
+ppi_hrw$data$ID <- NULL
+
+ppi_dhl$data@data <- ppi_dhl$data@data %>%
+  left_join(landuse_classes, by = c("landuse" = "landuse_id"))
+ppi_dhl$data$ID <- NULL
+```
+
+## Classify land use types in Urban vs. Rural
+
+As we are interested in the effect urbanization has on the take-off decision of birds during the fireworks event, it is useful to categorise the land use types we have found so far as either 'urban' or 'rural' as well.
+
+```{r}
+urban_hrw <- ppi_hrw$data@data$landuse < 200
+ppi_hrw$data$type <- rep("rural", nrow(ppi_hrw$data))
+ppi_hrw$data$type[urban_hrw] <- "urban"
+ppi_hrw$data$type <- as.factor(ppi_hrw$data$type)
+
+urban_dhl <- ppi_dhl$data@data$landuse < 200
+ppi_dhl$data$type <- rep("rural", nrow(ppi_dhl$data))
+ppi_dhl$data$type[urban_dhl] <- "urban"
+ppi_dhl$data$type <- as.factor(ppi_dhl$data$type)
+```
+
+## Calculate distance to nearest urban area
+
+For every cell on the raster that is not a cell we have just classified as 'urban' we will calculate the distance (in meters) to the nearest cell classified as 'urban'.
+
+```{r}
+urban_hrw <- ppi_hrw$data[, , "type", drop = FALSE]
+urban_hrw$type[urban_hrw$type == "rural"] <- NaN
+distance_to_urban_hrw <- distance(as(urban_hrw, 'RasterLayer'))
+
+urban_dhl <- ppi_dhl$data[, , "type", drop = FALSE]
+urban_dhl$type[urban_dhl$type == "rural"] <- NaN
+distance_to_urban_dhl <- distance(as(urban_dhl, 'RasterLayer'))
+
+writeRaster(distance_to_urban_hrw, "data/processed/landuse/dist_urban_hrw_500m.tif", overwrite = TRUE)
+writeRaster(distance_to_urban_dhl, "data/processed/landuse/dist_urban_dhl_500m.tif", overwrite = TRUE)
+```
+
+And we add these values to the PPIs again.
+
+```{r}
+values_dist_urban_hrw <- as.data.frame(distance_to_urban_hrw@data@values)
+values_dist_urban_dhl <- as.data.frame(distance_to_urban_dhl@data@values)
+
+ppi_hrw$data$dist_urban <- as.numeric(unlist(values_dist_urban_hrw))
+ppi_dhl$data$dist_urban <- as.numeric(unlist(values_dist_urban_dhl))
+```
+
+## Testing
+
+Let's make a few plots to see if what we have now gathered as additional information makes any sense
+
+### Plotting total VIR per land use type
+
+```{r}
+data_hrw <- ppi_hrw$data@data %>%
+  filter(landuse_class != "Land principally occupied by agriculture with significant areas of natural vegetation" & landuse_class != "Sea and ocean") %>%
+  group_by(landuse_class) %>%
+  add_count() %>%
+  mutate(total_landuse_class = sum(vir), total_prop_landuse_class = sum(vir) / n)
+
+data_dhl <- ppi_dhl$data@data %>%
+  filter(landuse_class != "Land principally occupied by agriculture with significant areas of natural vegetation" & landuse_class != "Sea and ocean") %>%
+  group_by(landuse_class) %>%
+  add_count() %>%
+  mutate(total_landuse_class = sum(vir), total_prop_landuse_class = sum(vir) / n)
+
+ggplot(data_hrw, aes(landuse_class, total_prop_landuse_class, fill = type)) + geom_col() + coord_flip() + labs(title = "Herwijnen")
+ggplot(data_dhl, aes(landuse_class, total_prop_landuse_class, fill = type)) + geom_col() + coord_flip() + labs(title = "Den Helder")
+```
+
+### Plotting a distance to urban areas effect for VIR
+
+```{r}
+ggplot(ppi_dhl$data@data, aes(x = dist_urban, y = vir, colour = landuse_class)) + 
+  geom_point(alpha = 0.5) + xlim(c(0, 10000)) + ylim(c(0, 500000)) + theme(legend.position = "none")
+ggplot(ppi_hrw$data@data, aes(x = dist_urban, y = vir, colour = landuse_class)) + 
+  geom_point(alpha = 0.5) + xlim(c(0, 10000)) + ylim(c(0, 500000)) + theme(legend.position = "none")
+```
+
+### Plotting it all on an interactive map
+
+#### Interactive map of Herwijnen
+```{r}
+mapview(ppi_hrw$data[, , c("vir", "landuse", "dist_urban")], alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
+        na.color = "#00000000", map.types = c("CartoDB.Positron", "CartoDB.DarkMatter", "Esri.WorldImagery"),
+        layer.name = c("vid", "landuse", "dist_urban"))
+```
+
+
+#### Interactive map of Den Helder
+```{r}
+mapview(ppi_dhl$data[, , c("vir", "landuse", "dist_urban")], alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
+        na.color = "#00000000", map.types = c("CartoDB.Positron", "CartoDB.DarkMatter", "Esri.WorldImagery"),
+        layer.name = c("vid", "landuse", "dist_urban"))
+```
+
