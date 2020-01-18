@@ -30,6 +30,7 @@ library(ggplot2)
 library(ggpubr)
 library(gridExtra)
 library(viridis)
+library(mapview)
 ```
 
 ## Converting the land use map
@@ -94,7 +95,7 @@ image(landuse_crop_dhl, main = "Den Helder")
 
 Apparantly large swathes of the North Sea are set to `NaN`, so we better convert those to 'Sea and ocean' as well.
 
-```{r}
+```{r plot_cropped_landuse_maps_filled_NAs}
 sea_id <- match('Sea and ocean', landuse_classes$landuse_class)
 landuse_crop_hrw[is.na(landuse_crop_hrw)] <- landuse_classes[sea_id, "landuse_id"]
 landuse_crop_dhl[is.na(landuse_crop_dhl)] <- landuse_classes[sea_id, "landuse_id"]
@@ -210,7 +211,7 @@ ppi_dhl$data$ID <- NULL
 
 As we are interested in the effect urbanization has on the take-off decision of birds during the fireworks event, it is useful to categorise the land use types we have found so far as either 'urban' or 'rural' as well.
 
-```{r}
+```{r classify_land_use_urban_vs_rural}
 urban_hrw <- ppi_hrw$data@data$landuse < 200
 ppi_hrw$data$type <- rep("rural", nrow(ppi_hrw$data))
 ppi_hrw$data$type[urban_hrw] <- "urban"
@@ -226,7 +227,7 @@ ppi_dhl$data$type <- as.factor(ppi_dhl$data$type)
 
 For every cell on the raster that is not a cell we have just classified as 'urban' we will calculate the distance (in meters) to the nearest cell classified as 'urban'.
 
-```{r}
+```{r calculate_distance_to_urban_areas}
 urban_hrw <- ppi_hrw$data[, , "type", drop = FALSE]
 urban_hrw$type[urban_hrw$type == "rural"] <- NaN
 distance_to_urban_hrw <- distance(as(urban_hrw, 'RasterLayer'))
@@ -241,7 +242,7 @@ writeRaster(distance_to_urban_dhl, "data/processed/landuse/dist_urban_dhl_500m.t
 
 And we add these values to the PPIs again.
 
-```{r}
+```{r store_distance_to_urban_areas_in_ppi}
 values_dist_urban_hrw <- as.data.frame(distance_to_urban_hrw@data@values)
 values_dist_urban_dhl <- as.data.frame(distance_to_urban_dhl@data@values)
 
@@ -255,7 +256,7 @@ Let's make a few plots to see if what we have now gathered as additional informa
 
 ### Plotting total VIR per land use type
 
-```{r}
+```{r total_vir_vs_land_use_type}
 data_hrw <- ppi_hrw$data@data %>%
   filter(landuse_class != "Land principally occupied by agriculture with significant areas of natural vegetation" & landuse_class != "Sea and ocean") %>%
   group_by(landuse_class) %>%
@@ -274,7 +275,7 @@ ggplot(data_dhl, aes(landuse_class, total_prop_landuse_class, fill = type)) + ge
 
 ### Plotting a distance to urban areas effect for VIR
 
-```{r}
+```{r distance_to_urban_vs_vir}
 ggplot(ppi_dhl$data@data, aes(x = dist_urban, y = vir, colour = landuse_class)) + 
   geom_point(alpha = 0.5) + xlim(c(0, 10000)) + ylim(c(0, 500000)) + theme(legend.position = "none")
 ggplot(ppi_hrw$data@data, aes(x = dist_urban, y = vir, colour = landuse_class)) + 
@@ -284,7 +285,7 @@ ggplot(ppi_hrw$data@data, aes(x = dist_urban, y = vir, colour = landuse_class)) 
 ### Plotting it all on an interactive map
 
 #### Interactive map of Herwijnen
-```{r}
+```{r interactive_map_herwijnen}
 mapview(ppi_hrw$data[, , c("vir", "landuse", "dist_urban")], alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
         na.color = "#00000000", map.types = c("CartoDB.Positron", "CartoDB.DarkMatter", "Esri.WorldImagery"),
         layer.name = c("vid", "landuse", "dist_urban"))
@@ -292,7 +293,7 @@ mapview(ppi_hrw$data[, , c("vir", "landuse", "dist_urban")], alpha.regions = 0.6
 
 
 #### Interactive map of Den Helder
-```{r}
+```{r interactive_map_den_helder}
 mapview(ppi_dhl$data[, , c("vir", "landuse", "dist_urban")], alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
         na.color = "#00000000", map.types = c("CartoDB.Positron", "CartoDB.DarkMatter", "Esri.WorldImagery"),
         layer.name = c("vid", "landuse", "dist_urban"))
