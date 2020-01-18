@@ -22,7 +22,7 @@ The land use is based on the [CORINE Land Cover](https://land.copernicus.eu/pan-
 
 ## Setting up the annotation environment
 
-```{r setup, warning=FALSE}
+```{r setup, warning=FALSE, message=FALSE}
 library(raster)
 library(sf)
 library(dplyr)
@@ -288,7 +288,7 @@ ggplot(ppi_hrw$data@data, aes(x = dist_urban, y = vir, colour = landuse_class)) 
 ```{r interactive_map_herwijnen}
 mapview(ppi_hrw$data[, , c("vir", "landuse", "dist_urban")], alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
         na.color = "#00000000", map.types = c("CartoDB.Positron", "CartoDB.DarkMatter", "Esri.WorldImagery"),
-        layer.name = c("vid", "landuse", "dist_urban"))
+        layer.name = c("landuse", "dist_urban"))
 ```
 
 
@@ -296,6 +296,6 @@ mapview(ppi_hrw$data[, , c("vir", "landuse", "dist_urban")], alpha.regions = 0.6
 ```{r interactive_map_den_helder}
 mapview(ppi_dhl$data[, , c("vir", "landuse", "dist_urban")], alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
         na.color = "#00000000", map.types = c("CartoDB.Positron", "CartoDB.DarkMatter", "Esri.WorldImagery"),
-        layer.name = c("vid", "landuse", "dist_urban"))
+        layer.name = c("landuse", "dist_urban"))
 ```
 
