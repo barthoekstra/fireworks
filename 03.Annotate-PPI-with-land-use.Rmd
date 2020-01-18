@@ -275,7 +275,7 @@ ggplot(data_dhl, aes(landuse_class, total_prop_landuse_class, fill = type)) + ge
 
 ### Plotting a distance to urban areas effect for VIR
 
-```{r distance_to_urban_vs_vir}
+```{r distance_to_urban_vs_vir, warning=FALSE}
 ggplot(ppi_dhl$data@data, aes(x = dist_urban, y = vir, colour = landuse_class)) + 
   geom_point(alpha = 0.5) + xlim(c(0, 10000)) + ylim(c(0, 500000)) + theme(legend.position = "none")
 ggplot(ppi_hrw$data@data, aes(x = dist_urban, y = vir, colour = landuse_class)) + 
