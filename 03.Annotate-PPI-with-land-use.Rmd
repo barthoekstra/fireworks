@@ -286,7 +286,7 @@ ggplot(ppi_hrw$data@data, aes(x = dist_urban, y = vir, colour = landuse_class)) 
 
 #### Interactive map of Herwijnen
 ```{r interactive_map_herwijnen}
-mapview(ppi_hrw$data[, , c("vir", "landuse", "dist_urban")], alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
+mapview(ppi_hrw$data[, , c("landuse", "dist_urban")], alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
         na.color = "#00000000", map.types = c("CartoDB.Positron", "CartoDB.DarkMatter", "Esri.WorldImagery"),
         layer.name = c("landuse", "dist_urban"))
 ```
@@ -294,7 +294,7 @@ mapview(ppi_hrw$data[, , c("vir", "landuse", "dist_urban")], alpha.regions = 0.6
 
 #### Interactive map of Den Helder
 ```{r interactive_map_den_helder}
-mapview(ppi_dhl$data[, , c("vir", "landuse", "dist_urban")], alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
+mapview(ppi_dhl$data[, , c("landuse", "dist_urban")], alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
         na.color = "#00000000", map.types = c("CartoDB.Positron", "CartoDB.DarkMatter", "Esri.WorldImagery"),
         layer.name = c("landuse", "dist_urban"))
 ```
