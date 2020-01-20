@@ -7,11 +7,14 @@ side_by_side_ppi <- function(pvol1, pvol2, title1 = "", title2 = "", params = "D
     if (length(params) > 1) {
       zlim <- bioRad:::get_zlim(param, NULL)  # @ TODO: Change in bioRad?: second argument is unused.
       
-      if (param %in% c("BIOLR", "BIOLD")) {
+      if (param %in% c("BIOLR", "BIOLD", "BIOLRRHOHV", "BIOLDRHOHV")) {
         zlim <- c(0, 1)
       }
       if (param == "DPR") {
         zlim <- c(-11, 25)
+      }
+      if (param == "RHOHV") {
+        zlim <- c(0, 0.95)
       }
     }
     
