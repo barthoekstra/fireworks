@@ -58,12 +58,12 @@ We can now generate a time series of vertical profiles and plot the bird densiti
 fw_hrw_vpts <- Sys.glob(file.path("data/processed/vp/fireworks-2017-2018", "*NL62*")) %>%
   read_vpfiles() %>%
   bind_into_vpts() %>%
-  regularize_vpts(interval = 5)
+  regularize_vpts(interval = "auto")
 
 fw_dhl_vpts <- Sys.glob(file.path("data/processed/vp/fireworks-2017-2018", "*NL61*")) %>%
   read_vpfiles() %>%
   bind_into_vpts() %>%
-  regularize_vpts(interval = 5)
+  regularize_vpts(interval = "auto")
 
 start <- as.POSIXct("2017-12-31 22:00:00")
 end <- as.POSIXct("2018-01-01 01:00:00")
@@ -148,3 +148,4 @@ So we will continue using the following files in this study:
 - **Den Helder**: ``r basename(pvol_dhl_path)``
 
 ## References
+
