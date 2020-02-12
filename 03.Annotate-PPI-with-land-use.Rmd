@@ -302,13 +302,13 @@ data_hrw <- ppi_hrw$data@data %>%
   filter(landuse_class != "Land principally occupied by agriculture with significant areas of natural vegetation" & landuse_class != "Sea and ocean") %>%
   group_by(landuse_class) %>%
   add_count() %>%
-  mutate(total_landuse_class = sum(vir), total_prop_landuse_class = sum(vir) / n)
+  mutate(total_landuse_class = sum(VIR), total_prop_landuse_class = sum(VIR) / n)
 
 data_dhl <- ppi_dhl$data@data %>%
   filter(landuse_class != "Land principally occupied by agriculture with significant areas of natural vegetation" & landuse_class != "Sea and ocean") %>%
   group_by(landuse_class) %>%
   add_count() %>%
-  mutate(total_landuse_class = sum(vir), total_prop_landuse_class = sum(vir) / n)
+  mutate(total_landuse_class = sum(VIR), total_prop_landuse_class = sum(VIR) / n)
 
 ggplot(data_hrw, aes(landuse_class, total_prop_landuse_class, fill = type)) + geom_col() + coord_flip() + labs(title = "Herwijnen")
 ggplot(data_dhl, aes(landuse_class, total_prop_landuse_class, fill = type)) + geom_col() + coord_flip() + labs(title = "Den Helder")
@@ -317,9 +317,9 @@ ggplot(data_dhl, aes(landuse_class, total_prop_landuse_class, fill = type)) + ge
 ### Plotting a distance to urban areas effect for VIR
 
 ```{r distance_to_urban_vs_vir, warning=FALSE}
-ggplot(ppi_dhl$data@data, aes(x = pop, y = vir, colour = landuse_class)) + 
+ggplot(ppi_dhl$data@data, aes(x = dist_urban, y = VIR, colour = landuse_class)) + 
   geom_point(alpha = 0.5) + ylim(c(0, 500000)) + theme(legend.position = "none")
-ggplot(ppi_hrw$data@data, aes(x = pop, y = vir, colour = landuse_class)) + 
+ggplot(ppi_hrw$data@data, aes(x = dist_urban, y = VIR, colour = landuse_class)) + 
   geom_point(alpha = 0.5) + ylim(c(0, 500000)) + theme(legend.position = "none")
 ```
 
