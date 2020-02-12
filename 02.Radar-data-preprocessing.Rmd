@@ -327,8 +327,8 @@ With all identifiable sources of clutter removed from the raw polar volume, we c
 vp_hrw <- calculate_vp(file = pvol_hrw_path, vpfile = paste("data/processed/vp/", basename(pvol_hrw_path), sep = ""), verbose = FALSE)
 vp_dhl <- calculate_vp(file = pvol_dhl_path, vpfile = paste("data/processed/vp/", basename(pvol_dhl_path), sep = ""), verbose = FALSE)
 
-corrected_ppi_hrw <- integrate_to_ppi(pvol_hrw, vp_hrw, res = 500, xlim = c(-150000, 150000), ylim = c(-150000, 150000))
-corrected_ppi_dhl <- integrate_to_ppi(pvol_dhl, vp_dhl, res = 500, xlim = c(-150000, 150000), ylim = c(-150000, 150000))
+corrected_ppi_hrw <- integrate_to_ppi(pvol_hrw, vp_hrw, res = 500, xlim = c(-50000, 50000), ylim = c(-50000, 50000))
+corrected_ppi_dhl <- integrate_to_ppi(pvol_dhl, vp_dhl, res = 500, xlim = c(-50000, 50000), ylim = c(-50000, 50000))
 
 saveRDS(corrected_ppi_hrw, file = "data/processed/corrected_ppi_hrw.RDS")
 saveRDS(corrected_ppi_dhl, file = "data/processed/corrected_ppi_dhl.RDS")
@@ -337,8 +337,8 @@ saveRDS(corrected_ppi_dhl, file = "data/processed/corrected_ppi_dhl.RDS")
 We can now plot the final range-corrected PPIs.
 
 ```{r plot_corrected_vir, fig.width=10}
-p_vir_hrw <- plot(corrected_ppi_hrw, param = "vir", zlim = c(0, 20000)) + labs(title = "Herwijnen: VIR")
-p_vir_dhl <- plot(corrected_ppi_dhl, param = "vir", zlim = c(0, 20000)) + labs(title = "Den Helder: VIR")
+p_vir_hrw <- plot(corrected_ppi_hrw, param = "VIR", zlim = c(0, 20000)) + labs(title = "Herwijnen: VIR")
+p_vir_dhl <- plot(corrected_ppi_dhl, param = "VIR", zlim = c(0, 20000)) + labs(title = "Den Helder: VIR")
 ggarrange(p_vir_hrw, p_vir_dhl, ncol = 2, nrow = 1, common.legend = TRUE, legend = "right")
 ```
 
