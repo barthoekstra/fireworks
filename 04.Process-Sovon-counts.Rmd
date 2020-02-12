@@ -1,0 +1,837 @@
+---
+title: "Fireworks Case-study"
+author: "Bart Hoekstra"
+bibliography: fireworks.bib
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: show
+    df_print: kable
+    code_download: true
+    number_sections: true
+    smart: true
+full_repro: "`r full_repro <- FALSE`"
+---
+
+# Process Sovon counts
+
+We have data for the following counts provided by Sovon:
+
+1. Sovon Waterbird counts with a shapefile containing the areas surveyed and an `xlsx` file with the counts. Both can be linked using the `GEBIEDID` contained in both datasets.
+2. PTT counts which are point transect counts.
+
+# Process waterbird counts
+
+```{r}
+library(sf)
+library(stars)
+library(raster)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(stringr)
+# library(rgbif)
+library(readxl)
+library(fuzzyjoin)
+library(ggplot2)
+library(ggpointdensity)
+library(viridis)
+library(GGally)
+```
+
+```{r}
+ppi_hrw <- readRDS("data/processed/corrected_ppi_hrw_lu.RDS")
+ppi_dhl <- readRDS("data/processed/corrected_ppi_dhl_lu.RDS")
+```
+
+```{r}
+wb_areas <- st_read("data/raw/sovon/wavo_telgebieden.shp")
+wb_areas$GEBIEDID <- seq(1, length(wb_areas$GEBIEDNR))
+
+wb_areas_hrw <- st_transform(wb_areas, ppi_hrw$data@proj4string)
+wb_areas_dhl <- st_transform(wb_areas, ppi_dhl$data@proj4string)
+
+# Add a numeric ID
+# wb_areas_hrw$GEBIEDID <- seq(1, length(wb_areas_hrw$GEBIEDNR))
+# wb_areas_dhl$GEBIEDID <- seq(1, length(wb_areas_dhl$GEBIEDNR))
+
+# Rasterize
+wb_areas_rasterized_hrw <- st_rasterize(wb_areas_hrw["GEBIEDID"], 
+                                        template = st_as_stars(st_bbox(ppi_hrw$data), dx = ppi_hrw$data@grid@cellsize[1], dy = ppi_hrw$data@grid@cellsize[2], values = NA_real_))
+wb_areas_rasterized_dhl <- st_rasterize(wb_areas_dhl["GEBIEDID"], 
+                                        template = st_as_stars(st_bbox(ppi_dhl$data), dx = ppi_dhl$data@grid@cellsize[1], dy = ppi_dhl$data@grid@cellsize[2], values = NA_real_))
+```
+```{r}
+plot(wb_areas_rasterized_dhl)
+```
+
+```{r}
+compareRaster(as(wb_areas_rasterized_hrw, "Raster"), as(ppi_hrw$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
+compareRaster(as(wb_areas_rasterized_dhl, "Raster"), as(ppi_dhl$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
+```
+
+```{r}
+# Add GEBIEDID and GEBIEDNR to PPIs
+ppi_hrw$data$gebiedid <- unlist(as.data.frame(as(wb_areas_rasterized_hrw, "Raster")))
+ppi_dhl$data$gebiedid <- unlist(as.data.frame(as(wb_areas_rasterized_dhl, "Raster")))
+
+ppi_hrw$data@data %>%
+  left_join(dplyr::select(as.data.frame(wb_areas_hrw), GEBIEDID, GEBIEDNR, OPPHA), by = c("gebiedid" = "GEBIEDID")) -> ppi_hrw$data@data
+ppi_hrw$data$geometry <- NULL
+
+ppi_dhl$data@data %>%
+  left_join(dplyr::select(as.data.frame(wb_areas_dhl), GEBIEDID, GEBIEDNR, OPPHA), by = c("gebiedid" = "GEBIEDID")) -> ppi_dhl$data@data
+ppi_dhl$data$geometry <- NULL
+```
+
+# Load Sovon count data: Waterbirds
+
+```{r}
+excelfile <- "data/raw/sovon/tel_dec_jan_1718.xlsx"
+
+data <- data.frame()
+sheets <- excel_sheets(excelfile)
+sheets <- sheets[-c(1, 5)]  # Sheet 1 and 5 contain PTT and roost counts, so we ignore these for now, as they have to be processed differently
+
+for (i in seq_along(sheets)) {
+  data <- rbind(data, read_excel(excelfile, sheet = sheets[i]))
+}
+
+colnames(data) <- c("count_id", "area_code", "year", "month", "day", "start_time", "end_time", "euring", "species", "number", "x", "y")
+head(data, 10)
+```
+
+The Sovon count data contains a `euring` field that we can use to translate the Dutch names in the `species` columns to the scientific names. A lookup table for the `EURING` codes and scientific names can be downloaded from the [BTO website](https://app.bto.org/euringcodes/species.jsp). *There is a trailing delimiter in the header line, which should be removed to make sure no warnings occur, though importing the dataset should work fine without.*
+
+```{r}
+euring <- read_delim("data/raw/euring/euring.txt", delim = "|",  col_types = cols_only("Code" = col_number(), "Name" = col_character()))
+colnames(euring) <- c("euring", "scientific")
+head(euring, 10)
+```
+A few species are not matching, so we change the corresponding `euring` values in the Sovon dataset to match a similar species:
+
+```{r}
+data$euring[data$species == "Soepgans"] <- 1610                           # Anser anser
+data$euring[data$species == "Zwarte Zwaan"] <- 20800                      # Cygnus atratus
+data$euring[data$species == "Grote Canadese Gans (maxima)"] <- 1660       # Branta canadensis
+data$euring[data$species == "Soepeend"] <- 1860                           # Anas platyrhynchos
+data$euring[data$species == "Stadsduif"] <- 6650                          # Columba livia
+data$euring[data$species == "Toendrarietgans"] <- 1570                    # Anser fabalis
+data$euring[data$species == "Taigarietgans"] <- 1570                      # Anser fabalis
+data$euring[data$species == "Zwartbuikrotgans"] <- 1680                   # Branta bernicla
+data$euring[data$species == "Witbuikrotgans"] <- 1680                     # Branta bernicla
+data$euring[data$species == "Zwarte Rotgans"] <- 1680                     # Branta bernicla
+```
+
+
+```{r}
+data_merged <- data %>%
+  filter(species != "geen vogels" & number != 0) %>%
+  filter(!species %in% c("Kaapse Casarca", "Manengans", "Ringtaling", "Chileense Flamingo", "Kip", "Indische Gans", "Zwarte Zwaan",
+                         "Sneeuwgans", "Kleine Canadese Gans (minima)", "Roodhalsgans", "Zwaangans", "Knobbelgans (Chinese)", "Ross` Gans",
+                         "Muskuseend", "Bahamapijlstaart", "Kaapse Taling", "Kokardezaagbek", "Buffelkopeend", "Helmparelhoen")) %>%  # Remove exotics that are few in number anyways or don't fly
+  left_join(euring, by = c("euring" = "euring"))
+```
+
+A few scientific names include the subspecies name as well, or are following different/older taxonomies, which we will change manually to match with the life-history characteristics dataset.
+
+```{r}
+# Subspecies
+data_merged$scientific[data_merged$scientific == "Branta canadensis canadensis"] <- "Branta canadensis"
+data_merged$scientific[data_merged$scientific == "Anser albifrons albifrons"] <- "Anser albifrons"
+data_merged$scientific[data_merged$scientific == "Larus argentatus atlantis"] <- "Larus michahellis"
+data_merged$scientific[data_merged$scientific == "Larus argentatus michahellis"] <- "Larus michahellis"
+data_merged$scientific[data_merged$scientific == "Larus argentatus cachinnans"] <- "Larus cachinnans"
+data_merged$scientific[data_merged$scientific == "Anthus spinoletta spinoletta"] <- "Anthus spinoletta"
+data_merged$scientific[data_merged$scientific == "Motacilla alba alba"] <- "Motacilla alba"
+data_merged$scientific[data_merged$scientific == "Corvus corone corone"] <- "Corvus corone"
+data_merged$scientific[data_merged$scientific == "Corvus corone cornix"] <- "Corvus corone"
+data_merged$scientific[data_merged$scientific == "Carduelis flammea cabaret"] <- "Acanthis flammea"
+data_merged$scientific[data_merged$scientific == "Carduelis flammea flammea"] <- "Acanthis flammea"
+data_merged$scientific[data_merged$scientific == "Anthus spinoletta littoralis"] <- "Anthus spinoletta"
+data_merged$scientific[data_merged$scientific == "Aegithalos caudatus caudatus" ] <- "Aegithalos caudatus"
+data_merged$scientific[data_merged$scientific == "Limosa limosa limosa" ] <- "Limosa limosa"
+
+# Taxonomic genus mismatch
+data_merged$scientific[data_merged$scientific == "Anas penelope"] <- "Mareca penelope"
+data_merged$scientific[data_merged$scientific == "Anas strepera"] <- "Mareca strepera"
+data_merged$scientific[data_merged$scientific == "Anas clypeata"] <- "Spatula clypeata"
+data_merged$scientific[data_merged$scientific == "Philomachus pugnax"] <- "Calidris pugnax"
+data_merged$scientific[data_merged$scientific == "Egretta alba"] <- "Ardea alba"
+data_merged$scientific[data_merged$scientific == "Mergus albellus"] <- "Mergellus albellus"
+data_merged$scientific[data_merged$scientific == "Carduelis flavirostris"] <- "Linaria flavirostris"
+data_merged$scientific[data_merged$scientific == "Sula bassana"] <- "Morus bassanus"
+data_merged$scientific[data_merged$scientific == "Stercorarius skua"] <- "Catharacta skua"
+data_merged$scientific[data_merged$scientific == "Larus minutus"] <- "Hydrocoloeus minutus"
+data_merged$scientific[data_merged$scientific == "Parus caeruleus"] <- "Cyanistes caeruleus"
+data_merged$scientific[data_merged$scientific == "Carduelis chloris"] <- "Chloris chloris"
+data_merged$scientific[data_merged$scientific == "Parus montanus"] <- "Poecile montanus"
+data_merged$scientific[data_merged$scientific == "Carduelis spinus"] <- "Spinus spinus"
+data_merged$scientific[data_merged$scientific == "Parus palustris"] <- "Poecile palustris"
+data_merged$scientific[data_merged$scientific == "Carduelis flammea"] <- "Acanthis flammea"
+data_merged$scientific[data_merged$scientific == "Carduelis cannabina"] <- "Linaria cannabina"
+data_merged$scientific[data_merged$scientific == "Parus cristatus"] <- "Lophophanes cristatus"
+data_merged$scientific[data_merged$scientific == "Parus ater"] <- "Periparus ater"
+
+unique(data_merged$scientific)
+```
+
+
+A few species are still not matched, but for now we leave those as is and remove the counts where this is the case. We can later on of course 'fill' these datapoints based on proportions or grouped averages.
+
+```{r}
+unidentified_species <- data_merged[is.na(data_merged$scientific), ] %>%
+  arrange(desc(number))
+unidentified_species
+```
+
+```{r}
+data_merged <- data_merged %>%
+  group_by(count_id) %>%
+  filter(!any(species %in% unique(unidentified_species$species))) %>%
+  filter(!endsWith(species, "spec."))
+```
+
+With that out of the way, we can finally add the corresponding body masses for the species in the Sovon dataset
+
+# Load life-history traits
+
+This dataset is stored on Dryad and we can [download](https://doi.org/10.5061/dryad.n6k3n) it there. Unfortunately the `rdryad` package is severely out-of-date with the new Dryad API, so we cannot nicely automate this download yet. Anyways, the files should be downloaded and added to `data/raw/life-history-characteristics/`. Using this dataset we will calculate average bodymass for the species listed.
+
+```{r}
+read_tsv("data/raw/life-history-characteristics/Life-history characteristics of European birds.txt", 
+         col_types = cols_only('Species' = col_character(), 'WeightU_MEAN' = col_double(), 'WeightM_MEAN' = col_double(), 'WeightF_MEAN' = col_double())) %>%
+  rowwise %>%
+  mutate(mean_weight = mean(c(WeightU_MEAN, WeightF_MEAN, WeightM_MEAN))) %>%
+  dplyr::select(Species, mean_weight) %>%
+  drop_na() -> lhc
+```
+
+Now add it to the taxa table, to derive the table we will calculate biomass with
+
+```{r}
+data_lhc <- data_merged %>%
+  stringdist_left_join(lhc, by = c("scientific" = "Species"))
+```
+
+```{r}
+unidentified_combinations <- data_lhc[is.na(data_lhc$mean_weight), ] %>%
+  arrange(desc(mean_weight))
+unique(unidentified_combinations$scientific)
+```
+
+Excellent, all species are now matched. So we continue calculating the biomass
+
+```{r}
+data_lhc %>%
+  filter(year == 2018) %>%
+  # mutate(species_mass = (number * mean_weight) / 1000) %>%
+  group_by(area_code) %>%
+  summarise(nr_birds = sum(number),
+            avg_mass = weighted.mean(mean_weight, number)) -> data_lhc
+# 
+#   summarise(species_mass = max(species_mass), 
+#             species_number = max(number)) %>%
+#   group_by(area_code) %>%
+#   summarise(weighted_avg_mass =  weighted.mean(species_mass, species_number)) -> data_lhc2
+
+# data_lhc2 %>%
+#   arrange(desc(avg_mass))
+# massnr %>%
+  # arrange(desc(avg_mass))
+```
+
+```{r}
+write_csv(data_lhc2, path = "data/processed/sovon/mass.csv")
+```
+
+```{r}
+data %>%
+  filter(area_code == "DR3660")
+```
+
+
+```{r}
+ppi_hrw$data@data %>%
+  left_join(data_lhc, by = c("GEBIEDNR" = "area_code")) -> ppi_hrw_mass
+
+ppi_dhl$data@data %>%
+  left_join(data_lhc, by = c("GEBIEDNR" = "area_code")) -> ppi_dhl_mass
+```
+
+
+
+
+```{r}
+# Smooth nr_birds
+hrw_replace <- ppi_hrw
+hrw_replace$data$vir <- ppi_hrw_mass$nr_birds
+birds <- raster(hrw_replace$data)
+weights <- matrix(1, nrow = 3, ncol = 3)
+birds_nonan <- birds
+birds_nonan[is.na(birds_nonan)] <- 0
+birds_smooth <- focal(birds_nonan, w = weights, fun = mean, pad = TRUE, padValue = 0, )
+hrw_replace$data$birds_smooth <- unlist(as.data.frame(as(birds_smooth, "Raster")))
+
+```
+
+
+```{r}
+ppi_hrw_mass$birds_smooth <- hrw_replace$data$birds_smooth
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r warning=FALSE}
+ppi_hrw_mass %>%
+  group_by(GEBIEDNR) %>%
+  mutate(total_mass = total_mass / n(),
+         total_number = total_number / n()) %>%
+  ggplot(aes(x = vir, y = total_mass)) +
+  geom_pointdensity() +
+  scale_color_viridis() +
+  scale_x_continuous(trans = "log10") +
+  scale_y_continuous(trans = "log10") +
+  geom_smooth(method = "lm", fill = "red", color = "red") +
+  geom_smooth(method = "loess", fill = "blue", color = "blue") +
+  labs(title = "Herwijnen (normalized)")
+
+ggplot(ppi_hrw_mass, aes(x = vir, y = total_mass)) +
+  geom_pointdensity() +
+  scale_color_viridis() +
+  scale_x_continuous(trans = "log10") +
+  scale_y_continuous(trans = "log10") +
+  geom_smooth(method = "lm", fill = "red", color = "red") +
+  geom_smooth(method = "loess", fill = "blue", color = "blue") +
+  labs(title = "Herwijnen")
+  
+ppi_dhl_mass %>%
+  group_by(GEBIEDNR) %>%
+  mutate(total_mass = total_mass / n(),
+         total_number = total_number / n()) %>%
+  ggplot(aes(x = vir, y = total_mass)) +
+    geom_pointdensity() +
+    scale_color_viridis() +
+    scale_x_continuous(trans = "log10") +
+    scale_y_continuous(trans = "log10") +
+    geom_smooth(method = "lm", fill = "red", color = "red") +
+    geom_smooth(method = "loess", fill = "blue", color = "blue") +
+    labs(title = "Den Helder (normalized)")
+
+ggplot(ppi_dhl_mass, aes(x = vir, y = total_mass)) +
+  geom_pointdensity() +
+  scale_color_viridis() +
+  scale_x_continuous(trans = "log10") +
+  scale_y_continuous(trans = "log10") +
+  geom_smooth(method = "lm", fill = "red", color = "red") +
+  geom_smooth(method = "loess", fill = "blue", color = "blue") +
+  labs(title = "Den Helder")
+```
+
+```{r warning=FALSE}
+ppi_hrw_mass %>%
+  mutate(pop_cor = pop * (1/ dist_urban)) %>%
+  filter(birds_smooth > 0 & vir > 0) %>%
+  filter(vir > 0 & type == "rural" & birds_smooth > 0) %>%
+  ggplot(aes(x = birds_smooth, y = vir)) +
+  geom_point() + 
+  geom_smooth(method = "gam", formula = log(vir + 1) ~ s(log(birds_smooth)) + s(log(pop_cor)) + landuse_class) +
+  # geom_point(aes(colour = log((pop*(1/dist_urban))) + 1), alpha = 0.7) +
+  # geom_pointdensity() +
+  scale_color_viridis() +
+  # scale_x_continuous(trans = "log10") +
+  # scale_y_continuous(trans = "log10") +
+  # geom_smooth(method = "lm", fill = "red", color = "red") +
+  # geom_smooth(method = "loess", fill = "blue", color = "blue") +
+  
+  coord_cartesian(xlim = c(0, 40000), ylim = c(0, 10000))
+  # labs(title = "Herwijnen (normalized)") + 
+  # coord_cartesian(xlim = c(0, 20000))
+
+# ggplot(ppi_hrw_mass, aes(x = vir, y = total_mass)) +
+#   geom_point(aes(colour = dist_urban)) +
+#   scale_color_viridis() +
+#   scale_x_continuous(trans = "log10") +
+#   scale_y_continuous(trans = "log10") +
+#   geom_smooth(method = "lm", fill = "red", color = "red") +
+#   geom_smooth(method = "loess", fill = "blue", color = "blue") +
+#   labs(title = "Herwijnen")
+#   
+# ppi_dhl_mass %>%
+#   group_by(GEBIEDNR) %>%
+#   mutate(total_mass = total_mass / n(),
+#          total_number = total_number / n()) %>%
+#   ggplot(aes(x = vir, y = total_mass)) +
+#     geom_point(aes(colour = dist_urban)) +
+#     scale_color_viridis() +
+#     scale_x_continuous(trans = "log10") +
+#     scale_y_continuous(trans = "log10") +
+#     geom_smooth(method = "lm", fill = "red", color = "red") +
+#     geom_smooth(method = "loess", fill = "blue", color = "blue") +
+#     labs(title = "Den Helder (normalized)")
+# 
+# ggplot(ppi_dhl_mass, aes(x = vir, y = total_mass)) +
+#   geom_point(aes(colour = dist_urban)) +
+#   scale_color_viridis() +
+#   scale_x_continuous(trans = "log10") +
+#   scale_y_continuous(trans = "log10") +
+#   geom_smooth(method = "lm", fill = "red", color = "red") +
+#   geom_smooth(method = "loess", fill = "blue", color = "blue") +
+#   labs(title = "Den Helder")
+```
+
+```{r}
+ppi_hrw_mass %>%
+  ggplot(aes(x = vir)) +
+  geom_density() +
+  coord_cartesian(xlim = c(0, 50000))
+```
+
+
+```{r}
+ppi_hrw_mass %>%
+  filter(vir > 0 & birds_smooth > 0 & type == "rural" & vir < quantile(ppi_dhl_mass$vir, 0.99)) %>%
+  mutate(vid_new = vir / avg_mass,
+         pop_cor = pop * (1 / dist_urban)) -> ppi_hrw_mass_nonzero
+
+m1 <- lm(log(vir + 1) ~ log(birds_smooth + 1) + log(pop_cor + 1) + landuse_class, data = ppi_hrw_mass_nonzero)
+
+plot(m1)
+```
+```{r}
+summary(m1)
+```
+
+```{r}
+ppi_hrw_mass %>%
+  filter(vir > 0 & birds_smooth > 0 & type == "rural" & vir < quantile(ppi_dhl_mass$vir, 0.99)) %>%
+  mutate(vid_new = vir / avg_mass,
+         pop_cor = pop * (1 / dist_urban)) %>%
+  drop_na() %>%
+  sample_frac(0.05)-> ppi_hrw_mass_gam
+
+mgam <- gam(log(vir + 1) ~ s(log(birds_smooth + 1), k = 15) + s(log(pop_cor + 1), by = landuse_class, k = 15), data = ppi_hrw_mass_gam, method = "REML")
+summary(mgam)
+```
+
+```{r}
+gam.check(mgam)
+```
+
+```{r}
+ppi_hrw_mass %>%
+  filter(vir > 0 & birds_smooth > 0 & type == "rural" & vir < quantile(ppi_dhl_mass$vir, 0.99)) %>%
+  filter(nr_birds > 10 & nr_birds < 5000) %>%
+  group_by(gebiedid) %>%
+  arrange(vir) %>%
+  top_n(n = 1) %>%
+  mutate(vid_new = vir / avg_mass,
+         pop_cor = pop * (1 / dist_urban)) %>%
+  drop_na() %>%
+  sample_frac(1)-> ppi_hrw_mass_gam
+
+mgam2 <- gam(vir ~ s(dist_urban) + s(nr_birds), data = ppi_hrw_mass_gam, method = "REML", family = poisson)
+summary(mgam2)
+```
+
+```{r}
+plot(mgam2, pch = 1, cex = 1, residuals = TRUE)
+```
+
+```{r}
+ppi_hrw_mass_gam %>%
+  ggplot(aes(x = birds_smooth, y = vid_new)) + 
+  # geom_pointdensity() +
+  geom_point(aes(color = pop_cor)) +
+  scale_color_viridis(trans = "log10") +
+  scale_y_continuous(trans = "log10") +
+  scale_x_continuous(trans = "log10") +
+  geom_smooth(method = "lm")
+```
+
+
+```{r}
+ppi_hrw_mass_gam
+```
+
+
+```{r}
+ppi_hrw_mass_nonzero %>%
+  select(vid_new, landuse_class, dist_urban, pop, nr_birds, avg_mass, pop_cor) %>%
+  drop_na() -> ppi_hrw_mass_boruta
+```
+
+```{r}
+b <- Boruta(log(vid_new) ~ ., data = ppi_hrw_mass_boruta, doTrace = 2)
+print(b)
+```
+
+
+```{r}
+w <- abs(rstudent(m1)) < 3 & abs(cooks.distance(m1)) < 4/nrow(m1$model)
+m2 <- update(m1, weights=as.numeric(w))
+```
+
+```{r}
+summary(m2)
+plot(m2)
+```
+
+
+```{r}
+summary(m1 <- glm(vid ~ avg_mass + dist_urban, family="poisson", data = ppi_hrw_mass_vir_nonzero))
+```
+
+```{r}
+summary(m3 <- lm(vid ~ 1/dist_urban, data=ppi_hrw_mass_vir_nonzero))
+```
+
+```{r}
+ppi_hrw_mass %>%
+  filter(vid > 0 & vid < quantile(ppi_hrw_mass$vid, 0.99)) %>%
+  ggplot(aes(x = sqrt(vid))) +
+  geom_density()
+```
+
+```{r}
+ppi_hrw_mass_vir_nonzero %>%
+  select(vir, landuse_class, dist_urban, nr_birds, avg_mass) -> rtsnein
+
+# rtsneout <- Rtsne(rtsnein, check_duplicates = FALSE)
+```
+
+```{r}
+plot(rtsneout$Y, asp = 1)
+```
+
+```{r}
+birds <- Boruta(vir ~ ., data = rtsnein, doTrace = 2)
+print(birds)
+```
+
+
+```{r}
+ppi_hrw_mass %>%
+  select(vir, nr_birds, landuse, dist_urban, avg_mass) %>%
+  mutate(vid_new = vir / avg_mass) %>%
+  select(nr_birds, landuse, dist_urban, avg_mass, vid_new) %>%
+  drop_na() %>%
+  prcomp()
+```
+
+```{r}
+m2 <- lm(vid ~ ., data = ppi_hrw_mass)
+m2s <- step(m2)
+summary(m2s)
+```
+
+
+```{r}
+ggscatmat(ppi_hrw_mass, columns = c("total_mass", "dist_urban", "vir"))
+```
+
+
+```{r warning=FALSE}
+ggplot(ppi_hrw_mass_nonzero, aes(x = nr_birds, y = pop_cor)) +
+  geom_point(aes(colour = vir), alpha = 0.5) +
+  scale_color_viridis(limits = c(0, quantile(ppi_hrw_mass_nonzero$vir, 0.5, na.rm = TRUE))) +
+  scale_x_continuous(trans = "log10") +
+  scale_y_continuous(trans = "log10") +
+  geom_smooth(method = "lm") +
+  labs(title = "Herwijnen")
+```
+
+```{r}
+m1 <- lm(log(vir) ~ nr_birds + dist_urban + pop_cor + landuse_class, data = ppi_hrw_mass_nonzero)
+
+summary(m1)
+plot(m1)
+```
+
+```{r}
+w <- abs(rstudent(m1)) < 3 & abs(cooks.distance(m1)) < 4/nrow(m1$model)
+m2 <- update(m1, weights=as.numeric(w))
+```
+
+```{r warning=FALSE, message=FALSE}
+ppi_hrw_mass_boruta %>%
+  filter(landuse_class %in% c("Pastures", "Water bodies", "Water courses", "Complex cultivation patterns", "Non-irrigated arable land")) %>%
+  mutate(vid_new = log(log(vid_new + 1)),
+         dist_urban = log(dist_urban + 1),
+         pop = log(pop + 1),
+         nr_birds = log(nr_birds + 1),
+         avg_mass = log(avg_mass + 1),
+         pop_cor = log(pop_cor + 1)) %>%
+  droplevels() %>%
+  ggpairs()
+```
+
+```{r}
+m3 <- mgcv::gam(log(vid_new + 1) ~ s(dist_urban) + s(log(pop_cor + 1)) + s(log(nr_birds + 1)), data = ppi_hrw_m_b)
+mgcv::gam.check(m3)
+summary(m3)
+plot(m3)
+```
+
+
+```{r warning=FALSE, message=FALSE}
+regline <- function(data, mapping) {
+  p <- ggplot(data = data, mapping = mapping) +
+    geom_pointdensity() +
+    scale_color_viridis() + 
+    geom_smooth(method = "lm", fill = "red", color = "red") +
+    geom_smooth(method = "loess", fill = "blue", color = "blue")
+  p
+}
+ppi_hrw_mass %>%
+  select(total_number, total_mass, vir, dist_urban) %>%
+  mutate(total_number_log = log10(total_number),
+         total_mass_log = log10(total_mass),
+         vir_log = log10(vir),
+         dist_urban_log = log10(dist_urban)) %>%
+  select(total_number_log, total_mass_log, vir_log, dist_urban_log) %>%
+  ggpairs(lower = list(continuous = regline))
+# ggpairs(ppi_hrw_mass, columns = c("total_number", "total_mass", "vir", "dist_urban"))
+```
+
+
+
+```{r}
+taxa <- taxa %>%
+  mutate(vernacularName = str_remove(vernacularName,  "\\(.*?\\)")) %>%  # Throw out subspecies records
+  left_join(lhc, by = c("scientificName" = "Species")) %>% 
+  drop_na() %>%
+  mutate(vernacularName_lc = trimws(tolower(vernacularName)))
+```
+
+
+```{r warning=FALSE}
+ggplot(ppi_hrw_mass, aes(x = dist_urban, y = total_mass)) +
+  geom_point(aes(colour = dist_urban), alpha = 0.5) + 
+  scale_color_viridis(limits = c(0, quantile(ppi_hrw_mass$dist_urban, 0.7, na.rm = TRUE))) +
+  scale_x_continuous(trans = "log10") +
+  scale_y_continuous(trans = "log10") +
+  geom_smooth(method = "lm") +
+  labs(title = "Herwijnen")
+```
+
+
+
+```{r}
+ppi_hrw_mass_nonzero %>%
+  select(vid_new, birds_smooth, pop_cor) %>%
+  mutate(vid_new = log10(vid_new + 1),
+         birds_smooth = log10(birds_smooth + 1),
+         pop_cor = log10(pop_cor + 1)) %>%
+  drop_na() -> ppi_hrw_pca
+
+pca <- prcomp(ppi_hrw_pca)
+summary(pca)
+```
+
+```{r}
+ggbiplot(pca, alpha = 0.1, groups = ppi_hrw_pca$landuse, circle = TRUE, ellipse = TRUE)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+count_ids <- data_merged$count_id[is.na(data_merged$scientific)]
+
+for (i in count_ids) {
+  data_merged %>%
+    filter(count_id == i) -> d
+  
+  if ("Kokmeeuw of Stormmeeuw" %in% unique(d$species) & !"Kokmeeuw" %in% d$species & !"Stormmeeuw" %in% d$species) {
+    # Apparently we cannot use proportions to fill the combination, so we will add them 50:50
+    both <- data_merged[(data_merged$species == "Kokmeeuw of Stormmeeuw" & data_merged$count_id == i), ]
+    kokmeeuw <- both
+    kokmeeuw$species <- "Kokmeeuw"
+    kokmeeuw$number <- round(both / 2)
+    stormmeeuw <- both
+    stormmeeuw$species <- "Stormmeeuw"
+    stormmeeuw$number <- round(both / 2)
+  }
+    
+  if ("Kokmeeuw of Stormmeeuw" %in% unique(d$species) & "Kokmeeuw" %in% d$species & "Stormmeeuw" %in% d$species) {
+    # Apparently we have both species counted, so we can use proportions to 'fill' the combination
+    both <- d$number[d$species == "Kokmeeuw of Stormmeeuw"]
+    kokmeeuw <- d$number[d$species == "Kokmeeuw"]
+    stormmeeuw <- d$number[d$species == "Stormmeeuw"]
+    data_merged$number[(data_merged$species == "Kokmeeuw" & data_merged$count_id == i)] <- kokmeeuw + both * (kokmeeuw/stormmeeuw)
+    data_merged$number[(data_merged$species == "Stormmeeuw" & data_merged$count_id == i)] <- stormmeeuw + both * (1 - kokmeeuw/stormmeeuw)
+    data_merged[(data_merged$species == "Kokmeeuw of Stormmeeuw" & data_merged$count_id == i), ] <- NA
+  }
+}
+```
+
+
+```{r}
+data_merged
+```
+
+
+
+```{r}
+data_merged %>%
+  filter(count_id == "1064867" & endsWith(species, "meeuw"))
+```
+
+```{r}
+unique(data$species)
+```
+
+
+```{r}
+newmean <- function(x) {
+  if (length(x) == 2) {
+    return(mean(x))
+  } else if (length(x) == 1) {
+    return(x[which(!is.na(x))])
+  } else {
+    return(as.numeric(0))
+  }
+}
+
+data %>%
+  filter(species != "geen vogels") %>%
+  mutate(species_lc = tolower(species)) %>%
+  left_join(select(taxa, vernacularName_lc, mean_weight), by = c("species_lc" = "vernacularName_lc")) -> data_summarized
+  # group_by(GEBIEDSCODE, JAAR) %>%
+  # summarise(TOTAAL = sum(Aantal)) %>%
+  # group_by(GEBIEDSCODE) %>%
+  # summarise(AVG_TOTAL = round(newmean(TOTAAL))) -> data_summarized
+```
+
+# Download life-history characteristics of European birds
+This dataset is stored on Dryad and we can [download](https://doi.org/10.5061/dryad.n6k3n) it there. Unfortunately the `rdryad` package is severely out-of-date with the new Dryad API, so we cannot nicely automate this download yet. Anyways, the files should be downloaded and added to `data/raw/life-history-characteristics/`. Using this dataset we will calculate average bodymass for the species listed.
+
+```{r}
+read_tsv("data/raw/life-history-characteristics/Life-history characteristics of European birds.txt", 
+         col_types = cols_only('Species' = col_character(), 'WeightU_MEAN' = col_double(), 'WeightM_MEAN' = col_double(), 'WeightF_MEAN' = col_double())) %>%
+  rowwise %>%
+  mutate(mean_weight = mean(c(WeightU_MEAN, WeightF_MEAN, WeightM_MEAN))) %>%
+  select(Species, mean_weight) -> lhc
+```
+
+Some species are not found in the dataset as they should be, we change these manually (unfortunately).
+
+Now add it to the taxa table, to derive the table we will calculate biomass with
+
+```{r}
+taxa <- taxa %>%
+  mutate(vernacularName = str_remove(vernacularName,  "\\(.*?\\)")) %>%  # Throw out subspecies records
+  left_join(lhc, by = c("scientificName" = "Species")) %>% 
+  drop_na() %>%
+  mutate(vernacularName_lc = trimws(tolower(vernacularName)))
+```
+
+```{r}
+write.csv(data_summarized, file = "data/processed/sovon/data.csv")
+```
+
+# Download scientific species names from GBIF
+We can use the [Dutch Species Register - Nederlands Soortenregister](https://www.nederlandsesoorten.nl) accessed through the [Naturalis Biodiversity API](https://docs.biodiversitydata.nl/en/latest/doc-spec-services/taxon/#names-descriptions-and-synonyms).
+
+## Download DWCA archive
+```{r}
+url <- "https://api.biodiversitydata.nl/v2/taxon/dwca/getDataSet/nsr"
+download.file(url, "data/raw/dsr/dsr.zip")
+unzip("data/raw/dsr/dsr.zip", exdir = "data/raw/dsr/")
+```
+
+```{r}
+strip_scientificname <- function(taxon) {
+  splits <- strsplit(taxon, " ")
+  return(paste(splits[[1]][1:2], collapse = " "))
+}
+
+read_csv("data/raw/dsr/Taxa.txt", col_types = cols_only('taxonID' = col_character(), 'scientificName' = col_character(), 'class' = col_character())) %>%
+  filter(class == "Aves") %>%
+  rowwise %>%
+  mutate(scientificName = strip_scientificname(scientificName)) %>%
+  select(taxonID, scientificName) -> taxa
+
+read_csv("data/raw/dsr/Vernacular_Names.txt", col_types = cols_only('taxonID' = col_character(), 'vernacularName' = col_character(), 'isPreferredName' = col_logical())) %>%
+  filter(isPreferredName) %>%
+  select(taxonID, vernacularName) -> taxa_vernacular
+
+taxa <- taxa %>% left_join(taxa_vernacular, by = "taxonID") %>% drop_na()
+```
+
+
+## Conversion of PTT counts to usable measures
