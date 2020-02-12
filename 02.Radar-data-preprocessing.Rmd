@@ -56,7 +56,7 @@ For illustrative purposes we will only illustrate removal of EM interference for
 pvol_hrw <- read_pvolfile(pvol_hrw_path, param = "all")
 pvol_dhl <- read_pvolfile(pvol_dhl_path, param = "all")
 
-scan <- plot(pvol_hrw$scans[[1]], param = "DBZH", xlim = c(0, 180)) + theme_dark()
+scan <- plot(pvol_hrw$scans[[1]], param = "DBZH", xlim = c(0, 180000)) + theme_dark()
 ggplotly(scan)
 ```
 
@@ -87,9 +87,9 @@ If removal is correct, the $(r,\alpha)$ plots should not show clear horizontal s
 
 ```{r plot_em_filtered_scans, warning=FALSE}
 i = 1
-plot(pvol_hrw$scans[[i]], param = "DBZH", xlim = c(0, 180)) + theme_dark() + 
+plot(pvol_hrw$scans[[i]], param = "DBZH", xlim = c(0, 180000)) + theme_dark() + 
   labs(title = "Herwijnen: Cleaned from EM interference", subtitle = paste("Elevation:", round(pvol_hrw$scans[[i]]$attributes$where$elangle, 1)))
-plot(pvol_dhl$scans[[i]], param = "DBZH", xlim = c(0, 180)) + theme_dark() + 
+plot(pvol_dhl$scans[[i]], param = "DBZH", xlim = c(0, 180000)) + theme_dark() + 
   labs(title = "Den Helder: Cleaned from EM interference", subtitle = paste("Elevation:", round(pvol_dhl$scans[[i]]$attributes$where$elangle, 1)))
 ```
 
