@@ -31,7 +31,6 @@ library(dplyr)
 library(tidyr)
 library(readr)
 library(stringr)
-# library(rgbif)
 library(readxl)
 library(fuzzyjoin)
 library(ggplot2)
@@ -63,7 +62,7 @@ wb_areas_rasterized_dhl <- st_rasterize(wb_areas_dhl["GEBIEDID"],
                                         template = st_as_stars(st_bbox(ppi_dhl$data), dx = ppi_dhl$data@grid@cellsize[1], dy = ppi_dhl$data@grid@cellsize[2], values = NA_real_))
 ```
 ```{r}
-plot(wb_areas_rasterized_dhl)
+plot(wb_areas_rasterized_hrw)
 ```
 
 ```{r}
@@ -281,6 +280,9 @@ hrw_replace$data$birds_smooth <- unlist(as.data.frame(as(birds_smooth, "Raster")
 ppi_hrw_mass$birds_smooth <- hrw_replace$data$birds_smooth
 ```
 
+```{r}
+writeRaster(birds_smooth, "data/processed/raster/birds_smooth.tif")
+```
 
 
 
@@ -408,21 +410,28 @@ ppi_hrw_mass %>%
 #   labs(title = "Den Helder")
 ```
 
-```{r}
+```{r warning=FALSE, message=FALSE}
 ppi_hrw_mass %>%
-  ggplot(aes(x = vir)) +
-  geom_density() +
-  coord_cartesian(xlim = c(0, 50000))
+  filter(VIR > 0 & birds_smooth > 0 & type == "rural" & VIR < quantile(ppi_dhl_mass$VIR, 0.99)) %>%
+  mutate(vid_new = VIR / avg_mass,
+         pop_eff = pop * (1 / dist_urban),
+         birds_smooth_log = log(birds_smooth)) -> ppi_hrw_mass_nonzero
+
+ggplot(ppi_hrw_mass_nonzero, aes(x = pop_eff, y = VIR, col)) +
+  geom_point(aes(colour = dist_urban, size = nr_birds)) +
+  scale_color_viridis() +
+  scale_x_continuous(trans = "log10")
 ```
 
 
 ```{r}
 ppi_hrw_mass %>%
-  filter(vir > 0 & birds_smooth > 0 & type == "rural" & vir < quantile(ppi_dhl_mass$vir, 0.99)) %>%
-  mutate(vid_new = vir / avg_mass,
+  filter(VIR > 0 & birds_smooth > 0 & type == "rural" & VIR < quantile(ppi_dhl_mass$VIR, 0.99)) %>%
+  mutate(vid_new = VIR / avg_mass,
          pop_cor = pop * (1 / dist_urban)) -> ppi_hrw_mass_nonzero
 
-m1 <- lm(log(vir + 1) ~ log(birds_smooth + 1) + log(pop_cor + 1) + landuse_class, data = ppi_hrw_mass_nonzero)
+m1 <- lm(log(VIR + 1) ~ log(birds_smooth + 1) + log(pop + 1) + dist_urban + landuse_class, data = ppi_hrw_mass_nonzero)
+# m1 <- lm(VIR ~ birds_smooth + pop_cor + landuse_class, data = ppi_hrw_mass_nonzero)
 
 plot(m1)
 ```
@@ -431,14 +440,20 @@ summary(m1)
 ```
 
 ```{r}
+w <- abs(rstudent(m1)) < 3 & abs(cooks.distance(m1)) < 4/nrow(m1$model)
+m2 <- update(m1, weights=as.numeric(w))
+```
+
+
+```{r}
 ppi_hrw_mass %>%
-  filter(vir > 0 & birds_smooth > 0 & type == "rural" & vir < quantile(ppi_dhl_mass$vir, 0.99)) %>%
-  mutate(vid_new = vir / avg_mass,
+  filter(VIR > 0 & birds_smooth > 0 & type == "rural" & VIR < quantile(ppi_dhl_mass$VIR, 0.99)) %>%
+  mutate(vid_new = VIR / avg_mass,
          pop_cor = pop * (1 / dist_urban)) %>%
   drop_na() %>%
-  sample_frac(0.05)-> ppi_hrw_mass_gam
+  sample_frac(0.25)-> ppi_hrw_mass_gam
 
-mgam <- gam(log(vir + 1) ~ s(log(birds_smooth + 1), k = 15) + s(log(pop_cor + 1), by = landuse_class, k = 15), data = ppi_hrw_mass_gam, method = "REML")
+mgam <- gam(log(VIR + 1) ~ s(log(birds_smooth + 1)) + s(log(pop_cor + 1)), data = ppi_hrw_mass_gam, method = "REML")
 summary(mgam)
 ```
 
@@ -540,8 +555,8 @@ print(birds)
 
 ```{r}
 ppi_hrw_mass %>%
-  select(vir, nr_birds, landuse, dist_urban, avg_mass) %>%
-  mutate(vid_new = vir / avg_mass) %>%
+  select(VIR, nr_birds, landuse, dist_urban, avg_mass) %>%
+  mutate(vid_new = VIR / avg_mass) %>%
   select(nr_birds, landuse, dist_urban, avg_mass, vid_new) %>%
   drop_na() %>%
   prcomp()
@@ -662,6 +677,20 @@ ggbiplot(pca, alpha = 0.1, groups = ppi_hrw_pca$landuse, circle = TRUE, ellipse 
 ```
 
 
+
+
+
+
+```{r message=FALSE, warning=FALSE}
+ppi_hrw_mass_nonzero %>%
+  select(VIR, dist_urban, pop, pop_eff, birds_smooth) %>%
+  mutate(VIR = log(VIR),
+         dist_urban = log(dist_urban),
+         pop = log(pop),
+         pop_eff = log(pop_eff),
+         birds_smooth = log(birds_smooth)) %>%
+  ggpairs()
+```
 
 
 
