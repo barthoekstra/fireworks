@@ -288,7 +288,7 @@ And we calculate mean `DBZH` values (`DBZH_AVG`).
 pvol_clutter_static_hrw <- readRDS("data/processed/clutter_static_hrw.RDS")
 pvol_clutter_static_dhl <- readRDS("data/processed/clutter_static_dhl.RDS")
 
-source("R/calculate_reflectivity_stack_mean.R") # Source ecause full_repro may be set to FALSE
+source("R/calculate_reflectivity_stack_mean.R") # Source because full_repro may be set to FALSE
 
 pvol_clutter_static_hrw <- calculate_reflectivity_stack_mean(pvol_clutter_static_hrw, mds)
 pvol_clutter_static_dhl <- calculate_reflectivity_stack_mean(pvol_clutter_static_dhl, mds)
