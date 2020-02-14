@@ -37,6 +37,10 @@ library(ggplot2)
 library(ggpointdensity)
 library(viridis)
 library(GGally)
+library(ggdark)
+library(latex2exp)
+library(reshape2)
+library(ggExtra)
 ```
 
 ```{r}
@@ -242,7 +246,7 @@ data_lhc %>%
 ```
 
 ```{r}
-write_csv(data_lhc2, path = "data/processed/sovon/mass.csv")
+# write_csv(data_lhc2, path = "data/processed/sovon/mass.csv")
 ```
 
 ```{r}
@@ -281,7 +285,7 @@ ppi_hrw_mass$birds_smooth <- hrw_replace$data$birds_smooth
 ```
 
 ```{r}
-writeRaster(birds_smooth, "data/processed/raster/birds_smooth.tif")
+# writeRaster(birds_smooth, "data/processed/raster/birds_smooth.tif")
 ```
 
 
@@ -313,68 +317,68 @@ writeRaster(birds_smooth, "data/processed/raster/birds_smooth.tif")
 
 
 ```{r warning=FALSE}
-ppi_hrw_mass %>%
-  group_by(GEBIEDNR) %>%
-  mutate(total_mass = total_mass / n(),
-         total_number = total_number / n()) %>%
-  ggplot(aes(x = vir, y = total_mass)) +
-  geom_pointdensity() +
-  scale_color_viridis() +
-  scale_x_continuous(trans = "log10") +
-  scale_y_continuous(trans = "log10") +
-  geom_smooth(method = "lm", fill = "red", color = "red") +
-  geom_smooth(method = "loess", fill = "blue", color = "blue") +
-  labs(title = "Herwijnen (normalized)")
-
-ggplot(ppi_hrw_mass, aes(x = vir, y = total_mass)) +
-  geom_pointdensity() +
-  scale_color_viridis() +
-  scale_x_continuous(trans = "log10") +
-  scale_y_continuous(trans = "log10") +
-  geom_smooth(method = "lm", fill = "red", color = "red") +
-  geom_smooth(method = "loess", fill = "blue", color = "blue") +
-  labs(title = "Herwijnen")
-  
-ppi_dhl_mass %>%
-  group_by(GEBIEDNR) %>%
-  mutate(total_mass = total_mass / n(),
-         total_number = total_number / n()) %>%
-  ggplot(aes(x = vir, y = total_mass)) +
-    geom_pointdensity() +
-    scale_color_viridis() +
-    scale_x_continuous(trans = "log10") +
-    scale_y_continuous(trans = "log10") +
-    geom_smooth(method = "lm", fill = "red", color = "red") +
-    geom_smooth(method = "loess", fill = "blue", color = "blue") +
-    labs(title = "Den Helder (normalized)")
-
-ggplot(ppi_dhl_mass, aes(x = vir, y = total_mass)) +
-  geom_pointdensity() +
-  scale_color_viridis() +
-  scale_x_continuous(trans = "log10") +
-  scale_y_continuous(trans = "log10") +
-  geom_smooth(method = "lm", fill = "red", color = "red") +
-  geom_smooth(method = "loess", fill = "blue", color = "blue") +
-  labs(title = "Den Helder")
+# ppi_hrw_mass %>%
+#   group_by(GEBIEDNR) %>%
+#   mutate(total_mass = total_mass / n(),
+#          total_number = total_number / n()) %>%
+#   ggplot(aes(x = vir, y = total_mass)) +
+#   geom_pointdensity() +
+#   scale_color_viridis() +
+#   scale_x_continuous(trans = "log10") +
+#   scale_y_continuous(trans = "log10") +
+#   geom_smooth(method = "lm", fill = "red", color = "red") +
+#   geom_smooth(method = "loess", fill = "blue", color = "blue") +
+#   labs(title = "Herwijnen (normalized)")
+# 
+# ggplot(ppi_hrw_mass, aes(x = vir, y = total_mass)) +
+#   geom_pointdensity() +
+#   scale_color_viridis() +
+#   scale_x_continuous(trans = "log10") +
+#   scale_y_continuous(trans = "log10") +
+#   geom_smooth(method = "lm", fill = "red", color = "red") +
+#   geom_smooth(method = "loess", fill = "blue", color = "blue") +
+#   labs(title = "Herwijnen")
+#   
+# ppi_dhl_mass %>%
+#   group_by(GEBIEDNR) %>%
+#   mutate(total_mass = total_mass / n(),
+#          total_number = total_number / n()) %>%
+#   ggplot(aes(x = vir, y = total_mass)) +
+#     geom_pointdensity() +
+#     scale_color_viridis() +
+#     scale_x_continuous(trans = "log10") +
+#     scale_y_continuous(trans = "log10") +
+#     geom_smooth(method = "lm", fill = "red", color = "red") +
+#     geom_smooth(method = "loess", fill = "blue", color = "blue") +
+#     labs(title = "Den Helder (normalized)")
+# 
+# ggplot(ppi_dhl_mass, aes(x = vir, y = total_mass)) +
+#   geom_pointdensity() +
+#   scale_color_viridis() +
+#   scale_x_continuous(trans = "log10") +
+#   scale_y_continuous(trans = "log10") +
+#   geom_smooth(method = "lm", fill = "red", color = "red") +
+#   geom_smooth(method = "loess", fill = "blue", color = "blue") +
+#   labs(title = "Den Helder")
 ```
 
 ```{r warning=FALSE}
-ppi_hrw_mass %>%
-  mutate(pop_cor = pop * (1/ dist_urban)) %>%
-  filter(birds_smooth > 0 & vir > 0) %>%
-  filter(vir > 0 & type == "rural" & birds_smooth > 0) %>%
-  ggplot(aes(x = birds_smooth, y = vir)) +
-  geom_point() + 
-  geom_smooth(method = "gam", formula = log(vir + 1) ~ s(log(birds_smooth)) + s(log(pop_cor)) + landuse_class) +
+# ppi_hrw_mass %>%
+#   mutate(pop_cor = pop * (1/ dist_urban)) %>%
+#   filter(birds_smooth > 0 & vir > 0) %>%
+#   filter(vir > 0 & type == "rural" & birds_smooth > 0) %>%
+#   ggplot(aes(x = birds_smooth, y = vir)) +
+#   geom_point() + 
+#   geom_smooth(method = "gam", formula = log(vir + 1) ~ s(log(birds_smooth)) + s(log(pop_cor)) + landuse_class) +
   # geom_point(aes(colour = log((pop*(1/dist_urban))) + 1), alpha = 0.7) +
   # geom_pointdensity() +
-  scale_color_viridis() +
+  # scale_color_viridis() +
   # scale_x_continuous(trans = "log10") +
   # scale_y_continuous(trans = "log10") +
   # geom_smooth(method = "lm", fill = "red", color = "red") +
   # geom_smooth(method = "loess", fill = "blue", color = "blue") +
   
-  coord_cartesian(xlim = c(0, 40000), ylim = c(0, 10000))
+  # coord_cartesian(xlim = c(0, 40000), ylim = c(0, 10000))
   # labs(title = "Herwijnen (normalized)") + 
   # coord_cartesian(xlim = c(0, 20000))
 
@@ -412,15 +416,261 @@ ppi_hrw_mass %>%
 
 ```{r warning=FALSE, message=FALSE}
 ppi_hrw_mass %>%
-  filter(VIR > 0 & birds_smooth > 0 & type == "rural" & VIR < quantile(ppi_dhl_mass$VIR, 0.99)) %>%
+  filter(VIR > 0 & nr_birds > 0 & birds_smooth > 0 & type == "rural" & VIR < quantile(ppi_dhl_mass$VIR, 0.99)) %>%
+  filter(birds_smooth < quantile(ppi_hrw_mass$birds_smooth, 0.99, na.rm = TRUE)) %>%
   mutate(vid_new = VIR / avg_mass,
          pop_eff = pop * (1 / dist_urban),
-         birds_smooth_log = log(birds_smooth)) -> ppi_hrw_mass_nonzero
+         birds_smooth_log = log(birds_smooth)) %>%
+  group_by(pop_eff) %>%
+  mutate(avg_mass_pop = mean(avg_mass),
+         avg_birds_pop = mean(birds_smooth)) %>%
+  group_by(vid_new) %>%
+  mutate(avg_mass_pop_vid = mean(avg_mass),
+         avg_birds_pop_vid = mean(birds_smooth)) -> ppi_hrw_mass_nonzero
 
-ggplot(ppi_hrw_mass_nonzero, aes(x = pop_eff, y = VIR, col)) +
-  geom_point(aes(colour = dist_urban, size = nr_birds)) +
-  scale_color_viridis() +
-  scale_x_continuous(trans = "log10")
+# ggplot(ppi_hrw_mass_nonzero, aes(x = pop_eff, y = VIR)) +
+#   geom_point(aes(colour = avg_mass)) +
+#   scale_color_viridis() +
+#   scale_x_continuous(trans = "log10")
+p1 <- ggplot(ppi_hrw_mass_nonzero, aes(x = pop_eff, y = VIR)) +
+  geom_point(aes(colour = avg_mass, size = birds_smooth)) +
+  scale_x_continuous(trans = "log10") + 
+  geom_smooth(aes(y = avg_mass_pop / 100), colour = "firebrick") +
+  geom_smooth(aes(y = avg_birds_pop / 100), colour = "blue") + 
+  scale_color_viridis(trans = "log10") 
+  # coord_cartesian(expand = FALSE, xlim = c(1e-2, 4e2), ylim = c(0, 35))
+
+p2 <- ggplot(ppi_hrw_mass_nonzero, aes(x = VIR, y = pop_eff)) +
+  geom_point(aes(colour = avg_mass, size = birds_smooth)) +
+  scale_y_continuous(trans = "log10") +
+  geom_smooth(aes(y = avg_mass_pop_vid / 100), colour = "firebrick") +
+  geom_smooth(aes(y = avg_birds_pop_vid / 100), colour = "blue") +
+  scale_color_viridis(trans = "log10") 
+  # coord_cartesian(expand = FALSE, xlim = c(0, 32), ylim = c(1e-2, 4e2))
+
+ggarrange(p1, p2, ncol = 2, nrow = 1, common.legend = TRUE)
+#   scale_color_manual(name = "legend", values = c("red", "blue"), labels = c("avg_mass", "avg_birds"))
+# # ggplot(ppi_hrw_mass_nonzero, aes(x = birds_smooth, y = VIR)) +
+#   geom_point(aes(colour = pop_eff)) +
+#   scale_color_viridis(trans = "log10") +
+#   scale_x_continuous(trans = "log10")
+# ggplot(ppi_hrw_mass_nonzero, aes(x = birds_smooth, y = vid_new)) +
+#   geom_point(aes(colour = pop_eff)) +
+#   scale_color_viridis(trans = "log10") +
+#   scale_x_continuous(trans = "log10")
+# ggplot(ppi_hrw_mass_nonzero, aes(x = birds_smooth, y = VIR)) +
+#   geom_point(aes(colour = landuse_class)) +
+#   scale_x_continuous(trans = "log") +
+#   theme_minimal()
+# ggplot(ppi_hrw_mass_nonzero, aes(x = pop_eff, y = VIR)) +
+#   geom_bin2d() + 
+#   scale_color_viridi(strans = "log10") +
+#   scale_x_continuous(trans = "log10")
+```
+
+```{r message=FALSE, warning=FALSE}
+# Reclassify
+ppi_hrw_mass %>%
+  filter(VIR > 0 & nr_birds > 0 & birds_smooth > 0 & type == "rural" & VIR < quantile(ppi_dhl_mass$VIR, 0.99)) %>%
+  # filter(VIR > 0 & type == "rural" & VIR < quantile(ppi_dhl_mass$VIR, 0.99)) %>%
+  filter(birds_smooth < quantile(ppi_hrw_mass$birds_smooth, 0.99, na.rm = TRUE)) %>%
+  mutate(vid_new = VIR / avg_mass,
+         pop_eff = pop / dist_urban,
+         birds_smooth_log = log(birds_smooth)) %>%
+  group_by(pop_eff) %>%
+  mutate(avg_mass_pop = mean(avg_mass),
+         avg_birds_pop = mean(birds_smooth),
+         sum_birds_pop = sum(birds_smooth),
+         sum_vid_pop = sum(vid_new)) %>%
+  ungroup() %>%
+  mutate(sum_birds_pop = scale(sum_birds_pop, scale = TRUE, center = TRUE) * 20,
+         sum_vid_pop = scale(sum_vid_pop, scale = TRUE, center = TRUE) * 20) %>%
+  group_by(vid_new) %>%
+  mutate(avg_mass_pop_vid = mean(avg_mass),
+         avg_birds_pop_vid = mean(birds_smooth)) %>%
+  mutate(landuse_overall = 
+           case_when(
+             (landuse >= 100 & landuse < 200) ~ "Urban",
+             (landuse >= 200 & landuse < 300) ~ "Agricultural areas",
+             (landuse >= 300 & landuse < 500) ~ "Natural areas",
+             # (landuse >= 400 & landuse < 500) ~ "Natural wetlands", -> We classify Natural wetlands as nature for now as well
+             (landuse >= 500 & landuse < 999) ~ "Water bodies"
+           )) %>%
+  ggplot(aes(x = pop_eff, y = vid_new)) +
+  geom_point(aes(color = birds_smooth)) +
+  geom_smooth(aes(x = pop_eff, y = sum_birds_pop), alpha = 0.1, color = "yellow") +
+  geom_smooth(aes(x = pop_eff, y = sum_vid_pop), alpha = 0.1, color = "orange") +
+  scale_color_viridis(trans = "log10") +
+  coord_cartesian(expand = FALSE, xlim = c(1e-2, 2.5e2), ylim = c(0, 35)) +
+  scale_x_continuous(trans = "log10") +
+  facet_wrap(~ landuse_overall, ncol = 3) +
+  guides(color = guide_colorbar(title = "# of birds")) +
+  dark_theme_gray(base_size = 15) +
+  theme(legend.position = "bottom",
+        legend.key.width = unit(2.5, "cm")) +
+  labs(title = "Differential response to fireworks across habitat types",
+       subtitle = "Curves show (rescaled) average number of birds (orange)\nsummed mass-adjusted reflectivities (yellow)",
+       x = TeX("Disturbance potential (population density $\\times$ distance to urban areas$^{-1}$)"),
+       y = "Mass-adjusted reflectivity")
+
+# ppi_hrw_mass %>%
+#   filter(VIR > 0 & nr_birds > 0 & birds_smooth > 0 & type == "rural" & VIR < quantile(ppi_dhl_mass$VIR, 0.99)) %>%
+#   # filter(VIR > 0 & type == "rural" & VIR < quantile(ppi_dhl_mass$VIR, 0.99)) %>%
+#   filter(birds_smooth < quantile(ppi_hrw_mass$birds_smooth, 0.99, na.rm = TRUE)) %>%
+#   mutate(vid_new = VIR / avg_mass,
+#          pop_eff = pop / dist_urban,
+#          birds_smooth_log = log(birds_smooth)) %>%
+#   group_by(pop_eff) %>%
+#   mutate(avg_mass_pop = mean(avg_mass),
+#          avg_birds_pop = mean(birds_smooth),
+#          sum_birds_pop = sum(birds_smooth),
+#          sum_vid_pop = sum(vid_new)) %>%
+#   group_by(vid_new) %>%
+#   mutate(avg_mass_pop_vid = mean(avg_mass),
+#          avg_birds_pop_vid = mean(birds_smooth)) %>%
+#   mutate(landuse_overall =
+#            case_when(
+#              (landuse >= 100 & landuse < 200) ~ "Urban",
+#              (landuse >= 200 & landuse < 300) ~ "Agriculture",
+#              (landuse >= 300 & landuse < 500) ~ "Nature",
+#              # (landuse >= 400 & landuse < 500) ~ "Natural wetlands", -> We classify Natural wetlands as nature for now as well
+#              (landuse >= 500 & landuse < 999) ~ "Water bodies"
+#            )) %>%
+#   ggplot(aes(x = pop_eff, y = birds_smooth)) +
+#   scale_x_continuous(trans = "log10") +
+#   scale_y_continuous(trans = "log10") +
+#   stat_density_2d(geom = "raster", aes(fill = stat(density)), contour = FALSE) +
+#   scale_fill_viridis() +
+#   dark_theme_gray(base_size = 15) +
+#   facet_wrap(~ landuse_overall, ncol = 3) +
+#   labs(x = TeX("Disturbance potential (population density $\\times$ distance to urban areas$^{-1}$)"),
+#        y = "# of birds") +
+#   theme(axis.title.x = element_blank(),
+#         axis.text.x = element_blank(),
+#         axis.ticks.x = element_blank()) -> p1
+# 
+# ppi_hrw_mass %>%
+#   filter(VIR > 0 & nr_birds > 0 & birds_smooth > 0 & type == "rural" & VIR < quantile(ppi_dhl_mass$VIR, 0.99)) %>%
+#   # filter(VIR > 0 & type == "rural" & VIR < quantile(ppi_dhl_mass$VIR, 0.99)) %>%
+#   filter(birds_smooth < quantile(ppi_hrw_mass$birds_smooth, 0.99, na.rm = TRUE)) %>%
+#   mutate(vid_new = VIR / avg_mass,
+#          pop_eff = pop / dist_urban,
+#          birds_smooth_log = log(birds_smooth)) %>%
+#   group_by(pop_eff) %>%
+#   mutate(avg_mass_pop = mean(avg_mass),
+#          avg_birds_pop = mean(birds_smooth),
+#          sum_birds_pop = sum(birds_smooth),
+#          sum_vid_pop = sum(vid_new)) %>%
+#   group_by(vid_new) %>%
+#   mutate(avg_mass_pop_vid = mean(avg_mass),
+#          avg_birds_pop_vid = mean(birds_smooth)) %>%
+#   mutate(landuse_overall =
+#            case_when(
+#              (landuse >= 100 & landuse < 200) ~ "Urban",
+#              (landuse >= 200 & landuse < 300) ~ "Agriculture",
+#              (landuse >= 300 & landuse < 500) ~ "Nature",
+#              # (landuse >= 400 & landuse < 500) ~ "Natural wetlands", -> We classify Natural wetlands as nature for now as well
+#              (landuse >= 500 & landuse < 999) ~ "Water bodies"
+#            )) %>%
+#   ggplot(aes(x = pop_eff, y = vid_new)) +
+#   scale_x_continuous(trans = "log10") +
+#   scale_y_continuous(trans = "log10") +
+#   stat_density_2d(geom = "raster", aes(fill = stat(density)), contour = FALSE) +
+#   scale_fill_viridis() +
+#   dark_theme_gray(base_size = 15) +
+#   facet_wrap(~ landuse_overall, ncol = 3) +
+#   labs(x = TeX("Disturbance potential (population density $\\times$ distance to urban areas$^{-1}$)"),
+#        y = "Mass-adjusted reflectivity") -> p2
+# 
+# ggarrange(p1, p2, nrow = 2, ncol = 1, common.legend = TRUE, legend = "bottom", labels = NULL) +
+#   dark_theme_gray() +
+#   theme(legend.key.width = unit(2.5, "cm")) +
+#   labs()
+  
+```
+
+```{r}
+ppi_hrw_mass %>%
+  filter(VIR > 0 & nr_birds > 0 & birds_smooth > 0 & type == "rural" & VIR < quantile(ppi_dhl_mass$VIR, 0.99)) %>%
+  filter(birds_smooth < quantile(ppi_hrw_mass$birds_smooth, 0.99, na.rm = TRUE)) %>%
+  mutate(vid_new = VIR / avg_mass,
+         pop_eff = pop / dist_urban,
+         birds_smooth_log = log(birds_smooth)) %>%
+  group_by(pop_eff) %>%
+  mutate(avg_mass_pop = mean(avg_mass),
+         avg_birds_pop = mean(birds_smooth),
+         sum_birds_pop = sum(birds_smooth),
+         sum_vid_pop = sum(vid_new)) %>%
+  group_by(vid_new) %>%
+  mutate(avg_mass_pop_vid = mean(avg_mass),
+         avg_birds_pop_vid = mean(birds_smooth)) %>%
+  ungroup() %>%
+  mutate(landuse_overall = 
+           case_when(
+             (landuse >= 100 & landuse < 200) ~ "Urban",
+             (landuse >= 200 & landuse < 300) ~ "Agriculture",
+             (landuse >= 300 & landuse < 500) ~ "Nature",
+             # (landuse >= 400 & landuse < 500) ~ "Natural wetlands", -> We classify Natural wetlands as nature for now as well
+             (landuse >= 500 & landuse < 999) ~ "Water bodies"
+           )) %>%
+  select(vid_new, birds_smooth, landuse_overall) %>%
+  mutate(vid_new = scale(vid_new),
+         birds_smooth = scale(birds_smooth)) %>%
+  melt() %>%
+  ggplot(aes(x = value)) +
+  geom_density(aes(group = variable, color = variable), adjust = 0.5) +
+  scale_x_continuous(trans = "log10") +
+  scale_fill_viridis() +
+  dark_theme_gray(base_size = 15) +
+  facet_wrap(~ landuse_overall, ncol = 3) +
+  theme(legend.position = "bottom")
+```
+
+```{r}
+ppi_hrw_mass %>%
+  filter(VIR > 0 & nr_birds > 0 & birds_smooth > 0 & type == "rural" & VIR < quantile(ppi_dhl_mass$VIR, 0.99)) %>%
+  filter(birds_smooth < quantile(ppi_hrw_mass$birds_smooth, 0.99, na.rm = TRUE)) %>%
+  mutate(vid_new = VIR / avg_mass,
+         pop_eff = pop / dist_urban,
+         birds_smooth_log = log(birds_smooth)) %>%
+  group_by(pop_eff) %>%
+  mutate(avg_mass_pop = mean(avg_mass),
+         avg_birds_pop = mean(birds_smooth),
+         sum_birds_pop = sum(birds_smooth),
+         sum_vid_pop = sum(vid_new)) %>%
+  group_by(vid_new) %>%
+  mutate(avg_mass_pop_vid = mean(avg_mass),
+         avg_birds_pop_vid = mean(birds_smooth)) %>%
+  ungroup() %>%
+  mutate(landuse_overall = 
+           case_when(
+             (landuse >= 100 & landuse < 200) ~ "Urban",
+             (landuse >= 200 & landuse < 300) ~ "Agriculture",
+             (landuse >= 300 & landuse < 500) ~ "Nature",
+             # (landuse >= 400 & landuse < 500) ~ "Natural wetlands", -> We classify Natural wetlands as nature for now as well
+             (landuse >= 500 & landuse < 999) ~ "Water bodies"
+           )) %>%
+  select(vid_new, birds_smooth, landuse_overall) %>%
+  mutate(vid_new = scale(vid_new),
+         birds_smooth = scale(birds_smooth)) -> peacock
+peacock2(peacock$vid_new, peacock$birds_smooth)
+```
+
+
+```{r}
+m3 <- glm(round(VIR) ~ birds_smooth + pop_eff + landuse_class, family = poisson(link = "log"), data = ppi_hrw_mass_nonzero)
+summary(m3)
+plot(m3)
+```
+
+```{r message=FALSE, warning=FALSE}
+ggnostic(m3)
+```
+
+
+```{r}
+w <- abs(rstudent(m3)) < 3 & abs(cooks.distance(m3)) < 4/nrow(m3$model)
+m2 <- update(m3, weights=as.numeric(w))
 ```
 
 
@@ -430,7 +680,7 @@ ppi_hrw_mass %>%
   mutate(vid_new = VIR / avg_mass,
          pop_cor = pop * (1 / dist_urban)) -> ppi_hrw_mass_nonzero
 
-m1 <- lm(log(VIR + 1) ~ log(birds_smooth + 1) + log(pop + 1) + dist_urban + landuse_class, data = ppi_hrw_mass_nonzero)
+m1 <- lm(log(VIR + 1) ~ log(birds_smooth + 1) + log(pop_cor + 1) + dist_urban + landuse_class, data = ppi_hrw_mass_nonzero)
 # m1 <- lm(VIR ~ birds_smooth + pop_cor + landuse_class, data = ppi_hrw_mass_nonzero)
 
 plot(m1)
@@ -451,13 +701,14 @@ ppi_hrw_mass %>%
   mutate(vid_new = VIR / avg_mass,
          pop_cor = pop * (1 / dist_urban)) %>%
   drop_na() %>%
-  sample_frac(0.25)-> ppi_hrw_mass_gam
+  sample_frac(0.75)-> ppi_hrw_mass_gam
 
-mgam <- gam(log(VIR + 1) ~ s(log(birds_smooth + 1)) + s(log(pop_cor + 1)), data = ppi_hrw_mass_gam, method = "REML")
+mgam <- gam(log(VIR + 1) ~s(log(birds_smooth + 1)) + s(log(pop_cor + 1)) + s(log(birds_smooth + 1), by = log(pop_cor + 1)), data = ppi_hrw_mass_gam, method = "REML")
 summary(mgam)
 ```
 
 ```{r}
+plot(mgam)
 gam.check(mgam)
 ```
 
