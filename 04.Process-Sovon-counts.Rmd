@@ -589,7 +589,6 @@ ppi_hrw_mass %>%
   
 ```
 
-<<<<<<< HEAD
 ```{r}
 ppi_hrw_mass %>%
   filter(VIR > 0 & nr_birds > 0 & birds_smooth > 0 & type == "rural" & VIR < quantile(ppi_dhl_mass$VIR, 0.99)) %>%
@@ -672,12 +671,6 @@ ggnostic(m3)
 ```{r}
 w <- abs(rstudent(m3)) < 3 & abs(cooks.distance(m3)) < 4/nrow(m3$model)
 m2 <- update(m3, weights=as.numeric(w))
-=======
-ggplot(ppi_hrw_mass_nonzero, aes(x = pop_eff, y = VIR)) +
-  geom_point(aes(colour = dist_urban, size = nr_birds)) +
-  scale_color_viridis() +
-  scale_x_continuous(trans = "log10")
->>>>>>> 15eef16a5aa01b47d6ada02bca2497c128913afd
 ```
 
 
