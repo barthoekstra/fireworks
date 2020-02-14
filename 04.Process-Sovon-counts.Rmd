@@ -417,7 +417,7 @@ ppi_hrw_mass %>%
          pop_eff = pop * (1 / dist_urban),
          birds_smooth_log = log(birds_smooth)) -> ppi_hrw_mass_nonzero
 
-ggplot(ppi_hrw_mass_nonzero, aes(x = pop_eff, y = VIR, col)) +
+ggplot(ppi_hrw_mass_nonzero, aes(x = pop_eff, y = VIR)) +
   geom_point(aes(colour = dist_urban, size = nr_birds)) +
   scale_color_viridis() +
   scale_x_continuous(trans = "log10")
