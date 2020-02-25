@@ -1,0 +1,25 @@
+---
+title: "Fireworks"
+author: "Bart Hoekstra"
+description: "Using ground-based bird counts and weather radar measurements to estimate numbers of birds aloft during NYE fireworks events."
+date: "`r Sys.Date()`"
+bibliography: fireworks.bib
+full_repro: "`r full_repro <- FALSE`"
+monofont: "Source Code Pro"
+monofontoptions: "Scale=0.7"
+---
+# Preface {-}
+
+## Abstract {-}
+
+## How to use this document {-}
+
+### Knit it
+Use the following line in the console or click `Build book` in RStudio.
+
+```{r include=TRUE, eval=FALSE}
+bookdown::render_book(input = "index.Rmd", output_format = "bookdown::gitbook", new_session = TRUE)
+```
+
+### Full-reproduction mode {-#full-repro-mode}
+In the spirit of reproducibility, the entire analysis, which happens to be contained in this book, can be reproduced at the push of a button (almost). To facilitate faster reproduction, some code chunks are only run when `full-reproduction` mode is switched on. This can be done by setting the R variable `full_repro` to `TRUE` in the `YAML` head of `index.Rmd`.
