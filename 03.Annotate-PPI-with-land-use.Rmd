@@ -6,7 +6,7 @@ The land use is based on the [CORINE Land Cover](https://land.copernicus.eu/pan-
 
 ## Setting up the annotation environment
 
-```{r setup, warning=FALSE, message=FALSE}
+```{r setup-annotating-the-ppis-with-land-use-parameters, warning=FALSE, message=FALSE}
 library(raster)
 library(sf)
 library(stars)

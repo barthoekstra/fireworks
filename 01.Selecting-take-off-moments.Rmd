@@ -6,7 +6,7 @@ For this study we select the moment of 'en masse' take-off of birds at the turn 
 
 We use `vol2bird` included in the [bioRad package](http://adokter.github.io/bioRad) [@dokter_biorad_2019] to calculate the vertical profiles of reflectivity, from which we determine the exact take off moment of birds. This implies we assume birds take to the skies everywhere simultaneously, but that seems a realistic assumption given that the lighting of fireworks is synchronised by the local time, rather than the time of sunset/sunrise.
 
-```{r setup, warning=FALSE, message=FALSE}
+```{r setup-selecting-firework-take-off-moment, warning=FALSE, message=FALSE}
 library(bioRad)
 library(ggplot2)
 library(dplyr)

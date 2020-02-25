@@ -13,7 +13,7 @@ All these steps can be undertaken directly on the polar volume data, so we can s
 ## Setting-up the pre-processing environment
 
 As usual, we use [bioRad](http://adokter.github.io/bioRad) [@dokter_biorad_2019], but this time we include `plotly` for some interactive plotting.
-```{r setup, warning=FALSE, message=FALSE}
+```{r setup-radar-data-preprocessing, warning=FALSE, message=FALSE}
 library(bioRad)
 library(plotly)
 library(gridExtra)
@@ -371,4 +371,4 @@ mapview(filtered_corrected_ppi_dhl$data, alpha.regions = 0.6, col.regions = infe
 ```
 
 
-# References
+## References {-}

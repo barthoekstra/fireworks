@@ -12,5 +12,5 @@ Encoding: UTF-8
 RnwWeave: Sweave
 LaTeX: pdfLaTeX
 
-BuildType: Book
+BuildType: Website
 WebsitePath: book
