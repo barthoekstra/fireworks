@@ -41,5 +41,7 @@ vignettes/*.pdf
 # Project-specific
 data/raw/
 data/processed/
+data/*
 .DS_Store
 /*.html
+_bookdown_files/

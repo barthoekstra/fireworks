@@ -3,9 +3,10 @@ output:
   bookdown::gitbook:
     lib_dir: assets
     split_by: rmd
+    toc_depth: 2
     config:
       toc:
-        collapse: subsection
+        collapse: section
         scroll_highlight: yes
         before: null
         after: null
@@ -20,7 +21,7 @@ output:
         size: 2
       sharing:
         facebook: yes
-        github: no
+        github: yes
         twitter: yes
         linkedin: no
         weibo: no

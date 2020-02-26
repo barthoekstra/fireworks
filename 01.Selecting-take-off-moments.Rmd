@@ -132,5 +132,3 @@ So we will continue using the following files in this study:
 - **Herwijnen**: ``r basename(pvol_hrw_path)``
 - **Den Helder**: ``r basename(pvol_dhl_path)``
 
-## References {-}
-

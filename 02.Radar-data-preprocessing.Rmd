@@ -369,6 +369,3 @@ mapview(filtered_corrected_ppi_dhl$data, alpha.regions = 0.6, col.regions = infe
         na.color = "#00000000", map.types = c("CartoDB.Positron", "CartoDB.DarkMatter", "Esri.WorldImagery"),
         layer.name = colnames(filtered_corrected_ppi_dhl$data@data))
 ```
-
-
-## References {-}

@@ -4,6 +4,8 @@ author: "Bart Hoekstra"
 description: "Using ground-based bird counts and weather radar measurements to estimate numbers of birds aloft during NYE fireworks events."
 date: "`r Sys.Date()`"
 bibliography: fireworks.bib
+biblio-style: "apalike"
+link-citations: true
 monofont: "Source Code Pro"
 monofontoptions: "Scale=0.7"
 ---

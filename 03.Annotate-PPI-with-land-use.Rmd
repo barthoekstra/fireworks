@@ -329,3 +329,5 @@ mapview(ppi_dhl$data[, , c("pop", "dist_urban")], alpha.regions = 0.6, col.regio
         layer.name = c("landuse", "dist_urban"))
 ```
 
+<hr />
+
