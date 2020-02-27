@@ -39,9 +39,7 @@ vignettes/*.pdf
 .Renviron
 
 # Project-specific
-data/raw/
-data/processed/
-data/*
+data
 .DS_Store
 /*.html
 _bookdown_files/
