@@ -1,3 +1,5 @@
+# (PART) Weather radar data {-}
+
 # Selecting firework take-off moment
 
 For this study we select the moment of 'en masse' take-off of birds at the turn of the year. To make sure birds are still fairly 'close' to the take-off habitat, we therefore pick the moment where the increase in `VIR` (Vertically Integrated Reflectivity) is the highest. Based on experience, one would expect this to occur between 00:05 and 00:15 on January 1st, as people tend to light the fireworks right after they have shared New Year's wishes with each other.
