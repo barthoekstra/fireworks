@@ -103,7 +103,7 @@ levels(landuse_dhl_reprojected) <- levels(landuse_crop_dhl)
 
 If the reprojection went successful, the CRS of the reprojected land use map and the radar PPI should be the same.
 
-```{r compare_reprojected_landuse_maps}
+```{r compare_reprojected_landuse_maps, results='hold'}
 compareCRS(ppi_hrw$data@proj4string, landuse_hrw_reprojected@crs)
 compareCRS(ppi_dhl$data@proj4string, landuse_dhl_reprojected@crs)
 ```
@@ -157,7 +157,7 @@ writeRaster(landuse_dhl, "data/processed/landuse/landuse_dhl_500m.tif", overwrit
 
 By now the resampled land use raster should be very similar to the PPI raster, with the exception of — of course — the values contained within.
 
-```{r compare_resampled_landuse_rasters}
+```{r compare_resampled_landuse_rasters, results='hold'}
 compareRaster(landuse_hrw, as(ppi_hrw$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
 compareRaster(landuse_dhl, as(ppi_dhl$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
 ```
@@ -237,7 +237,7 @@ ppi_dhl$data$dist_urban <- as.numeric(unlist(values_dist_urban_dhl))
 
 ## Add population density
 
-```{r}
+```{r add_population_density, message=FALSE}
 cbs_maps <- st_read("data/raw/population-density/2019-CBS_VK500_2018_v1/CBS_VK500_2018_v1.shp")
 
 cbs_hrw <- st_transform(cbs_maps, ppi_hrw$data@proj4string)
@@ -252,13 +252,14 @@ pop_density_rasterized_dhl <- st_rasterize(cbs_dhl["INWONER"],
                                                                   values = NA_real_))
 ```
 
-```{r}
+```{r verify_population_density_rasters, results='hold'}
 compareRaster(as(pop_density_rasterized_hrw, "Raster"), as(ppi_hrw$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
 compareRaster(as(pop_density_rasterized_dhl, "Raster"), as(ppi_dhl$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
 ```
 
-We can now calculate the total population in an area within ~2.5km around the center point
-```{r}
+We can now calculate the total population in an area within ~2.5km around the center point.
+
+```{r calculate_population_within_window_around_centerpoint}
 weights <- matrix(1, nrow = 11, ncol = 11)
 pop_density_rasterized_hrw[pop_density_rasterized_hrw < 0] <- 0
 pop_density_rasterized_dhl[pop_density_rasterized_dhl < 0] <- 0
@@ -266,7 +267,9 @@ pop_hrw <- focal(as(pop_density_rasterized_hrw, "Raster"), w = weights, fun = su
 pop_dhl <- focal(as(pop_density_rasterized_dhl, "Raster"), w = weights, fun = sum, pad = TRUE, padValue = 0)
 ```
 
-```{r}
+And add it to the PPIs.
+
+```{r add_total_population_to_ppis}
 values_pop_hrw <- as.data.frame(pop_hrw@data@values)
 values_pop_dhl <- as.data.frame(pop_dhl@data@values)
 
@@ -281,7 +284,7 @@ Let's make a few plots to see if what we have now gathered as additional informa
 
 ### Plotting total VIR per land use type
 
-```{r total_vir_vs_land_use_type}
+```{r total_vir_vs_land_use_type, fig.show='hold'}
 data_hrw <- ppi_hrw$data@data %>%
   filter(landuse_class != "Land principally occupied by agriculture with significant areas of natural vegetation" & landuse_class != "Sea and ocean") %>%
   group_by(landuse_class) %>%
@@ -300,14 +303,16 @@ ggplot(data_dhl, aes(landuse_class, total_prop_landuse_class, fill = type)) + ge
 
 ### Plotting a distance to urban areas effect for VIR
 
-```{r distance_to_urban_vs_vir, warning=FALSE}
+```{r distance_to_urban_vs_vir, warning=FALSE, fig.show='hold'}
 ggplot(ppi_dhl$data@data, aes(x = dist_urban, y = VIR, colour = landuse_class)) + 
   geom_point(alpha = 0.5) + ylim(c(0, 500000)) + theme(legend.position = "none")
 ggplot(ppi_hrw$data@data, aes(x = dist_urban, y = VIR, colour = landuse_class)) + 
   geom_point(alpha = 0.5) + ylim(c(0, 500000)) + theme(legend.position = "none")
 ```
 
-```{r}
+That seems alright, so we can save the PPIS we have now annotated.
+
+```{r save_ppis_with_landuse_parameters}
 saveRDS(ppi_hrw, file = "data/processed/corrected_ppi_hrw_lu.RDS")
 saveRDS(ppi_dhl, file = "data/processed/corrected_ppi_dhl_lu.RDS")
 ```
@@ -326,8 +331,6 @@ mapview(ppi_hrw$data[, , c("pop", "dist_urban")], alpha.regions = 0.6, col.regio
 ```{r interactive_map_den_helder}
 mapview(ppi_dhl$data[, , c("pop", "dist_urban")], alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
         na.color = "#00000000", map.types = c("CartoDB.Positron", "CartoDB.DarkMatter", "Esri.WorldImagery"),
-        layer.name = c("landuse", "dist_urban"))
+        layer.name = c("pop", "dist_urban"))
 ```
-
-<hr />
 

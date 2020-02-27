@@ -9,7 +9,7 @@ To make processing efficient, we will 'annotate' the PPIS with the corresponding
 
 ## Setting up the annotation environment
 
-```{r setup-process-sovon-counts}
+```{r setup-process-sovon-counts, warning=FALSE, message=FALSE}
 library(bioRad)
 library(sf)
 library(stars)
@@ -33,7 +33,7 @@ ppi_dhl <- readRDS("data/processed/corrected_ppi_dhl_lu.RDS")
 
 We rename the veriables retained in the shapefile to English and add a numerical `wb_area_id` which we can use to link the information retained in the shapefiles with the rasterized waterbird areas. All shapefiles are transformed to the CRS of the PPIs.
 
-```{r}
+```{r load_waterbird_areas, message=FALSE}
 wb_areas <- st_read("data/raw/sovon/wavo_telgebieden.shp") %>%
   rename(wb_area_nr = GEBIEDNR, wb_area_ha = OPPHA, xcoor = XCOOR, ycoor = YCOOR)
 wb_areas$wb_area_id <- seq(1, length(wb_areas$wb_area_nr))
@@ -44,7 +44,7 @@ wb_areas_dhl <- st_transform(wb_areas, ppi_dhl$data@proj4string)
 
 We rasterize specifically the newly created `wb_area_id` (as this is a numerical and not categorical value like `wb_area_nr`) following the 'template' of the existing PPIs.
 
-```{r}
+```{r rasterize_waterbird_areas}
 tpl_hrw <- st_as_stars(st_bbox(ppi_hrw$data), dx = ppi_hrw$data@grid@cellsize[1], dy = ppi_hrw$data@grid@cellsize[2], values = NA_real_)
 tpl_dhl <- st_as_stars(st_bbox(ppi_dhl$data), dx = ppi_dhl$data@grid@cellsize[1], dy = ppi_dhl$data@grid@cellsize[2], values = NA_real_)
 
@@ -54,7 +54,7 @@ wb_areas_rasterized_dhl <- st_rasterize(wb_areas_dhl["wb_area_id"], template = t
 
 Let's see how that's gone so far.
 
-```{r}
+```{r show_rasterized_waterbird_areas, fig.show='hold'}
 par(pty = "s", mfrow = c(1, 2))
 plot(wb_areas_rasterized_hrw, main = "Herwijnen: wb_area_id")
 plot(wb_areas_rasterized_dhl, main = "Den Helder: wb_area_id")
@@ -62,7 +62,7 @@ plot(wb_areas_rasterized_dhl, main = "Den Helder: wb_area_id")
 
 Visually that seems to have gone well, now let's make sure the rasterized waterbird areas share the same features as the PPI 'rasters'.
 
-```{r}
+```{r verify_rasterization_of_waterbird_areas, results='hold'}
 compareRaster(as(wb_areas_rasterized_hrw, "Raster"), as(ppi_hrw$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
 compareRaster(as(wb_areas_rasterized_dhl, "Raster"), as(ppi_dhl$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
 ```
@@ -86,7 +86,7 @@ ppi_dhl$data$geometry <- NULL
 
 Let's verify if that occurred as planned.
 
-```{r}
+```{r plot_waterbirds_ppis, fig.show='hold'}
 plot(ppi_hrw, param = "wb_area_id", zlim = c(min(ppi_hrw$data@data$wb_area_id, na.rm = TRUE), max(ppi_hrw$data@data$wb_area_id, na.rm = TRUE)))
 plot(ppi_dhl, param = "wb_area_id", zlim = c(min(ppi_dhl$data@data$wb_area_id, na.rm = TRUE), max(ppi_dhl$data@data$wb_area_id, na.rm = TRUE)))
 ```
@@ -101,7 +101,7 @@ The PTT point transect counts are organized by routes, which consist of a few po
 
 We load the PTT data directly from the `xlsx` file provided by Sovon and rename the variables to English.
 
-```{r}
+```{r load_ptt_counts}
 ptt <- read_excel("data/raw/sovon/tel_dec_jan_1718.xlsx", sheet = "ptt") %>%
   rename(count_id = tellingid, route = route, count_point = telpunt, season = seizoen, year = teljaar, month = maand, day = dag, species = soort, number = aantal)
 head(ptt, 10)
@@ -109,7 +109,7 @@ head(ptt, 10)
 
 As we're not interested in all the data here, we will load a subset of the columns, specifically all unique combinations of routes and points, which will yield the corresponding `xcoor` and `ycoor` coordinates for each `count_point` within a `route`.
 
-```{r}
+```{r select_relevant_ptt_variables}
 ptt %>%
   dplyr::select(route, count_point, xcoor, ycoor) %>%
   group_by(route, count_point) %>%
@@ -121,7 +121,7 @@ head(ptt, 10)
 
 For each of the routes within the PTT dataset, we will calculate the average distance between the subsequent points, to buffer our convex hull by this value.
 
-```{r}
+```{r calculate_ptt_interpoint_distance}
 ptt %>%
   group_by(route) %>%
   mutate(xcoor2 = c(xcoor[-1], 0),
@@ -136,12 +136,12 @@ ptt %>%
 ptt %>%
   left_join(ptt_interpoint_distances, by = c("route" = "route")) -> ptt
 
-ptt
+head(ptt, 10)
 ```
 
 We can now calculate the convex hulls of the points grouped by `route`.
 
-```{r}
+```{r calculate_route_convex_hulls, fig.show='hold'}
 ptt %>%
   st_as_sf(coords = c("xcoor", "ycoor"), crs = 28992) %>%
   st_transform(crs = ppi_hrw$data@proj4string) %>%
@@ -164,7 +164,7 @@ plot(ptt_convex_hulls_dhl[2], main = "PTT Routes Den Helder: Avg interpoint dist
 
 As we have calculated the average distance between the points, we can now buffer the convex hulls by this value to attain more representative sizes of the covered areas. 
 
-```{r}
+```{r buffer_convex_hulls_with_interpoint_distance, fig.show='hold'}
 ptt_convex_hulls_hrw %>%
   st_buffer(dist = as.double(ptt_convex_hulls_hrw$avg_interpoint_distance)) -> ptt_convex_hulls_hrw
 
@@ -177,7 +177,7 @@ plot(ptt_convex_hulls_dhl[1], main = "Buffered PTT Routes Den Helder")
 
 Now that is taken care of, we can rasterize the polygons using the `fasterize` package. As there is overlap between the areas covered by the routes using the convex hulls and a raster can only contain a single value for every pixel, we need to resolve this overlap. In this case we will compare overlapping areas and pick those where the average distance between the points for that area is lowest. This biases towards counts that cover a smaller area, so probably resulting in more accurate estimates of birds around.
 
-```{r}
+```{r rasterize_convex_hulls, fig.show='hold'}
 ptt_hrw <- raster(ppi_hrw$data)
 ptt_dhl <- raster(ppi_dhl$data)
 
@@ -195,22 +195,21 @@ This approach to solving the issue of overlapping polygons introduces a possible
 
 With the rasterization done, let's compare the resultant raster and see if it is identical to the PPIs.
 
-```{r}
+```{r verify_rasterization_of_ptt_counts, results='hold'}
 compareRaster(as(ptt_hrw, "Raster"), as(ppi_hrw$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
 compareRaster(as(ptt_dhl, "Raster"), as(ppi_dhl$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
 ```
 
 Two TRUEs, so that's excellent. We can now add the `ptt_route` to the PPIs.
 
-```{r}
-# Add routes to the PPIs
+```{r add_ptt_routes_to_ppis}
 ppi_hrw$data$ptt_route <- unlist(as.data.frame(as(ptt_hrw, "Raster")))
 ppi_dhl$data$ptt_route <- unlist(as.data.frame(as(ptt_dhl, "Raster")))
 ```
 
 Let's verify once again if that occurred as planned.
 
-```{r}
+```{r plot_ptt_ppis, fig.show='hold'}
 plot(ppi_hrw, param = "ptt_route", zlim = c(min(ppi_hrw$data@data$ptt_route, na.rm = TRUE), max(ppi_hrw$data@data$ptt_route, na.rm = TRUE)))
 plot(ppi_dhl, param = "ptt_route", zlim = c(min(ppi_dhl$data@data$ptt_route, na.rm = TRUE), max(ppi_dhl$data@data$ptt_route, na.rm = TRUE)))
 ```
