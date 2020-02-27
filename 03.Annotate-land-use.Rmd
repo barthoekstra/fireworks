@@ -1,4 +1,6 @@
-# Annotating the PPIs with land use parameters
+# (PART) Land use {-}
+
+# Annotating land use
 
 In this study we aim to calculate 'representative' radar cross sections for birds aloft, based on the take-off habitat, which is probably a good indicator for the bird species/species groups measured by the radar. In this notebook we will classify land use and calculate the distance to the nearest urbanised areas for each of the PPI 'pixels'.
 
@@ -284,7 +286,7 @@ Let's make a few plots to see if what we have now gathered as additional informa
 
 ### Plotting total VIR per land use type
 
-```{r total_vir_vs_land_use_type, fig.show='hold'}
+```{r total_vir_vs_land_use_type, fig.show='hold', dev='png'}
 data_hrw <- ppi_hrw$data@data %>%
   filter(landuse_class != "Land principally occupied by agriculture with significant areas of natural vegetation" & landuse_class != "Sea and ocean") %>%
   group_by(landuse_class) %>%
@@ -303,7 +305,7 @@ ggplot(data_dhl, aes(landuse_class, total_prop_landuse_class, fill = type)) + ge
 
 ### Plotting a distance to urban areas effect for VIR
 
-```{r distance_to_urban_vs_vir, warning=FALSE, fig.show='hold'}
+```{r distance_to_urban_vs_vir, warning=FALSE, fig.show='hold', dev='png'}
 ggplot(ppi_dhl$data@data, aes(x = dist_urban, y = VIR, colour = landuse_class)) + 
   geom_point(alpha = 0.5) + ylim(c(0, 500000)) + theme(legend.position = "none")
 ggplot(ppi_hrw$data@data, aes(x = dist_urban, y = VIR, colour = landuse_class)) + 
