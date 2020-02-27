@@ -24,7 +24,7 @@
 <meta name="author" content="Bart Hoekstra" />
 
 
-<meta name="date" content="2020-02-26" />
+<meta name="date" content="2020-02-27" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -66,19 +66,18 @@
 <script src="assets/leaflet-binding-2.0.3/leaflet.js"></script>
 <script src="assets/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script>
 <script src="assets/leaflet-providers-plugin-2.0.3/leaflet-providers-plugin.js"></script>
-<script src="assets/VIR-1/data_stars_VIRe92c6d.txt"></script>
+<script src="assets/VIR-1/data_stars_VIRbec058.txt"></script>
 <script src="assets/joda-0.0.1/joda.js"></script>
 <link href="assets/HomeButton-0.0.1/home-button.css" rel="stylesheet" />
 <script src="assets/HomeButton-0.0.1/home-button.js"></script>
 <script src="assets/HomeButton-0.0.1/easy-button-src.min.js"></script>
-<script src="assets/VID-1/data_stars_VID689ecd.txt"></script>
-<script src="assets/R-1/data_stars_R9b3a4d.txt"></script>
-<script src="assets/overlap-1/data_stars_overlap8ec5b0.txt"></script>
-<script src="assets/eta_sum-1/data_stars_eta_sumfa97c4.txt"></script>
-<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expected739a8b.txt"></script>
-<script src="assets/pop-1/data_stars_popa1976e.txt"></script>
-<script src="assets/dist_urban-1/data_stars_dist_urband4eba2.txt"></script>
-<script src="assets/landuse-1/data_stars_landuseab380c.txt"></script>
+<script src="assets/VID-1/data_stars_VIDda9c8e.txt"></script>
+<script src="assets/R-1/data_stars_R642ed9.txt"></script>
+<script src="assets/overlap-1/data_stars_overlap8c5023.txt"></script>
+<script src="assets/eta_sum-1/data_stars_eta_sum2957cb.txt"></script>
+<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expectedda1f4e.txt"></script>
+<script src="assets/pop-1/data_stars_pop92750d.txt"></script>
+<script src="assets/dist_urban-1/data_stars_dist_urban8146f9.txt"></script>
 
 
 <style type="text/css">
@@ -183,6 +182,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3.6" data-path="03.Annotate-PPI-with-land-use.html"><a href="03.Annotate-PPI-with-land-use.html#add-population-density"><i class="fa fa-check"></i><b>3.6</b> Add population density</a></li>
 <li class="chapter" data-level="3.7" data-path="03.Annotate-PPI-with-land-use.html"><a href="03.Annotate-PPI-with-land-use.html#testing"><i class="fa fa-check"></i><b>3.7</b> Testing</a></li>
 </ul></li>
+<li class="chapter" data-level="4" data-path="04.Process-Sovon-counts-Rasterization.html"><a href="04.Process-Sovon-counts-Rasterization.html"><i class="fa fa-check"></i><b>4</b> Process Sovon counts</a><ul>
+<li class="chapter" data-level="4.1" data-path="04.Process-Sovon-counts-Rasterization.html"><a href="04.Process-Sovon-counts-Rasterization.html#setting-up-the-annotation-environment-1"><i class="fa fa-check"></i><b>4.1</b> Setting up the annotation environment</a></li>
+<li class="chapter" data-level="4.2" data-path="04.Process-Sovon-counts-Rasterization.html"><a href="04.Process-Sovon-counts-Rasterization.html#annotate-ppis-with-waterbird-area-codes"><i class="fa fa-check"></i><b>4.2</b> Annotate PPIs with waterbird area codes</a></li>
+<li class="chapter" data-level="4.3" data-path="04.Process-Sovon-counts-Rasterization.html"><a href="04.Process-Sovon-counts-Rasterization.html#annotate-ppis-with-point-transect-counts"><i class="fa fa-check"></i><b>4.3</b> Annotate PPIs with point-transect-counts</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="References.html"><a href="References.html"><i class="fa fa-check"></i><b>5</b> References</a></li>
 </ul>
 
       </nav>
@@ -251,9 +256,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb8-7" data-line-number="7">title_hrw &lt;-<span class="st"> </span><span class="kw">expression</span>(<span class="st">&quot;Herwijnen: volume density [#/km&quot;</span><span class="op">^</span><span class="dv">3</span> <span class="op">*</span><span class="st"> &quot;]&quot;</span>)</a>
 <a class="sourceLine" id="cb8-8" data-line-number="8">title_dhl &lt;-<span class="st"> </span><span class="kw">expression</span>(<span class="st">&quot;Den Helder: volume density [#/km&quot;</span><span class="op">^</span><span class="dv">3</span> <span class="op">*</span><span class="st"> &quot;]&quot;</span>)</a>
 <a class="sourceLine" id="cb8-9" data-line-number="9"><span class="kw">plot</span>(fw_hrw_vpts[indexes_hrw], <span class="dt">main =</span> title_hrw)</a></code></pre></div>
-<p><img src="Fireworks_files/figure-html/generate_vp_timeseries-1.png" width="672" /></p>
+<p><img src="Fireworks_files/figure-html/generate_vp_timeseries-1.svg" width="672" /></p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw">plot</span>(fw_dhl_vpts[indexes_dhl], <span class="dt">main =</span> title_dhl)</a></code></pre></div>
-<p><img src="Fireworks_files/figure-html/generate_vp_timeseries-2.png" width="672" /></p>
+<p><img src="Fireworks_files/figure-html/generate_vp_timeseries-2.svg" width="672" /></p>
 <p>Both plots for Herwijnen and Den Helder show exactly what we would expect: fairly low densities of birds aloft leading up to midnight (23:00 CET), then suddenly a strong increase of birds right after midnight. For Herwijnen this peak is much more pronounced than for Den Helder, probably due to the different surroundings of the radar. As <code>vol2bird</code> only takes into account rangegates within 5-35km of the radar, in the case of Den Helder this contains a lot more sea surface, from which fewer birds can be expected to take off than from land.</p>
 </div>
 <div id="identifying-moment-of-take-off" class="section level2">
@@ -295,7 +300,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb10-34" data-line-number="34">       <span class="dt">linetype =</span> <span class="st">&quot;Linetype&quot;</span>) <span class="op">+</span></a>
 <a class="sourceLine" id="cb10-35" data-line-number="35"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">-90</span>),</a>
 <a class="sourceLine" id="cb10-36" data-line-number="36">        <span class="dt">panel.grid.minor =</span> <span class="kw">element_blank</span>())</a></code></pre></div>
-<p><img src="Fireworks_files/figure-html/identify_takeoff-1.png" width="672" /></p>
+<p><img src="Fireworks_files/figure-html/identify_takeoff-1.svg" width="672" /></p>
 <p>The plot shows <span class="math inline">\(\Delta VIR/{scan}\)</span> peaks earlier for the Den Helder radar than for Herwijnen, but both at roughly the same level of 1066 and 991 respectively.</p>
 <p>We can now identify which scans ‘contain’ the moment of take-off. The datetime values correspond with the start times of the scans and the filenames of the polar volume files.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">max_vir_deriv[, <span class="dv">2</span><span class="op">:</span><span class="dv">4</span>]</a></code></pre></div>
@@ -338,7 +343,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </div>
 </div>
-<h3>References</h3>
+<h3> References</h3>
 <div id="refs" class="references">
 <div id="ref-dokter_biorad_2019">
 <p>Dokter, Adriaan M., Peter Desmet, Jurriaan H. Spaaks, Stijn van Hoey, Lourens Veen, Liesbeth Verlinden, Cecilia Nilsson, et al. 2019. “bioRad: Biological Analysis and Visualization of Weather Radar Data.” <em>Ecography</em> 42 (5): 852–60. <a href="https://doi.org/10.1111/ecog.04028">https://doi.org/10.1111/ecog.04028</a>.</p>
