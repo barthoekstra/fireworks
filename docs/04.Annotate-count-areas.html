@@ -24,7 +24,7 @@
 <meta name="author" content="Bart Hoekstra" />
 
 
-<meta name="date" content="2020-02-27" />
+<meta name="date" content="2020-02-28" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -32,7 +32,7 @@
   
   
 <link rel="prev" href="03.Annotate-land-use.html"/>
-<link rel="next" href="References.html"/>
+<link rel="next" href="05.Annotate-count-results.html"/>
 <script src="assets/jquery-2.2.3/jquery.min.js"></script>
 <link href="assets/gitbook-2.6.7/css/style.css" rel="stylesheet" />
 <link href="assets/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
@@ -66,18 +66,18 @@
 <script src="assets/leaflet-binding-2.0.3/leaflet.js"></script>
 <script src="assets/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script>
 <script src="assets/leaflet-providers-plugin-2.0.3/leaflet-providers-plugin.js"></script>
-<script src="assets/VIR-1/data_stars_VIR7ea326.txt"></script>
+<script src="assets/VIR-1/data_stars_VIRe268cb.txt"></script>
 <script src="assets/joda-0.0.1/joda.js"></script>
 <link href="assets/HomeButton-0.0.1/home-button.css" rel="stylesheet" />
 <script src="assets/HomeButton-0.0.1/home-button.js"></script>
 <script src="assets/HomeButton-0.0.1/easy-button-src.min.js"></script>
-<script src="assets/VID-1/data_stars_VID3d6c5b.txt"></script>
-<script src="assets/R-1/data_stars_Rf1e29a.txt"></script>
-<script src="assets/overlap-1/data_stars_overlapd75c42.txt"></script>
-<script src="assets/eta_sum-1/data_stars_eta_sumf590d6.txt"></script>
-<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expected360e74.txt"></script>
-<script src="assets/pop-1/data_stars_pop0b4695.txt"></script>
-<script src="assets/dist_urban-1/data_stars_dist_urbana8c173.txt"></script>
+<script src="assets/VID-1/data_stars_VID90bd8a.txt"></script>
+<script src="assets/R-1/data_stars_R7ebfc1.txt"></script>
+<script src="assets/overlap-1/data_stars_overlapf52ab1.txt"></script>
+<script src="assets/eta_sum-1/data_stars_eta_sum31f5c9.txt"></script>
+<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expectedae4f68.txt"></script>
+<script src="assets/pop-1/data_stars_popc3082a.txt"></script>
+<script src="assets/dist_urban-1/data_stars_dist_urbande4ab9.txt"></script>
 
 
 <style type="text/css">
@@ -190,8 +190,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.2" data-path="04.Annotate-count-areas.html"><a href="04.Annotate-count-areas.html#annotate-ppis-with-waterbird-area-codes"><i class="fa fa-check"></i><b>4.2</b> Annotate PPIs with waterbird area codes</a></li>
 <li class="chapter" data-level="4.3" data-path="04.Annotate-count-areas.html"><a href="04.Annotate-count-areas.html#annotate-ppis-with-point-transect-counts"><i class="fa fa-check"></i><b>4.3</b> Annotate PPIs with point-transect-counts</a></li>
 </ul></li>
+<li class="chapter" data-level="5" data-path="05.Annotate-count-results.html"><a href="05.Annotate-count-results.html"><i class="fa fa-check"></i><b>5</b> Annotating count results</a><ul>
+<li class="chapter" data-level="5.1" data-path="05.Annotate-count-results.html"><a href="05.Annotate-count-results.html#setting-up-the-annotation-environment-2"><i class="fa fa-check"></i><b>5.1</b> Setting up the annotation environment</a></li>
+<li class="chapter" data-level="5.2" data-path="05.Annotate-count-results.html"><a href="05.Annotate-count-results.html#loading-the-sovon-count-data"><i class="fa fa-check"></i><b>5.2</b> Loading the Sovon count data</a></li>
+<li class="chapter" data-level="5.3" data-path="05.Annotate-count-results.html"><a href="05.Annotate-count-results.html#filteringpreprocessing-species-names"><i class="fa fa-check"></i><b>5.3</b> Filtering/preprocessing species names</a></li>
+<li class="chapter" data-level="5.4" data-path="05.Annotate-count-results.html"><a href="05.Annotate-count-results.html#linking-life-history-traits-to-species"><i class="fa fa-check"></i><b>5.4</b> Linking life-history traits to species</a></li>
+</ul></li>
 <li class="part"><span><b>IV Other</b></span></li>
-<li class="chapter" data-level="5" data-path="References.html"><a href="References.html"><i class="fa fa-check"></i><b>5</b> References</a></li>
+<li class="chapter" data-level="6" data-path="References.html"><a href="References.html"><i class="fa fa-check"></i><b>6</b> References</a></li>
 </ul>
 
       </nav>
@@ -216,7 +222,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>Waterbird counts with a shapefile containing the surveyed areas and an <code>xlsx</code> file with the count results. Both can be linked using the <code>GEBIEDID</code> contained in both datasets.</li>
 <li>PTT counts, or point transect counts, contained within an <code>xlsx</code> file with the routes and all bird observations at an <span class="math inline">\((X, Y)\)</span> location.</li>
 </ol>
-<p>To make processing efficient, we will ‘annotate’ the PPIS with the corresponding area codes for the waterbird counts and some identifier for the PTT counts. Doing so, we can later on calculate relevant count-based parameters (e.g. numbers of birds, average mass, etc.) and ‘join’ these by the corresponding identifiers.</p>
+<p>To make processing efficient, we will ‘annotate’ the PPIs with the corresponding area codes for the waterbird counts and some identifier for the PTT counts. Doing so, we can later on calculate relevant count-based parameters (e.g. numbers of birds, average mass, etc.) and ‘join’ these by the corresponding identifiers.</p>
 <div id="setting-up-the-annotation-environment-1" class="section level2">
 <h2><span class="header-section-number">4.1</span> Setting up the annotation environment</h2>
 <div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb69-1" data-line-number="1"><span class="kw">library</span>(bioRad)</a>
@@ -700,16 +706,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 </div>
-
-
-
             </section>
 
           </div>
         </div>
       </div>
 <a href="03.Annotate-land-use.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="References.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="05.Annotate-count-results.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="assets/gitbook-2.6.7/js/app.min.js"></script>
