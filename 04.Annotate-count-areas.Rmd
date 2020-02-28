@@ -7,7 +7,7 @@ We have data for the following counts provided by Sovon:
 1. Waterbird counts with a shapefile containing the surveyed areas and an `xlsx` file with the count results. Both can be linked using the `GEBIEDID` contained in both datasets.
 2. PTT counts, or point transect counts, contained within an `xlsx` file with the routes and all bird observations at an $(X, Y)$ location.
 
-To make processing efficient, we will 'annotate' the PPIS with the corresponding area codes for the waterbird counts and some identifier for the PTT counts. Doing so, we can later on calculate relevant count-based parameters (e.g. numbers of birds, average mass, etc.) and 'join' these by the corresponding identifiers.
+To make processing efficient, we will 'annotate' the PPIs with the corresponding area codes for the waterbird counts and some identifier for the PTT counts. Doing so, we can later on calculate relevant count-based parameters (e.g. numbers of birds, average mass, etc.) and 'join' these by the corresponding identifiers.
 
 ## Setting up the annotation environment
 
