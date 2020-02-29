@@ -16,6 +16,7 @@ library(readxl)
 library(dplyr)
 library(tidyr)
 library(readr)
+library(kableExtra)
 ```
 
 ## Loading the Sovon count data
@@ -48,7 +49,10 @@ data %>%
   rowwise() %>%
   mutate(species = str_split(species, "\\(")[[1]][1] %>% str_trim()) -> wb_data  # And remove all subspecies identifications
 
-head(wb_data, 10)
+head(wb_data, 10) %>%
+  kable(format = "html", col.names = colnames(wb_data)) %>%
+  kable_styling() %>%
+  kableExtra::scroll_box(width = "100%", height = "400px")
 ```
 
 Following this logic, we can process the PTT counts similarly and see which species are contained in those.
@@ -65,7 +69,10 @@ read_excel(sovon_data, sheet = 1) %>%
   rowwise() %>%
   mutate(species = str_split(species, "\\(")[[1]][1] %>% str_trim()) -> ptt_data  # And remove all subspecies identifications-> ptt_data
 
-head(ptt_data, 10)
+head(ptt_data, 10) %>%
+  kable(format = "html", col.names = colnames(ptt_data)) %>%
+  kable_styling() %>%
+  kableExtra::scroll_box(width = "100%", height = "400px")
 ```
 
 ## Filtering/preprocessing species names
@@ -128,7 +135,10 @@ build_species_lut <- function(specieslist, datasetKey = NULL, higherTaxonKey = N
 }
 
 species_lut <- build_species_lut(unique_species, datasetKey = "4dd32523-a3a3-43b7-84df-4cda02f15cf7", higherTaxonKey = 162310263)
-head(species_lut, 10)
+head(species_lut, 10) %>%
+  kable(format = "html", col.names = colnames(species_lut)) %>%
+  kable_styling() %>%
+  kableExtra::scroll_box(width = "100%", height = "400px")
 ```
 
 Finally, the lookup table also contains some scientific names which unfortunately will not match with the life-history characteristics dataset, so these too we will adjust manually.
@@ -171,7 +181,10 @@ read_tsv("data/raw/life-history-characteristics/Life-history characteristics of 
   drop_na() -> lhc
 
 lhc[lhc$species == "Aquila nipalenis", "species"] <- "Aquila nipalensis"  # Small error in dataset -> notified author
-head(lhc, 10)
+head(lhc, 10) %>%
+  kable(format = "html", col.names = colnames(lhc)) %>%
+  kable_styling() %>%
+  kableExtra::scroll_box(width = "100%", height = "400px")
 ```
 
 Now we can try to link the names once again with what can be found in GBIF.
@@ -180,7 +193,10 @@ Now we can try to link the names once again with what can be found in GBIF.
 unique_species_lhc <- unique(lhc$species)
 
 lhc_species_lut <- build_species_lut(unique_species_lhc, dataset = NULL)
-head(lhc_species_lut, 10)
+head(lhc_species_lut, 10) %>%
+  kable(format = "html", col.names = colnames(lhc_species_lut)) %>%
+  kable_styling() %>%
+  kableExtra::scroll_box(width = "100%", height = "400px")
 ```
 
 With the GBIF IDs/keys in place for both the life-history characteristics, as well as the Sovon counts, we can now link the datasets together. First the waterbirds
@@ -196,7 +212,10 @@ wb_data %>%
   left_join(dplyr::select(lhc, mean_weight, species), by = c("scientificname" = "species")) %>%
   dplyr::select(-c(mean_weight.x)) %>%
   rename(mean_weight = mean_weight.y) -> wb_data_lhc
-head(wb_data_lhc, 10)
+head(wb_data_lhc, 10) %>%
+  kable(format = "html", col.names = colnames(wb_data_lhc)) %>%
+  kable_styling() %>%
+  kableExtra::scroll_box(width = "100%", height = "400px")
 ```
 
 And then the PTT counts
@@ -208,7 +227,10 @@ ptt_data %>%
   left_join(dplyr::select(lhc, mean_weight, species), by = c("scientificname" = "species")) %>%
   dplyr::select(-c(mean_weight.x)) %>%
   rename(mean_weight = mean_weight.y) -> ptt_data_lhc
-head(ptt_data_lhc, 10)
+head(ptt_data_lhc, 10) %>%
+  kable(format = "html", col.names = colnames(ptt_data_lhc)) %>%
+  kable_styling() %>%
+  kableExtra::scroll_box(width = "100%", height = "400px")
 ```
 
 Now we can verify if our 1% criteria for species matching is met. We do this by calculating the proportions of birds belonging to a certain species out of the total numbers of birds counted within a count. This should result in an empty dataframe, which will stop the code chunk below from running if that is *not* the case.
