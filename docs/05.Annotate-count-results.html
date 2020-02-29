@@ -24,7 +24,7 @@
 <meta name="author" content="Bart Hoekstra" />
 
 
-<meta name="date" content="2020-02-28" />
+<meta name="date" content="2020-02-29" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -66,18 +66,19 @@
 <script src="assets/leaflet-binding-2.0.3/leaflet.js"></script>
 <script src="assets/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script>
 <script src="assets/leaflet-providers-plugin-2.0.3/leaflet-providers-plugin.js"></script>
-<script src="assets/VIR-1/data_stars_VIRe268cb.txt"></script>
+<script src="assets/VIR-1/data_stars_VIRb1c2d3.txt"></script>
 <script src="assets/joda-0.0.1/joda.js"></script>
 <link href="assets/HomeButton-0.0.1/home-button.css" rel="stylesheet" />
 <script src="assets/HomeButton-0.0.1/home-button.js"></script>
 <script src="assets/HomeButton-0.0.1/easy-button-src.min.js"></script>
-<script src="assets/VID-1/data_stars_VID90bd8a.txt"></script>
-<script src="assets/R-1/data_stars_R7ebfc1.txt"></script>
-<script src="assets/overlap-1/data_stars_overlapf52ab1.txt"></script>
-<script src="assets/eta_sum-1/data_stars_eta_sum31f5c9.txt"></script>
-<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expectedae4f68.txt"></script>
-<script src="assets/pop-1/data_stars_popc3082a.txt"></script>
-<script src="assets/dist_urban-1/data_stars_dist_urbande4ab9.txt"></script>
+<script src="assets/VID-1/data_stars_VIDde0497.txt"></script>
+<script src="assets/R-1/data_stars_R8eadf0.txt"></script>
+<script src="assets/overlap-1/data_stars_overlap3a79b4.txt"></script>
+<script src="assets/eta_sum-1/data_stars_eta_sum30e769.txt"></script>
+<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expected89a42c.txt"></script>
+<script src="assets/pop-1/data_stars_pop07c3a9.txt"></script>
+<script src="assets/dist_urban-1/data_stars_dist_urban958e6b.txt"></script>
+<script src="assets/kePrint-0.0.1/kePrint.js"></script>
 
 
 <style type="text/css">
@@ -230,7 +231,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb90-3" data-line-number="3"><span class="kw">library</span>(readxl)</a>
 <a class="sourceLine" id="cb90-4" data-line-number="4"><span class="kw">library</span>(dplyr)</a>
 <a class="sourceLine" id="cb90-5" data-line-number="5"><span class="kw">library</span>(tidyr)</a>
-<a class="sourceLine" id="cb90-6" data-line-number="6"><span class="kw">library</span>(readr)</a></code></pre></div>
+<a class="sourceLine" id="cb90-6" data-line-number="6"><span class="kw">library</span>(readr)</a>
+<a class="sourceLine" id="cb90-7" data-line-number="7"><span class="kw">library</span>(kableExtra)</a></code></pre></div>
 </div>
 <div id="loading-the-sovon-count-data" class="section level2">
 <h2><span class="header-section-number">5.2</span> Loading the Sovon count data</h2>
@@ -260,165 +262,432 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb91-23" data-line-number="23"><span class="st">  </span><span class="kw">rowwise</span>() <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb91-24" data-line-number="24"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">species =</span> <span class="kw">str_split</span>(species, <span class="st">&quot;</span><span class="ch">\\</span><span class="st">(&quot;</span>)[[<span class="dv">1</span>]][<span class="dv">1</span>] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">str_trim</span>()) -&gt;<span class="st"> </span>wb_data  <span class="co"># And remove all subspecies identifications</span></a>
 <a class="sourceLine" id="cb91-25" data-line-number="25"></a>
-<a class="sourceLine" id="cb91-26" data-line-number="26"><span class="kw">head</span>(wb_data, <span class="dv">10</span>)</a></code></pre></div>
-<div class="kable-table">
-<table>
+<a class="sourceLine" id="cb91-26" data-line-number="26"><span class="kw">head</span>(wb_data, <span class="dv">10</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb91-27" data-line-number="27"><span class="st">  </span><span class="kw">kable</span>(<span class="dt">format =</span> <span class="st">&quot;html&quot;</span>, <span class="dt">col.names =</span> <span class="kw">colnames</span>(wb_data)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb91-28" data-line-number="28"><span class="st">  </span><span class="kw">kable_styling</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb91-29" data-line-number="29"><span class="st">  </span>kableExtra<span class="op">::</span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;100%&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;400px&quot;</span>)</a></code></pre></div>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; ">
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
-<tr class="header">
-<th align="right">count_id</th>
-<th align="left">area_nr</th>
-<th align="right">year</th>
-<th align="right">month</th>
-<th align="right">day</th>
-<th align="right">start_time</th>
-<th align="right">end_time</th>
-<th align="right">euring</th>
-<th align="left">species</th>
-<th align="right">number</th>
-<th align="right">xcoor</th>
-<th align="right">ycoor</th>
+<tr>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+count_id
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+area_nr
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+year
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+month
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+day
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+start_time
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+end_time
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+euring
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+species
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+number
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+xcoor
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+ycoor
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="right">1060908</td>
-<td align="left">BR1111</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">19</td>
-<td align="right">1045</td>
-<td align="right">1108</td>
-<td align="right">1610</td>
-<td align="left">Grauwe Gans</td>
-<td align="right">280</td>
-<td align="right">127723</td>
-<td align="right">426233</td>
+<tr>
+<td style="text-align:right;">
+1060908
+</td>
+<td style="text-align:left;">
+BR1111
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1045
+</td>
+<td style="text-align:right;">
+1108
+</td>
+<td style="text-align:right;">
+1610
+</td>
+<td style="text-align:left;">
+Grauwe Gans
+</td>
+<td style="text-align:right;">
+280
+</td>
+<td style="text-align:right;">
+127723
+</td>
+<td style="text-align:right;">
+426233
+</td>
 </tr>
-<tr class="even">
-<td align="right">1060908</td>
-<td align="left">BR1111</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">19</td>
-<td align="right">1045</td>
-<td align="right">1108</td>
-<td align="right">1700</td>
-<td align="left">Nijlgans</td>
-<td align="right">2</td>
-<td align="right">127723</td>
-<td align="right">426233</td>
+<tr>
+<td style="text-align:right;">
+1060908
+</td>
+<td style="text-align:left;">
+BR1111
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1045
+</td>
+<td style="text-align:right;">
+1108
+</td>
+<td style="text-align:right;">
+1700
+</td>
+<td style="text-align:left;">
+Nijlgans
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+127723
+</td>
+<td style="text-align:right;">
+426233
+</td>
 </tr>
-<tr class="odd">
-<td align="right">1060909</td>
-<td align="left">BR1112</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">19</td>
-<td align="right">1108</td>
-<td align="right">1126</td>
-<td align="right">1610</td>
-<td align="left">Grauwe Gans</td>
-<td align="right">76</td>
-<td align="right">125082</td>
-<td align="right">426701</td>
+<tr>
+<td style="text-align:right;">
+1060909
+</td>
+<td style="text-align:left;">
+BR1112
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1108
+</td>
+<td style="text-align:right;">
+1126
+</td>
+<td style="text-align:right;">
+1610
+</td>
+<td style="text-align:left;">
+Grauwe Gans
+</td>
+<td style="text-align:right;">
+76
+</td>
+<td style="text-align:right;">
+125082
+</td>
+<td style="text-align:right;">
+426701
+</td>
 </tr>
-<tr class="even">
-<td align="right">1060909</td>
-<td align="left">BR1112</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">19</td>
-<td align="right">1108</td>
-<td align="right">1126</td>
-<td align="right">1661</td>
-<td align="left">Grote Canadese Gans</td>
-<td align="right">50</td>
-<td align="right">125082</td>
-<td align="right">426701</td>
+<tr>
+<td style="text-align:right;">
+1060909
+</td>
+<td style="text-align:left;">
+BR1112
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1108
+</td>
+<td style="text-align:right;">
+1126
+</td>
+<td style="text-align:right;">
+1661
+</td>
+<td style="text-align:left;">
+Grote Canadese Gans
+</td>
+<td style="text-align:right;">
+50
+</td>
+<td style="text-align:right;">
+125082
+</td>
+<td style="text-align:right;">
+426701
+</td>
 </tr>
-<tr class="odd">
-<td align="right">1060909</td>
-<td align="left">BR1112</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">19</td>
-<td align="right">1108</td>
-<td align="right">1126</td>
-<td align="right">1700</td>
-<td align="left">Nijlgans</td>
-<td align="right">22</td>
-<td align="right">125082</td>
-<td align="right">426701</td>
+<tr>
+<td style="text-align:right;">
+1060909
+</td>
+<td style="text-align:left;">
+BR1112
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1108
+</td>
+<td style="text-align:right;">
+1126
+</td>
+<td style="text-align:right;">
+1700
+</td>
+<td style="text-align:left;">
+Nijlgans
+</td>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:right;">
+125082
+</td>
+<td style="text-align:right;">
+426701
+</td>
 </tr>
-<tr class="even">
-<td align="right">1060906</td>
-<td align="left">BR1122</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">19</td>
-<td align="right">1020</td>
-<td align="right">1037</td>
-<td align="right">1610</td>
-<td align="left">Grauwe Gans</td>
-<td align="right">250</td>
-<td align="right">125313</td>
-<td align="right">426061</td>
+<tr>
+<td style="text-align:right;">
+1060906
+</td>
+<td style="text-align:left;">
+BR1122
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1020
+</td>
+<td style="text-align:right;">
+1037
+</td>
+<td style="text-align:right;">
+1610
+</td>
+<td style="text-align:left;">
+Grauwe Gans
+</td>
+<td style="text-align:right;">
+250
+</td>
+<td style="text-align:right;">
+125313
+</td>
+<td style="text-align:right;">
+426061
+</td>
 </tr>
-<tr class="odd">
-<td align="right">1060906</td>
-<td align="left">BR1122</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">19</td>
-<td align="right">1020</td>
-<td align="right">1037</td>
-<td align="right">1619</td>
-<td align="left">Soepgans</td>
-<td align="right">5</td>
-<td align="right">125313</td>
-<td align="right">426061</td>
+<tr>
+<td style="text-align:right;">
+1060906
+</td>
+<td style="text-align:left;">
+BR1122
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1020
+</td>
+<td style="text-align:right;">
+1037
+</td>
+<td style="text-align:right;">
+1619
+</td>
+<td style="text-align:left;">
+Soepgans
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+125313
+</td>
+<td style="text-align:right;">
+426061
+</td>
 </tr>
-<tr class="even">
-<td align="right">1060906</td>
-<td align="left">BR1122</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">19</td>
-<td align="right">1020</td>
-<td align="right">1037</td>
-<td align="right">1661</td>
-<td align="left">Grote Canadese Gans</td>
-<td align="right">35</td>
-<td align="right">125313</td>
-<td align="right">426061</td>
+<tr>
+<td style="text-align:right;">
+1060906
+</td>
+<td style="text-align:left;">
+BR1122
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1020
+</td>
+<td style="text-align:right;">
+1037
+</td>
+<td style="text-align:right;">
+1661
+</td>
+<td style="text-align:left;">
+Grote Canadese Gans
+</td>
+<td style="text-align:right;">
+35
+</td>
+<td style="text-align:right;">
+125313
+</td>
+<td style="text-align:right;">
+426061
+</td>
 </tr>
-<tr class="odd">
-<td align="right">1060911</td>
-<td align="left">BR1130</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">19</td>
-<td align="right">1145</td>
-<td align="right">1200</td>
-<td align="right">1610</td>
-<td align="left">Grauwe Gans</td>
-<td align="right">200</td>
-<td align="right">121962</td>
-<td align="right">426420</td>
+<tr>
+<td style="text-align:right;">
+1060911
+</td>
+<td style="text-align:left;">
+BR1130
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1145
+</td>
+<td style="text-align:right;">
+1200
+</td>
+<td style="text-align:right;">
+1610
+</td>
+<td style="text-align:left;">
+Grauwe Gans
+</td>
+<td style="text-align:right;">
+200
+</td>
+<td style="text-align:right;">
+121962
+</td>
+<td style="text-align:right;">
+426420
+</td>
 </tr>
-<tr class="even">
-<td align="right">1060911</td>
-<td align="left">BR1130</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">19</td>
-<td align="right">1145</td>
-<td align="right">1200</td>
-<td align="right">1661</td>
-<td align="left">Grote Canadese Gans</td>
-<td align="right">40</td>
-<td align="right">121962</td>
-<td align="right">426420</td>
+<tr>
+<td style="text-align:right;">
+1060911
+</td>
+<td style="text-align:left;">
+BR1130
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1145
+</td>
+<td style="text-align:right;">
+1200
+</td>
+<td style="text-align:right;">
+1661
+</td>
+<td style="text-align:left;">
+Grote Canadese Gans
+</td>
+<td style="text-align:right;">
+40
+</td>
+<td style="text-align:right;">
+121962
+</td>
+<td style="text-align:right;">
+426420
+</td>
 </tr>
 </tbody>
 </table>
@@ -435,165 +704,432 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb92-9" data-line-number="9"><span class="st">  </span><span class="kw">rowwise</span>() <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb92-10" data-line-number="10"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">species =</span> <span class="kw">str_split</span>(species, <span class="st">&quot;</span><span class="ch">\\</span><span class="st">(&quot;</span>)[[<span class="dv">1</span>]][<span class="dv">1</span>] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">str_trim</span>()) -&gt;<span class="st"> </span>ptt_data  <span class="co"># And remove all subspecies identifications-&gt; ptt_data</span></a>
 <a class="sourceLine" id="cb92-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb92-12" data-line-number="12"><span class="kw">head</span>(ptt_data, <span class="dv">10</span>)</a></code></pre></div>
-<div class="kable-table">
-<table>
+<a class="sourceLine" id="cb92-12" data-line-number="12"><span class="kw">head</span>(ptt_data, <span class="dv">10</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb92-13" data-line-number="13"><span class="st">  </span><span class="kw">kable</span>(<span class="dt">format =</span> <span class="st">&quot;html&quot;</span>, <span class="dt">col.names =</span> <span class="kw">colnames</span>(ptt_data)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb92-14" data-line-number="14"><span class="st">  </span><span class="kw">kable_styling</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb92-15" data-line-number="15"><span class="st">  </span>kableExtra<span class="op">::</span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;100%&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;400px&quot;</span>)</a></code></pre></div>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; ">
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
-<tr class="header">
-<th align="right">count_id</th>
-<th align="right">route</th>
-<th align="right">count_point</th>
-<th align="right">season</th>
-<th align="right">year</th>
-<th align="right">month</th>
-<th align="right">day</th>
-<th align="right">euring</th>
-<th align="left">species</th>
-<th align="right">number</th>
-<th align="right">xcoor</th>
-<th align="right">ycoor</th>
+<tr>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+count_id
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+route
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+count_point
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+season
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+year
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+month
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+day
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+euring
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+species
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+number
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+xcoor
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+ycoor
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="right">80917</td>
-<td align="right">4</td>
-<td align="right">1</td>
-<td align="right">2017</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">23</td>
-<td align="right">720</td>
-<td align="left">Aalscholver</td>
-<td align="right">2</td>
-<td align="right">246342</td>
-<td align="right">520763</td>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+720
+</td>
+<td style="text-align:left;">
+Aalscholver
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+246342
+</td>
+<td style="text-align:right;">
+520763
+</td>
 </tr>
-<tr class="even">
-<td align="right">80917</td>
-<td align="right">4</td>
-<td align="right">1</td>
-<td align="right">2017</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">23</td>
-<td align="right">5920</td>
-<td align="left">Zilvermeeuw</td>
-<td align="right">18</td>
-<td align="right">246342</td>
-<td align="right">520763</td>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+5920
+</td>
+<td style="text-align:left;">
+Zilvermeeuw
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+246342
+</td>
+<td style="text-align:right;">
+520763
+</td>
 </tr>
-<tr class="odd">
-<td align="right">80917</td>
-<td align="right">4</td>
-<td align="right">1</td>
-<td align="right">2017</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">23</td>
-<td align="right">6700</td>
-<td align="left">Houtduif</td>
-<td align="right">1</td>
-<td align="right">246342</td>
-<td align="right">520763</td>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+6700
+</td>
+<td style="text-align:left;">
+Houtduif
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+246342
+</td>
+<td style="text-align:right;">
+520763
+</td>
 </tr>
-<tr class="even">
-<td align="right">80917</td>
-<td align="right">4</td>
-<td align="right">1</td>
-<td align="right">2017</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">23</td>
-<td align="right">11870</td>
-<td align="left">Merel</td>
-<td align="right">4</td>
-<td align="right">246342</td>
-<td align="right">520763</td>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+11870
+</td>
+<td style="text-align:left;">
+Merel
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+246342
+</td>
+<td style="text-align:right;">
+520763
+</td>
 </tr>
-<tr class="odd">
-<td align="right">80917</td>
-<td align="right">4</td>
-<td align="right">1</td>
-<td align="right">2017</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">23</td>
-<td align="right">15630</td>
-<td align="left">Roek</td>
-<td align="right">24</td>
-<td align="right">246342</td>
-<td align="right">520763</td>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+15630
+</td>
+<td style="text-align:left;">
+Roek
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+246342
+</td>
+<td style="text-align:right;">
+520763
+</td>
 </tr>
-<tr class="even">
-<td align="right">80917</td>
-<td align="right">4</td>
-<td align="right">2</td>
-<td align="right">2017</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">23</td>
-<td align="right">6700</td>
-<td align="left">Houtduif</td>
-<td align="right">1</td>
-<td align="right">246357</td>
-<td align="right">522178</td>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+6700
+</td>
+<td style="text-align:left;">
+Houtduif
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+246357
+</td>
+<td style="text-align:right;">
+522178
+</td>
 </tr>
-<tr class="odd">
-<td align="right">80917</td>
-<td align="right">4</td>
-<td align="right">2</td>
-<td align="right">2017</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">23</td>
-<td align="right">11870</td>
-<td align="left">Merel</td>
-<td align="right">1</td>
-<td align="right">246357</td>
-<td align="right">522178</td>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+11870
+</td>
+<td style="text-align:left;">
+Merel
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+246357
+</td>
+<td style="text-align:right;">
+522178
+</td>
 </tr>
-<tr class="even">
-<td align="right">80917</td>
-<td align="right">4</td>
-<td align="right">2</td>
-<td align="right">2017</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">23</td>
-<td align="right">15600</td>
-<td align="left">Kauw</td>
-<td align="right">6</td>
-<td align="right">246357</td>
-<td align="right">522178</td>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+15600
+</td>
+<td style="text-align:left;">
+Kauw
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+246357
+</td>
+<td style="text-align:right;">
+522178
+</td>
 </tr>
-<tr class="odd">
-<td align="right">80917</td>
-<td align="right">4</td>
-<td align="right">2</td>
-<td align="right">2017</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">23</td>
-<td align="right">15630</td>
-<td align="left">Roek</td>
-<td align="right">78</td>
-<td align="right">246357</td>
-<td align="right">522178</td>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+15630
+</td>
+<td style="text-align:left;">
+Roek
+</td>
+<td style="text-align:right;">
+78
+</td>
+<td style="text-align:right;">
+246357
+</td>
+<td style="text-align:right;">
+522178
+</td>
 </tr>
-<tr class="even">
-<td align="right">80917</td>
-<td align="right">4</td>
-<td align="right">3</td>
-<td align="right">2017</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">23</td>
-<td align="right">14620</td>
-<td align="left">Pimpelmees</td>
-<td align="right">2</td>
-<td align="right">246692</td>
-<td align="right">523139</td>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+14620
+</td>
+<td style="text-align:left;">
+Pimpelmees
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+246692
+</td>
+<td style="text-align:right;">
+523139
+</td>
 </tr>
 </tbody>
 </table>
@@ -652,66 +1188,135 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb94-33" data-line-number="33">}</a>
 <a class="sourceLine" id="cb94-34" data-line-number="34"></a>
 <a class="sourceLine" id="cb94-35" data-line-number="35">species_lut &lt;-<span class="st"> </span><span class="kw">build_species_lut</span>(unique_species, <span class="dt">datasetKey =</span> <span class="st">&quot;4dd32523-a3a3-43b7-84df-4cda02f15cf7&quot;</span>, <span class="dt">higherTaxonKey =</span> <span class="dv">162310263</span>)</a>
-<a class="sourceLine" id="cb94-36" data-line-number="36"><span class="kw">head</span>(species_lut, <span class="dv">10</span>)</a></code></pre></div>
-<div class="kable-table">
-<table>
+<a class="sourceLine" id="cb94-36" data-line-number="36"><span class="kw">head</span>(species_lut, <span class="dv">10</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb94-37" data-line-number="37"><span class="st">  </span><span class="kw">kable</span>(<span class="dt">format =</span> <span class="st">&quot;html&quot;</span>, <span class="dt">col.names =</span> <span class="kw">colnames</span>(species_lut)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb94-38" data-line-number="38"><span class="st">  </span><span class="kw">kable_styling</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb94-39" data-line-number="39"><span class="st">  </span>kableExtra<span class="op">::</span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;100%&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;400px&quot;</span>)</a></code></pre></div>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; ">
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
-<tr class="header">
-<th align="left">lookupname</th>
-<th align="left">scientificname</th>
-<th align="right">gbif_key</th>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+lookupname
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+scientificname
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+gbif_key
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="left">Grauwe Gans</td>
-<td align="left">Anser anser</td>
-<td align="right">2498036</td>
+<tr>
+<td style="text-align:left;">
+Grauwe Gans
+</td>
+<td style="text-align:left;">
+Anser anser
+</td>
+<td style="text-align:right;">
+2498036
+</td>
 </tr>
-<tr class="even">
-<td align="left">Nijlgans</td>
-<td align="left">Alopochen aegyptiaca</td>
-<td align="right">2498252</td>
+<tr>
+<td style="text-align:left;">
+Nijlgans
+</td>
+<td style="text-align:left;">
+Alopochen aegyptiaca
+</td>
+<td style="text-align:right;">
+2498252
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Grote Canadese Gans</td>
-<td align="left">Branta canadensis</td>
-<td align="right">5232437</td>
+<tr>
+<td style="text-align:left;">
+Grote Canadese Gans
+</td>
+<td style="text-align:left;">
+Branta canadensis
+</td>
+<td style="text-align:right;">
+5232437
+</td>
 </tr>
-<tr class="even">
-<td align="left">Soepgans</td>
-<td align="left">Anser anser</td>
-<td align="right">9384117</td>
+<tr>
+<td style="text-align:left;">
+Soepgans
+</td>
+<td style="text-align:left;">
+Anser anser
+</td>
+<td style="text-align:right;">
+9384117
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Brandgans</td>
-<td align="left">Branta leucopsis</td>
-<td align="right">5232464</td>
+<tr>
+<td style="text-align:left;">
+Brandgans
+</td>
+<td style="text-align:left;">
+Branta leucopsis
+</td>
+<td style="text-align:right;">
+5232464
+</td>
 </tr>
-<tr class="even">
-<td align="left">Knobbelzwaan</td>
-<td align="left">Cygnus olor</td>
-<td align="right">2498343</td>
+<tr>
+<td style="text-align:left;">
+Knobbelzwaan
+</td>
+<td style="text-align:left;">
+Cygnus olor
+</td>
+<td style="text-align:right;">
+2498343
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Kolgans</td>
-<td align="left">Anser albifrons</td>
-<td align="right">2498017</td>
+<tr>
+<td style="text-align:left;">
+Kolgans
+</td>
+<td style="text-align:left;">
+Anser albifrons
+</td>
+<td style="text-align:right;">
+2498017
+</td>
 </tr>
-<tr class="even">
-<td align="left">Canadese Gans</td>
-<td align="left">Branta hutchinsii</td>
-<td align="right">5232458</td>
+<tr>
+<td style="text-align:left;">
+Canadese Gans
+</td>
+<td style="text-align:left;">
+Branta hutchinsii
+</td>
+<td style="text-align:right;">
+5232458
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Toendrarietgans</td>
-<td align="left">Anser serrirostris</td>
-<td align="right">9455781</td>
+<tr>
+<td style="text-align:left;">
+Toendrarietgans
+</td>
+<td style="text-align:left;">
+Anser serrirostris
+</td>
+<td style="text-align:right;">
+6085485
+</td>
 </tr>
-<tr class="even">
-<td align="left">Kleine Zwaan</td>
-<td align="left">Cygnus bewickii</td>
-<td align="right">4409105</td>
+<tr>
+<td style="text-align:left;">
+Kleine Zwaan
+</td>
+<td style="text-align:left;">
+Cygnus bewickii
+</td>
+<td style="text-align:right;">
+4409105
+</td>
 </tr>
 </tbody>
 </table>
@@ -750,55 +1355,102 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb96-8" data-line-number="8"><span class="st">  </span><span class="kw">drop_na</span>() -&gt;<span class="st"> </span>lhc</a>
 <a class="sourceLine" id="cb96-9" data-line-number="9"></a>
 <a class="sourceLine" id="cb96-10" data-line-number="10">lhc[lhc<span class="op">$</span>species <span class="op">==</span><span class="st"> &quot;Aquila nipalenis&quot;</span>, <span class="st">&quot;species&quot;</span>] &lt;-<span class="st"> &quot;Aquila nipalensis&quot;</span>  <span class="co"># Small error in dataset -&gt; notified author</span></a>
-<a class="sourceLine" id="cb96-11" data-line-number="11"><span class="kw">head</span>(lhc, <span class="dv">10</span>)</a></code></pre></div>
-<div class="kable-table">
-<table>
+<a class="sourceLine" id="cb96-11" data-line-number="11"><span class="kw">head</span>(lhc, <span class="dv">10</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb96-12" data-line-number="12"><span class="st">  </span><span class="kw">kable</span>(<span class="dt">format =</span> <span class="st">&quot;html&quot;</span>, <span class="dt">col.names =</span> <span class="kw">colnames</span>(lhc)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb96-13" data-line-number="13"><span class="st">  </span><span class="kw">kable_styling</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb96-14" data-line-number="14"><span class="st">  </span>kableExtra<span class="op">::</span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;100%&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;400px&quot;</span>)</a></code></pre></div>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; ">
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
-<tr class="header">
-<th align="left">species</th>
-<th align="right">mean_weight</th>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+species
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+mean_weight
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="left">Accipiter brevipes</td>
-<td align="right">221.5</td>
+<tr>
+<td style="text-align:left;">
+Accipiter brevipes
+</td>
+<td style="text-align:right;">
+221.5
+</td>
 </tr>
-<tr class="even">
-<td align="left">Accipiter gentilis</td>
-<td align="right">931.5</td>
+<tr>
+<td style="text-align:left;">
+Accipiter gentilis
+</td>
+<td style="text-align:right;">
+931.5
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Accipiter nisus</td>
-<td align="right">204.0</td>
+<tr>
+<td style="text-align:left;">
+Accipiter nisus
+</td>
+<td style="text-align:right;">
+204.0
+</td>
 </tr>
-<tr class="even">
-<td align="left">Aegypius monachus</td>
-<td align="right">9625.0</td>
+<tr>
+<td style="text-align:left;">
+Aegypius monachus
+</td>
+<td style="text-align:right;">
+9625.0
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Aquila adalberti</td>
-<td align="right">3000.0</td>
+<tr>
+<td style="text-align:left;">
+Aquila adalberti
+</td>
+<td style="text-align:right;">
+3000.0
+</td>
 </tr>
-<tr class="even">
-<td align="left">Aquila fasciata</td>
-<td align="right">1905.0</td>
+<tr>
+<td style="text-align:left;">
+Aquila fasciata
+</td>
+<td style="text-align:right;">
+1905.0
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Aquila heliaca</td>
-<td align="right">3262.5</td>
+<tr>
+<td style="text-align:left;">
+Aquila heliaca
+</td>
+<td style="text-align:right;">
+3262.5
+</td>
 </tr>
-<tr class="even">
-<td align="left">Aquila chrysaetos</td>
-<td align="right">4383.0</td>
+<tr>
+<td style="text-align:left;">
+Aquila chrysaetos
+</td>
+<td style="text-align:right;">
+4383.0
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Aquila nipalensis</td>
-<td align="right">2723.0</td>
+<tr>
+<td style="text-align:left;">
+Aquila nipalensis
+</td>
+<td style="text-align:right;">
+2723.0
+</td>
 </tr>
-<tr class="even">
-<td align="left">Buteo buteo</td>
-<td align="right">806.5</td>
+<tr>
+<td style="text-align:left;">
+Buteo buteo
+</td>
+<td style="text-align:right;">
+806.5
+</td>
 </tr>
 </tbody>
 </table>
@@ -807,66 +1459,135 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode" id="cb97"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb97-1" data-line-number="1">unique_species_lhc &lt;-<span class="st"> </span><span class="kw">unique</span>(lhc<span class="op">$</span>species)</a>
 <a class="sourceLine" id="cb97-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb97-3" data-line-number="3">lhc_species_lut &lt;-<span class="st"> </span><span class="kw">build_species_lut</span>(unique_species_lhc, <span class="dt">dataset =</span> <span class="ot">NULL</span>)</a>
-<a class="sourceLine" id="cb97-4" data-line-number="4"><span class="kw">head</span>(lhc_species_lut, <span class="dv">10</span>)</a></code></pre></div>
-<div class="kable-table">
-<table>
+<a class="sourceLine" id="cb97-4" data-line-number="4"><span class="kw">head</span>(lhc_species_lut, <span class="dv">10</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb97-5" data-line-number="5"><span class="st">  </span><span class="kw">kable</span>(<span class="dt">format =</span> <span class="st">&quot;html&quot;</span>, <span class="dt">col.names =</span> <span class="kw">colnames</span>(lhc_species_lut)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb97-6" data-line-number="6"><span class="st">  </span><span class="kw">kable_styling</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb97-7" data-line-number="7"><span class="st">  </span>kableExtra<span class="op">::</span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;100%&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;400px&quot;</span>)</a></code></pre></div>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; ">
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
-<tr class="header">
-<th align="left">lookupname</th>
-<th align="left">scientificname</th>
-<th align="right">gbif_key</th>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+lookupname
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+scientificname
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+gbif_key
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="left">Accipiter brevipes</td>
-<td align="left">Accipiter brevipes</td>
-<td align="right">2480578</td>
+<tr>
+<td style="text-align:left;">
+Accipiter brevipes
+</td>
+<td style="text-align:left;">
+Accipiter brevipes
+</td>
+<td style="text-align:right;">
+2480578
+</td>
 </tr>
-<tr class="even">
-<td align="left">Accipiter gentilis</td>
-<td align="left">Accipiter gentilis</td>
-<td align="right">2480589</td>
+<tr>
+<td style="text-align:left;">
+Accipiter gentilis
+</td>
+<td style="text-align:left;">
+Accipiter gentilis
+</td>
+<td style="text-align:right;">
+2480589
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Accipiter nisus</td>
-<td align="left">Accipiter nisus</td>
-<td align="right">2480637</td>
+<tr>
+<td style="text-align:left;">
+Accipiter nisus
+</td>
+<td style="text-align:left;">
+Accipiter nisus
+</td>
+<td style="text-align:right;">
+2480637
+</td>
 </tr>
-<tr class="even">
-<td align="left">Aegypius monachus</td>
-<td align="left">Aegypius monachus</td>
-<td align="right">5229165</td>
+<tr>
+<td style="text-align:left;">
+Aegypius monachus
+</td>
+<td style="text-align:left;">
+Aegypius monachus
+</td>
+<td style="text-align:right;">
+5229165
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Aquila adalberti</td>
-<td align="left">Aquila adalberti</td>
-<td align="right">2480510</td>
+<tr>
+<td style="text-align:left;">
+Aquila adalberti
+</td>
+<td style="text-align:left;">
+Aquila adalberti
+</td>
+<td style="text-align:right;">
+2480510
+</td>
 </tr>
-<tr class="even">
-<td align="left">Aquila fasciata</td>
-<td align="left">Aquila fasciata</td>
-<td align="right">5844449</td>
+<tr>
+<td style="text-align:left;">
+Aquila fasciata
+</td>
+<td style="text-align:left;">
+Aquila fasciata
+</td>
+<td style="text-align:right;">
+5844449
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Aquila heliaca</td>
-<td align="left">Aquila heliaca</td>
-<td align="right">2480500</td>
+<tr>
+<td style="text-align:left;">
+Aquila heliaca
+</td>
+<td style="text-align:left;">
+Aquila heliaca
+</td>
+<td style="text-align:right;">
+2480500
+</td>
 </tr>
-<tr class="even">
-<td align="left">Aquila chrysaetos</td>
-<td align="left">Aquila chrysaetos</td>
-<td align="right">2480506</td>
+<tr>
+<td style="text-align:left;">
+Aquila chrysaetos
+</td>
+<td style="text-align:left;">
+Aquila chrysaetos
+</td>
+<td style="text-align:right;">
+2480506
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Aquila nipalensis</td>
-<td align="left">Aquila nipalensis</td>
-<td align="right">2480513</td>
+<tr>
+<td style="text-align:left;">
+Aquila nipalensis
+</td>
+<td style="text-align:left;">
+Aquila nipalensis
+</td>
+<td style="text-align:right;">
+2480513
+</td>
 </tr>
-<tr class="even">
-<td align="left">Buteo buteo</td>
-<td align="left">Buteo buteo</td>
-<td align="right">2480537</td>
+<tr>
+<td style="text-align:left;">
+Buteo buteo
+</td>
+<td style="text-align:left;">
+Buteo buteo
+</td>
+<td style="text-align:right;">
+2480537
+</td>
 </tr>
 </tbody>
 </table>
@@ -882,198 +1603,531 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb98-8" data-line-number="8"><span class="st">  </span><span class="kw">left_join</span>(dplyr<span class="op">::</span><span class="kw">select</span>(lhc, mean_weight, species), <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;scientificname&quot;</span> =<span class="st"> &quot;species&quot;</span>)) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb98-9" data-line-number="9"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(<span class="op">-</span><span class="kw">c</span>(mean_weight.x)) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb98-10" data-line-number="10"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">mean_weight =</span> mean_weight.y) -&gt;<span class="st"> </span>wb_data_lhc</a>
-<a class="sourceLine" id="cb98-11" data-line-number="11"><span class="kw">head</span>(wb_data_lhc, <span class="dv">10</span>)</a></code></pre></div>
-<div class="kable-table">
-<table>
+<a class="sourceLine" id="cb98-11" data-line-number="11"><span class="kw">head</span>(wb_data_lhc, <span class="dv">10</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb98-12" data-line-number="12"><span class="st">  </span><span class="kw">kable</span>(<span class="dt">format =</span> <span class="st">&quot;html&quot;</span>, <span class="dt">col.names =</span> <span class="kw">colnames</span>(wb_data_lhc)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb98-13" data-line-number="13"><span class="st">  </span><span class="kw">kable_styling</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb98-14" data-line-number="14"><span class="st">  </span>kableExtra<span class="op">::</span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;100%&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;400px&quot;</span>)</a></code></pre></div>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; ">
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
-<tr class="header">
-<th align="right">count_id</th>
-<th align="left">area_nr</th>
-<th align="right">year</th>
-<th align="right">month</th>
-<th align="right">day</th>
-<th align="right">start_time</th>
-<th align="right">end_time</th>
-<th align="right">euring</th>
-<th align="left">species</th>
-<th align="right">number</th>
-<th align="right">xcoor</th>
-<th align="right">ycoor</th>
-<th align="left">scientificname</th>
-<th align="right">gbif_key</th>
-<th align="right">mean_weight</th>
+<tr>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+count_id
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+area_nr
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+year
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+month
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+day
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+start_time
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+end_time
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+euring
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+species
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+number
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+xcoor
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+ycoor
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+scientificname
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+gbif_key
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+mean_weight
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="right">1060908</td>
-<td align="left">BR1111</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">19</td>
-<td align="right">1045</td>
-<td align="right">1108</td>
-<td align="right">1610</td>
-<td align="left">Grauwe Gans</td>
-<td align="right">280</td>
-<td align="right">127723</td>
-<td align="right">426233</td>
-<td align="left">Anser anser</td>
-<td align="right">2498036</td>
-<td align="right">3347</td>
+<tr>
+<td style="text-align:right;">
+1060908
+</td>
+<td style="text-align:left;">
+BR1111
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1045
+</td>
+<td style="text-align:right;">
+1108
+</td>
+<td style="text-align:right;">
+1610
+</td>
+<td style="text-align:left;">
+Grauwe Gans
+</td>
+<td style="text-align:right;">
+280
+</td>
+<td style="text-align:right;">
+127723
+</td>
+<td style="text-align:right;">
+426233
+</td>
+<td style="text-align:left;">
+Anser anser
+</td>
+<td style="text-align:right;">
+2498036
+</td>
+<td style="text-align:right;">
+3347
+</td>
 </tr>
-<tr class="even">
-<td align="right">1060908</td>
-<td align="left">BR1111</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">19</td>
-<td align="right">1045</td>
-<td align="right">1108</td>
-<td align="right">1700</td>
-<td align="left">Nijlgans</td>
-<td align="right">2</td>
-<td align="right">127723</td>
-<td align="right">426233</td>
-<td align="left">Alopochen aegyptiaca</td>
-<td align="right">2498252</td>
-<td align="right">2270</td>
+<tr>
+<td style="text-align:right;">
+1060908
+</td>
+<td style="text-align:left;">
+BR1111
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1045
+</td>
+<td style="text-align:right;">
+1108
+</td>
+<td style="text-align:right;">
+1700
+</td>
+<td style="text-align:left;">
+Nijlgans
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+127723
+</td>
+<td style="text-align:right;">
+426233
+</td>
+<td style="text-align:left;">
+Alopochen aegyptiaca
+</td>
+<td style="text-align:right;">
+2498252
+</td>
+<td style="text-align:right;">
+2270
+</td>
 </tr>
-<tr class="odd">
-<td align="right">1060909</td>
-<td align="left">BR1112</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">19</td>
-<td align="right">1108</td>
-<td align="right">1126</td>
-<td align="right">1610</td>
-<td align="left">Grauwe Gans</td>
-<td align="right">76</td>
-<td align="right">125082</td>
-<td align="right">426701</td>
-<td align="left">Anser anser</td>
-<td align="right">2498036</td>
-<td align="right">3347</td>
+<tr>
+<td style="text-align:right;">
+1060909
+</td>
+<td style="text-align:left;">
+BR1112
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1108
+</td>
+<td style="text-align:right;">
+1126
+</td>
+<td style="text-align:right;">
+1610
+</td>
+<td style="text-align:left;">
+Grauwe Gans
+</td>
+<td style="text-align:right;">
+76
+</td>
+<td style="text-align:right;">
+125082
+</td>
+<td style="text-align:right;">
+426701
+</td>
+<td style="text-align:left;">
+Anser anser
+</td>
+<td style="text-align:right;">
+2498036
+</td>
+<td style="text-align:right;">
+3347
+</td>
 </tr>
-<tr class="even">
-<td align="right">1060909</td>
-<td align="left">BR1112</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">19</td>
-<td align="right">1108</td>
-<td align="right">1126</td>
-<td align="right">1661</td>
-<td align="left">Grote Canadese Gans</td>
-<td align="right">50</td>
-<td align="right">125082</td>
-<td align="right">426701</td>
-<td align="left">Branta canadensis</td>
-<td align="right">5232437</td>
-<td align="right">4635</td>
+<tr>
+<td style="text-align:right;">
+1060909
+</td>
+<td style="text-align:left;">
+BR1112
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1108
+</td>
+<td style="text-align:right;">
+1126
+</td>
+<td style="text-align:right;">
+1661
+</td>
+<td style="text-align:left;">
+Grote Canadese Gans
+</td>
+<td style="text-align:right;">
+50
+</td>
+<td style="text-align:right;">
+125082
+</td>
+<td style="text-align:right;">
+426701
+</td>
+<td style="text-align:left;">
+Branta canadensis
+</td>
+<td style="text-align:right;">
+5232437
+</td>
+<td style="text-align:right;">
+4635
+</td>
 </tr>
-<tr class="odd">
-<td align="right">1060909</td>
-<td align="left">BR1112</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">19</td>
-<td align="right">1108</td>
-<td align="right">1126</td>
-<td align="right">1700</td>
-<td align="left">Nijlgans</td>
-<td align="right">22</td>
-<td align="right">125082</td>
-<td align="right">426701</td>
-<td align="left">Alopochen aegyptiaca</td>
-<td align="right">2498252</td>
-<td align="right">2270</td>
+<tr>
+<td style="text-align:right;">
+1060909
+</td>
+<td style="text-align:left;">
+BR1112
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1108
+</td>
+<td style="text-align:right;">
+1126
+</td>
+<td style="text-align:right;">
+1700
+</td>
+<td style="text-align:left;">
+Nijlgans
+</td>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:right;">
+125082
+</td>
+<td style="text-align:right;">
+426701
+</td>
+<td style="text-align:left;">
+Alopochen aegyptiaca
+</td>
+<td style="text-align:right;">
+2498252
+</td>
+<td style="text-align:right;">
+2270
+</td>
 </tr>
-<tr class="even">
-<td align="right">1060906</td>
-<td align="left">BR1122</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">19</td>
-<td align="right">1020</td>
-<td align="right">1037</td>
-<td align="right">1610</td>
-<td align="left">Grauwe Gans</td>
-<td align="right">250</td>
-<td align="right">125313</td>
-<td align="right">426061</td>
-<td align="left">Anser anser</td>
-<td align="right">2498036</td>
-<td align="right">3347</td>
+<tr>
+<td style="text-align:right;">
+1060906
+</td>
+<td style="text-align:left;">
+BR1122
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1020
+</td>
+<td style="text-align:right;">
+1037
+</td>
+<td style="text-align:right;">
+1610
+</td>
+<td style="text-align:left;">
+Grauwe Gans
+</td>
+<td style="text-align:right;">
+250
+</td>
+<td style="text-align:right;">
+125313
+</td>
+<td style="text-align:right;">
+426061
+</td>
+<td style="text-align:left;">
+Anser anser
+</td>
+<td style="text-align:right;">
+2498036
+</td>
+<td style="text-align:right;">
+3347
+</td>
 </tr>
-<tr class="odd">
-<td align="right">1060906</td>
-<td align="left">BR1122</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">19</td>
-<td align="right">1020</td>
-<td align="right">1037</td>
-<td align="right">1619</td>
-<td align="left">Soepgans</td>
-<td align="right">5</td>
-<td align="right">125313</td>
-<td align="right">426061</td>
-<td align="left">Anser anser</td>
-<td align="right">9384117</td>
-<td align="right">3347</td>
+<tr>
+<td style="text-align:right;">
+1060906
+</td>
+<td style="text-align:left;">
+BR1122
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1020
+</td>
+<td style="text-align:right;">
+1037
+</td>
+<td style="text-align:right;">
+1619
+</td>
+<td style="text-align:left;">
+Soepgans
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+125313
+</td>
+<td style="text-align:right;">
+426061
+</td>
+<td style="text-align:left;">
+Anser anser
+</td>
+<td style="text-align:right;">
+9384117
+</td>
+<td style="text-align:right;">
+3347
+</td>
 </tr>
-<tr class="even">
-<td align="right">1060906</td>
-<td align="left">BR1122</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">19</td>
-<td align="right">1020</td>
-<td align="right">1037</td>
-<td align="right">1661</td>
-<td align="left">Grote Canadese Gans</td>
-<td align="right">35</td>
-<td align="right">125313</td>
-<td align="right">426061</td>
-<td align="left">Branta canadensis</td>
-<td align="right">5232437</td>
-<td align="right">4635</td>
+<tr>
+<td style="text-align:right;">
+1060906
+</td>
+<td style="text-align:left;">
+BR1122
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1020
+</td>
+<td style="text-align:right;">
+1037
+</td>
+<td style="text-align:right;">
+1661
+</td>
+<td style="text-align:left;">
+Grote Canadese Gans
+</td>
+<td style="text-align:right;">
+35
+</td>
+<td style="text-align:right;">
+125313
+</td>
+<td style="text-align:right;">
+426061
+</td>
+<td style="text-align:left;">
+Branta canadensis
+</td>
+<td style="text-align:right;">
+5232437
+</td>
+<td style="text-align:right;">
+4635
+</td>
 </tr>
-<tr class="odd">
-<td align="right">1060911</td>
-<td align="left">BR1130</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">19</td>
-<td align="right">1145</td>
-<td align="right">1200</td>
-<td align="right">1610</td>
-<td align="left">Grauwe Gans</td>
-<td align="right">200</td>
-<td align="right">121962</td>
-<td align="right">426420</td>
-<td align="left">Anser anser</td>
-<td align="right">2498036</td>
-<td align="right">3347</td>
+<tr>
+<td style="text-align:right;">
+1060911
+</td>
+<td style="text-align:left;">
+BR1130
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1145
+</td>
+<td style="text-align:right;">
+1200
+</td>
+<td style="text-align:right;">
+1610
+</td>
+<td style="text-align:left;">
+Grauwe Gans
+</td>
+<td style="text-align:right;">
+200
+</td>
+<td style="text-align:right;">
+121962
+</td>
+<td style="text-align:right;">
+426420
+</td>
+<td style="text-align:left;">
+Anser anser
+</td>
+<td style="text-align:right;">
+2498036
+</td>
+<td style="text-align:right;">
+3347
+</td>
 </tr>
-<tr class="even">
-<td align="right">1060911</td>
-<td align="left">BR1130</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">19</td>
-<td align="right">1145</td>
-<td align="right">1200</td>
-<td align="right">1661</td>
-<td align="left">Grote Canadese Gans</td>
-<td align="right">40</td>
-<td align="right">121962</td>
-<td align="right">426420</td>
-<td align="left">Branta canadensis</td>
-<td align="right">5232437</td>
-<td align="right">4635</td>
+<tr>
+<td style="text-align:right;">
+1060911
+</td>
+<td style="text-align:left;">
+BR1130
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1145
+</td>
+<td style="text-align:right;">
+1200
+</td>
+<td style="text-align:right;">
+1661
+</td>
+<td style="text-align:left;">
+Grote Canadese Gans
+</td>
+<td style="text-align:right;">
+40
+</td>
+<td style="text-align:right;">
+121962
+</td>
+<td style="text-align:right;">
+426420
+</td>
+<td style="text-align:left;">
+Branta canadensis
+</td>
+<td style="text-align:right;">
+5232437
+</td>
+<td style="text-align:right;">
+4635
+</td>
 </tr>
 </tbody>
 </table>
@@ -1085,198 +2139,531 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb99-4" data-line-number="4"><span class="st">  </span><span class="kw">left_join</span>(dplyr<span class="op">::</span><span class="kw">select</span>(lhc, mean_weight, species), <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;scientificname&quot;</span> =<span class="st"> &quot;species&quot;</span>)) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb99-5" data-line-number="5"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(<span class="op">-</span><span class="kw">c</span>(mean_weight.x)) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb99-6" data-line-number="6"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">mean_weight =</span> mean_weight.y) -&gt;<span class="st"> </span>ptt_data_lhc</a>
-<a class="sourceLine" id="cb99-7" data-line-number="7"><span class="kw">head</span>(ptt_data_lhc, <span class="dv">10</span>)</a></code></pre></div>
-<div class="kable-table">
-<table>
+<a class="sourceLine" id="cb99-7" data-line-number="7"><span class="kw">head</span>(ptt_data_lhc, <span class="dv">10</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb99-8" data-line-number="8"><span class="st">  </span><span class="kw">kable</span>(<span class="dt">format =</span> <span class="st">&quot;html&quot;</span>, <span class="dt">col.names =</span> <span class="kw">colnames</span>(ptt_data_lhc)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb99-9" data-line-number="9"><span class="st">  </span><span class="kw">kable_styling</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb99-10" data-line-number="10"><span class="st">  </span>kableExtra<span class="op">::</span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;100%&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;400px&quot;</span>)</a></code></pre></div>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; ">
+<table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
-<tr class="header">
-<th align="right">count_id</th>
-<th align="right">route</th>
-<th align="right">count_point</th>
-<th align="right">season</th>
-<th align="right">year</th>
-<th align="right">month</th>
-<th align="right">day</th>
-<th align="right">euring</th>
-<th align="left">species</th>
-<th align="right">number</th>
-<th align="right">xcoor</th>
-<th align="right">ycoor</th>
-<th align="left">scientificname</th>
-<th align="right">gbif_key</th>
-<th align="right">mean_weight</th>
+<tr>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+count_id
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+route
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+count_point
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+season
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+year
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+month
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+day
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+euring
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+species
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+number
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+xcoor
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+ycoor
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+scientificname
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+gbif_key
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+mean_weight
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="right">80917</td>
-<td align="right">4</td>
-<td align="right">1</td>
-<td align="right">2017</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">23</td>
-<td align="right">720</td>
-<td align="left">Aalscholver</td>
-<td align="right">2</td>
-<td align="right">246342</td>
-<td align="right">520763</td>
-<td align="left">Phalacrocorax carbo</td>
-<td align="right">2481890</td>
-<td align="right">2254.0</td>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+720
+</td>
+<td style="text-align:left;">
+Aalscholver
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+246342
+</td>
+<td style="text-align:right;">
+520763
+</td>
+<td style="text-align:left;">
+Phalacrocorax carbo
+</td>
+<td style="text-align:right;">
+2481890
+</td>
+<td style="text-align:right;">
+2254.0
+</td>
 </tr>
-<tr class="even">
-<td align="right">80917</td>
-<td align="right">4</td>
-<td align="right">1</td>
-<td align="right">2017</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">23</td>
-<td align="right">5920</td>
-<td align="left">Zilvermeeuw</td>
-<td align="right">18</td>
-<td align="right">246342</td>
-<td align="right">520763</td>
-<td align="left">Larus argentatus</td>
-<td align="right">2481139</td>
-<td align="right">1054.0</td>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+5920
+</td>
+<td style="text-align:left;">
+Zilvermeeuw
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+246342
+</td>
+<td style="text-align:right;">
+520763
+</td>
+<td style="text-align:left;">
+Larus argentatus
+</td>
+<td style="text-align:right;">
+2481139
+</td>
+<td style="text-align:right;">
+1054.0
+</td>
 </tr>
-<tr class="odd">
-<td align="right">80917</td>
-<td align="right">4</td>
-<td align="right">1</td>
-<td align="right">2017</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">23</td>
-<td align="right">6700</td>
-<td align="left">Houtduif</td>
-<td align="right">1</td>
-<td align="right">246342</td>
-<td align="right">520763</td>
-<td align="left">Columba palumbus</td>
-<td align="right">2495455</td>
-<td align="right">496.5</td>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+6700
+</td>
+<td style="text-align:left;">
+Houtduif
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+246342
+</td>
+<td style="text-align:right;">
+520763
+</td>
+<td style="text-align:left;">
+Columba palumbus
+</td>
+<td style="text-align:right;">
+2495455
+</td>
+<td style="text-align:right;">
+496.5
+</td>
 </tr>
-<tr class="even">
-<td align="right">80917</td>
-<td align="right">4</td>
-<td align="right">1</td>
-<td align="right">2017</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">23</td>
-<td align="right">11870</td>
-<td align="left">Merel</td>
-<td align="right">4</td>
-<td align="right">246342</td>
-<td align="right">520763</td>
-<td align="left">Turdus merula</td>
-<td align="right">2490719</td>
-<td align="right">97.0</td>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+11870
+</td>
+<td style="text-align:left;">
+Merel
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+246342
+</td>
+<td style="text-align:right;">
+520763
+</td>
+<td style="text-align:left;">
+Turdus merula
+</td>
+<td style="text-align:right;">
+2490719
+</td>
+<td style="text-align:right;">
+97.0
+</td>
 </tr>
-<tr class="odd">
-<td align="right">80917</td>
-<td align="right">4</td>
-<td align="right">1</td>
-<td align="right">2017</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">23</td>
-<td align="right">15630</td>
-<td align="left">Roek</td>
-<td align="right">24</td>
-<td align="right">246342</td>
-<td align="right">520763</td>
-<td align="left">Corvus frugilegus</td>
-<td align="right">2482513</td>
-<td align="right">459.0</td>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+15630
+</td>
+<td style="text-align:left;">
+Roek
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+246342
+</td>
+<td style="text-align:right;">
+520763
+</td>
+<td style="text-align:left;">
+Corvus frugilegus
+</td>
+<td style="text-align:right;">
+2482513
+</td>
+<td style="text-align:right;">
+459.0
+</td>
 </tr>
-<tr class="even">
-<td align="right">80917</td>
-<td align="right">4</td>
-<td align="right">2</td>
-<td align="right">2017</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">23</td>
-<td align="right">6700</td>
-<td align="left">Houtduif</td>
-<td align="right">1</td>
-<td align="right">246357</td>
-<td align="right">522178</td>
-<td align="left">Columba palumbus</td>
-<td align="right">2495455</td>
-<td align="right">496.5</td>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+6700
+</td>
+<td style="text-align:left;">
+Houtduif
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+246357
+</td>
+<td style="text-align:right;">
+522178
+</td>
+<td style="text-align:left;">
+Columba palumbus
+</td>
+<td style="text-align:right;">
+2495455
+</td>
+<td style="text-align:right;">
+496.5
+</td>
 </tr>
-<tr class="odd">
-<td align="right">80917</td>
-<td align="right">4</td>
-<td align="right">2</td>
-<td align="right">2017</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">23</td>
-<td align="right">11870</td>
-<td align="left">Merel</td>
-<td align="right">1</td>
-<td align="right">246357</td>
-<td align="right">522178</td>
-<td align="left">Turdus merula</td>
-<td align="right">2490719</td>
-<td align="right">97.0</td>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+11870
+</td>
+<td style="text-align:left;">
+Merel
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+246357
+</td>
+<td style="text-align:right;">
+522178
+</td>
+<td style="text-align:left;">
+Turdus merula
+</td>
+<td style="text-align:right;">
+2490719
+</td>
+<td style="text-align:right;">
+97.0
+</td>
 </tr>
-<tr class="even">
-<td align="right">80917</td>
-<td align="right">4</td>
-<td align="right">2</td>
-<td align="right">2017</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">23</td>
-<td align="right">15600</td>
-<td align="left">Kauw</td>
-<td align="right">6</td>
-<td align="right">246357</td>
-<td align="right">522178</td>
-<td align="left">Corvus monedula</td>
-<td align="right">2482473</td>
-<td align="right">236.0</td>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+15600
+</td>
+<td style="text-align:left;">
+Kauw
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+246357
+</td>
+<td style="text-align:right;">
+522178
+</td>
+<td style="text-align:left;">
+Corvus monedula
+</td>
+<td style="text-align:right;">
+2482473
+</td>
+<td style="text-align:right;">
+236.0
+</td>
 </tr>
-<tr class="odd">
-<td align="right">80917</td>
-<td align="right">4</td>
-<td align="right">2</td>
-<td align="right">2017</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">23</td>
-<td align="right">15630</td>
-<td align="left">Roek</td>
-<td align="right">78</td>
-<td align="right">246357</td>
-<td align="right">522178</td>
-<td align="left">Corvus frugilegus</td>
-<td align="right">2482513</td>
-<td align="right">459.0</td>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+15630
+</td>
+<td style="text-align:left;">
+Roek
+</td>
+<td style="text-align:right;">
+78
+</td>
+<td style="text-align:right;">
+246357
+</td>
+<td style="text-align:right;">
+522178
+</td>
+<td style="text-align:left;">
+Corvus frugilegus
+</td>
+<td style="text-align:right;">
+2482513
+</td>
+<td style="text-align:right;">
+459.0
+</td>
 </tr>
-<tr class="even">
-<td align="right">80917</td>
-<td align="right">4</td>
-<td align="right">3</td>
-<td align="right">2017</td>
-<td align="right">2017</td>
-<td align="right">12</td>
-<td align="right">23</td>
-<td align="right">14620</td>
-<td align="left">Pimpelmees</td>
-<td align="right">2</td>
-<td align="right">246692</td>
-<td align="right">523139</td>
-<td align="left">Cyanistes caeruleus</td>
-<td align="right">2487879</td>
-<td align="right">11.5</td>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+14620
+</td>
+<td style="text-align:left;">
+Pimpelmees
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+246692
+</td>
+<td style="text-align:right;">
+523139
+</td>
+<td style="text-align:left;">
+Cyanistes caeruleus
+</td>
+<td style="text-align:right;">
+2487879
+</td>
+<td style="text-align:right;">
+11.5
+</td>
 </tr>
 </tbody>
 </table>
