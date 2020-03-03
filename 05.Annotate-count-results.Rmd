@@ -276,3 +276,11 @@ ptt_data_lhc %>%
 wb_data_lhc %>%
   drop_na() -> wb_data
 ```
+
+And we save the data for further use.
+
+```{r save_processed_sovon_data}
+saveRDS(ptt_data, file = "data/processed/sovon/ptt.RDS")
+saveRDS(wb_data, file = "data/processed/sovon/wb.RDS")
+```
+
