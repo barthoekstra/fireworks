@@ -197,7 +197,7 @@ ppi_hrw_mass %>%
 #            )) %>%
 #   drop_na() -> ppi_mdl
 
-m1 <- gam(VIR ~ s(birds_smooth_9, k = 100) + s(pop, k = 20) + s(dist_urban) + landuse_overall,
+m1 <- gam(VIR ~ s(wb_nr_birds, k = 100) + s(pop, k = 20) + s(dist_urban) + landuse_overall,
           data = ppi_mdl, method = "REML", family = Gamma(link = "log"))
 # gam(vid_new ~ s(birds_smooth_9, k = 20) + s(pop) + s(dist_urban) + s(pop_eff) + landuse_overall, data = ppi_mdl, method = "REML", family = Gamma(link = "log")) -> m1
 summary(m1)
