@@ -323,7 +323,7 @@ saveRDS(pvol_dhl, file = "data/processed/pvol_clean_dhl.RDS")
 
 ## Range-bias correction
 
-With all identifiable sources of clutter removed from the raw polar volume, we can apply the range-bias correction (`Add Ref`). For this it is necessary to calculate the local vertical profile for each of the radars. Ideally, this would be done using the filtered `pvol` we have now generated, but the `vol2bird` algorithm [@dokter_bird_2011] only takes `pvol` files as input, rather than R objects. As there is no implementation of a converter yet, for now a `vp` of the raw `pvol` files will have to do. As there is no precipitation within the relevant distance to the radars (5-35km), the calculated `vp` based on the raw `pvol` files should not differ wildly from that of the filtered `pvol` R object we have generated in the previous steps.
+With all identifiable sources of clutter removed from the raw polar volume, we can apply the range-bias correction [@kranstauber2020]. For this it is necessary to calculate the local vertical profile for each of the radars. Ideally, this would be done using the filtered `pvol` we have now generated, but the `vol2bird` algorithm [@dokter_bird_2011] only takes `pvol` files as input, rather than R objects. As there is no implementation of a converter yet, for now a `vp` of the raw `pvol` files will have to do. As there is no precipitation within the relevant distance to the radars (5-35km), the calculated `vp` based on the raw `pvol` files should not differ wildly from that of the filtered `pvol` R object we have generated in the previous steps.
 
 ```{r range_bias_correction, warning=FALSE}
 vp_hrw <- calculate_vp(file = pvol_hrw_path, vpfile = paste("data/processed/vp/", basename(pvol_hrw_path), sep = ""), verbose = FALSE)
