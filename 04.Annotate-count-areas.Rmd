@@ -216,3 +216,9 @@ plot(ppi_hrw, param = "ptt_route", zlim = c(min(ppi_hrw$data@data$ptt_route, na.
 plot(ppi_dhl, param = "ptt_route", zlim = c(min(ppi_dhl$data@data$ptt_route, na.rm = TRUE), max(ppi_dhl$data@data$ptt_route, na.rm = TRUE)))
 ```
 
+That seems fine, we can now save the PPIs, so we can start linking actual count data.
+
+```{r save_annotated_ppis}
+saveRDS(ppi_hrw, file = "data/processed/corrected-ppis-lu-sovon/corrected_ppi_hrw_lu_sovon.RDS")
+saveRDS(ppi_dhl, file = "data/processed/corrected-ppis-lu-sovon/corrected_ppi_dhl_lu_sovon.RDS")
+```
