@@ -139,7 +139,7 @@ ppi_hrw$data$birds_smooth_15 <- smooth_ppi(ppi_hrw, "wb_nr_birds", gridsize = c(
 ```
 
 ```{r plot_PPIs, results='hold'}
-plot(ppi_hrw, param = "ptt_nr_birds", zlim = c(min(ppi_hrw$data@data$ptt_nr_birds, na.rm = TRUE), max(ppi_hrw$data@data$ptt_nr_birds, na.rm = TRUE)))
+plot(ppi_hrw, param = "ptt_nr_birds", zlim = c(min(ppi_hrw$data@data$ptt_nr_birds, na.rm = TRUE), quantile(ppi_hrw$data@data$ptt_nr_birds, 0.95, na.rm = TRUE)))
 plot(ppi_hrw, param = "wb_nr_birds", zlim = c(min(ppi_hrw$data@data$wb_nr_birds, na.rm = TRUE), quantile(ppi_hrw$data@data$wb_nr_birds, 0.95, na.rm = TRUE)))
 plot(ppi_hrw, param = "VIR", zlim = c(min(ppi_hrw$data$VIR), quantile(ppi_hrw$data$VIR, 0.99)))
 ```
