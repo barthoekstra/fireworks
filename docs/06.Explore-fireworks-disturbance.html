@@ -66,18 +66,18 @@
 <script src="assets/leaflet-binding-2.0.3/leaflet.js"></script>
 <script src="assets/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script>
 <script src="assets/leaflet-providers-plugin-2.0.3/leaflet-providers-plugin.js"></script>
-<script src="assets/VIR-1/data_stars_VIRe14ba2.txt"></script>
+<script src="assets/VIR-1/data_stars_VIR5c1a97.txt"></script>
 <script src="assets/joda-0.0.1/joda.js"></script>
 <link href="assets/HomeButton-0.0.1/home-button.css" rel="stylesheet" />
 <script src="assets/HomeButton-0.0.1/home-button.js"></script>
 <script src="assets/HomeButton-0.0.1/easy-button-src.min.js"></script>
-<script src="assets/VID-1/data_stars_VIDebdf98.txt"></script>
-<script src="assets/R-1/data_stars_R04f58e.txt"></script>
-<script src="assets/overlap-1/data_stars_overlapac69b0.txt"></script>
-<script src="assets/eta_sum-1/data_stars_eta_sum5f4b72.txt"></script>
-<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expected79f625.txt"></script>
-<script src="assets/pop-1/data_stars_pop53892e.txt"></script>
-<script src="assets/dist_urban-1/data_stars_dist_urban2913fa.txt"></script>
+<script src="assets/VID-1/data_stars_VID7b3cae.txt"></script>
+<script src="assets/R-1/data_stars_R687c10.txt"></script>
+<script src="assets/overlap-1/data_stars_overlap2e36d1.txt"></script>
+<script src="assets/eta_sum-1/data_stars_eta_sumafb92e.txt"></script>
+<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expected12a450.txt"></script>
+<script src="assets/pop-1/data_stars_popbe7a3d.txt"></script>
+<script src="assets/dist_urban-1/data_stars_dist_urban25e8af.txt"></script>
 <script src="assets/kePrint-0.0.1/kePrint.js"></script>
 
 
@@ -290,7 +290,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb108-7" data-line-number="7"><span class="st">  </span><span class="kw">geom_density</span>(<span class="kw">aes</span>(<span class="dt">group =</span> source, <span class="dt">color =</span> source)) <span class="op">+</span></a>
 <a class="sourceLine" id="cb108-8" data-line-number="8"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Distribution of average mass in PTT and Waterbird counts&quot;</span>)</a></code></pre></div>
 <pre><code>## Warning: Removed 3 rows containing non-finite values (stat_density).</code></pre>
-<p><img src="Fireworks_files/figure-html/unnamed-chunk-13-1.svg" width="672" /></p>
+<p><img src="Fireworks_files/figure-html/compare_distributions_of_avg_mass-1.svg" width="672" /></p>
 <p>And indeed, the distributions of <code>avg_mass</code> for PTT counts is shifted considerably to lower average weights.</p>
 </div>
 <div id="connecting-sovon-counts-with-the-ppis" class="section level2">
@@ -341,14 +341,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb114-11" data-line-number="11"></a>
 <a class="sourceLine" id="cb114-12" data-line-number="12">ppi_hrw<span class="op">$</span>data<span class="op">$</span>birds_smooth_<span class="dv">9</span> &lt;-<span class="st"> </span><span class="kw">smooth_ppi</span>(ppi_hrw, <span class="st">&quot;wb_nr_birds&quot;</span>)</a>
 <a class="sourceLine" id="cb114-13" data-line-number="13">ppi_hrw<span class="op">$</span>data<span class="op">$</span>birds_smooth_<span class="dv">15</span> &lt;-<span class="st"> </span><span class="kw">smooth_ppi</span>(ppi_hrw, <span class="st">&quot;wb_nr_birds&quot;</span>, <span class="dt">gridsize =</span> <span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">5</span>))</a></code></pre></div>
-<div class="sourceCode" id="cb115"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb115-1" data-line-number="1"><span class="kw">plot</span>(ppi_hrw, <span class="dt">param =</span> <span class="st">&quot;ptt_nr_birds&quot;</span>, <span class="dt">zlim =</span> <span class="kw">c</span>(<span class="kw">min</span>(ppi_hrw<span class="op">$</span>data<span class="op">@</span>data<span class="op">$</span>ptt_nr_birds, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>), <span class="kw">max</span>(ppi_hrw<span class="op">$</span>data<span class="op">@</span>data<span class="op">$</span>ptt_nr_birds, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)))</a></code></pre></div>
-<p><img src="Fireworks_files/figure-html/unnamed-chunk-16-1.svg" width="672" /></p>
+<div class="sourceCode" id="cb115"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb115-1" data-line-number="1"><span class="kw">plot</span>(ppi_hrw, <span class="dt">param =</span> <span class="st">&quot;ptt_nr_birds&quot;</span>, <span class="dt">zlim =</span> <span class="kw">c</span>(<span class="kw">min</span>(ppi_hrw<span class="op">$</span>data<span class="op">@</span>data<span class="op">$</span>ptt_nr_birds, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>), <span class="kw">quantile</span>(ppi_hrw<span class="op">$</span>data<span class="op">@</span>data<span class="op">$</span>ptt_nr_birds, <span class="fl">0.95</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)))</a></code></pre></div>
+<p><img src="Fireworks_files/figure-html/plot_PPIs-1.svg" width="672" /></p>
 <div class="sourceCode" id="cb116"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb116-1" data-line-number="1"><span class="kw">plot</span>(ppi_hrw, <span class="dt">param =</span> <span class="st">&quot;wb_nr_birds&quot;</span>, <span class="dt">zlim =</span> <span class="kw">c</span>(<span class="kw">min</span>(ppi_hrw<span class="op">$</span>data<span class="op">@</span>data<span class="op">$</span>wb_nr_birds, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>), <span class="kw">quantile</span>(ppi_hrw<span class="op">$</span>data<span class="op">@</span>data<span class="op">$</span>wb_nr_birds, <span class="fl">0.95</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)))</a></code></pre></div>
-<p><img src="Fireworks_files/figure-html/unnamed-chunk-16-2.svg" width="672" /></p>
-<div class="sourceCode" id="cb117"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb117-1" data-line-number="1"><span class="co"># plot(ppi_hrw, param = &quot;birds_smooth_9&quot;, zlim = c(min(ppi_hrw$data@data$birds_smooth_9, na.rm = TRUE), max(ppi_hrw$data@data$birds_smooth_9, na.rm = TRUE)))</span></a>
-<a class="sourceLine" id="cb117-2" data-line-number="2"><span class="co"># plot(ppi_hrw, param = &quot;birds_smooth_15&quot;, zlim = c(min(ppi_hrw$data@data$birds_smooth_15, na.rm = TRUE), max(ppi_hrw$data@data$birds_smooth_15, na.rm = TRUE)))</span></a>
-<a class="sourceLine" id="cb117-3" data-line-number="3"><span class="kw">plot</span>(ppi_hrw, <span class="dt">param =</span> <span class="st">&quot;VIR&quot;</span>, <span class="dt">zlim =</span> <span class="kw">c</span>(<span class="kw">min</span>(ppi_hrw<span class="op">$</span>data<span class="op">$</span>VIR), <span class="kw">quantile</span>(ppi_hrw<span class="op">$</span>data<span class="op">$</span>VIR, <span class="fl">0.99</span>)))</a></code></pre></div>
-<p><img src="Fireworks_files/figure-html/unnamed-chunk-16-3.svg" width="672" /></p>
+<p><img src="Fireworks_files/figure-html/plot_PPIs-2.svg" width="672" /></p>
+<div class="sourceCode" id="cb117"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb117-1" data-line-number="1"><span class="kw">plot</span>(ppi_hrw, <span class="dt">param =</span> <span class="st">&quot;VIR&quot;</span>, <span class="dt">zlim =</span> <span class="kw">c</span>(<span class="kw">min</span>(ppi_hrw<span class="op">$</span>data<span class="op">$</span>VIR), <span class="kw">quantile</span>(ppi_hrw<span class="op">$</span>data<span class="op">$</span>VIR, <span class="fl">0.99</span>)))</a></code></pre></div>
+<p><img src="Fireworks_files/figure-html/plot_PPIs-3.svg" width="672" /></p>
 <div class="sourceCode" id="cb118"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb118-1" data-line-number="1">ppi_hrw_mass &lt;-<span class="st"> </span>ppi_hrw<span class="op">$</span>data<span class="op">@</span>data</a>
 <a class="sourceLine" id="cb118-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb118-3" data-line-number="3">ppi_hrw_mass <span class="op">%&gt;%</span></a>
@@ -397,7 +395,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb118-46" data-line-number="46">m1 &lt;-<span class="st"> </span><span class="kw">gam</span>(VIR <span class="op">~</span><span class="st"> </span><span class="kw">s</span>(wb_nr_birds) <span class="op">+</span><span class="st"> </span><span class="kw">s</span>(pop) <span class="op">+</span><span class="st"> </span><span class="kw">s</span>(dist_urban, <span class="dt">k =</span> <span class="dv">20</span>) <span class="op">+</span><span class="st"> </span>landuse_overall,</a>
 <a class="sourceLine" id="cb118-47" data-line-number="47"><span class="dt">data =</span> ppi_mdl, <span class="dt">method =</span> <span class="st">&quot;REML&quot;</span>, <span class="dt">family =</span> <span class="kw">Gamma</span>(<span class="dt">link =</span> <span class="st">&quot;log&quot;</span>))</a>
 <a class="sourceLine" id="cb118-48" data-line-number="48"><span class="co"># gam(vid_new ~ s(birds_smooth_9, k = 20) + s(pop) + s(dist_urban) + s(pop_eff) + landuse_overall, data = ppi_mdl, method = &quot;REML&quot;, family = Gamma(link = &quot;log&quot;)) -&gt; m1</span></a>
-<a class="sourceLine" id="cb118-49" data-line-number="49"><span class="kw">summary</span>(m1)</a></code></pre></div>
+<a class="sourceLine" id="cb118-49" data-line-number="49"><span class="kw">summary</span>(m1)</a>
+<a class="sourceLine" id="cb118-50" data-line-number="50"><span class="kw">plot</span>(m1)</a></code></pre></div>
+<p><img src="Fireworks_files/figure-html/gam_model_sample-1.svg" width="672" /><img src="Fireworks_files/figure-html/gam_model_sample-2.svg" width="672" /><img src="Fireworks_files/figure-html/gam_model_sample-3.svg" width="672" /></p>
+<div class="sourceCode" id="cb119"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb119-1" data-line-number="1"><span class="kw">gam.check</span>(m1)</a></code></pre></div>
+<p><img src="Fireworks_files/figure-html/gam_model_sample-4.svg" width="672" /><img src="Fireworks_files/figure-html/gam_model_sample-5.svg" width="672" /><img src="Fireworks_files/figure-html/gam_model_sample-6.svg" width="672" /><img src="Fireworks_files/figure-html/gam_model_sample-7.svg" width="672" /></p>
+<div class="sourceCode" id="cb120"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb120-1" data-line-number="1"><span class="co"># with(summary(m1), 1 - deviance/null.deviance)</span></a></code></pre></div>
 <pre><code>## 
 ## Family: Gamma 
 ## Link function: log 
@@ -407,44 +410,39 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 
 ## Parametric coefficients:
 ##                              Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)                   8.09302    0.04333 186.788   &lt;2e-16 ***
-## landuse_overallNatural areas -0.27326    0.20701  -1.320   0.1869    
-## landuse_overallWater bodies  -0.12646    0.07262  -1.741   0.0818 .  
+## (Intercept)                   8.11176    0.02013 402.990  &lt; 2e-16 ***
+## landuse_overallNatural areas -0.41520    0.07983  -5.201 2.02e-07 ***
+## landuse_overallWater bodies  -0.13233    0.04101  -3.227  0.00126 ** 
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
 ## Approximate significance of smooth terms:
-##                  edf Ref.df      F  p-value    
-## s(wb_nr_birds) 8.499  8.912 22.725  &lt; 2e-16 ***
-## s(pop)         8.380  8.890  8.801 3.72e-13 ***
-## s(dist_urban)  4.514  5.581  5.134 5.62e-05 ***
+##                  edf Ref.df     F p-value    
+## s(wb_nr_birds) 8.763  8.983 89.67  &lt;2e-16 ***
+## s(pop)         3.597  4.494 32.60  &lt;2e-16 ***
+## s(dist_urban)  5.788  7.163 13.66  &lt;2e-16 ***
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## R-sq.(adj) =  0.0991   Deviance explained =   15%
-## -REML =  20999  Scale est. = 2.5055    n = 2335</code></pre>
-<div class="sourceCode" id="cb120"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb120-1" data-line-number="1"><span class="kw">plot</span>(m1)</a></code></pre></div>
-<p><img src="Fireworks_files/figure-html/unnamed-chunk-17-1.svg" width="672" /><img src="Fireworks_files/figure-html/unnamed-chunk-17-2.svg" width="672" /><img src="Fireworks_files/figure-html/unnamed-chunk-17-3.svg" width="672" /></p>
-<div class="sourceCode" id="cb121"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb121-1" data-line-number="1"><span class="kw">gam.check</span>(m1)</a></code></pre></div>
-<p><img src="Fireworks_files/figure-html/unnamed-chunk-17-4.svg" width="672" /><img src="Fireworks_files/figure-html/unnamed-chunk-17-5.svg" width="672" /><img src="Fireworks_files/figure-html/unnamed-chunk-17-6.svg" width="672" /><img src="Fireworks_files/figure-html/unnamed-chunk-17-7.svg" width="672" /></p>
-<pre><code>## 
+## R-sq.(adj) =  0.0838   Deviance explained = 14.2%
+## -REML =  87969  Scale est. = 2.7221    n = 9789
+## 
 ## Method: REML   Optimizer: outer newton
-## full convergence after 8 iterations.
-## Gradient range [-0.004268453,0.001248324]
-## (score 20998.63 &amp; scale 2.505533).
-## Hessian positive definite, eigenvalue range [0.5688956,1628.278].
+## full convergence after 6 iterations.
+## Gradient range [-0.03070228,0.04405094]
+## (score 87968.71 &amp; scale 2.722066).
+## Hessian positive definite, eigenvalue range [0.1947311,6851.194].
 ## Model rank =  40 / 40 
 ## 
 ## Basis dimension (k) checking results. Low p-value (k-index&lt;1) may
 ## indicate that k is too low, especially if edf is close to k&#39;.
 ## 
 ##                   k&#39;   edf k-index p-value    
-## s(wb_nr_birds)  9.00  8.50    0.57  &lt;2e-16 ***
-## s(pop)          9.00  8.38    0.82    0.28    
-## s(dist_urban)  19.00  4.51    0.68  &lt;2e-16 ***
+## s(wb_nr_birds)  9.00  8.76    0.53  &lt;2e-16 ***
+## s(pop)          9.00  3.60    0.82    0.15    
+## s(dist_urban)  19.00  5.79    0.82    0.31    
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<div class="sourceCode" id="cb123"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb123-1" data-line-number="1"><span class="co"># with(summary(m1), 1 - deviance/null.deviance)</span></a></code></pre></div>
 
 </div>
 </div>
