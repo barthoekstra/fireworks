@@ -22,7 +22,7 @@ The following parameters we assume are important predictors for measured bird de
 
 Load the required packages.
 
-```{r}
+```{r setup_exploration_environment}
 library(mgcv)
 library(ggplot2)
 library(dplyr)
@@ -34,7 +34,7 @@ library(raster)
 
 And the files we have generated so far.
 
-```{r}
+```{r load_prepared_ppis_and_sovon_counts}
 ppi_hrw <- readRDS("data/processed/corrected-ppis-lu-sovon/corrected_ppi_hrw_lu_sovon.RDS")
 ppi_dhl <- readRDS("data/processed/corrected-ppis-lu-sovon/corrected_ppi_dhl_lu_sovon.RDS")
 
@@ -46,7 +46,7 @@ wb_raw <- readRDS("data/processed/sovon/wb.RDS")
 
 We need to calculate the number of birds on the ground and average mass of these birds
 
-```{r}
+```{r calculate_birds_parameters}
 wb_raw %>%
   mutate(area_nr = as.character(area_nr)) %>%
   filter(year == 2018) %>%
@@ -71,7 +71,7 @@ ptt_raw %>%
 
 Ideally, both the `wb` and `ptt` datasets cover somewhat different species compositions. We can easily see this if we visualise the distributions of `mean_weight` for these datasets.
 
-```{r}
+```{r compare_distributions_of_avg_mass}
 bind_rows(dplyr::select(wb, nr_birds, avg_mass), dplyr::select(ptt, nr_birds, avg_mass), .id = "source") %>%
   mutate(source = case_when(
     source == 1 ~ "WB",
@@ -88,7 +88,7 @@ And indeed, the distributions of `avg_mass` for PTT counts is shifted considerab
 
 Now that we have calculated the necessary 'bird parameters', we can attach these to the PPIs using a few simple `left_join`s. Subsequently, we will recalculate the `avg_mass` as the mean of average masses in the PTT and waterbird counts, and `nr_birds` by adding the numbers of birds in the PTT and waterbird counts together. The former is probably not particularly useful, so probably best to throw out at some point.
 
-```{r}
+```{r link_counts_with_PPIs, results='hold'}
 ppi_hrw$data@data %>%
   left_join(dplyr::select(wb, area_nr, nr_birds, avg_mass), by = c("wb_area_nr" = "area_nr")) %>%
   rename(wb_nr_birds = nr_birds, wb_avg_mass = avg_mass) %>%
@@ -122,7 +122,7 @@ ppi_dhl$data@data %>%
 
 As birds can cross substantial distances within 5 minutes (the period a single scan takes), we somehow have to take this into account during the modelling. A simple approach is to 'smooth' out the numbers of birds in space, by averaging the bird numbers within a given window around a focal cell. We will create a simple function to do that
 
-```{r}
+```{r smooth_bird_numbers_in_space}
 smooth_ppi <- function(ppi, var, gridsize = c(3, 3)) {
   weights <- matrix(1, nrow = gridsize[1], ncol = gridsize[2])
   
@@ -138,11 +138,9 @@ ppi_hrw$data$birds_smooth_9 <- smooth_ppi(ppi_hrw, "wb_nr_birds")
 ppi_hrw$data$birds_smooth_15 <- smooth_ppi(ppi_hrw, "wb_nr_birds", gridsize = c(5, 5))
 ```
 
-```{r}
+```{r plot_PPIs, results='hold'}
 plot(ppi_hrw, param = "ptt_nr_birds", zlim = c(min(ppi_hrw$data@data$ptt_nr_birds, na.rm = TRUE), max(ppi_hrw$data@data$ptt_nr_birds, na.rm = TRUE)))
-plot(ppi_hrw, param = "wb_nr_birds", zlim = c(min(ppi_hrw$data@data$wb_nr_birds, na.rm = TRUE), max(ppi_hrw$data@data$wb_nr_birds, na.rm = TRUE)))
-plot(ppi_hrw, param = "birds_smooth_9", zlim = c(min(ppi_hrw$data@data$birds_smooth_9, na.rm = TRUE), max(ppi_hrw$data@data$birds_smooth_9, na.rm = TRUE)))
-plot(ppi_hrw, param = "birds_smooth_15", zlim = c(min(ppi_hrw$data@data$birds_smooth_15, na.rm = TRUE), max(ppi_hrw$data@data$birds_smooth_15, na.rm = TRUE)))
+plot(ppi_hrw, param = "wb_nr_birds", zlim = c(min(ppi_hrw$data@data$wb_nr_birds, na.rm = TRUE), quantile(ppi_hrw$data@data$wb_nr_birds, 0.95, na.rm = TRUE)))
 plot(ppi_hrw, param = "VIR", zlim = c(min(ppi_hrw$data$VIR), quantile(ppi_hrw$data$VIR, 0.99)))
 ```
 
@@ -152,12 +150,12 @@ plot(ppi_hrw, param = "VIR", zlim = c(min(ppi_hrw$data$VIR), quantile(ppi_hrw$da
 
 
 
-```{r}
+```{r gam_model_sample, results='hold'}
 ppi_hrw_mass <- ppi_hrw$data@data
 
 ppi_hrw_mass %>%
-  filter(VIR > 50 & birds_smooth_9 > 0 & wb_nr_birds > 0 & type == "rural" & VIR < quantile(ppi_hrw_mass$VIR, 0.99, na.rm = TRUE)) %>%
-  filter(birds_smooth_9 < quantile(ppi_hrw_mass$birds_smooth_9, 0.99, na.rm = TRUE)) %>%
+  filter(VIR > 50 & wb_nr_birds > 0 & type == "rural" & VIR < quantile(ppi_hrw_mass$VIR, 0.99, na.rm = TRUE)) %>%
+  # filter(birds_smooth_9 < quantile(ppi_hrw_mass$birds_smooth_9, 0.99, na.rm = TRUE)) %>%
   mutate(vid_new = VIR / wb_avg_mass,
          # pop_eff = pop / (dist_urban / 1000),
          pop_eff = pop * (1 / dist_urban),
@@ -197,10 +195,12 @@ ppi_hrw_mass %>%
 #            )) %>%
 #   drop_na() -> ppi_mdl
 
-m1 <- gam(VIR ~ s(wb_nr_birds, k = 100) + s(pop, k = 20) + s(dist_urban) + landuse_overall,
-          data = ppi_mdl, method = "REML", family = Gamma(link = "log"))
+# m1 <- glm(VIR ~ wb_nr_birds + pop + dist_urban + landuse_overall, data = ppi_mdl, family = Gamma(link = "log"))
+m1 <- gam(VIR ~ s(wb_nr_birds) + s(pop) + s(dist_urban, k = 20) + landuse_overall,
+data = ppi_mdl, method = "REML", family = Gamma(link = "log"))
 # gam(vid_new ~ s(birds_smooth_9, k = 20) + s(pop) + s(dist_urban) + s(pop_eff) + landuse_overall, data = ppi_mdl, method = "REML", family = Gamma(link = "log")) -> m1
 summary(m1)
 plot(m1)
 gam.check(m1)
+# with(summary(m1), 1 - deviance/null.deviance)
 ```
