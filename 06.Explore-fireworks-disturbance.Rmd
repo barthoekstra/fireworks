@@ -30,6 +30,8 @@ library(tidyr)
 library(ggdark)
 library(bioRad)
 library(raster)
+library(dismo)
+library(gbm)
 ```
 
 And the files we have generated so far.
@@ -136,6 +138,8 @@ smooth_ppi <- function(ppi, var, gridsize = c(3, 3)) {
 
 ppi_hrw$data$birds_smooth_9 <- smooth_ppi(ppi_hrw, "wb_nr_birds")
 ppi_hrw$data$birds_smooth_15 <- smooth_ppi(ppi_hrw, "wb_nr_birds", gridsize = c(5, 5))
+ppi_dhl$data$birds_smooth_9 <- smooth_ppi(ppi_dhl, "wb_nr_birds")
+ppi_dhl$data$birds_smooth_15 <- smooth_ppi(ppi_dhl, "wb_nr_birds", gridsize = c(5, 5))
 ```
 
 ```{r plot_PPIs, results='hold'}
@@ -157,6 +161,7 @@ ppi_hrw_mass %>%
   filter(VIR > 50 & wb_nr_birds > 0 & type == "rural" & VIR < quantile(ppi_hrw_mass$VIR, 0.99, na.rm = TRUE)) %>%
   # filter(birds_smooth_9 < quantile(ppi_hrw_mass$birds_smooth_9, 0.99, na.rm = TRUE)) %>%
   mutate(vid_new = VIR / wb_avg_mass,
+         birds = wb_nr_birds * wb_avg_mass,
          # pop_eff = pop / (dist_urban / 1000),
          pop_eff = pop * (1 / dist_urban),
          birds_smooth_log = log(birds_smooth_9)) %>%
@@ -180,7 +185,7 @@ ppi_hrw_mass %>%
              (landuse >= 300 & landuse < 500) ~ "Natural areas",
              (landuse >= 500 & landuse < 999) ~ "Water bodies"
            )) %>%
-  dplyr::select(VIR, wb_nr_birds, birds_smooth_9, birds_smooth_15, pop, dist_urban, pop_eff, landuse_overall) %>%
+  dplyr::select(VIR, wb_nr_birds, birds, birds_smooth_9, birds_smooth_15, pop, dist_urban, pop_eff, landuse_overall) %>%
   drop_na() -> ppi_mdl
   # drop_na() -> ppi_mdl
 # ppi_hrw$data@data %>%
@@ -196,7 +201,7 @@ ppi_hrw_mass %>%
 #   drop_na() -> ppi_mdl
 
 # m1 <- glm(VIR ~ wb_nr_birds + pop + dist_urban + landuse_overall, data = ppi_mdl, family = Gamma(link = "log"))
-m1 <- gam(VIR ~ s(wb_nr_birds) + s(pop) + s(dist_urban, k = 20) + landuse_overall,
+m1 <- gam(VIR ~ s(birds) + s(pop) + s(dist_urban, k = 20) + landuse_overall,
 data = ppi_mdl, method = "REML", family = Gamma(link = "log"))
 # gam(vid_new ~ s(birds_smooth_9, k = 20) + s(pop) + s(dist_urban) + s(pop_eff) + landuse_overall, data = ppi_mdl, method = "REML", family = Gamma(link = "log")) -> m1
 summary(m1)
@@ -204,3 +209,33 @@ plot(m1)
 gam.check(m1)
 # with(summary(m1), 1 - deviance/null.deviance)
 ```
+
+```{r}
+# ppi_mdl %>%
+#   filter(VIR > 0) %>%
+#   mutate(VIR_log10 = log10(VIR),
+#          landuse_overall = case_when(
+#            landuse_overall == "Agricultural areas" ~ 1,
+#            landuse_overall == "Water bodies" ~ 2,
+#            landuse_overall == "Natural areas" ~ 3
+#          ))-> ppi_bt
+# 
+# ppi_bt$landuse_overall <- as.numeric(ppi_bt$landuse_overall)
+# 
+# ppi_bt <- as.data.frame(ppi_bt)
+# 
+# response <- "VIR_log10"
+# predictors <- c("wb_nr_birds", "birds", "birds_smooth_9", "pop", "dist_urban", "pop_eff", "landuse_overall")
+# 
+# bt <- gbm.step(data = ppi_bt, gbm.x = 2:8, gbm.y = 10, tree.complexity = 2, bag.fraction = 0.5, family = "gaussian")
+```
+
+```{r}
+# a <- predict(bt5, ppi_bt, n.trees = 10000, type = "response")
+# ppi_bt$preds <- a
+# 
+# ggplot(ppi_bt, aes(x = preds, y = VIR_log10)) +
+#   geom_pointdensity() + 
+#   geom_abline()
+```
+
