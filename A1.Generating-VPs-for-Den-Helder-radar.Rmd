@@ -23,9 +23,15 @@ plot(scan)
 As can be seen, there is a large swath of sea clutter, roughly between azimuths 200 and 325. The Wadden Sea can be seen from azimuths 45 until roughly 90. The area in between is where the majority of birds take off: the mainland of North Holland. We can visualise what a focus on this area would cover by plotting a PPI where all values between azimuths 90 and 200 have been set to a very high value. See below:
 
 ```{r plot_den_helder_example_section}
-scan$params$DBZH[, 90:200] <- 100
+scan_section <- scan
+scan_section$params$DBZH[, 90:200] <- 100
+
 ppi <- project_as_ppi(scan, grid_size = 100, range_max = 35000)
+ppi_section <- project_as_ppi(scan_section, grid_size = 100, range_max = 35000)
+
+par(pty = "s", mfrow = c(1, 2))
 plot(ppi)
+plot(ppi_section)
 ```
 
 Now with that in mind we can calculate the `vp`s for the entire area and compare that with one that is calculated just from the section above (azimuths between 90 and 200).
