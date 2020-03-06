@@ -134,7 +134,10 @@ build_species_lut <- function(specieslist, datasetKey = NULL, higherTaxonKey = N
   return(species_lut)
 }
 
-species_lut <- build_species_lut(unique_species, datasetKey = "4dd32523-a3a3-43b7-84df-4cda02f15cf7", higherTaxonKey = 162310263)
+# The following query defines a `higherTaxonKey`, which is a way to filter for birds fairly easily. 
+# Somehow this ID is not fully persistent, so in case the following returns only NaNs for gbif_keys, 
+# check the Aves taxon in the Checklist Dutch Species Register
+species_lut <- build_species_lut(unique_species, datasetKey = "4dd32523-a3a3-43b7-84df-4cda02f15cf7", higherTaxonKey = 162425859)
 head(species_lut, 10) %>%
   kable(format = "html", col.names = colnames(species_lut)) %>%
   kable_styling() %>%
