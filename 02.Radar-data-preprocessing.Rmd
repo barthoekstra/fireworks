@@ -193,13 +193,15 @@ Combining the clutter removal based on a clear day as well as the `r dynamic_nr_
 
 ### Dynamic clutter
 
-We select `r dynamic_nr_preceding_scans` (`r dynamic_nr_preceding_scans / 12` hours worth of scans) preceding the fireworks event and add an additional margin of `r dynamic_time_margin` scans (`r dynamic_time_margin * 5` minutes of scans) as that the `VIR` plots in the previous chapter have shown numbers of birds aloft are very low and stable up to that period.
+We select `r dynamic_nr_preceding_scans` (`r dynamic_nr_preceding_scans / 12` hours worth of scans) preceding the start of the fireworks (23:00 UTC) and add an additional margin of `r dynamic_time_margin` scans (`r dynamic_time_margin * 5` minutes of scans) as that the `VIR` plots in the previous chapter have shown numbers of birds aloft are very low and stable up to that period.
 
 ```{r select_dynamic_clutter_scans}
 available_scans_hrw <- Sys.glob(file.path("data/raw/pvol/clutter-removal-20171231", "*NL62*20171231*"))
 available_scans_dhl <- Sys.glob(file.path("data/raw/pvol/clutter-removal-20171231", "*NL61*20171231*"))
-selected_scan_hrw <- sub("fireworks-2017-2018", "clutter-removal-20171231", pvol_hrw_path)
-selected_scan_dhl <- sub("fireworks-2017-2018", "clutter-removal-20171231", pvol_dhl_path)
+fw_start_hrw_pvol_path <- "data/raw/pvol/fireworks-2017-2018/RAD_NL62_VOL_NA_201712312300_ODIM.h5"
+fw_start_dhl_pvol_path <- "data/raw/pvol/fireworks-2017-2018/RAD_NL61_VOL_NA_201712312300_ODIM.h5"
+selected_scan_hrw <- sub("fireworks-2017-2018", "clutter-removal-20171231", fw_start_hrw_pvol_path)
+selected_scan_dhl <- sub("fireworks-2017-2018", "clutter-removal-20171231", fw_start_dhl_pvol_path)
 
 selected_scan_id_hrw <- match(selected_scan_hrw, available_scans_hrw)
 selected_scan_id_dhl <- match(selected_scan_dhl, available_scans_dhl)
@@ -325,9 +327,12 @@ saveRDS(pvol_dhl, file = "data/processed/pvol_clean_dhl.RDS")
 
 With all identifiable sources of clutter removed from the raw polar volume, we can apply the range-bias correction [@kranstauber2020]. For this it is necessary to calculate the local vertical profile for each of the radars. Ideally, this would be done using the filtered `pvol` we have now generated, but the `vol2bird` algorithm [@dokter_bird_2011] only takes `pvol` files as input, rather than R objects. As there is no implementation of a converter yet, for now a `vp` of the raw `pvol` files will have to do. As there is no precipitation within the relevant distance to the radars (5-35km), the calculated `vp` based on the raw `pvol` files should not differ wildly from that of the filtered `pvol` R object we have generated in the previous steps.
 
+For the Den Helder radar we calculate the `vp` by setting azimuthal limits to cover the mainland of North Holland, rather than the whole radar domain, as the latter will result in `vp`s that underestimate the true density of birds aloft. See Appendix [generating-vps-for-den-helder-radar] for a more detailed explanation.
+
 ```{r range_bias_correction, warning=FALSE}
 vp_hrw <- calculate_vp(file = pvol_hrw_path, vpfile = paste("data/processed/vp/", basename(pvol_hrw_path), sep = ""), verbose = FALSE)
-vp_dhl <- calculate_vp(file = pvol_dhl_path, vpfile = paste("data/processed/vp/", basename(pvol_dhl_path), sep = ""), verbose = FALSE)
+vp_dhl <- calculate_vp(file = pvol_dhl_path, vpfile = paste("data/processed/vp/", basename(pvol_dhl_path), sep = ""), 
+                       verbose = FALSE, azim_min = 90, azim_max = 200)
 
 corrected_ppi_hrw <- integrate_to_ppi(pvol_hrw, vp_hrw, res = 500, xlim = c(-50000, 50000), ylim = c(-50000, 50000))
 corrected_ppi_dhl <- integrate_to_ppi(pvol_dhl, vp_dhl, res = 500, xlim = c(-50000, 50000), ylim = c(-50000, 50000))
@@ -368,4 +373,36 @@ mapview(filtered_corrected_ppi_hrw$data, alpha.regions = 0.6, col.regions = infe
 mapview(filtered_corrected_ppi_dhl$data, alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
         na.color = "#00000000", map.types = c("CartoDB.Positron", "CartoDB.DarkMatter", "Esri.WorldImagery"),
         layer.name = colnames(filtered_corrected_ppi_dhl$data@data))
+```
+
+## Preprocess additional scans
+
+Now that the processing steps have been explained in detail, we can now process the additional scans in our dataset in a similar fashion. For that we will focus on all scans from 22:00 CET until 01:00 CET, which corresponds with 23:00 until 02:00 in local Amsterdam time, as that should 'cover' most of the fireworks disturbance that occurs (based on the plots in [Selecting firework take-off moment]).
+
+```{r preprocess_additional_scans, eval=full_repro}
+source("R/preprocess_radar_data.R")
+
+hrw_pvols <- Sys.glob(file.path("data/raw/pvol/fireworks-2017-2018", "*NL62*"))
+dhl_pvols <- Sys.glob(file.path("data/raw/pvol/fireworks-2017-2018", "*NL61*"))
+
+dynamic_groundclutter_hrw <- readRDS("data/processed/clutter_dynamic_hrw_avg.RDS")
+static_groundclutter_hrw <- readRDS("data/processed/clutter_static_hrw_avg.RDS")
+
+dynamic_groundclutter_dhl <- readRDS("data/processed/clutter_dynamic_dhl_avg.RDS")
+static_groundclutter_dhl <- readRDS("data/processed/clutter_static_dhl_avg.RDS")
+
+for (pvol in hrw_pvols) {
+  preprocess_radar_data(pvol_path = pvol, 
+                        ei_rays = ei_rays_hrw, 
+                        pvol_dynamic_groundclutter = dynamic_groundclutter_hrw,
+                        pvol_static_groundclutter = static_groundclutter_hrw)
+}
+
+for (pvol in dhl_pvols) {
+  preprocess_radar_data(pvol_path = pvol,
+                        ei_rays = ei_rays_dhl,
+                        pvol_dynamic_groundclutter = dynamic_groundclutter_dhl,
+                        pvol_static_groundclutter = static_groundclutter_dhl, 
+                        azim_limits = c(90, 200))
+}
 ```
