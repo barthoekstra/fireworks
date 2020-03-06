@@ -379,7 +379,7 @@ mapview(filtered_corrected_ppi_dhl$data, alpha.regions = 0.6, col.regions = infe
 
 Now that the processing steps have been explained in detail, we can now process the additional scans in our dataset in a similar fashion. For that we will focus on all scans from 22:00 CET until 01:00 CET, which corresponds with 23:00 until 02:00 in local Amsterdam time, as that should 'cover' most of the fireworks disturbance that occurs (based on the plots in [Selecting firework take-off moment]).
 
-```{r preprocess_additional_scans, eval=full_repro}
+```{r preprocess_additional_scans, eval=full_repro, results='hide'}
 source("R/preprocess_radar_data.R")
 
 hrw_pvols <- Sys.glob(file.path("data/raw/pvol/fireworks-2017-2018", "*NL62*"))
