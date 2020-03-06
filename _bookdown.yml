@@ -5,5 +5,5 @@ edit: https://github.com/barthoekstra/fireworks/edit/master/%s
 output_dir: docs
 delete_merged_file: true
 rmd_files: ["index.Rmd", "01.Selecting-take-off-moments.Rmd", "02.Radar-data-preprocessing.Rmd", "03.Annotate-land-use.Rmd", "04.Annotate-count-areas.Rmd", 
-            "05.Processing-count-results.Rmd", "06.Explore-fireworks-disturbance.Rmd", "References.Rmd"]
+            "05.Processing-count-results.Rmd", "06.Explore-fireworks-disturbance.Rmd", "References.Rmd", "A1.Generating-VPs-for-Den-Helder-radar.Rmd"]
 before_chapter_script: "build_bookdown.R"
