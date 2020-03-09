@@ -4,6 +4,7 @@ source("R/remove_rays.R")
 source("R/calculate_dpr.R")
 source("R/remove_precipitation.R")
 source("R/remove_groundclutter.R")
+source("R/calculate_distance_to_radar.R")
 
 preprocess_radar_data <- function(pvol_path, ei_rays, pvol_dynamic_groundclutter, pvol_static_groundclutter, azim_limits = NULL) {
   pvol <- read_pvolfile(pvol_path, param = "all")
@@ -25,6 +26,9 @@ preprocess_radar_data <- function(pvol_path, ei_rays, pvol_dynamic_groundclutter
   
   # Apply range-bias correction
   corrected_ppi <- integrate_to_ppi(pvol, vp, res = 500, xlim = c(-150000, 150000), ylim = c(-150000, 150000))
+  
+  # Calculate distance to radar for all PPI pixels
+  corrected_ppi <- calculate_distance_to_radar(corrected_ppi)
   
   # Save resultant PPI
   saveRDS(corrected_ppi, file = paste("data/processed/corrected-ppis/", basename(file_path_sans_ext(pvol_path)), ".RDS", sep = ""))

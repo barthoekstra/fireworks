@@ -20,6 +20,7 @@ library(gridExtra)
 library(ggpubr)
 library(mapview)
 library(viridis)
+library(raster)
 ```
 
 ## Removing electromagnetic interference
@@ -345,6 +346,20 @@ filtered_corrected_ppi_hrw <- corrected_ppi_hrw
 filtered_corrected_ppi_hrw$data@data <- as.data.frame(apply(filtered_corrected_ppi_hrw$data@data, 2, clip, bounds = c(0.05, 0.99)))
 filtered_corrected_ppi_dhl <- corrected_ppi_dhl
 filtered_corrected_ppi_dhl$data@data <- as.data.frame(apply(filtered_corrected_ppi_dhl$data@data, 2, clip, bounds = c(0.05, 0.99)))
+```
+
+## Distance to radar
+
+To assess the quality of the range-bias correction, it is also useful to calculate the distance to the radar from a given PPI pixel. Ideally, the range-bias correction would strongly reduce the effect of distance to the radar for measured densities of birds, but we still have to see if that is the case indeed. By including the distance to the radar in the PPIs, we can also include it in our modelling efforts later on.
+
+```{r}
+source("R/calculate_distance_to_radar.R")
+
+corrected_ppi_hrw <- calculate_distance_to_radar(corrected_ppi_hrw)
+corrected_ppi_dhl <- calculate_distance_to_radar(corrected_ppi_dhl)
+
+saveRDS(corrected_ppi_hrw, file = "data/processed/corrected_ppi_hrw.RDS")
+saveRDS(corrected_ppi_dhl, file = "data/processed/corrected_ppi_dhl.RDS")
 ```
 
 ### Range-corrected PPI of Herwijnen radar
