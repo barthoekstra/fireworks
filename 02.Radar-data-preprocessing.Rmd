@@ -119,18 +119,6 @@ calculate_dpr <- function(pvol){
     pvol$scans[[i]]$params$BIOLD <- pvol$scans[[i]]$params$BIOLR
     pvol$scans[[i]]$params$BIOLD <- despeckle_scan_logical(pvol$scans[[i]]$params$BIOLD)
     attributes(pvol$scans[[i]]$params$BIOLD)$param <- "BIOLD"
-    
-    # Classify based on correlation coefficient
-    biology_rhohv <- (pvol$scans[[i]]$params$RHOHV < 0.95) * 1
-    class(biology_rhohv) <- c("param", "matrix")
-    attributes(biology_rhohv) <- attributes(pvol$scans[[i]]$params$RHOHV)
-    attributes(biology_rhohv)$param <- "BIOLRRHOHV"
-    pvol$scans[[i]]$params$BIOLRRHOHV <- biology_rhohv
-    
-    # Despeckle biology classification based on correlation coefficient 
-    pvol$scans[[i]]$params$BIOLDRHOHV <- pvol$scans[[i]]$params$BIOLRRHOHV
-    pvol$scans[[i]]$params$BIOLDRHOHV <- despeckle_scan_logical(pvol$scans[[i]]$params$BIOLDRHOHV)
-    attributes(pvol$scans[[i]]$params$BIOLDRHOHV)$param <- "BIOLDRHOHV"
   }
   
   return(pvol)
@@ -146,7 +134,7 @@ Now let's plot some PPIs to verify the accuracy of DPR-based classification and 
 
 ```{r verify_dpr_classifications, fig.width=10, warning=FALSE}
 source("R/side_by_side_ppi.R")
-side_by_side_ppi(pvol_hrw, pvol_dhl, "Herwijnen", "Den Helder", params = c("DBZH", "VRADH", "RHOHV", "BIOLRRHOHV", "BIOLDRHOHV", "DPR", "BIOLR", "BIOLD"))
+side_by_side_ppi(pvol_hrw, pvol_dhl, "Herwijnen", "Den Helder", params = c("DBZH", "VRADH", "DPR", "BIOLR", "BIOLD"))
 ```
 
 The plots show accurate classification of the obvious precipitation zones, except at the edges of these echoes, where `BIOLD` is a vast improvement over `BIOLR`, showing the value of despeckling. Similarly, there is a lot of 'noise' where birds should be, but despeckling takes care of most of that quite nicely as well. Additionally, it shows a pattern we would expect to see: at closer distances to the radar most 'speckles' that are not near to precipitation zones are turned into biology, and at distances further from the radar they are more often 'flipped' to meteorology. This method may not be perfect, but it classifies birds quite conservatively. The few misclassifications that remain should not affect the results so much, as they are few in number and do not occur at the centers of precipitation echoes, so they are not likely to turn into numerical outliers.

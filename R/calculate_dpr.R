@@ -25,19 +25,7 @@ calculate_dpr <- function(pvol){
     pvol$scans[[i]]$params$BIOLD <- pvol$scans[[i]]$params$BIOLR
     pvol$scans[[i]]$params$BIOLD <- despeckle_scan_logical(pvol$scans[[i]]$params$BIOLD)
     attributes(pvol$scans[[i]]$params$BIOLD)$param <- "BIOLD"
-    
-    # Classify based on correlation coefficient
-    biology_rhohv <- (pvol$scans[[i]]$params$RHOHV < 0.95) * 1
-    class(biology_rhohv) <- c("param", "matrix")
-    attributes(biology_rhohv) <- attributes(pvol$scans[[i]]$params$RHOHV)
-    attributes(biology_rhohv)$param <- "BIOLRRHOHV"
-    pvol$scans[[i]]$params$BIOLRRHOHV <- biology_rhohv
-    
-    # Despeckle biology classification based on correlation coefficient 
-    pvol$scans[[i]]$params$BIOLDRHOHV <- pvol$scans[[i]]$params$BIOLRRHOHV
-    pvol$scans[[i]]$params$BIOLDRHOHV <- despeckle_scan_logical(pvol$scans[[i]]$params$BIOLDRHOHV)
-    attributes(pvol$scans[[i]]$params$BIOLDRHOHV)$param <- "BIOLDRHOHV"
   }
   
-  return(pvol)
+  pvol
 }
