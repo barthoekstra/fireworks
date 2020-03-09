@@ -322,8 +322,8 @@ vp_hrw <- calculate_vp(file = pvol_hrw_path, vpfile = paste("data/processed/vp/"
 vp_dhl <- calculate_vp(file = pvol_dhl_path, vpfile = paste("data/processed/vp/", basename(pvol_dhl_path), sep = ""), 
                        verbose = FALSE, azim_min = 90, azim_max = 200)
 
-corrected_ppi_hrw <- integrate_to_ppi(pvol_hrw, vp_hrw, res = 500, xlim = c(-50000, 50000), ylim = c(-50000, 50000))
-corrected_ppi_dhl <- integrate_to_ppi(pvol_dhl, vp_dhl, res = 500, xlim = c(-50000, 50000), ylim = c(-50000, 50000))
+corrected_ppi_hrw <- integrate_to_ppi(pvol_hrw, vp_hrw, res = 500, xlim = c(-150000, 150000), ylim = c(-150000, 150000))
+corrected_ppi_dhl <- integrate_to_ppi(pvol_dhl, vp_dhl, res = 500, xlim = c(-150000, 150000), ylim = c(-150000, 150000))
 
 saveRDS(corrected_ppi_hrw, file = "data/processed/corrected_ppi_hrw.RDS")
 saveRDS(corrected_ppi_dhl, file = "data/processed/corrected_ppi_dhl.RDS")
