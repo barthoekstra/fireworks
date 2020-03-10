@@ -4,11 +4,11 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>6 Exploring fireworks disturbance | Fireworks</title>
+  <title>7 Exploring fireworks disturbance | Fireworks</title>
   <meta name="description" content="Using ground-based bird counts and weather radar measurements to estimate numbers of birds aloft during NYE fireworks events." />
   <meta name="generator" content="bookdown 0.17 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="6 Exploring fireworks disturbance | Fireworks" />
+  <meta property="og:title" content="7 Exploring fireworks disturbance | Fireworks" />
   <meta property="og:type" content="book" />
   
   
@@ -16,7 +16,7 @@
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="6 Exploring fireworks disturbance | Fireworks" />
+  <meta name="twitter:title" content="7 Exploring fireworks disturbance | Fireworks" />
   
   <meta name="twitter:description" content="Using ground-based bird counts and weather radar measurements to estimate numbers of birds aloft during NYE fireworks events." />
   
@@ -31,7 +31,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="05.Processing-count-results.html"/>
+<link rel="prev" href="06.Applying-annotations-to-all-PPIs.html"/>
 <link rel="next" href="A1.Generating-VPs-for-Den-Helder-radar.html"/>
 <script src="assets/jquery-2.2.3/jquery.min.js"></script>
 <link href="assets/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -66,18 +66,18 @@
 <script src="assets/leaflet-binding-2.0.3/leaflet.js"></script>
 <script src="assets/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script>
 <script src="assets/leaflet-providers-plugin-2.0.3/leaflet-providers-plugin.js"></script>
-<script src="assets/VIR-1/data_stars_VIRe5fac9.txt"></script>
+<script src="assets/VIR-1/data_stars_VIR7db140.txt"></script>
 <script src="assets/joda-0.0.1/joda.js"></script>
 <link href="assets/HomeButton-0.0.1/home-button.css" rel="stylesheet" />
 <script src="assets/HomeButton-0.0.1/home-button.js"></script>
 <script src="assets/HomeButton-0.0.1/easy-button-src.min.js"></script>
-<script src="assets/VID-1/data_stars_VID391adb.txt"></script>
-<script src="assets/R-1/data_stars_R53d0fb.txt"></script>
-<script src="assets/overlap-1/data_stars_overlap4ea628.txt"></script>
-<script src="assets/eta_sum-1/data_stars_eta_sumcf8041.txt"></script>
-<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expected7912af.txt"></script>
-<script src="assets/pop-1/data_stars_pop8b3e62.txt"></script>
-<script src="assets/dist_urban-1/data_stars_dist_urbancf2e64.txt"></script>
+<script src="assets/VID-1/data_stars_VID73ac08.txt"></script>
+<script src="assets/R-1/data_stars_R3876d0.txt"></script>
+<script src="assets/overlap-1/data_stars_overlape79386.txt"></script>
+<script src="assets/eta_sum-1/data_stars_eta_sume6a9b2.txt"></script>
+<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expected9276df.txt"></script>
+<script src="assets/pop-1/data_stars_pop5abf07.txt"></script>
+<script src="assets/dist_urban-1/data_stars_dist_urban47692f.txt"></script>
 <script src="assets/kePrint-0.0.1/kePrint.js"></script>
 
 
@@ -199,17 +199,22 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="5.3" data-path="05.Processing-count-results.html"><a href="05.Processing-count-results.html#filteringpreprocessing-species-names"><i class="fa fa-check"></i><b>5.3</b> Filtering/preprocessing species names</a></li>
 <li class="chapter" data-level="5.4" data-path="05.Processing-count-results.html"><a href="05.Processing-count-results.html#linking-life-history-traits-to-species"><i class="fa fa-check"></i><b>5.4</b> Linking life-history traits to species</a></li>
 </ul></li>
+<li class="chapter" data-level="6" data-path="06.Applying-annotations-to-all-PPIs.html"><a href="06.Applying-annotations-to-all-PPIs.html"><i class="fa fa-check"></i><b>6</b> Apply processing to all PPIs</a><ul>
+<li class="chapter" data-level="6.1" data-path="06.Applying-annotations-to-all-PPIs.html"><a href="06.Applying-annotations-to-all-PPIs.html#setting-up-the-environment"><i class="fa fa-check"></i><b>6.1</b> Setting-up the environment</a></li>
+<li class="chapter" data-level="6.2" data-path="06.Applying-annotations-to-all-PPIs.html"><a href="06.Applying-annotations-to-all-PPIs.html#load-the-reference-ppis"><i class="fa fa-check"></i><b>6.2</b> Load the reference PPIs</a></li>
+<li class="chapter" data-level="6.3" data-path="06.Applying-annotations-to-all-PPIs.html"><a href="06.Applying-annotations-to-all-PPIs.html#copy-annotations-from-reference-ppis-to-other-ppis"><i class="fa fa-check"></i><b>6.3</b> Copy annotations from reference PPIs to other PPIs</a></li>
+</ul></li>
 <li class="part"><span><b>IV Fireworks disturbance</b></span></li>
-<li class="chapter" data-level="6" data-path="07.Explore-fireworks-disturbance.html"><a href="07.Explore-fireworks-disturbance.html"><i class="fa fa-check"></i><b>6</b> Exploring fireworks disturbance</a><ul>
-<li class="chapter" data-level="6.1" data-path="07.Explore-fireworks-disturbance.html"><a href="07.Explore-fireworks-disturbance.html#setting-up-the-environment"><i class="fa fa-check"></i><b>6.1</b> Setting-up the environment</a></li>
-<li class="chapter" data-level="6.2" data-path="07.Explore-fireworks-disturbance.html"><a href="07.Explore-fireworks-disturbance.html#calculating-bird-parameters"><i class="fa fa-check"></i><b>6.2</b> Calculating bird parameters</a></li>
-<li class="chapter" data-level="6.3" data-path="07.Explore-fireworks-disturbance.html"><a href="07.Explore-fireworks-disturbance.html#connecting-sovon-counts-with-the-ppis"><i class="fa fa-check"></i><b>6.3</b> Connecting Sovon counts with the PPIs</a></li>
-<li class="chapter" data-level="6.4" data-path="07.Explore-fireworks-disturbance.html"><a href="07.Explore-fireworks-disturbance.html#correcting-for-dispersion"><i class="fa fa-check"></i><b>6.4</b> Correcting for dispersion</a></li>
+<li class="chapter" data-level="7" data-path="07.Explore-fireworks-disturbance.html"><a href="07.Explore-fireworks-disturbance.html"><i class="fa fa-check"></i><b>7</b> Exploring fireworks disturbance</a><ul>
+<li class="chapter" data-level="7.1" data-path="07.Explore-fireworks-disturbance.html"><a href="07.Explore-fireworks-disturbance.html#setting-up-the-environment-1"><i class="fa fa-check"></i><b>7.1</b> Setting-up the environment</a></li>
+<li class="chapter" data-level="7.2" data-path="07.Explore-fireworks-disturbance.html"><a href="07.Explore-fireworks-disturbance.html#calculating-bird-parameters"><i class="fa fa-check"></i><b>7.2</b> Calculating bird parameters</a></li>
+<li class="chapter" data-level="7.3" data-path="07.Explore-fireworks-disturbance.html"><a href="07.Explore-fireworks-disturbance.html#connecting-sovon-counts-with-the-ppis"><i class="fa fa-check"></i><b>7.3</b> Connecting Sovon counts with the PPIs</a></li>
+<li class="chapter" data-level="7.4" data-path="07.Explore-fireworks-disturbance.html"><a href="07.Explore-fireworks-disturbance.html#correcting-for-dispersion"><i class="fa fa-check"></i><b>7.4</b> Correcting for dispersion</a></li>
 </ul></li>
 <li class="part"><span><b>V Appendix</b></span></li>
-<li class="chapter" data-level="7" data-path="A1.Generating-VPs-for-Den-Helder-radar.html"><a href="A1.Generating-VPs-for-Den-Helder-radar.html"><i class="fa fa-check"></i><b>7</b> Generating vertical profiles for Den Helder radar</a></li>
+<li class="chapter" data-level="8" data-path="A1.Generating-VPs-for-Den-Helder-radar.html"><a href="A1.Generating-VPs-for-Den-Helder-radar.html"><i class="fa fa-check"></i><b>8</b> Generating vertical profiles for Den Helder radar</a></li>
 <li class="part"><span><b>VI Other</b></span></li>
-<li class="chapter" data-level="8" data-path="References.html"><a href="References.html"><i class="fa fa-check"></i><b>8</b> References</a></li>
+<li class="chapter" data-level="9" data-path="References.html"><a href="References.html"><i class="fa fa-check"></i><b>9</b> References</a></li>
 </ul>
 
       </nav>
@@ -228,7 +233,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
             <section class="normal" id="section-">
 <div id="exploring-fireworks-disturbance" class="section level1">
-<h1><span class="header-section-number">6</span> Exploring fireworks disturbance</h1>
+<h1><span class="header-section-number">7</span> Exploring fireworks disturbance</h1>
 <p>We have so far:</p>
 <ol style="list-style-type: decimal">
 <li>Pre-processed the radar data, by removing clutter and applying the range-bias correction <span class="citation">(Kranstauber et al. <a href="#ref-kranstauber2020">2020</a>)</span>.</li>
@@ -244,10 +249,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>The take-off habitat of these birds</li>
 <li>The population density in the vicinity of birds, corrected for the distance to urban areas.</li>
 </ol>
-<div id="setting-up-the-environment" class="section level2">
-<h2><span class="header-section-number">6.1</span> Setting-up the environment</h2>
+<div id="setting-up-the-environment-1" class="section level2">
+<h2><span class="header-section-number">7.1</span> Setting-up the environment</h2>
 <p>Load the required packages.</p>
-<div class="sourceCode" id="cb109"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb109-1" data-line-number="1"><span class="kw">library</span>(mgcv)</a></code></pre></div>
+<div class="sourceCode" id="cb113"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb113-1" data-line-number="1"><span class="kw">library</span>(mgcv)</a></code></pre></div>
 <pre><code>## Loading required package: nlme</code></pre>
 <pre><code>## 
 ## Attaching package: &#39;nlme&#39;</code></pre>
@@ -258,169 +263,169 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 
 ##     collapse</code></pre>
 <pre><code>## This is mgcv 1.8-31. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.</code></pre>
-<div class="sourceCode" id="cb115"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb115-1" data-line-number="1"><span class="kw">library</span>(ggplot2)</a>
-<a class="sourceLine" id="cb115-2" data-line-number="2"><span class="kw">library</span>(dplyr)</a>
-<a class="sourceLine" id="cb115-3" data-line-number="3"><span class="kw">library</span>(tidyr)</a>
-<a class="sourceLine" id="cb115-4" data-line-number="4"><span class="kw">library</span>(ggdark)</a>
-<a class="sourceLine" id="cb115-5" data-line-number="5"><span class="kw">library</span>(bioRad)</a>
-<a class="sourceLine" id="cb115-6" data-line-number="6"><span class="kw">library</span>(raster)</a>
-<a class="sourceLine" id="cb115-7" data-line-number="7"><span class="kw">library</span>(dismo)</a>
-<a class="sourceLine" id="cb115-8" data-line-number="8"><span class="kw">library</span>(gbm)</a></code></pre></div>
+<div class="sourceCode" id="cb119"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb119-1" data-line-number="1"><span class="kw">library</span>(ggplot2)</a>
+<a class="sourceLine" id="cb119-2" data-line-number="2"><span class="kw">library</span>(dplyr)</a>
+<a class="sourceLine" id="cb119-3" data-line-number="3"><span class="kw">library</span>(tidyr)</a>
+<a class="sourceLine" id="cb119-4" data-line-number="4"><span class="kw">library</span>(ggdark)</a>
+<a class="sourceLine" id="cb119-5" data-line-number="5"><span class="kw">library</span>(bioRad)</a>
+<a class="sourceLine" id="cb119-6" data-line-number="6"><span class="kw">library</span>(raster)</a>
+<a class="sourceLine" id="cb119-7" data-line-number="7"><span class="kw">library</span>(dismo)</a>
+<a class="sourceLine" id="cb119-8" data-line-number="8"><span class="kw">library</span>(gbm)</a></code></pre></div>
 <pre><code>## Loaded gbm 2.1.5</code></pre>
 <p>And the files we have generated so far.</p>
-<div class="sourceCode" id="cb117"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb117-1" data-line-number="1">ppi_hrw &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data/processed/corrected-ppis-lu-sovon/corrected_ppi_hrw_lu_sovon.RDS&quot;</span>)</a>
-<a class="sourceLine" id="cb117-2" data-line-number="2">ppi_dhl &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data/processed/corrected-ppis-lu-sovon/corrected_ppi_dhl_lu_sovon.RDS&quot;</span>)</a>
-<a class="sourceLine" id="cb117-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb117-4" data-line-number="4">ptt_raw &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data/processed/sovon/ptt.RDS&quot;</span>)</a>
-<a class="sourceLine" id="cb117-5" data-line-number="5">wb_raw &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data/processed/sovon/wb.RDS&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb121"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb121-1" data-line-number="1">ppi_hrw &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data/processed/corrected-ppis-lu-sovon/corrected_ppi_hrw_lu_sovon.RDS&quot;</span>)</a>
+<a class="sourceLine" id="cb121-2" data-line-number="2">ppi_dhl &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data/processed/corrected-ppis-lu-sovon/corrected_ppi_dhl_lu_sovon.RDS&quot;</span>)</a>
+<a class="sourceLine" id="cb121-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb121-4" data-line-number="4">ptt_raw &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data/processed/sovon/ptt.RDS&quot;</span>)</a>
+<a class="sourceLine" id="cb121-5" data-line-number="5">wb_raw &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data/processed/sovon/wb.RDS&quot;</span>)</a></code></pre></div>
 </div>
 <div id="calculating-bird-parameters" class="section level2">
-<h2><span class="header-section-number">6.2</span> Calculating bird parameters</h2>
+<h2><span class="header-section-number">7.2</span> Calculating bird parameters</h2>
 <p>We need to calculate the number of birds on the ground and average mass of these birds</p>
-<div class="sourceCode" id="cb118"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb118-1" data-line-number="1">wb_raw <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb118-2" data-line-number="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">area_nr =</span> <span class="kw">as.character</span>(area_nr)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb118-3" data-line-number="3"><span class="st">  </span><span class="kw">filter</span>(year <span class="op">==</span><span class="st"> </span><span class="dv">2018</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb118-4" data-line-number="4"><span class="st">  </span><span class="kw">group_by</span>(area_nr) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb118-5" data-line-number="5"><span class="st">  </span><span class="kw">summarise</span>(<span class="dt">nr_birds =</span> <span class="kw">sum</span>(number),</a>
-<a class="sourceLine" id="cb118-6" data-line-number="6">            <span class="dt">avg_mass =</span> <span class="kw">weighted.mean</span>(mean_weight, number)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb118-7" data-line-number="7"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb118-8" data-line-number="8"><span class="st">  </span><span class="kw">group_by</span>(area_nr) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb118-9" data-line-number="9"><span class="st">  </span><span class="kw">summarise</span>(<span class="dt">nr_birds =</span> <span class="kw">mean</span>(nr_birds),</a>
-<a class="sourceLine" id="cb118-10" data-line-number="10">            <span class="dt">avg_mass =</span> <span class="kw">mean</span>(avg_mass)) -&gt;<span class="st"> </span>wb</a>
-<a class="sourceLine" id="cb118-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb118-12" data-line-number="12">ptt_raw <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb118-13" data-line-number="13"><span class="st">  </span><span class="kw">filter</span>(year <span class="op">==</span><span class="st"> </span><span class="dv">2017</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb118-14" data-line-number="14"><span class="st">  </span><span class="kw">group_by</span>(route) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb118-15" data-line-number="15"><span class="st">  </span><span class="kw">summarise</span>(<span class="dt">nr_birds =</span> <span class="kw">sum</span>(number),</a>
-<a class="sourceLine" id="cb118-16" data-line-number="16">            <span class="dt">avg_mass =</span> <span class="kw">weighted.mean</span>(mean_weight, number)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb118-17" data-line-number="17"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb118-18" data-line-number="18"><span class="st">  </span><span class="kw">group_by</span>(route) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb118-19" data-line-number="19"><span class="st">  </span><span class="kw">summarise</span>(<span class="dt">nr_birds =</span> <span class="kw">mean</span>(nr_birds),</a>
-<a class="sourceLine" id="cb118-20" data-line-number="20">            <span class="dt">avg_mass =</span> <span class="kw">mean</span>(avg_mass)) -&gt;<span class="st"> </span>ptt</a></code></pre></div>
+<div class="sourceCode" id="cb122"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb122-1" data-line-number="1">wb_raw <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb122-2" data-line-number="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">area_nr =</span> <span class="kw">as.character</span>(area_nr)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb122-3" data-line-number="3"><span class="st">  </span><span class="kw">filter</span>(year <span class="op">==</span><span class="st"> </span><span class="dv">2018</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb122-4" data-line-number="4"><span class="st">  </span><span class="kw">group_by</span>(area_nr) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb122-5" data-line-number="5"><span class="st">  </span><span class="kw">summarise</span>(<span class="dt">nr_birds =</span> <span class="kw">sum</span>(number),</a>
+<a class="sourceLine" id="cb122-6" data-line-number="6">            <span class="dt">avg_mass =</span> <span class="kw">weighted.mean</span>(mean_weight, number)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb122-7" data-line-number="7"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb122-8" data-line-number="8"><span class="st">  </span><span class="kw">group_by</span>(area_nr) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb122-9" data-line-number="9"><span class="st">  </span><span class="kw">summarise</span>(<span class="dt">nr_birds =</span> <span class="kw">mean</span>(nr_birds),</a>
+<a class="sourceLine" id="cb122-10" data-line-number="10">            <span class="dt">avg_mass =</span> <span class="kw">mean</span>(avg_mass)) -&gt;<span class="st"> </span>wb</a>
+<a class="sourceLine" id="cb122-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb122-12" data-line-number="12">ptt_raw <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb122-13" data-line-number="13"><span class="st">  </span><span class="kw">filter</span>(year <span class="op">==</span><span class="st"> </span><span class="dv">2017</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb122-14" data-line-number="14"><span class="st">  </span><span class="kw">group_by</span>(route) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb122-15" data-line-number="15"><span class="st">  </span><span class="kw">summarise</span>(<span class="dt">nr_birds =</span> <span class="kw">sum</span>(number),</a>
+<a class="sourceLine" id="cb122-16" data-line-number="16">            <span class="dt">avg_mass =</span> <span class="kw">weighted.mean</span>(mean_weight, number)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb122-17" data-line-number="17"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb122-18" data-line-number="18"><span class="st">  </span><span class="kw">group_by</span>(route) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb122-19" data-line-number="19"><span class="st">  </span><span class="kw">summarise</span>(<span class="dt">nr_birds =</span> <span class="kw">mean</span>(nr_birds),</a>
+<a class="sourceLine" id="cb122-20" data-line-number="20">            <span class="dt">avg_mass =</span> <span class="kw">mean</span>(avg_mass)) -&gt;<span class="st"> </span>ptt</a></code></pre></div>
 <p>Ideally, both the <code>wb</code> and <code>ptt</code> datasets cover somewhat different species compositions. We can easily see this if we visualise the distributions of <code>mean_weight</code> for these datasets.</p>
-<div class="sourceCode" id="cb119"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb119-1" data-line-number="1"><span class="kw">bind_rows</span>(dplyr<span class="op">::</span><span class="kw">select</span>(wb, nr_birds, avg_mass), dplyr<span class="op">::</span><span class="kw">select</span>(ptt, nr_birds, avg_mass), <span class="dt">.id =</span> <span class="st">&quot;source&quot;</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb119-2" data-line-number="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">source =</span> <span class="kw">case_when</span>(</a>
-<a class="sourceLine" id="cb119-3" data-line-number="3">    source <span class="op">==</span><span class="st"> </span><span class="dv">1</span> <span class="op">~</span><span class="st"> &quot;WB&quot;</span>,</a>
-<a class="sourceLine" id="cb119-4" data-line-number="4">    source <span class="op">==</span><span class="st"> </span><span class="dv">2</span> <span class="op">~</span><span class="st"> &quot;PTT&quot;</span></a>
-<a class="sourceLine" id="cb119-5" data-line-number="5">  )) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb119-6" data-line-number="6"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> avg_mass)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb119-7" data-line-number="7"><span class="st">  </span><span class="kw">geom_density</span>(<span class="kw">aes</span>(<span class="dt">group =</span> source, <span class="dt">color =</span> source)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb119-8" data-line-number="8"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Distribution of average mass in PTT and Waterbird counts&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb123"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb123-1" data-line-number="1"><span class="kw">bind_rows</span>(dplyr<span class="op">::</span><span class="kw">select</span>(wb, nr_birds, avg_mass), dplyr<span class="op">::</span><span class="kw">select</span>(ptt, nr_birds, avg_mass), <span class="dt">.id =</span> <span class="st">&quot;source&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb123-2" data-line-number="2"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">source =</span> <span class="kw">case_when</span>(</a>
+<a class="sourceLine" id="cb123-3" data-line-number="3">    source <span class="op">==</span><span class="st"> </span><span class="dv">1</span> <span class="op">~</span><span class="st"> &quot;WB&quot;</span>,</a>
+<a class="sourceLine" id="cb123-4" data-line-number="4">    source <span class="op">==</span><span class="st"> </span><span class="dv">2</span> <span class="op">~</span><span class="st"> &quot;PTT&quot;</span></a>
+<a class="sourceLine" id="cb123-5" data-line-number="5">  )) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb123-6" data-line-number="6"><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> avg_mass)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb123-7" data-line-number="7"><span class="st">  </span><span class="kw">geom_density</span>(<span class="kw">aes</span>(<span class="dt">group =</span> source, <span class="dt">color =</span> source)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb123-8" data-line-number="8"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Distribution of average mass in PTT and Waterbird counts&quot;</span>)</a></code></pre></div>
 <pre><code>## Warning: Removed 3 rows containing non-finite values (stat_density).</code></pre>
 <p><img src="Fireworks_files/figure-html/compare_distributions_of_avg_mass-1.svg" width="672" /></p>
 <p>And indeed, the distributions of <code>avg_mass</code> for PTT counts is shifted considerably to lower average weights.</p>
 </div>
 <div id="connecting-sovon-counts-with-the-ppis" class="section level2">
-<h2><span class="header-section-number">6.3</span> Connecting Sovon counts with the PPIs</h2>
+<h2><span class="header-section-number">7.3</span> Connecting Sovon counts with the PPIs</h2>
 <p>Now that we have calculated the necessary ‘bird parameters’, we can attach these to the PPIs using a few simple <code>left_join</code>s. Subsequently, we will recalculate the <code>avg_mass</code> as the mean of average masses in the PTT and waterbird counts, and <code>nr_birds</code> by adding the numbers of birds in the PTT and waterbird counts together. The former is probably not particularly useful, so probably best to throw out at some point.</p>
-<div class="sourceCode" id="cb121"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb121-1" data-line-number="1">ppi_hrw<span class="op">$</span>data<span class="op">@</span>data <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb121-2" data-line-number="2"><span class="st">  </span><span class="kw">left_join</span>(dplyr<span class="op">::</span><span class="kw">select</span>(wb, area_nr, nr_birds, avg_mass), <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;wb_area_nr&quot;</span> =<span class="st"> &quot;area_nr&quot;</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb121-3" data-line-number="3"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">wb_nr_birds =</span> nr_birds, <span class="dt">wb_avg_mass =</span> avg_mass) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb121-4" data-line-number="4"><span class="st">  </span><span class="kw">group_by</span>(wb_area_nr) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb121-5" data-line-number="5"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">wb_nr_birds =</span> wb_nr_birds <span class="op">/</span><span class="st"> </span><span class="kw">n</span>()) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb121-6" data-line-number="6"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb121-7" data-line-number="7"><span class="st">  </span><span class="kw">left_join</span>(dplyr<span class="op">::</span><span class="kw">select</span>(ptt, route, nr_birds, avg_mass), <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;ptt_route&quot;</span> =<span class="st"> &quot;route&quot;</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb121-8" data-line-number="8"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">ptt_nr_birds =</span> nr_birds, <span class="dt">ptt_avg_mass =</span> avg_mass) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb121-9" data-line-number="9"><span class="st">  </span><span class="kw">group_by</span>(ptt_route) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb121-10" data-line-number="10"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">ptt_nr_birds =</span> ptt_nr_birds <span class="op">/</span><span class="st"> </span><span class="kw">n</span>()) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb121-11" data-line-number="11"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb121-12" data-line-number="12"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">nr_birds =</span> wb_nr_birds <span class="op">+</span><span class="st"> </span>ptt_nr_birds,</a>
-<a class="sourceLine" id="cb121-13" data-line-number="13">         <span class="dt">avg_mass =</span> <span class="kw">mean</span>(<span class="kw">c</span>(wb_avg_mass, ptt_avg_mass), <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)) -&gt;<span class="st"> </span>ppi_hrw<span class="op">$</span>data<span class="op">@</span>data</a></code></pre></div>
+<div class="sourceCode" id="cb125"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb125-1" data-line-number="1">ppi_hrw<span class="op">$</span>data<span class="op">@</span>data <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb125-2" data-line-number="2"><span class="st">  </span><span class="kw">left_join</span>(dplyr<span class="op">::</span><span class="kw">select</span>(wb, area_nr, nr_birds, avg_mass), <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;wb_area_nr&quot;</span> =<span class="st"> &quot;area_nr&quot;</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb125-3" data-line-number="3"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">wb_nr_birds =</span> nr_birds, <span class="dt">wb_avg_mass =</span> avg_mass) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb125-4" data-line-number="4"><span class="st">  </span><span class="kw">group_by</span>(wb_area_nr) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb125-5" data-line-number="5"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">wb_nr_birds =</span> wb_nr_birds <span class="op">/</span><span class="st"> </span><span class="kw">n</span>()) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb125-6" data-line-number="6"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb125-7" data-line-number="7"><span class="st">  </span><span class="kw">left_join</span>(dplyr<span class="op">::</span><span class="kw">select</span>(ptt, route, nr_birds, avg_mass), <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;ptt_route&quot;</span> =<span class="st"> &quot;route&quot;</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb125-8" data-line-number="8"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">ptt_nr_birds =</span> nr_birds, <span class="dt">ptt_avg_mass =</span> avg_mass) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb125-9" data-line-number="9"><span class="st">  </span><span class="kw">group_by</span>(ptt_route) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb125-10" data-line-number="10"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">ptt_nr_birds =</span> ptt_nr_birds <span class="op">/</span><span class="st"> </span><span class="kw">n</span>()) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb125-11" data-line-number="11"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb125-12" data-line-number="12"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">nr_birds =</span> wb_nr_birds <span class="op">+</span><span class="st"> </span>ptt_nr_birds,</a>
+<a class="sourceLine" id="cb125-13" data-line-number="13">         <span class="dt">avg_mass =</span> <span class="kw">mean</span>(<span class="kw">c</span>(wb_avg_mass, ptt_avg_mass), <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)) -&gt;<span class="st"> </span>ppi_hrw<span class="op">$</span>data<span class="op">@</span>data</a></code></pre></div>
 <pre><code>## Warning: Column `wb_area_nr`/`area_nr` joining factor and character vector, coercing into character vector</code></pre>
-<div class="sourceCode" id="cb123"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb123-1" data-line-number="1">ppi_dhl<span class="op">$</span>data<span class="op">@</span>data <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb123-2" data-line-number="2"><span class="st">  </span><span class="kw">left_join</span>(dplyr<span class="op">::</span><span class="kw">select</span>(wb, area_nr, nr_birds, avg_mass), <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;wb_area_nr&quot;</span> =<span class="st"> &quot;area_nr&quot;</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb123-3" data-line-number="3"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">wb_nr_birds =</span> nr_birds, <span class="dt">wb_avg_mass =</span> avg_mass) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb123-4" data-line-number="4"><span class="st">  </span><span class="kw">group_by</span>(wb_area_nr) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb123-5" data-line-number="5"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">wb_nr_birds =</span> wb_nr_birds <span class="op">/</span><span class="st"> </span><span class="kw">n</span>()) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb123-6" data-line-number="6"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb123-7" data-line-number="7"><span class="st">  </span><span class="kw">left_join</span>(dplyr<span class="op">::</span><span class="kw">select</span>(ptt, route, nr_birds, avg_mass), <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;ptt_route&quot;</span> =<span class="st"> &quot;route&quot;</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb123-8" data-line-number="8"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">ptt_nr_birds =</span> nr_birds, <span class="dt">ptt_avg_mass =</span> avg_mass) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb123-9" data-line-number="9"><span class="st">  </span><span class="kw">group_by</span>(ptt_route) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb123-10" data-line-number="10"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">ptt_nr_birds =</span> ptt_nr_birds <span class="op">/</span><span class="st"> </span><span class="kw">n</span>()) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb123-11" data-line-number="11"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb123-12" data-line-number="12"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">nr_birds =</span> wb_nr_birds <span class="op">+</span><span class="st"> </span>ptt_nr_birds,</a>
-<a class="sourceLine" id="cb123-13" data-line-number="13">         <span class="dt">avg_mass =</span> <span class="kw">mean</span>(<span class="kw">c</span>(wb_avg_mass, ptt_avg_mass), <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)) -&gt;<span class="st"> </span>ppi_dhl<span class="op">$</span>data<span class="op">@</span>data</a></code></pre></div>
+<div class="sourceCode" id="cb127"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb127-1" data-line-number="1">ppi_dhl<span class="op">$</span>data<span class="op">@</span>data <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb127-2" data-line-number="2"><span class="st">  </span><span class="kw">left_join</span>(dplyr<span class="op">::</span><span class="kw">select</span>(wb, area_nr, nr_birds, avg_mass), <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;wb_area_nr&quot;</span> =<span class="st"> &quot;area_nr&quot;</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb127-3" data-line-number="3"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">wb_nr_birds =</span> nr_birds, <span class="dt">wb_avg_mass =</span> avg_mass) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb127-4" data-line-number="4"><span class="st">  </span><span class="kw">group_by</span>(wb_area_nr) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb127-5" data-line-number="5"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">wb_nr_birds =</span> wb_nr_birds <span class="op">/</span><span class="st"> </span><span class="kw">n</span>()) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb127-6" data-line-number="6"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb127-7" data-line-number="7"><span class="st">  </span><span class="kw">left_join</span>(dplyr<span class="op">::</span><span class="kw">select</span>(ptt, route, nr_birds, avg_mass), <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;ptt_route&quot;</span> =<span class="st"> &quot;route&quot;</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb127-8" data-line-number="8"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">ptt_nr_birds =</span> nr_birds, <span class="dt">ptt_avg_mass =</span> avg_mass) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb127-9" data-line-number="9"><span class="st">  </span><span class="kw">group_by</span>(ptt_route) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb127-10" data-line-number="10"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">ptt_nr_birds =</span> ptt_nr_birds <span class="op">/</span><span class="st"> </span><span class="kw">n</span>()) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb127-11" data-line-number="11"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb127-12" data-line-number="12"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">nr_birds =</span> wb_nr_birds <span class="op">+</span><span class="st"> </span>ptt_nr_birds,</a>
+<a class="sourceLine" id="cb127-13" data-line-number="13">         <span class="dt">avg_mass =</span> <span class="kw">mean</span>(<span class="kw">c</span>(wb_avg_mass, ptt_avg_mass), <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)) -&gt;<span class="st"> </span>ppi_dhl<span class="op">$</span>data<span class="op">@</span>data</a></code></pre></div>
 <pre><code>## Warning: Column `wb_area_nr`/`area_nr` joining factor and character vector, coercing into character vector</code></pre>
 </div>
 <div id="correcting-for-dispersion" class="section level2">
-<h2><span class="header-section-number">6.4</span> Correcting for dispersion</h2>
+<h2><span class="header-section-number">7.4</span> Correcting for dispersion</h2>
 <p>As birds can cross substantial distances within 5 minutes (the period a single scan takes), we somehow have to take this into account during the modelling. A simple approach is to ‘smooth’ out the numbers of birds in space, by averaging the bird numbers within a given window around a focal cell. We will create a simple function to do that</p>
-<div class="sourceCode" id="cb125"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb125-1" data-line-number="1">smooth_ppi &lt;-<span class="st"> </span><span class="cf">function</span>(ppi, var, <span class="dt">gridsize =</span> <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">3</span>)) {</a>
-<a class="sourceLine" id="cb125-2" data-line-number="2">  weights &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dv">1</span>, <span class="dt">nrow =</span> gridsize[<span class="dv">1</span>], <span class="dt">ncol =</span> gridsize[<span class="dv">2</span>])</a>
-<a class="sourceLine" id="cb125-3" data-line-number="3">  </a>
-<a class="sourceLine" id="cb125-4" data-line-number="4">  smooth_raster &lt;-<span class="st"> </span><span class="kw">raster</span>(ppi<span class="op">$</span>data[var])</a>
-<a class="sourceLine" id="cb125-5" data-line-number="5">  smooth_nonan &lt;-<span class="st"> </span>smooth_raster</a>
-<a class="sourceLine" id="cb125-6" data-line-number="6">  smooth_nonan[<span class="kw">is.na</span>(smooth_nonan)] &lt;-<span class="st"> </span><span class="dv">0</span></a>
-<a class="sourceLine" id="cb125-7" data-line-number="7">  smooth_raster &lt;-<span class="st"> </span><span class="kw">focal</span>(smooth_nonan, <span class="dt">w =</span> weights, <span class="dt">fun =</span> mean, <span class="dt">pad =</span> <span class="ot">TRUE</span>, <span class="dt">padValue =</span> <span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb125-8" data-line-number="8">  </a>
-<a class="sourceLine" id="cb125-9" data-line-number="9">  <span class="kw">return</span>(<span class="kw">unlist</span>(<span class="kw">as.data.frame</span>(<span class="kw">as</span>(smooth_raster, <span class="st">&quot;Raster&quot;</span>))))</a>
-<a class="sourceLine" id="cb125-10" data-line-number="10">}</a>
-<a class="sourceLine" id="cb125-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb125-12" data-line-number="12">ppi_hrw<span class="op">$</span>data<span class="op">$</span>birds_smooth_<span class="dv">9</span> &lt;-<span class="st"> </span><span class="kw">smooth_ppi</span>(ppi_hrw, <span class="st">&quot;wb_nr_birds&quot;</span>)</a>
-<a class="sourceLine" id="cb125-13" data-line-number="13">ppi_hrw<span class="op">$</span>data<span class="op">$</span>birds_smooth_<span class="dv">15</span> &lt;-<span class="st"> </span><span class="kw">smooth_ppi</span>(ppi_hrw, <span class="st">&quot;wb_nr_birds&quot;</span>, <span class="dt">gridsize =</span> <span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">5</span>))</a>
-<a class="sourceLine" id="cb125-14" data-line-number="14">ppi_dhl<span class="op">$</span>data<span class="op">$</span>birds_smooth_<span class="dv">9</span> &lt;-<span class="st"> </span><span class="kw">smooth_ppi</span>(ppi_dhl, <span class="st">&quot;wb_nr_birds&quot;</span>)</a>
-<a class="sourceLine" id="cb125-15" data-line-number="15">ppi_dhl<span class="op">$</span>data<span class="op">$</span>birds_smooth_<span class="dv">15</span> &lt;-<span class="st"> </span><span class="kw">smooth_ppi</span>(ppi_dhl, <span class="st">&quot;wb_nr_birds&quot;</span>, <span class="dt">gridsize =</span> <span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">5</span>))</a></code></pre></div>
-<div class="sourceCode" id="cb126"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb126-1" data-line-number="1"><span class="kw">plot</span>(ppi_hrw, <span class="dt">param =</span> <span class="st">&quot;ptt_nr_birds&quot;</span>, <span class="dt">zlim =</span> <span class="kw">c</span>(<span class="kw">min</span>(ppi_hrw<span class="op">$</span>data<span class="op">@</span>data<span class="op">$</span>ptt_nr_birds, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>), <span class="kw">quantile</span>(ppi_hrw<span class="op">$</span>data<span class="op">@</span>data<span class="op">$</span>ptt_nr_birds, <span class="fl">0.95</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)))</a></code></pre></div>
+<div class="sourceCode" id="cb129"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb129-1" data-line-number="1">smooth_ppi &lt;-<span class="st"> </span><span class="cf">function</span>(ppi, var, <span class="dt">gridsize =</span> <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">3</span>)) {</a>
+<a class="sourceLine" id="cb129-2" data-line-number="2">  weights &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dv">1</span>, <span class="dt">nrow =</span> gridsize[<span class="dv">1</span>], <span class="dt">ncol =</span> gridsize[<span class="dv">2</span>])</a>
+<a class="sourceLine" id="cb129-3" data-line-number="3">  </a>
+<a class="sourceLine" id="cb129-4" data-line-number="4">  smooth_raster &lt;-<span class="st"> </span><span class="kw">raster</span>(ppi<span class="op">$</span>data[var])</a>
+<a class="sourceLine" id="cb129-5" data-line-number="5">  smooth_nonan &lt;-<span class="st"> </span>smooth_raster</a>
+<a class="sourceLine" id="cb129-6" data-line-number="6">  smooth_nonan[<span class="kw">is.na</span>(smooth_nonan)] &lt;-<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb129-7" data-line-number="7">  smooth_raster &lt;-<span class="st"> </span><span class="kw">focal</span>(smooth_nonan, <span class="dt">w =</span> weights, <span class="dt">fun =</span> mean, <span class="dt">pad =</span> <span class="ot">TRUE</span>, <span class="dt">padValue =</span> <span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb129-8" data-line-number="8">  </a>
+<a class="sourceLine" id="cb129-9" data-line-number="9">  <span class="kw">return</span>(<span class="kw">unlist</span>(<span class="kw">as.data.frame</span>(<span class="kw">as</span>(smooth_raster, <span class="st">&quot;Raster&quot;</span>))))</a>
+<a class="sourceLine" id="cb129-10" data-line-number="10">}</a>
+<a class="sourceLine" id="cb129-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb129-12" data-line-number="12">ppi_hrw<span class="op">$</span>data<span class="op">$</span>birds_smooth_<span class="dv">9</span> &lt;-<span class="st"> </span><span class="kw">smooth_ppi</span>(ppi_hrw, <span class="st">&quot;wb_nr_birds&quot;</span>)</a>
+<a class="sourceLine" id="cb129-13" data-line-number="13">ppi_hrw<span class="op">$</span>data<span class="op">$</span>birds_smooth_<span class="dv">15</span> &lt;-<span class="st"> </span><span class="kw">smooth_ppi</span>(ppi_hrw, <span class="st">&quot;wb_nr_birds&quot;</span>, <span class="dt">gridsize =</span> <span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">5</span>))</a>
+<a class="sourceLine" id="cb129-14" data-line-number="14">ppi_dhl<span class="op">$</span>data<span class="op">$</span>birds_smooth_<span class="dv">9</span> &lt;-<span class="st"> </span><span class="kw">smooth_ppi</span>(ppi_dhl, <span class="st">&quot;wb_nr_birds&quot;</span>)</a>
+<a class="sourceLine" id="cb129-15" data-line-number="15">ppi_dhl<span class="op">$</span>data<span class="op">$</span>birds_smooth_<span class="dv">15</span> &lt;-<span class="st"> </span><span class="kw">smooth_ppi</span>(ppi_dhl, <span class="st">&quot;wb_nr_birds&quot;</span>, <span class="dt">gridsize =</span> <span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">5</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb130"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb130-1" data-line-number="1"><span class="kw">plot</span>(ppi_hrw, <span class="dt">param =</span> <span class="st">&quot;ptt_nr_birds&quot;</span>, <span class="dt">zlim =</span> <span class="kw">c</span>(<span class="kw">min</span>(ppi_hrw<span class="op">$</span>data<span class="op">@</span>data<span class="op">$</span>ptt_nr_birds, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>), <span class="kw">quantile</span>(ppi_hrw<span class="op">$</span>data<span class="op">@</span>data<span class="op">$</span>ptt_nr_birds, <span class="fl">0.95</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)))</a></code></pre></div>
 <p><img src="Fireworks_files/figure-html/plot_PPIs-1.svg" width="672" /></p>
-<div class="sourceCode" id="cb127"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb127-1" data-line-number="1"><span class="kw">plot</span>(ppi_hrw, <span class="dt">param =</span> <span class="st">&quot;wb_nr_birds&quot;</span>, <span class="dt">zlim =</span> <span class="kw">c</span>(<span class="kw">min</span>(ppi_hrw<span class="op">$</span>data<span class="op">@</span>data<span class="op">$</span>wb_nr_birds, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>), <span class="kw">quantile</span>(ppi_hrw<span class="op">$</span>data<span class="op">@</span>data<span class="op">$</span>wb_nr_birds, <span class="fl">0.95</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)))</a></code></pre></div>
+<div class="sourceCode" id="cb131"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb131-1" data-line-number="1"><span class="kw">plot</span>(ppi_hrw, <span class="dt">param =</span> <span class="st">&quot;wb_nr_birds&quot;</span>, <span class="dt">zlim =</span> <span class="kw">c</span>(<span class="kw">min</span>(ppi_hrw<span class="op">$</span>data<span class="op">@</span>data<span class="op">$</span>wb_nr_birds, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>), <span class="kw">quantile</span>(ppi_hrw<span class="op">$</span>data<span class="op">@</span>data<span class="op">$</span>wb_nr_birds, <span class="fl">0.95</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)))</a></code></pre></div>
 <p><img src="Fireworks_files/figure-html/plot_PPIs-2.svg" width="672" /></p>
-<div class="sourceCode" id="cb128"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb128-1" data-line-number="1"><span class="kw">plot</span>(ppi_hrw, <span class="dt">param =</span> <span class="st">&quot;VIR&quot;</span>, <span class="dt">zlim =</span> <span class="kw">c</span>(<span class="kw">min</span>(ppi_hrw<span class="op">$</span>data<span class="op">$</span>VIR), <span class="kw">quantile</span>(ppi_hrw<span class="op">$</span>data<span class="op">$</span>VIR, <span class="fl">0.99</span>)))</a></code></pre></div>
+<div class="sourceCode" id="cb132"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb132-1" data-line-number="1"><span class="kw">plot</span>(ppi_hrw, <span class="dt">param =</span> <span class="st">&quot;VIR&quot;</span>, <span class="dt">zlim =</span> <span class="kw">c</span>(<span class="kw">min</span>(ppi_hrw<span class="op">$</span>data<span class="op">$</span>VIR), <span class="kw">quantile</span>(ppi_hrw<span class="op">$</span>data<span class="op">$</span>VIR, <span class="fl">0.99</span>)))</a></code></pre></div>
 <p><img src="Fireworks_files/figure-html/plot_PPIs-3.svg" width="672" /></p>
-<div class="sourceCode" id="cb129"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb129-1" data-line-number="1">ppi_hrw_mass &lt;-<span class="st"> </span>ppi_hrw<span class="op">$</span>data<span class="op">@</span>data</a>
-<a class="sourceLine" id="cb129-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb129-3" data-line-number="3">ppi_hrw_mass <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb129-4" data-line-number="4"><span class="st">  </span><span class="kw">filter</span>(VIR <span class="op">&gt;</span><span class="st"> </span><span class="dv">50</span> <span class="op">&amp;</span><span class="st"> </span>wb_nr_birds <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>type <span class="op">==</span><span class="st"> &quot;rural&quot;</span> <span class="op">&amp;</span><span class="st"> </span>VIR <span class="op">&lt;</span><span class="st"> </span><span class="kw">quantile</span>(ppi_hrw_mass<span class="op">$</span>VIR, <span class="fl">0.99</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb129-5" data-line-number="5"><span class="st">  </span><span class="co"># filter(birds_smooth_9 &lt; quantile(ppi_hrw_mass$birds_smooth_9, 0.99, na.rm = TRUE)) %&gt;%</span></a>
-<a class="sourceLine" id="cb129-6" data-line-number="6"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">vid_new =</span> VIR <span class="op">/</span><span class="st"> </span>wb_avg_mass,</a>
-<a class="sourceLine" id="cb129-7" data-line-number="7">         <span class="dt">birds =</span> wb_nr_birds <span class="op">*</span><span class="st"> </span>wb_avg_mass,</a>
-<a class="sourceLine" id="cb129-8" data-line-number="8">         <span class="co"># pop_eff = pop / (dist_urban / 1000),</span></a>
-<a class="sourceLine" id="cb129-9" data-line-number="9">         <span class="dt">pop_eff =</span> pop <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">/</span><span class="st"> </span>dist_urban),</a>
-<a class="sourceLine" id="cb129-10" data-line-number="10">         <span class="dt">birds_smooth_log =</span> <span class="kw">log</span>(birds_smooth_<span class="dv">9</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb129-11" data-line-number="11"><span class="st">  </span><span class="kw">group_by</span>(pop_eff) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb129-12" data-line-number="12"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">avg_mass_pop =</span> <span class="kw">mean</span>(wb_avg_mass),</a>
-<a class="sourceLine" id="cb129-13" data-line-number="13">         <span class="dt">avg_birds_pop =</span> <span class="kw">mean</span>(birds_smooth_<span class="dv">9</span>),</a>
-<a class="sourceLine" id="cb129-14" data-line-number="14">         <span class="dt">sum_birds_pop =</span> <span class="kw">sum</span>(birds_smooth_<span class="dv">9</span>),</a>
-<a class="sourceLine" id="cb129-15" data-line-number="15">         <span class="dt">sum_vid_pop =</span> <span class="kw">sum</span>(vid_new),</a>
-<a class="sourceLine" id="cb129-16" data-line-number="16">         <span class="dt">birds =</span> <span class="kw">mean</span>(<span class="kw">c</span>(birds_smooth_<span class="dv">9</span>, wb_nr_birds), <span class="dt">drop.na =</span> <span class="ot">TRUE</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb129-17" data-line-number="17"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb129-18" data-line-number="18"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">sum_birds_pop =</span> <span class="kw">scale</span>(sum_birds_pop, <span class="dt">scale =</span> <span class="ot">TRUE</span>, <span class="dt">center =</span> <span class="ot">TRUE</span>) <span class="op">*</span><span class="st"> </span><span class="dv">10</span> <span class="op">+</span><span class="st"> </span><span class="dv">10</span>,</a>
-<a class="sourceLine" id="cb129-19" data-line-number="19">         <span class="dt">sum_vid_pop =</span> <span class="kw">scale</span>(sum_vid_pop, <span class="dt">scale =</span> <span class="ot">TRUE</span>, <span class="dt">center =</span> <span class="ot">TRUE</span>) <span class="op">*</span><span class="st"> </span><span class="dv">10</span> <span class="op">+</span><span class="st"> </span><span class="dv">10</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb129-20" data-line-number="20"><span class="st">  </span><span class="kw">group_by</span>(vid_new) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb129-21" data-line-number="21"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">avg_mass_pop_vid =</span> <span class="kw">mean</span>(wb_avg_mass),</a>
-<a class="sourceLine" id="cb129-22" data-line-number="22">         <span class="dt">avg_birds_pop_vid =</span> <span class="kw">mean</span>(birds_smooth_<span class="dv">9</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb129-23" data-line-number="23"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb129-24" data-line-number="24"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">landuse_overall =</span> </a>
-<a class="sourceLine" id="cb129-25" data-line-number="25">           <span class="kw">case_when</span>(</a>
-<a class="sourceLine" id="cb129-26" data-line-number="26">             (landuse <span class="op">&gt;=</span><span class="st"> </span><span class="dv">100</span> <span class="op">&amp;</span><span class="st"> </span>landuse <span class="op">&lt;</span><span class="st"> </span><span class="dv">200</span>) <span class="op">~</span><span class="st"> &quot;Urban&quot;</span>,</a>
-<a class="sourceLine" id="cb129-27" data-line-number="27">             (landuse <span class="op">&gt;=</span><span class="st"> </span><span class="dv">200</span> <span class="op">&amp;</span><span class="st"> </span>landuse <span class="op">&lt;</span><span class="st"> </span><span class="dv">300</span>) <span class="op">~</span><span class="st"> &quot;Agricultural areas&quot;</span>,</a>
-<a class="sourceLine" id="cb129-28" data-line-number="28">             (landuse <span class="op">&gt;=</span><span class="st"> </span><span class="dv">300</span> <span class="op">&amp;</span><span class="st"> </span>landuse <span class="op">&lt;</span><span class="st"> </span><span class="dv">500</span>) <span class="op">~</span><span class="st"> &quot;Natural areas&quot;</span>,</a>
-<a class="sourceLine" id="cb129-29" data-line-number="29">             (landuse <span class="op">&gt;=</span><span class="st"> </span><span class="dv">500</span> <span class="op">&amp;</span><span class="st"> </span>landuse <span class="op">&lt;</span><span class="st"> </span><span class="dv">999</span>) <span class="op">~</span><span class="st"> &quot;Water bodies&quot;</span></a>
-<a class="sourceLine" id="cb129-30" data-line-number="30">           )) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb129-31" data-line-number="31"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(VIR, wb_nr_birds, birds, birds_smooth_<span class="dv">9</span>, birds_smooth_<span class="dv">15</span>, pop, dist_urban, pop_eff, landuse_overall) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb129-32" data-line-number="32"><span class="st">  </span><span class="kw">drop_na</span>() -&gt;<span class="st"> </span>ppi_mdl</a>
-<a class="sourceLine" id="cb129-33" data-line-number="33">  <span class="co"># drop_na() -&gt; ppi_mdl</span></a>
-<a class="sourceLine" id="cb129-34" data-line-number="34"><span class="co"># ppi_hrw$data@data %&gt;%</span></a>
-<a class="sourceLine" id="cb129-35" data-line-number="35"><span class="co">#   filter(VIR &gt; 0 &amp; VIR &lt; quantile(ppi_hrw$data@data$VIR, 0.99, na.rm = TRUE)) %&gt;%</span></a>
-<a class="sourceLine" id="cb129-36" data-line-number="36"><span class="co">#   filter(birds_smooth_9 &gt; 0 &amp; birds_smooth_9 &lt; quantile(ppi_hrw$data@data$VIR, 0.99, na.rm = TRUE)) %&gt;%</span></a>
-<a class="sourceLine" id="cb129-37" data-line-number="37"><span class="co">#   filter(type == &quot;rural&quot;) %&gt;%</span></a>
-<a class="sourceLine" id="cb129-38" data-line-number="38"><span class="co">#   mutate(landuse_overall = case_when(</span></a>
-<a class="sourceLine" id="cb129-39" data-line-number="39"><span class="co">#              (landuse &gt;= 100 &amp; landuse &lt; 200) ~ &quot;Urban&quot;,</span></a>
-<a class="sourceLine" id="cb129-40" data-line-number="40"><span class="co">#              (landuse &gt;= 200 &amp; landuse &lt; 300) ~ &quot;Agriculture&quot;,</span></a>
-<a class="sourceLine" id="cb129-41" data-line-number="41"><span class="co">#              (landuse &gt;= 300 &amp; landuse &lt; 500) ~ &quot;Nature&quot;,</span></a>
-<a class="sourceLine" id="cb129-42" data-line-number="42"><span class="co">#              (landuse &gt;= 500 &amp; landuse &lt; 999) ~ &quot;Water bodies&quot;</span></a>
-<a class="sourceLine" id="cb129-43" data-line-number="43"><span class="co">#            )) %&gt;%</span></a>
-<a class="sourceLine" id="cb129-44" data-line-number="44"><span class="co">#   drop_na() -&gt; ppi_mdl</span></a>
-<a class="sourceLine" id="cb129-45" data-line-number="45"></a>
-<a class="sourceLine" id="cb129-46" data-line-number="46"><span class="co"># m1 &lt;- glm(VIR ~ wb_nr_birds + pop + dist_urban + landuse_overall, data = ppi_mdl, family = Gamma(link = &quot;log&quot;))</span></a>
-<a class="sourceLine" id="cb129-47" data-line-number="47">m1 &lt;-<span class="st"> </span><span class="kw">gam</span>(VIR <span class="op">~</span><span class="st"> </span><span class="kw">s</span>(birds) <span class="op">+</span><span class="st"> </span><span class="kw">s</span>(pop) <span class="op">+</span><span class="st"> </span><span class="kw">s</span>(dist_urban, <span class="dt">k =</span> <span class="dv">20</span>) <span class="op">+</span><span class="st"> </span>landuse_overall,</a>
-<a class="sourceLine" id="cb129-48" data-line-number="48"><span class="dt">data =</span> ppi_mdl, <span class="dt">method =</span> <span class="st">&quot;REML&quot;</span>, <span class="dt">family =</span> <span class="kw">Gamma</span>(<span class="dt">link =</span> <span class="st">&quot;log&quot;</span>))</a>
-<a class="sourceLine" id="cb129-49" data-line-number="49"><span class="co"># gam(vid_new ~ s(birds_smooth_9, k = 20) + s(pop) + s(dist_urban) + s(pop_eff) + landuse_overall, data = ppi_mdl, method = &quot;REML&quot;, family = Gamma(link = &quot;log&quot;)) -&gt; m1</span></a>
-<a class="sourceLine" id="cb129-50" data-line-number="50"><span class="kw">summary</span>(m1)</a>
-<a class="sourceLine" id="cb129-51" data-line-number="51"><span class="kw">plot</span>(m1)</a></code></pre></div>
+<div class="sourceCode" id="cb133"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb133-1" data-line-number="1">ppi_hrw_mass &lt;-<span class="st"> </span>ppi_hrw<span class="op">$</span>data<span class="op">@</span>data</a>
+<a class="sourceLine" id="cb133-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb133-3" data-line-number="3">ppi_hrw_mass <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb133-4" data-line-number="4"><span class="st">  </span><span class="kw">filter</span>(VIR <span class="op">&gt;</span><span class="st"> </span><span class="dv">50</span> <span class="op">&amp;</span><span class="st"> </span>wb_nr_birds <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>type <span class="op">==</span><span class="st"> &quot;rural&quot;</span> <span class="op">&amp;</span><span class="st"> </span>VIR <span class="op">&lt;</span><span class="st"> </span><span class="kw">quantile</span>(ppi_hrw_mass<span class="op">$</span>VIR, <span class="fl">0.99</span>, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb133-5" data-line-number="5"><span class="st">  </span><span class="co"># filter(birds_smooth_9 &lt; quantile(ppi_hrw_mass$birds_smooth_9, 0.99, na.rm = TRUE)) %&gt;%</span></a>
+<a class="sourceLine" id="cb133-6" data-line-number="6"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">vid_new =</span> VIR <span class="op">/</span><span class="st"> </span>wb_avg_mass,</a>
+<a class="sourceLine" id="cb133-7" data-line-number="7">         <span class="dt">birds =</span> wb_nr_birds <span class="op">*</span><span class="st"> </span>wb_avg_mass,</a>
+<a class="sourceLine" id="cb133-8" data-line-number="8">         <span class="co"># pop_eff = pop / (dist_urban / 1000),</span></a>
+<a class="sourceLine" id="cb133-9" data-line-number="9">         <span class="dt">pop_eff =</span> pop <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">/</span><span class="st"> </span>dist_urban),</a>
+<a class="sourceLine" id="cb133-10" data-line-number="10">         <span class="dt">birds_smooth_log =</span> <span class="kw">log</span>(birds_smooth_<span class="dv">9</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb133-11" data-line-number="11"><span class="st">  </span><span class="kw">group_by</span>(pop_eff) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb133-12" data-line-number="12"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">avg_mass_pop =</span> <span class="kw">mean</span>(wb_avg_mass),</a>
+<a class="sourceLine" id="cb133-13" data-line-number="13">         <span class="dt">avg_birds_pop =</span> <span class="kw">mean</span>(birds_smooth_<span class="dv">9</span>),</a>
+<a class="sourceLine" id="cb133-14" data-line-number="14">         <span class="dt">sum_birds_pop =</span> <span class="kw">sum</span>(birds_smooth_<span class="dv">9</span>),</a>
+<a class="sourceLine" id="cb133-15" data-line-number="15">         <span class="dt">sum_vid_pop =</span> <span class="kw">sum</span>(vid_new),</a>
+<a class="sourceLine" id="cb133-16" data-line-number="16">         <span class="dt">birds =</span> <span class="kw">mean</span>(<span class="kw">c</span>(birds_smooth_<span class="dv">9</span>, wb_nr_birds), <span class="dt">drop.na =</span> <span class="ot">TRUE</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb133-17" data-line-number="17"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb133-18" data-line-number="18"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">sum_birds_pop =</span> <span class="kw">scale</span>(sum_birds_pop, <span class="dt">scale =</span> <span class="ot">TRUE</span>, <span class="dt">center =</span> <span class="ot">TRUE</span>) <span class="op">*</span><span class="st"> </span><span class="dv">10</span> <span class="op">+</span><span class="st"> </span><span class="dv">10</span>,</a>
+<a class="sourceLine" id="cb133-19" data-line-number="19">         <span class="dt">sum_vid_pop =</span> <span class="kw">scale</span>(sum_vid_pop, <span class="dt">scale =</span> <span class="ot">TRUE</span>, <span class="dt">center =</span> <span class="ot">TRUE</span>) <span class="op">*</span><span class="st"> </span><span class="dv">10</span> <span class="op">+</span><span class="st"> </span><span class="dv">10</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb133-20" data-line-number="20"><span class="st">  </span><span class="kw">group_by</span>(vid_new) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb133-21" data-line-number="21"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">avg_mass_pop_vid =</span> <span class="kw">mean</span>(wb_avg_mass),</a>
+<a class="sourceLine" id="cb133-22" data-line-number="22">         <span class="dt">avg_birds_pop_vid =</span> <span class="kw">mean</span>(birds_smooth_<span class="dv">9</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb133-23" data-line-number="23"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb133-24" data-line-number="24"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">landuse_overall =</span> </a>
+<a class="sourceLine" id="cb133-25" data-line-number="25">           <span class="kw">case_when</span>(</a>
+<a class="sourceLine" id="cb133-26" data-line-number="26">             (landuse <span class="op">&gt;=</span><span class="st"> </span><span class="dv">100</span> <span class="op">&amp;</span><span class="st"> </span>landuse <span class="op">&lt;</span><span class="st"> </span><span class="dv">200</span>) <span class="op">~</span><span class="st"> &quot;Urban&quot;</span>,</a>
+<a class="sourceLine" id="cb133-27" data-line-number="27">             (landuse <span class="op">&gt;=</span><span class="st"> </span><span class="dv">200</span> <span class="op">&amp;</span><span class="st"> </span>landuse <span class="op">&lt;</span><span class="st"> </span><span class="dv">300</span>) <span class="op">~</span><span class="st"> &quot;Agricultural areas&quot;</span>,</a>
+<a class="sourceLine" id="cb133-28" data-line-number="28">             (landuse <span class="op">&gt;=</span><span class="st"> </span><span class="dv">300</span> <span class="op">&amp;</span><span class="st"> </span>landuse <span class="op">&lt;</span><span class="st"> </span><span class="dv">500</span>) <span class="op">~</span><span class="st"> &quot;Natural areas&quot;</span>,</a>
+<a class="sourceLine" id="cb133-29" data-line-number="29">             (landuse <span class="op">&gt;=</span><span class="st"> </span><span class="dv">500</span> <span class="op">&amp;</span><span class="st"> </span>landuse <span class="op">&lt;</span><span class="st"> </span><span class="dv">999</span>) <span class="op">~</span><span class="st"> &quot;Water bodies&quot;</span></a>
+<a class="sourceLine" id="cb133-30" data-line-number="30">           )) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb133-31" data-line-number="31"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(VIR, wb_nr_birds, birds, birds_smooth_<span class="dv">9</span>, birds_smooth_<span class="dv">15</span>, pop, dist_urban, pop_eff, landuse_overall) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb133-32" data-line-number="32"><span class="st">  </span><span class="kw">drop_na</span>() -&gt;<span class="st"> </span>ppi_mdl</a>
+<a class="sourceLine" id="cb133-33" data-line-number="33">  <span class="co"># drop_na() -&gt; ppi_mdl</span></a>
+<a class="sourceLine" id="cb133-34" data-line-number="34"><span class="co"># ppi_hrw$data@data %&gt;%</span></a>
+<a class="sourceLine" id="cb133-35" data-line-number="35"><span class="co">#   filter(VIR &gt; 0 &amp; VIR &lt; quantile(ppi_hrw$data@data$VIR, 0.99, na.rm = TRUE)) %&gt;%</span></a>
+<a class="sourceLine" id="cb133-36" data-line-number="36"><span class="co">#   filter(birds_smooth_9 &gt; 0 &amp; birds_smooth_9 &lt; quantile(ppi_hrw$data@data$VIR, 0.99, na.rm = TRUE)) %&gt;%</span></a>
+<a class="sourceLine" id="cb133-37" data-line-number="37"><span class="co">#   filter(type == &quot;rural&quot;) %&gt;%</span></a>
+<a class="sourceLine" id="cb133-38" data-line-number="38"><span class="co">#   mutate(landuse_overall = case_when(</span></a>
+<a class="sourceLine" id="cb133-39" data-line-number="39"><span class="co">#              (landuse &gt;= 100 &amp; landuse &lt; 200) ~ &quot;Urban&quot;,</span></a>
+<a class="sourceLine" id="cb133-40" data-line-number="40"><span class="co">#              (landuse &gt;= 200 &amp; landuse &lt; 300) ~ &quot;Agriculture&quot;,</span></a>
+<a class="sourceLine" id="cb133-41" data-line-number="41"><span class="co">#              (landuse &gt;= 300 &amp; landuse &lt; 500) ~ &quot;Nature&quot;,</span></a>
+<a class="sourceLine" id="cb133-42" data-line-number="42"><span class="co">#              (landuse &gt;= 500 &amp; landuse &lt; 999) ~ &quot;Water bodies&quot;</span></a>
+<a class="sourceLine" id="cb133-43" data-line-number="43"><span class="co">#            )) %&gt;%</span></a>
+<a class="sourceLine" id="cb133-44" data-line-number="44"><span class="co">#   drop_na() -&gt; ppi_mdl</span></a>
+<a class="sourceLine" id="cb133-45" data-line-number="45"></a>
+<a class="sourceLine" id="cb133-46" data-line-number="46"><span class="co"># m1 &lt;- glm(VIR ~ wb_nr_birds + pop + dist_urban + landuse_overall, data = ppi_mdl, family = Gamma(link = &quot;log&quot;))</span></a>
+<a class="sourceLine" id="cb133-47" data-line-number="47">m1 &lt;-<span class="st"> </span><span class="kw">gam</span>(VIR <span class="op">~</span><span class="st"> </span><span class="kw">s</span>(birds) <span class="op">+</span><span class="st"> </span><span class="kw">s</span>(pop) <span class="op">+</span><span class="st"> </span><span class="kw">s</span>(dist_urban, <span class="dt">k =</span> <span class="dv">20</span>) <span class="op">+</span><span class="st"> </span>landuse_overall,</a>
+<a class="sourceLine" id="cb133-48" data-line-number="48"><span class="dt">data =</span> ppi_mdl, <span class="dt">method =</span> <span class="st">&quot;REML&quot;</span>, <span class="dt">family =</span> <span class="kw">Gamma</span>(<span class="dt">link =</span> <span class="st">&quot;log&quot;</span>))</a>
+<a class="sourceLine" id="cb133-49" data-line-number="49"><span class="co"># gam(vid_new ~ s(birds_smooth_9, k = 20) + s(pop) + s(dist_urban) + s(pop_eff) + landuse_overall, data = ppi_mdl, method = &quot;REML&quot;, family = Gamma(link = &quot;log&quot;)) -&gt; m1</span></a>
+<a class="sourceLine" id="cb133-50" data-line-number="50"><span class="kw">summary</span>(m1)</a>
+<a class="sourceLine" id="cb133-51" data-line-number="51"><span class="kw">plot</span>(m1)</a></code></pre></div>
 <p><img src="Fireworks_files/figure-html/gam_model_sample-1.svg" width="672" /><img src="Fireworks_files/figure-html/gam_model_sample-2.svg" width="672" /><img src="Fireworks_files/figure-html/gam_model_sample-3.svg" width="672" /></p>
-<div class="sourceCode" id="cb130"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb130-1" data-line-number="1"><span class="kw">gam.check</span>(m1)</a></code></pre></div>
+<div class="sourceCode" id="cb134"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb134-1" data-line-number="1"><span class="kw">gam.check</span>(m1)</a></code></pre></div>
 <p><img src="Fireworks_files/figure-html/gam_model_sample-4.svg" width="672" /><img src="Fireworks_files/figure-html/gam_model_sample-5.svg" width="672" /><img src="Fireworks_files/figure-html/gam_model_sample-6.svg" width="672" /><img src="Fireworks_files/figure-html/gam_model_sample-7.svg" width="672" /></p>
-<div class="sourceCode" id="cb131"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb131-1" data-line-number="1"><span class="co"># with(summary(m1), 1 - deviance/null.deviance)</span></a></code></pre></div>
+<div class="sourceCode" id="cb135"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb135-1" data-line-number="1"><span class="co"># with(summary(m1), 1 - deviance/null.deviance)</span></a></code></pre></div>
 <pre><code>## 
 ## Family: Gamma 
 ## Link function: log 
@@ -459,33 +464,33 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## 
 ##                  k&#39;   edf k-index p-value    
 ## s(birds)       9.00  7.98    0.78  &lt;2e-16 ***
-## s(pop)         9.00  8.42    0.84  &lt;2e-16 ***
-## s(dist_urban) 19.00  6.66    0.84    0.01 ** 
+## s(pop)         9.00  8.42    0.85   0.045 *  
+## s(dist_urban) 19.00  6.66    0.90   0.970    
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
-<div class="sourceCode" id="cb133"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb133-1" data-line-number="1"><span class="co"># ppi_mdl %&gt;%</span></a>
-<a class="sourceLine" id="cb133-2" data-line-number="2"><span class="co">#   filter(VIR &gt; 0) %&gt;%</span></a>
-<a class="sourceLine" id="cb133-3" data-line-number="3"><span class="co">#   mutate(VIR_log10 = log10(VIR),</span></a>
-<a class="sourceLine" id="cb133-4" data-line-number="4"><span class="co">#          landuse_overall = case_when(</span></a>
-<a class="sourceLine" id="cb133-5" data-line-number="5"><span class="co">#            landuse_overall == &quot;Agricultural areas&quot; ~ 1,</span></a>
-<a class="sourceLine" id="cb133-6" data-line-number="6"><span class="co">#            landuse_overall == &quot;Water bodies&quot; ~ 2,</span></a>
-<a class="sourceLine" id="cb133-7" data-line-number="7"><span class="co">#            landuse_overall == &quot;Natural areas&quot; ~ 3</span></a>
-<a class="sourceLine" id="cb133-8" data-line-number="8"><span class="co">#          ))-&gt; ppi_bt</span></a>
-<a class="sourceLine" id="cb133-9" data-line-number="9"><span class="co"># </span></a>
-<a class="sourceLine" id="cb133-10" data-line-number="10"><span class="co"># ppi_bt$landuse_overall &lt;- as.numeric(ppi_bt$landuse_overall)</span></a>
-<a class="sourceLine" id="cb133-11" data-line-number="11"><span class="co"># </span></a>
-<a class="sourceLine" id="cb133-12" data-line-number="12"><span class="co"># ppi_bt &lt;- as.data.frame(ppi_bt)</span></a>
-<a class="sourceLine" id="cb133-13" data-line-number="13"><span class="co"># </span></a>
-<a class="sourceLine" id="cb133-14" data-line-number="14"><span class="co"># response &lt;- &quot;VIR_log10&quot;</span></a>
-<a class="sourceLine" id="cb133-15" data-line-number="15"><span class="co"># predictors &lt;- c(&quot;wb_nr_birds&quot;, &quot;birds&quot;, &quot;birds_smooth_9&quot;, &quot;pop&quot;, &quot;dist_urban&quot;, &quot;pop_eff&quot;, &quot;landuse_overall&quot;)</span></a>
-<a class="sourceLine" id="cb133-16" data-line-number="16"><span class="co"># </span></a>
-<a class="sourceLine" id="cb133-17" data-line-number="17"><span class="co"># bt &lt;- gbm.step(data = ppi_bt, gbm.x = 2:8, gbm.y = 10, tree.complexity = 2, bag.fraction = 0.5, family = &quot;gaussian&quot;)</span></a></code></pre></div>
-<div class="sourceCode" id="cb134"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb134-1" data-line-number="1"><span class="co"># a &lt;- predict(bt5, ppi_bt, n.trees = 10000, type = &quot;response&quot;)</span></a>
-<a class="sourceLine" id="cb134-2" data-line-number="2"><span class="co"># ppi_bt$preds &lt;- a</span></a>
-<a class="sourceLine" id="cb134-3" data-line-number="3"><span class="co"># </span></a>
-<a class="sourceLine" id="cb134-4" data-line-number="4"><span class="co"># ggplot(ppi_bt, aes(x = preds, y = VIR_log10)) +</span></a>
-<a class="sourceLine" id="cb134-5" data-line-number="5"><span class="co">#   geom_pointdensity() + </span></a>
-<a class="sourceLine" id="cb134-6" data-line-number="6"><span class="co">#   geom_abline()</span></a></code></pre></div>
+<div class="sourceCode" id="cb137"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb137-1" data-line-number="1"><span class="co"># ppi_mdl %&gt;%</span></a>
+<a class="sourceLine" id="cb137-2" data-line-number="2"><span class="co">#   filter(VIR &gt; 0) %&gt;%</span></a>
+<a class="sourceLine" id="cb137-3" data-line-number="3"><span class="co">#   mutate(VIR_log10 = log10(VIR),</span></a>
+<a class="sourceLine" id="cb137-4" data-line-number="4"><span class="co">#          landuse_overall = case_when(</span></a>
+<a class="sourceLine" id="cb137-5" data-line-number="5"><span class="co">#            landuse_overall == &quot;Agricultural areas&quot; ~ 1,</span></a>
+<a class="sourceLine" id="cb137-6" data-line-number="6"><span class="co">#            landuse_overall == &quot;Water bodies&quot; ~ 2,</span></a>
+<a class="sourceLine" id="cb137-7" data-line-number="7"><span class="co">#            landuse_overall == &quot;Natural areas&quot; ~ 3</span></a>
+<a class="sourceLine" id="cb137-8" data-line-number="8"><span class="co">#          ))-&gt; ppi_bt</span></a>
+<a class="sourceLine" id="cb137-9" data-line-number="9"><span class="co"># </span></a>
+<a class="sourceLine" id="cb137-10" data-line-number="10"><span class="co"># ppi_bt$landuse_overall &lt;- as.numeric(ppi_bt$landuse_overall)</span></a>
+<a class="sourceLine" id="cb137-11" data-line-number="11"><span class="co"># </span></a>
+<a class="sourceLine" id="cb137-12" data-line-number="12"><span class="co"># ppi_bt &lt;- as.data.frame(ppi_bt)</span></a>
+<a class="sourceLine" id="cb137-13" data-line-number="13"><span class="co"># </span></a>
+<a class="sourceLine" id="cb137-14" data-line-number="14"><span class="co"># response &lt;- &quot;VIR_log10&quot;</span></a>
+<a class="sourceLine" id="cb137-15" data-line-number="15"><span class="co"># predictors &lt;- c(&quot;wb_nr_birds&quot;, &quot;birds&quot;, &quot;birds_smooth_9&quot;, &quot;pop&quot;, &quot;dist_urban&quot;, &quot;pop_eff&quot;, &quot;landuse_overall&quot;)</span></a>
+<a class="sourceLine" id="cb137-16" data-line-number="16"><span class="co"># </span></a>
+<a class="sourceLine" id="cb137-17" data-line-number="17"><span class="co"># bt &lt;- gbm.step(data = ppi_bt, gbm.x = 2:8, gbm.y = 10, tree.complexity = 2, bag.fraction = 0.5, family = &quot;gaussian&quot;)</span></a></code></pre></div>
+<div class="sourceCode" id="cb138"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb138-1" data-line-number="1"><span class="co"># a &lt;- predict(bt5, ppi_bt, n.trees = 10000, type = &quot;response&quot;)</span></a>
+<a class="sourceLine" id="cb138-2" data-line-number="2"><span class="co"># ppi_bt$preds &lt;- a</span></a>
+<a class="sourceLine" id="cb138-3" data-line-number="3"><span class="co"># </span></a>
+<a class="sourceLine" id="cb138-4" data-line-number="4"><span class="co"># ggplot(ppi_bt, aes(x = preds, y = VIR_log10)) +</span></a>
+<a class="sourceLine" id="cb138-5" data-line-number="5"><span class="co">#   geom_pointdensity() + </span></a>
+<a class="sourceLine" id="cb138-6" data-line-number="6"><span class="co">#   geom_abline()</span></a></code></pre></div>
 
 </div>
 </div>
@@ -495,7 +500,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h3> References</h3>
 <div id="refs" class="references">
 <div id="ref-kranstauber2020">
-<p>Kranstauber, Bart, Willem Bouten, Hidde Leijnse, Berend-Christiaan Wijers, Liesbeth Verlinden, Judy Shamoun-Baranes, and Adriaan M Dokter. 2020. “High-Resolution Spatial Distribution of Bird Movements Estimated from a Weather Radar Network.” <em>Remote Sensing</em> 12 (4). Multidisciplinary Digital Publishing Institute: 635.</p>
+<p>Kranstauber, Bart, Willem Bouten, Hidde Leijnse, Berend-Christiaan Wijers, Liesbeth Verlinden, Judy Shamoun-Baranes, and Adriaan M Dokter. 2020. “High-Resolution Spatial Distribution of Bird Movements Estimated from a Weather Radar Network.” <em>Remote Sensing</em> 12 (4). Multidisciplinary Digital Publishing Institute: 635. <a href="https://doi.org/10.3390/rs12040635">https://doi.org/10.3390/rs12040635</a>.</p>
 </div>
 </div>
             </section>
@@ -503,7 +508,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           </div>
         </div>
       </div>
-<a href="05.Processing-count-results.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="06.Applying-annotations-to-all-PPIs.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
 <a href="A1.Generating-VPs-for-Den-Helder-radar.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
