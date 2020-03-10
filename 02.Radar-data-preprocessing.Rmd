@@ -24,6 +24,7 @@ library(raster)
 ```
 
 ## Removing electromagnetic interference
+
 We have determined in which scans birds are taking off based on the maximum increase in reflectivity in the scan for each of the involved radars. Let's now look at these scans to see how much filtering for electromagnetic interference we need to do. The easiest way to determine which rays are subject to this interference is by plotting the scans in polar coordinates ($(r, \alpha)$), so interference stands out as horizontal lines of more or less constant, or very gradually changing reflectivities. Plotting using `plotly` makes it easier to identify the specific problematic rays as one can zoom in to identify the exact azimuths $\alpha$.
 
 ```{r load_paths_of_identified_scans, include=FALSE}
@@ -81,6 +82,7 @@ plot(pvol_dhl$scans[[i]], param = "DBZH", xlim = c(0, 180000)) + theme_dark() +
 Well, that seems to work nicely. The remaining bits of clutter won't affect the results much as they cover fairly small areas and consistently appear at longer distances away from the radar, where birds are difficult to detect anyways.
 
 ## Filter meteorology using the depolarization ratio
+
 Meteorology can be filtered using the depolarization ratio following Kilambi et al. [-@kilambi_simple_2018]. We calculate the depolarization ratio for the raw `pvol` data after EM interference has been removed and subsequently 'despeckle' the results to improve the classification.
 
 Despeckling works by comparing the classification of the majority of the neighbourhood rangegates with the classification of the center rangegate, and changing the latter to reflect the majority of the neighbourhood classification if there is a difference. We define the 'neighbourhood' as a $3^{\circ}$ by $3 \times rscale$ area centered around a focal rangegate (3 rangegates in azimuth $\times$ 3 rangegates in range) . Selecting the rangegates while taking the sphericity of the radar scan into account (e.g. ray 360 should be directly adjacent to ray 1) is made easier with the `R/window_coords.R` function. The despeckling is implemented in `R/despeckle_scan_logical.R`.
@@ -231,7 +233,6 @@ pvol_clutter_dynamic_hrw <- readRDS("data/processed/clutter_dynamic_hrw_avg.RDS"
 pvol_clutter_dynamic_dhl <- readRDS("data/processed/clutter_dynamic_dhl_avg.RDS")
 ```
 
-
 #### Verify dynamic clutter map
 
 Let's see what that looks like on a basemap, using a `DBZH_AVG` threshold of $-10dbZ$, following [@dokter_bird_2011].
@@ -352,7 +353,7 @@ filtered_corrected_ppi_dhl$data@data <- as.data.frame(apply(filtered_corrected_p
 
 To assess the quality of the range-bias correction, it is also useful to calculate the distance to the radar from a given PPI pixel. Ideally, the range-bias correction would strongly reduce the effect of distance to the radar for measured densities of birds, but we still have to see if that is the case indeed. By including the distance to the radar in the PPIs, we can also include it in our modelling efforts later on.
 
-```{r}
+```{r calculate_distance_to_radar}
 source("R/calculate_distance_to_radar.R")
 
 corrected_ppi_hrw <- calculate_distance_to_radar(corrected_ppi_hrw)
