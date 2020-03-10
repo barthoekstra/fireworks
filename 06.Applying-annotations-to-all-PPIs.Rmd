@@ -1,0 +1,86 @@
+# Apply processing to all PPIs
+
+We have so far explained the processing 'pipeline' for the PPIs for Herwijnen and Den Helder radars, but have only applied this to a single moment in time, a single volume scan. Now we will apply the processing to all other available PPIs by simply copying over the annotations.
+
+1. Pre-processed the radar data, by removing clutter and applying the range-bias correction [@kranstauber2020].
+2. Annotated the PPIs with land use classes, distance to urban areas and (human) population density.
+3. Annotated the PPIs with corresponding count locations for the Sovon data.
+4. Connected the Sovon count data with life-history characteristics for the species contained within.
+
+## Setting-up the environment
+
+```{r setup_apply_processing_to_all_ppis_environment}
+library(dplyr)
+library(tidyr)
+library(kableExtra)
+```
+
+
+## Load the reference PPIs
+Two PPIs have been processed all the way and those will be our 'reference' PPIs from which we copy the data over to the other PPIs which have not had the same treatment.
+
+```{r load_reference_ppis}
+ppi_hrw <- readRDS("data/processed/corrected-ppis-lu-sovon/corrected_ppi_hrw_lu_sovon.RDS")
+ppi_dhl <- readRDS("data/processed/corrected-ppis-lu-sovon/corrected_ppi_dhl_lu_sovon.RDS")
+```
+
+## Copy annotations from reference PPIs to other PPIs
+
+We select the variables related to land use, distance to urbanized areas and population density, waterbird counts and PTT counts and add these to the PPIs that contain just the variables resulting from the range-bias correction [@kranstauber2020]. While we are at it, we will also create dataframes containing all the information within the PPIs, to use for later modelling exercises.
+
+```{r copy_annotations_from_reference_ppis_to_other_ppis}
+hrw <- ppi_hrw$data@data %>%
+  dplyr::select(landuse, landuse_class, type, dist_urban, pop, wb_area_id, wb_area_nr, wb_area_ha, ptt_route)
+
+dhl <- ppi_dhl$data@data %>%
+  dplyr::select(landuse, landuse_class, type, dist_urban, pop, wb_area_id, wb_area_nr, wb_area_ha, ptt_route)
+
+hrw_all <- ppi_hrw$data@data %>%
+  filter(row_number() == 0)
+
+dhl_all <- ppi_dhl$data@data %>%
+  filter(row_number() == 0)
+
+hrw_ppis <- Sys.glob(file.path("data/processed/corrected-ppis", "*NL62*"))
+dhl_ppis <- Sys.glob(file.path("data/processed/corrected-ppis", "*NL61*"))
+
+for (ppi_path in hrw_ppis) {
+  ppi <- readRDS(ppi_path)
+  ppi$data@data <- bind_cols(ppi$data@data, hrw)
+  saveRDS(ppi, file = paste("data/processed/final-ppis/", basename(ppi_path), sep = ""))
+  
+  ppi$data@data %>%
+    mutate(datetime = as.POSIXct(ppi$datetime),
+           pixel = row_number()) %>%
+    bind_rows(hrw_all) -> hrw_all
+}
+
+for (ppi_path in dhl_ppis) {
+  ppi <- readRDS(ppi_path)
+  ppi$data@data <- bind_cols(ppi$data@data, dhl)
+  saveRDS(ppi, file = paste("data/processed/final-ppis/", basename(ppi_path), sep = ""))
+  
+  ppi$data@data %>%
+    mutate(datetime = as.POSIXct(ppi$datetime),
+           pixel = row_number()) %>%
+    bind_rows(dhl_all) -> dhl_all
+}
+
+dhl_all$datetime <- as.POSIXct(dhl_all$datetime)
+
+saveRDS(hrw_all, file = "data/processed/hrw.RDS")
+saveRDS(dhl_all, file = "data/processed/dhl.RDS")
+```
+
+`data/processed/hrw.RDS` and `data/processed/dhl.RDS` now contain `r nrow(hrw_all)` and `r nrow(dhl_all)` PPI rows respectively. Below a few rows of the Herwijnen data for example (with rows containing `NA`s removed):
+
+```{r show_example_overall_dataframe}
+hrw_all %>%
+  drop_na() %>%
+  arrange(datetime) %>%
+  head(15) %>%
+  kable(format = "html", col.names = colnames(hrw_all)) %>%
+  kable_styling() %>%
+  scroll_box(width = "100%", height = "600px")
+```
+
