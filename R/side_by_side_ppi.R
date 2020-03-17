@@ -19,8 +19,8 @@ side_by_side_ppi <- function(pvol1, pvol2, title1 = "", title2 = "", params = "D
     }
     
     if (basemap) {
-      basemap1 <- download_basemap(ppi1, source = "osm", verbose = FALSE)
-      basemap2 <- download_basemap(ppi2, source = "osm", verbose = FALSE)
+      basemap1 <- download_basemap(ppi1, verbose = FALSE)
+      basemap2 <- download_basemap(ppi2, verbose = FALSE)
       
       p1 <- map(ppi1, map = basemap1, param = param, zlim = zlim, alpha = alpha, radar_size = radar_size) + labs(title = paste(title1, ": ", param, sep = ""))
       p2 <- map(ppi2, map = basemap2, param = param, zlim = zlim, alpha = alpha, radar_size = radar_size) + labs(title = paste(title2, ": ", param, sep = ""))
