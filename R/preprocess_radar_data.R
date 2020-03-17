@@ -30,6 +30,11 @@ preprocess_radar_data <- function(pvol_path, ei_rays, pvol_dynamic_groundclutter
   # Calculate distance to radar for all PPI pixels
   corrected_ppi <- calculate_distance_to_radar(corrected_ppi)
   
+  # Calculate coordinates for all PPI pixels
+  coords <- coordinates(corrected_ppi$data)
+  corrected_ppi$data$x <- coords[, 1]
+  corrected_ppi$data$y <- coords[, 2]
+  
   # Save resultant PPI
   saveRDS(corrected_ppi, file = paste("data/processed/corrected-ppis/", basename(file_path_sans_ext(pvol_path)), ".RDS", sep = ""))
 }

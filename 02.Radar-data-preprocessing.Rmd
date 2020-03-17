@@ -363,6 +363,18 @@ saveRDS(corrected_ppi_hrw, file = "data/processed/corrected_ppi_hrw.RDS")
 saveRDS(corrected_ppi_dhl, file = "data/processed/corrected_ppi_dhl.RDS")
 ```
 
+## Spatial coordinates
+
+```{r}
+coords_hrw <- coordinates(corrected_ppi_hrw$data)
+corrected_ppi_hrw$data$x <- coords_hrw[, 1]
+corrected_ppi_hrw$data$y <- coords_hrw[, 2]
+
+coords_dhl <- coordinates(corrected_ppi_dhl$data)
+corrected_ppi_dhl$data$x <- coords_dhl[, 1]
+corrected_ppi_dhl$data$y <- coords_dhl[, 2]
+```
+
 ### Range-corrected PPI of Herwijnen radar
 
 ```{r map_range_corrected_herwijnen, fig.width=10, warning=FALSE}
