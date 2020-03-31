@@ -116,7 +116,6 @@ build_species_lut <- function(specieslist, datasetKey = NULL, class_name = NULL)
                             scientificname = character(n), 
                             gbif_key = numeric(n), stringsAsFactors = FALSE)
   
-  
   # Somehow the higherTaxonKey changes regularly, so we have to query this first
   higherTaxonKey <- NULL
   if (!is.null(class_name)) {
@@ -189,6 +188,7 @@ read_tsv("data/raw/life-history-characteristics/Life-history characteristics of 
   filter(!any(str_ends(species, "ssp"))) %>%  # Filter out birds not identified to species
   rowwise() %>%
   mutate(species = paste(str_split(species, pattern = " ")[[1]][1:2], collapse = " ")) %>%
+  ungroup() %>%
   group_by(species) %>%
   summarise(mean_weight = mean(mean_weight)) %>%
   drop_na() -> lhc
@@ -207,6 +207,7 @@ Now we can try to link the names once again with what can be found in GBIF.
 unique_species_lhc <- unique(lhc$species)
 
 lhc_species_lut <- build_species_lut(unique_species_lhc, dataset = NULL)
+
 head(lhc_species_lut, 10) %>%
   kable(format = "html", col.names = colnames(lhc_species_lut)) %>%
   kable_styling() %>%
@@ -242,6 +243,7 @@ ptt_data %>%
   left_join(dplyr::select(lhc, mean_weight, species), by = c("scientificname" = "species")) %>%
   dplyr::select(-c(mean_weight.x)) %>%
   rename(mean_weight = mean_weight.y) -> ptt_data_lhc
+
 head(ptt_data_lhc, 10) %>%
   kable(format = "html", col.names = colnames(ptt_data_lhc)) %>%
   kable_styling() %>%
