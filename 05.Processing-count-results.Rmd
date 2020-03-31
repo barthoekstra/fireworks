@@ -102,7 +102,7 @@ With all these species removed or adjusted, we can create a species lookup table
 ```{r create_species_lut}
 unique_species <- unique(c(wb_data$species, ptt_data$species))
 
-build_species_lut <- function(specieslist, datasetKey = NULL, higherTaxonKey = NULL) {
+build_species_lut <- function(specieslist, datasetKey = NULL, class_name = NULL) {
   # As this function can possibly return many different records, we pick the scientific name and GBIF ID (nubKey) that are the most
   # common in the returned results. This should most often result in an OK result of the name lookup function.
   Mode <- function(x) {
@@ -115,6 +115,14 @@ build_species_lut <- function(specieslist, datasetKey = NULL, higherTaxonKey = N
   species_lut <- data.frame(lookupname = character(n), 
                             scientificname = character(n), 
                             gbif_key = numeric(n), stringsAsFactors = FALSE)
+  
+  
+  # Somehow the higherTaxonKey changes regularly, so we have to query this first
+  higherTaxonKey <- NULL
+  if (!is.null(class_name)) {
+    class_record <- name_lookup(class_name, datasetKey = datasetKey)
+    higherTaxonKey <- class_record$data$classKey
+  }
   
   for(i in seq_along(specieslist)) {
     gbif_data <- tryCatch({
@@ -134,10 +142,8 @@ build_species_lut <- function(specieslist, datasetKey = NULL, higherTaxonKey = N
   return(species_lut)
 }
 
-# The following query defines a `higherTaxonKey`, which is a way to filter for birds fairly easily. 
-# Somehow this ID is not fully persistent, so in case the following returns only NaNs for gbif_keys, 
-# check the Aves taxon in the Checklist Dutch Species Register
-species_lut <- build_species_lut(unique_species, datasetKey = "4dd32523-a3a3-43b7-84df-4cda02f15cf7", higherTaxonKey = 162425859)
+species_lut <- build_species_lut(unique_species, datasetKey = "4dd32523-a3a3-43b7-84df-4cda02f15cf7", class_name = "Aves")
+
 head(species_lut, 10) %>%
   kable(format = "html", col.names = colnames(species_lut)) %>%
   kable_styling() %>%
