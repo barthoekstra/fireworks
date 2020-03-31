@@ -187,9 +187,14 @@ read_tsv("data/raw/life-history-characteristics/Life-history characteristics of 
   dplyr::select(Species, mean_weight) %>%
   rename(species = Species) %>%
   filter(!any(str_ends(species, "ssp"))) %>%  # Filter out birds not identified to species
+  rowwise() %>%
+  mutate(species = paste(str_split(species, pattern = " ")[[1]][1:2], collapse = " ")) %>%
+  group_by(species) %>%
+  summarise(mean_weight = mean(mean_weight)) %>%
   drop_na() -> lhc
 
 lhc[lhc$species == "Aquila nipalenis", "species"] <- "Aquila nipalensis"  # Small error in dataset -> notified author
+
 head(lhc, 10) %>%
   kable(format = "html", col.names = colnames(lhc)) %>%
   kable_styling() %>%
@@ -221,6 +226,7 @@ wb_data %>%
   left_join(dplyr::select(lhc, mean_weight, species), by = c("scientificname" = "species")) %>%
   dplyr::select(-c(mean_weight.x)) %>%
   rename(mean_weight = mean_weight.y) -> wb_data_lhc
+
 head(wb_data_lhc, 10) %>%
   kable(format = "html", col.names = colnames(wb_data_lhc)) %>%
   kable_styling() %>%
