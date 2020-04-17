@@ -128,9 +128,61 @@ pvol_dhl_path <- paste(pvol_folder, "RAD_NL61_VOL_NA_", dhl_dt_str, "_ODIM.h5", 
 save(pvol_hrw_path, pvol_dhl_path, file = "data/processed/pvol_selection.RData")
 ```
 
-
 So we will continue using the following files in this study:
 
 - **Herwijnen**: ``r basename(pvol_hrw_path)``
 - **Den Helder**: ``r basename(pvol_dhl_path)``
+
+## Determining maximum range from radar to detect birds
+
+We can assume that the flight altitudes derived from `vol2bird` are representative for flight altitudes throughout the country. Given that most of the disturbance happens at comparatively low altitudes, the radar is likely to 'overshoot' this entirely at substantial distances away from the radar where compensating for range-effects (e.g. using [@kranstauber2020]) will thus have no effect. Therefore we need to calculate the maximum range we could still feasibly measure birds aloft.
+
+We define the minimum altitude a radar beam must propagate through as the heighest altitude during the fireworks event below which 90% of birds pass through. Assuming uniform distribution of flight altitudes, this would leave 5% of the numbers of birds aloft at range to apply range-bias correction with [@kranstauber2020].
+
+```{r determine_range_of_overshoot, warning=FALSE}
+alt_cutoff <- 0.90
+
+dens_hrw <- get_quantity(fw_hrw_vpts[indexes_hrw], "dens")
+dens_dhl <- get_quantity(fw_dhl_vpts[indexes_dhl], "dens")
+
+apply(dens_hrw, 2, function(x) {min(which(cumsum(x) / sum(x) > alt_cutoff))}) %>%
+  as.data.frame() %>%
+  tibble::rownames_to_column() %>%
+  rename("datetime" = "rowname", "height_bin" = 2) %>%
+  mutate(datetime = as.POSIXct(datetime), radar = "Herwijnen") %>%
+  mutate(height_bin = height_bin * fw_hrw_vpts$attributes$where$interval) -> altitudes_hrw
+
+apply(dens_dhl, 2, function(x) {min(which(cumsum(x) / sum(x) > alt_cutoff))}) %>%
+  as.data.frame() %>%
+  tibble::rownames_to_column() %>%
+  rename("datetime" = "rowname", "height_bin" = 2) %>%
+  mutate(datetime = as.POSIXct(datetime), radar = "Den Helder") %>%
+  mutate(height_bin = height_bin * fw_dhl_vpts$attributes$where$interval) -> altitudes_dhl
+
+bind_rows(altitudes_hrw, altitudes_dhl) %>%
+  filter(is.finite(height_bin)) %>%
+  ggplot() +
+  geom_line(aes(x = datetime, y = height_bin, group = radar, colour = radar)) +
+  scale_x_datetime(breaks = "10 min", date_labels = "%H:%M", expand = c(0, 0)) + 
+  scale_y_continuous(breaks = scales::pretty_breaks(20)) +
+  scale_color_manual(values = c("blue", "red")) +
+  labs(title = paste("Altitude below which ", alt_cutoff * 100, "% of birds fly", sep = ""),
+       subtitle = "NYE 2017-2018",
+       x = "Time (CET)",
+       y = "Altitude",
+       colour = "Radar") +
+  theme(axis.text.x = element_text(angle = -90),
+        panel.grid.minor = element_blank())
+```
+
+We can see in this plot, and the earlier `vpts` of Den Helder that there is substantial noise at higher altitudes causing odd spikes in the altitudes. It seems that an altitude of _800m_ as a cutoff point strikes a good balance for both Herwijnen and Den Helder radars. Now we can calculate the distance at which that height is the height of the lowest elevation (0.3 degrees) and round to the nearest kilometer. 
+
+```{r}
+altitude_cutoff <- 800
+ranges <- seq(0, 180000, 100)
+beamheights <- beam_height(ranges, 0.3)
+nearest_index <- which(abs(beamheights - altitude_cutoff) == min(abs(beamheights - altitude_cutoff)))
+distance_cutoff <- plyr::round_any(ranges[nearest_index], 1000)
+distance_cutoff
+```
 
