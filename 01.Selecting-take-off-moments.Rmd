@@ -2,7 +2,7 @@
 
 # Selecting firework take-off moment
 
-For this study we select the moment of 'en masse' take-off of birds at the turn of the year. To make sure birds are still fairly 'close' to the take-off habitat, we therefore pick the moment where the increase in `VIR` (Vertically Integrated Reflectivity) is the highest. Based on experience, one would expect this to occur between 00:05 and 00:15 on January 1st, as people tend to light the fireworks right after they have shared New Year's wishes with each other.
+For this study we select the moment of 'en masse' take-off of birds at the turn of the year. To make sure birds are still fairly 'close' to the take-off habitat, we therefore focus on the period where the increase in `VIR` (Vertically Integrated Reflectivity) is the highest. Based on experience, one would expect this to occur between 00:05 and 00:15 on January 1st, as people tend to light the fireworks right after they have shared New Year's wishes with each other.
 
 ## Setting up the processing environment
 
@@ -22,6 +22,8 @@ We calculate vertical profiles for the period between December 31st, 2017 22:00 
 
 *Beware: to calculate the vertical profiles, a running instance of [Docker](https://www.docker.com) is required. This code chunk will only run in [full-reproduction mode](A1.Full-reproduction-mode.html).*
 
+See Appendix [generating-vps-for-den-helder-radar] for a more detailed explanation why we limit `vp` generation of Den Helder to certain azimuths.
+
 ```{r generate_vps, eval=full_repro}
 fireworks_scans <- Sys.glob(file.path("data/raw/pvol/fireworks-2017-2018", "*_ODIM.h5"))
 cat("Files left to process: ", length(fireworks_scans), "\n")
@@ -32,7 +34,12 @@ for (scan in fireworks_scans) {
   }
   
   vpfile_out <- sub("raw/pvol/fireworks-2017-2018", "processed/vp/fireworks-2017-2018", scan)
-  try(calculate_vp(scan, vpfile = vpfile_out, verbose = FALSE, mount = dirname(fireworks_scans[1])))
+  if (grepl("RAD_NL61", vpfile_out)) {
+    try(calculate_vp(scan, vpfile = vpfile_out, verbose = FALSE, mount = dirname(fireworks_scans[1]),
+                     azim_min = 90, azim_max = 200))
+  } else {
+    try(calculate_vp(scan, vpfile = vpfile_out, verbose = FALSE, mount = dirname(fireworks_scans[1])))
+  }
   i = i + 1
 }
 ```
@@ -64,7 +71,7 @@ plot(fw_hrw_vpts[indexes_hrw], main = title_hrw)
 plot(fw_dhl_vpts[indexes_dhl], main = title_dhl)
 ```
 
-Both plots for Herwijnen and Den Helder show exactly what we would expect: fairly low densities of birds aloft leading up to midnight (23:00 CET), then suddenly a strong increase of birds right after midnight. For Herwijnen this peak is much more pronounced than for Den Helder, probably due to the different surroundings of the radar. As `vol2bird` only takes into account rangegates within 5-35km of the radar, in the case of Den Helder this contains a lot more sea surface, from which fewer birds can be expected to take off than from land.
+Both plots for Herwijnen and Den Helder show exactly what we would expect: comparatively low densities of birds aloft leading up to midnight (23:00 CET), then suddenly a strong increase of birds right after midnight. For Den Helder this peak appears much more pronounced, whereas for Herwijnen the period of disturbance seems to take considerably longer. This is probably due to the vastly different environment around the radar site: Herwijnen is located solidly in the center of the country, whereas Den Helder is located close to the coast on a 'peninsula' with much less land in the surroundings, especially as `vol2bird` only takes into account rangegates within 5-35km of the radar.
 
 ## Identifying moment of take-off
 
@@ -109,13 +116,15 @@ ggplot(integrated_l, aes(x = datetime)) +
         panel.grid.minor = element_blank())
 ```
 
-The plot shows $\Delta VIR/{scan}$ peaks earlier for the Den Helder radar than for Herwijnen, but both at roughly the same level of `r round(max_vir_deriv[[1, 3]])` and `r round(max_vir_deriv[[2, 3]])` respectively.
+The plot shows $\Delta VIR/{scan}$ peaks much stronger and earlier for the Den Helder radar than for Herwijnen, which matches with the more pronounced change in the previous plot of the `vpts`.
 
-We can now identify which scans 'contain' the moment of take-off. The datetime values correspond with the start times of the scans and the filenames of the polar volume files.
+We can now identify which scans 'contain' the peak moment of take-off. The datetime values correspond with the start times of the scans and the filenames of the polar volume files.
 
 ```{r identify_takeoff_scans}
 max_vir_deriv[, 2:4]
 ```
+
+To illustrate the processing workflow, we focus on these peak moments of take-off, so we store their identifiers for later use.
 
 ```{r save_takeoff_scans}
 pvol_folder <- "data/raw/pvol/fireworks-2017-2018/"
@@ -186,3 +195,4 @@ distance_cutoff <- plyr::round_any(ranges[nearest_index], 1000)
 distance_cutoff
 ```
 
+So at roughly `r distance_cutoff / 1000` kilometers from the radar, the lowest elevation scan pierces the sky at an altitude (`r altitude_cutoff`m) where we could still expect ~`r (1 - alt_cutoff) * 100`% of birds to be above.
