@@ -265,8 +265,8 @@ We can now calculate the total population in an area within ~2.5km around the ce
 weights <- matrix(1, nrow = 11, ncol = 11)
 pop_density_rasterized_hrw[pop_density_rasterized_hrw < 0] <- 0
 pop_density_rasterized_dhl[pop_density_rasterized_dhl < 0] <- 0
-pop_hrw <- focal(as(pop_density_rasterized_hrw, "Raster"), w = weights, fun = sum, pad = TRUE, padValue = 0)
-pop_dhl <- focal(as(pop_density_rasterized_dhl, "Raster"), w = weights, fun = sum, pad = TRUE, padValue = 0)
+pop_hrw <- focal(as(pop_density_rasterized_hrw, "Raster"), w = weights, fun = sum, na.rm = TRUE)
+pop_dhl <- focal(as(pop_density_rasterized_dhl, "Raster"), w = weights, fun = sum, na.rm = TRUE)
 ```
 
 And add it to the PPIs.
