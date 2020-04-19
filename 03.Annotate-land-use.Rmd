@@ -2,7 +2,7 @@
 
 # Annotating land use
 
-In this study we aim to calculate 'representative' radar cross sections for birds aloft, based on the take-off habitat, which is probably a good indicator for the bird species/species groups measured by the radar. In this notebook we will classify land use and calculate the distance to the nearest urbanised areas for each of the PPI 'pixels'.
+In this study we aim to quantify the response to fireworks across different species groups, for which take-off habitat is probably a good indicator. In this notebook we will classify land use, and a variety of factors that can influence the 'intensity' of fireworks disturbance, such as the distance to the nearest urbanised area for each of the PPI 'pixels'.
 
 The land use is based on the [CORINE Land Cover](https://land.copernicus.eu/pan-european/corine-land-cover) dataset and specifically the [2018 version](https://land.copernicus.eu/pan-european/corine-land-cover/clc2018) (`CLC2018`), which should be most relevant for the 2017-2018 fireworks event.
 
@@ -282,7 +282,7 @@ ppi_dhl$data$pop <- as.numeric(unlist(values_pop_dhl))
 
 ## Testing
 
-Let's make a few plots to see if what we have now gathered as additional information makes any sense
+Let's make a few plots to see if what we have now gathered as additional information makes any sense.
 
 ### Plotting total VIR per land use type
 
@@ -307,9 +307,11 @@ ggplot(data_dhl, aes(landuse_class, total_prop_landuse_class, fill = type)) + ge
 
 ```{r distance_to_urban_vs_vir, warning=FALSE, fig.show='hold', dev='png'}
 ggplot(ppi_dhl$data@data, aes(x = dist_urban, y = VIR, colour = landuse_class)) + 
-  geom_point(alpha = 0.5) + ylim(c(0, 500000)) + theme(legend.position = "none")
+  geom_point(alpha = 0.5) + ylim(c(0, 500000)) + theme(legend.position = "none") +
+  scale_x_continuous(trans = "log10")
 ggplot(ppi_hrw$data@data, aes(x = dist_urban, y = VIR, colour = landuse_class)) + 
-  geom_point(alpha = 0.5) + ylim(c(0, 500000)) + theme(legend.position = "none")
+  geom_point(alpha = 0.5) + ylim(c(0, 500000)) + theme(legend.position = "none") +
+  scale_x_continuous(trans = "log10")
 ```
 
 That seems alright, so we can save the PPIS we have now annotated.
@@ -319,7 +321,7 @@ saveRDS(ppi_hrw, file = "data/processed/corrected_ppi_hrw_lu.RDS")
 saveRDS(ppi_dhl, file = "data/processed/corrected_ppi_dhl_lu.RDS")
 ```
 
-### Plotting it all on an interactive map
+### Plotting human parameters on an interactive map
 
 #### Interactive map of Herwijnen
 ```{r interactive_map_herwijnen}
