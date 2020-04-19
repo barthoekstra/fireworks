@@ -1,0 +1,76 @@
+# Visualising NYE 2017-2018
+
+With all the preprocessing done, we can now visualise the fireworks disturbance of NYE 2017-2018 with a composite PPI for both the Den Helder and Herwijnen radars.
+
+## Setting-up the environment
+
+```{r setup-image-processing-environment}
+library(bioRad)
+library(ggplot2)
+library(magick)
+library(purrr)
+```
+
+## Generating the composite PPIs
+
+We will loop over all the Herwijnen and Den Helder PPIs we have generated so far, create composite PPIs for these and save these as a bunch of .png files we can use separately or include in the animated GIF below.
+
+```{r fig.width=10, fig.height=10, eval=full_repro, message=FALSE, warning=FALSE}
+hrw_ppis <- Sys.glob(file.path("data/processed/final-ppis", "*NL62*"))
+dhl_ppis <- Sys.glob(file.path("data/processed/final-ppis", "*NL61*"))
+
+basemap <- NULL
+
+for (i in seq_along(hrw_ppis)) {
+  ppi_hrw <- readRDS(hrw_ppis[i])
+  ppi_dhl <- readRDS(dhl_ppis[i])
+  
+  cppi <- suppressWarnings(composite_ppi(list(ppi_hrw, ppi_dhl), param = "VIR", method = "max", nx = 1000, ny = 1000))
+  
+  if (i == 1) {
+    basemap <- download_basemap(cppi, alpha = 0.3)
+  }
+  
+  zeros <- cppi$data$VIR[cppi$data$VIR == 0]
+  cppi$data$VIR[zeros] <- NA
+  cppi$data$VIR <- log10(cppi$data$VIR)
+  cppi$data$VIR[zeros] <- 0
+  
+  map(cppi, map = basemap, radar_size = 1, xlim = c(3.1, 6.8), ylim = c(51, 54), zlim = c(0, 4.5), 
+      palette = viridis(256, option = "viridis", alpha = 0.6)) + 
+    labs(title = "Fireworks NYE 2017-2018",
+         subtitle = paste(ppi_hrw$datetime, ' UTC', sep = ""))
+  
+  ggsave(paste("data/plots/vir-ppis/", strftime(ppi_hrw$datetime, format = "%Y%m%d%H%M"), ".png", sep = ""))
+}
+```
+
+## Visualising the composites
+
+In order to run this _comparatively simple_ conversion to a GIF of the fairly PPIs, it may be necessary to increase the memory available to ImageMagick by changing the memory policy in `/etc/ImageMagick-6/policy.xml`. Additionally, we will reduce the resolution of the animated GIF.
+
+```{r process-large-composites-to-animated-gif}
+width <- 800
+
+composites <- list.files(path = "data/plots/vir-ppis/", pattern = "*.png", full.names = TRUE)
+
+process_image <- function(img_path) {
+  image_read(img_path) %>%
+    image_resize(geometry_size_pixels(width = width)) %>%
+    # image_convert(format = "jpeg") %>%
+    image_write(path = paste(tools::file_path_sans_ext(img_path), ".jpeg", sep = ""), format = "jpeg")
+}
+
+for (file in list.files(path = "data/plots/vir-ppis/", pattern = "*.png", full.names = TRUE)) {
+  process_image(file)
+}
+
+list.files(path = "data/plots/vir-ppis/", pattern = "*.jpeg", full.names = T) %>%
+  purrr::map(image_read) %>%
+  image_join() %>%
+  image_animate(fps = 2) %>%
+  image_write("data/plots/vir-ppis/NYE-2017-2018.gif")
+```
+
+![Animation of VIRs during NYE 2017-2018]("data/plots/vir-ppis/NYE-2017-2018.gif")
+
