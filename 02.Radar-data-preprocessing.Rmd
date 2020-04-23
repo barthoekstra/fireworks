@@ -296,7 +296,7 @@ Let's see what that looks like on a basemap, using a `DBZH_AVG` threshold of $-1
 scan_hrw <- pvol_clutter_static_hrw$scans[[1]]
 scan_dhl <- pvol_clutter_static_dhl$scans[[1]]
 
-side_by_side_ppi(pvol_clutter_static_hrw, pvol_clutter_dynamic_dhl, "Herwijnen static clutter", "Den Helder static clutter", 
+side_by_side_ppi(pvol_clutter_static_hrw, pvol_clutter_static_dhl, "Herwijnen static clutter", "Den Helder static clutter", 
                  params = "DBZH_AVG", range_max = 50000, scan_id = 1, basemap = TRUE, zlim = c(-11, -10))
 ```
 
