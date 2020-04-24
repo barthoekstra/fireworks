@@ -24,7 +24,7 @@
 <meta name="author" content="Bart Hoekstra" />
 
 
-<meta name="date" content="2020-03-10" />
+<meta name="date" content="2020-04-24" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -51,12 +51,12 @@
 
 
 <script src="assets/htmlwidgets-1.5.1/htmlwidgets.js"></script>
-<script src="assets/plotly-binding-4.9.1/plotly.js"></script>
+<script src="assets/plotly-binding-4.9.2.1/plotly.js"></script>
 <script src="assets/typedarray-0.1/typedarray.min.js"></script>
 <link href="assets/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
 <script src="assets/crosstalk-1.0.0/js/crosstalk.min.js"></script>
-<link href="assets/plotly-htmlwidgets-css-1.49.4/plotly-htmlwidgets.css" rel="stylesheet" />
-<script src="assets/plotly-main-1.49.4/plotly-latest.min.js"></script>
+<link href="assets/plotly-htmlwidgets-css-1.52.2/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="assets/plotly-main-1.52.2/plotly-latest.min.js"></script>
 <link href="assets/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
 <script src="assets/leaflet-1.3.1/leaflet.js"></script>
 <link href="assets/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
@@ -66,18 +66,18 @@
 <script src="assets/leaflet-binding-2.0.3/leaflet.js"></script>
 <script src="assets/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script>
 <script src="assets/leaflet-providers-plugin-2.0.3/leaflet-providers-plugin.js"></script>
-<script src="assets/VIR-1/data_stars_VIR7db140.txt"></script>
+<script src="assets/VIR-1/data_stars_VIRa8b729.txt"></script>
 <script src="assets/joda-0.0.1/joda.js"></script>
 <link href="assets/HomeButton-0.0.1/home-button.css" rel="stylesheet" />
 <script src="assets/HomeButton-0.0.1/home-button.js"></script>
 <script src="assets/HomeButton-0.0.1/easy-button-src.min.js"></script>
-<script src="assets/VID-1/data_stars_VID73ac08.txt"></script>
-<script src="assets/R-1/data_stars_R3876d0.txt"></script>
-<script src="assets/overlap-1/data_stars_overlape79386.txt"></script>
-<script src="assets/eta_sum-1/data_stars_eta_sume6a9b2.txt"></script>
-<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expected9276df.txt"></script>
-<script src="assets/pop-1/data_stars_pop5abf07.txt"></script>
-<script src="assets/dist_urban-1/data_stars_dist_urban47692f.txt"></script>
+<script src="assets/VID-1/data_stars_VID402ba8.txt"></script>
+<script src="assets/R-1/data_stars_R1b73da.txt"></script>
+<script src="assets/overlap-1/data_stars_overlap37f520.txt"></script>
+<script src="assets/eta_sum-1/data_stars_eta_sum4e30a2.txt"></script>
+<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expected3b41a8.txt"></script>
+<script src="assets/pop-1/data_stars_popfb1349.txt"></script>
+<script src="assets/dist_urban-1/data_stars_dist_urban01ad57.txt"></script>
 <script src="assets/kePrint-0.0.1/kePrint.js"></script>
 
 
@@ -166,6 +166,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="1.2" data-path="01.Selecting-take-off-moments.html"><a href="01.Selecting-take-off-moments.html#calculate-the-vertical-profiles"><i class="fa fa-check"></i><b>1.2</b> Calculate the vertical profiles</a></li>
 <li class="chapter" data-level="1.3" data-path="01.Selecting-take-off-moments.html"><a href="01.Selecting-take-off-moments.html#generate-time-series-of-vertical-profiles"><i class="fa fa-check"></i><b>1.3</b> Generate time series of vertical profiles</a></li>
 <li class="chapter" data-level="1.4" data-path="01.Selecting-take-off-moments.html"><a href="01.Selecting-take-off-moments.html#identifying-moment-of-take-off"><i class="fa fa-check"></i><b>1.4</b> Identifying moment of take-off</a></li>
+<li class="chapter" data-level="1.5" data-path="01.Selecting-take-off-moments.html"><a href="01.Selecting-take-off-moments.html#determining-maximum-range-from-radar-to-detect-birds"><i class="fa fa-check"></i><b>1.5</b> Determining maximum range from radar to detect birds</a></li>
 </ul></li>
 <li class="chapter" data-level="2" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html"><i class="fa fa-check"></i><b>2</b> Radar Data Preprocessing</a><ul>
 <li class="chapter" data-level="2.1" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#setting-up-the-pre-processing-environment"><i class="fa fa-check"></i><b>2.1</b> Setting-up the pre-processing environment</a></li>
@@ -175,7 +176,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2.5" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#filter-ground-clutter"><i class="fa fa-check"></i><b>2.5</b> Filter ground clutter</a></li>
 <li class="chapter" data-level="2.6" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#range-bias-correction"><i class="fa fa-check"></i><b>2.6</b> Range-bias correction</a></li>
 <li class="chapter" data-level="2.7" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#distance-to-radar"><i class="fa fa-check"></i><b>2.7</b> Distance to radar</a></li>
-<li class="chapter" data-level="2.8" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#preprocess-additional-scans"><i class="fa fa-check"></i><b>2.8</b> Preprocess additional scans</a></li>
+<li class="chapter" data-level="2.8" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#spatial-coordinates"><i class="fa fa-check"></i><b>2.8</b> Spatial coordinates</a></li>
+<li class="chapter" data-level="2.9" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#preprocess-additional-scans"><i class="fa fa-check"></i><b>2.9</b> Preprocess additional scans</a></li>
 </ul></li>
 <li class="part"><span><b>II Land use</b></span></li>
 <li class="chapter" data-level="3" data-path="03.Annotate-land-use.html"><a href="03.Annotate-land-use.html"><i class="fa fa-check"></i><b>3</b> Annotating land use</a><ul>
@@ -204,16 +206,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="6.2" data-path="06.Applying-annotations-to-all-PPIs.html"><a href="06.Applying-annotations-to-all-PPIs.html#load-the-reference-ppis"><i class="fa fa-check"></i><b>6.2</b> Load the reference PPIs</a></li>
 <li class="chapter" data-level="6.3" data-path="06.Applying-annotations-to-all-PPIs.html"><a href="06.Applying-annotations-to-all-PPIs.html#copy-annotations-from-reference-ppis-to-other-ppis"><i class="fa fa-check"></i><b>6.3</b> Copy annotations from reference PPIs to other PPIs</a></li>
 </ul></li>
-<li class="part"><span><b>IV Fireworks disturbance</b></span></li>
-<li class="chapter" data-level="7" data-path="07.Explore-fireworks-disturbance.html"><a href="07.Explore-fireworks-disturbance.html"><i class="fa fa-check"></i><b>7</b> Exploring fireworks disturbance</a><ul>
-<li class="chapter" data-level="7.1" data-path="07.Explore-fireworks-disturbance.html"><a href="07.Explore-fireworks-disturbance.html#setting-up-the-environment-1"><i class="fa fa-check"></i><b>7.1</b> Setting-up the environment</a></li>
-<li class="chapter" data-level="7.2" data-path="07.Explore-fireworks-disturbance.html"><a href="07.Explore-fireworks-disturbance.html#calculating-bird-parameters"><i class="fa fa-check"></i><b>7.2</b> Calculating bird parameters</a></li>
-<li class="chapter" data-level="7.3" data-path="07.Explore-fireworks-disturbance.html"><a href="07.Explore-fireworks-disturbance.html#connecting-sovon-counts-with-the-ppis"><i class="fa fa-check"></i><b>7.3</b> Connecting Sovon counts with the PPIs</a></li>
-<li class="chapter" data-level="7.4" data-path="07.Explore-fireworks-disturbance.html"><a href="07.Explore-fireworks-disturbance.html#correcting-for-dispersion"><i class="fa fa-check"></i><b>7.4</b> Correcting for dispersion</a></li>
+<li class="chapter" data-level="7" data-path="07.Visualising-NYE-2017-2018.html"><a href="07.Visualising-NYE-2017-2018.html"><i class="fa fa-check"></i><b>7</b> Visualising NYE 2017-2018</a><ul>
+<li class="chapter" data-level="7.1" data-path="07.Visualising-NYE-2017-2018.html"><a href="07.Visualising-NYE-2017-2018.html#setting-up-the-environment-1"><i class="fa fa-check"></i><b>7.1</b> Setting-up the environment</a></li>
+<li class="chapter" data-level="7.2" data-path="07.Visualising-NYE-2017-2018.html"><a href="07.Visualising-NYE-2017-2018.html#generating-the-composite-ppis"><i class="fa fa-check"></i><b>7.2</b> Generating the composite PPIs</a></li>
+<li class="chapter" data-level="7.3" data-path="07.Visualising-NYE-2017-2018.html"><a href="07.Visualising-NYE-2017-2018.html#visualising-the-composites"><i class="fa fa-check"></i><b>7.3</b> Visualising the composites</a></li>
 </ul></li>
-<li class="part"><span><b>V Appendix</b></span></li>
+<li class="part"><span><b>IV Appendix</b></span></li>
 <li class="chapter" data-level="8" data-path="A1.Generating-VPs-for-Den-Helder-radar.html"><a href="A1.Generating-VPs-for-Den-Helder-radar.html"><i class="fa fa-check"></i><b>8</b> Generating vertical profiles for Den Helder radar</a></li>
-<li class="part"><span><b>VI Other</b></span></li>
+<li class="part"><span><b>V Other</b></span></li>
 <li class="chapter" data-level="9" data-path="References.html"><a href="References.html"><i class="fa fa-check"></i><b>9</b> References</a></li>
 </ul>
 
@@ -235,7 +235,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="header">
 <h1 class="title">Fireworks</h1>
 <p class="author"><em>Bart Hoekstra</em></p>
-<p class="date"><em>2020-03-10</em></p>
+<p class="date"><em>2020-04-24</em></p>
 </div>
 <div id="preface" class="section level1 unnumbered">
 <h1>Preface</h1>

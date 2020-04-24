@@ -24,7 +24,7 @@
 <meta name="author" content="Bart Hoekstra" />
 
 
-<meta name="date" content="2020-03-10" />
+<meta name="date" content="2020-04-24" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -51,12 +51,12 @@
 
 
 <script src="assets/htmlwidgets-1.5.1/htmlwidgets.js"></script>
-<script src="assets/plotly-binding-4.9.1/plotly.js"></script>
+<script src="assets/plotly-binding-4.9.2.1/plotly.js"></script>
 <script src="assets/typedarray-0.1/typedarray.min.js"></script>
 <link href="assets/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
 <script src="assets/crosstalk-1.0.0/js/crosstalk.min.js"></script>
-<link href="assets/plotly-htmlwidgets-css-1.49.4/plotly-htmlwidgets.css" rel="stylesheet" />
-<script src="assets/plotly-main-1.49.4/plotly-latest.min.js"></script>
+<link href="assets/plotly-htmlwidgets-css-1.52.2/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="assets/plotly-main-1.52.2/plotly-latest.min.js"></script>
 <link href="assets/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
 <script src="assets/leaflet-1.3.1/leaflet.js"></script>
 <link href="assets/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
@@ -66,18 +66,18 @@
 <script src="assets/leaflet-binding-2.0.3/leaflet.js"></script>
 <script src="assets/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script>
 <script src="assets/leaflet-providers-plugin-2.0.3/leaflet-providers-plugin.js"></script>
-<script src="assets/VIR-1/data_stars_VIR7db140.txt"></script>
+<script src="assets/VIR-1/data_stars_VIRa8b729.txt"></script>
 <script src="assets/joda-0.0.1/joda.js"></script>
 <link href="assets/HomeButton-0.0.1/home-button.css" rel="stylesheet" />
 <script src="assets/HomeButton-0.0.1/home-button.js"></script>
 <script src="assets/HomeButton-0.0.1/easy-button-src.min.js"></script>
-<script src="assets/VID-1/data_stars_VID73ac08.txt"></script>
-<script src="assets/R-1/data_stars_R3876d0.txt"></script>
-<script src="assets/overlap-1/data_stars_overlape79386.txt"></script>
-<script src="assets/eta_sum-1/data_stars_eta_sume6a9b2.txt"></script>
-<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expected9276df.txt"></script>
-<script src="assets/pop-1/data_stars_pop5abf07.txt"></script>
-<script src="assets/dist_urban-1/data_stars_dist_urban47692f.txt"></script>
+<script src="assets/VID-1/data_stars_VID402ba8.txt"></script>
+<script src="assets/R-1/data_stars_R1b73da.txt"></script>
+<script src="assets/overlap-1/data_stars_overlap37f520.txt"></script>
+<script src="assets/eta_sum-1/data_stars_eta_sum4e30a2.txt"></script>
+<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expected3b41a8.txt"></script>
+<script src="assets/pop-1/data_stars_popfb1349.txt"></script>
+<script src="assets/dist_urban-1/data_stars_dist_urban01ad57.txt"></script>
 <script src="assets/kePrint-0.0.1/kePrint.js"></script>
 
 
@@ -166,6 +166,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="1.2" data-path="01.Selecting-take-off-moments.html"><a href="01.Selecting-take-off-moments.html#calculate-the-vertical-profiles"><i class="fa fa-check"></i><b>1.2</b> Calculate the vertical profiles</a></li>
 <li class="chapter" data-level="1.3" data-path="01.Selecting-take-off-moments.html"><a href="01.Selecting-take-off-moments.html#generate-time-series-of-vertical-profiles"><i class="fa fa-check"></i><b>1.3</b> Generate time series of vertical profiles</a></li>
 <li class="chapter" data-level="1.4" data-path="01.Selecting-take-off-moments.html"><a href="01.Selecting-take-off-moments.html#identifying-moment-of-take-off"><i class="fa fa-check"></i><b>1.4</b> Identifying moment of take-off</a></li>
+<li class="chapter" data-level="1.5" data-path="01.Selecting-take-off-moments.html"><a href="01.Selecting-take-off-moments.html#determining-maximum-range-from-radar-to-detect-birds"><i class="fa fa-check"></i><b>1.5</b> Determining maximum range from radar to detect birds</a></li>
 </ul></li>
 <li class="chapter" data-level="2" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html"><i class="fa fa-check"></i><b>2</b> Radar Data Preprocessing</a><ul>
 <li class="chapter" data-level="2.1" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#setting-up-the-pre-processing-environment"><i class="fa fa-check"></i><b>2.1</b> Setting-up the pre-processing environment</a></li>
@@ -175,7 +176,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2.5" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#filter-ground-clutter"><i class="fa fa-check"></i><b>2.5</b> Filter ground clutter</a></li>
 <li class="chapter" data-level="2.6" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#range-bias-correction"><i class="fa fa-check"></i><b>2.6</b> Range-bias correction</a></li>
 <li class="chapter" data-level="2.7" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#distance-to-radar"><i class="fa fa-check"></i><b>2.7</b> Distance to radar</a></li>
-<li class="chapter" data-level="2.8" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#preprocess-additional-scans"><i class="fa fa-check"></i><b>2.8</b> Preprocess additional scans</a></li>
+<li class="chapter" data-level="2.8" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#spatial-coordinates"><i class="fa fa-check"></i><b>2.8</b> Spatial coordinates</a></li>
+<li class="chapter" data-level="2.9" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#preprocess-additional-scans"><i class="fa fa-check"></i><b>2.9</b> Preprocess additional scans</a></li>
 </ul></li>
 <li class="part"><span><b>II Land use</b></span></li>
 <li class="chapter" data-level="3" data-path="03.Annotate-land-use.html"><a href="03.Annotate-land-use.html"><i class="fa fa-check"></i><b>3</b> Annotating land use</a><ul>
@@ -204,16 +206,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="6.2" data-path="06.Applying-annotations-to-all-PPIs.html"><a href="06.Applying-annotations-to-all-PPIs.html#load-the-reference-ppis"><i class="fa fa-check"></i><b>6.2</b> Load the reference PPIs</a></li>
 <li class="chapter" data-level="6.3" data-path="06.Applying-annotations-to-all-PPIs.html"><a href="06.Applying-annotations-to-all-PPIs.html#copy-annotations-from-reference-ppis-to-other-ppis"><i class="fa fa-check"></i><b>6.3</b> Copy annotations from reference PPIs to other PPIs</a></li>
 </ul></li>
-<li class="part"><span><b>IV Fireworks disturbance</b></span></li>
-<li class="chapter" data-level="7" data-path="07.Explore-fireworks-disturbance.html"><a href="07.Explore-fireworks-disturbance.html"><i class="fa fa-check"></i><b>7</b> Exploring fireworks disturbance</a><ul>
-<li class="chapter" data-level="7.1" data-path="07.Explore-fireworks-disturbance.html"><a href="07.Explore-fireworks-disturbance.html#setting-up-the-environment-1"><i class="fa fa-check"></i><b>7.1</b> Setting-up the environment</a></li>
-<li class="chapter" data-level="7.2" data-path="07.Explore-fireworks-disturbance.html"><a href="07.Explore-fireworks-disturbance.html#calculating-bird-parameters"><i class="fa fa-check"></i><b>7.2</b> Calculating bird parameters</a></li>
-<li class="chapter" data-level="7.3" data-path="07.Explore-fireworks-disturbance.html"><a href="07.Explore-fireworks-disturbance.html#connecting-sovon-counts-with-the-ppis"><i class="fa fa-check"></i><b>7.3</b> Connecting Sovon counts with the PPIs</a></li>
-<li class="chapter" data-level="7.4" data-path="07.Explore-fireworks-disturbance.html"><a href="07.Explore-fireworks-disturbance.html#correcting-for-dispersion"><i class="fa fa-check"></i><b>7.4</b> Correcting for dispersion</a></li>
+<li class="chapter" data-level="7" data-path="07.Visualising-NYE-2017-2018.html"><a href="07.Visualising-NYE-2017-2018.html"><i class="fa fa-check"></i><b>7</b> Visualising NYE 2017-2018</a><ul>
+<li class="chapter" data-level="7.1" data-path="07.Visualising-NYE-2017-2018.html"><a href="07.Visualising-NYE-2017-2018.html#setting-up-the-environment-1"><i class="fa fa-check"></i><b>7.1</b> Setting-up the environment</a></li>
+<li class="chapter" data-level="7.2" data-path="07.Visualising-NYE-2017-2018.html"><a href="07.Visualising-NYE-2017-2018.html#generating-the-composite-ppis"><i class="fa fa-check"></i><b>7.2</b> Generating the composite PPIs</a></li>
+<li class="chapter" data-level="7.3" data-path="07.Visualising-NYE-2017-2018.html"><a href="07.Visualising-NYE-2017-2018.html#visualising-the-composites"><i class="fa fa-check"></i><b>7.3</b> Visualising the composites</a></li>
 </ul></li>
-<li class="part"><span><b>V Appendix</b></span></li>
+<li class="part"><span><b>IV Appendix</b></span></li>
 <li class="chapter" data-level="8" data-path="A1.Generating-VPs-for-Den-Helder-radar.html"><a href="A1.Generating-VPs-for-Den-Helder-radar.html"><i class="fa fa-check"></i><b>8</b> Generating vertical profiles for Den Helder radar</a></li>
-<li class="part"><span><b>VI Other</b></span></li>
+<li class="part"><span><b>V Other</b></span></li>
 <li class="chapter" data-level="9" data-path="References.html"><a href="References.html"><i class="fa fa-check"></i><b>9</b> References</a></li>
 </ul>
 
@@ -234,7 +234,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
             <section class="normal" id="section-">
 <div id="selecting-firework-take-off-moment" class="section level1">
 <h1><span class="header-section-number">1</span> Selecting firework take-off moment</h1>
-<p>For this study we select the moment of ‘en masse’ take-off of birds at the turn of the year. To make sure birds are still fairly ‘close’ to the take-off habitat, we therefore pick the moment where the increase in <code>VIR</code> (Vertically Integrated Reflectivity) is the highest. Based on experience, one would expect this to occur between 00:05 and 00:15 on January 1st, as people tend to light the fireworks right after they have shared New Year’s wishes with each other.</p>
+<p>For this study we select the moment of ‘en masse’ take-off of birds at the turn of the year. To make sure birds are still fairly ‘close’ to the take-off habitat, we therefore focus on the period where the increase in <code>VIR</code> (Vertically Integrated Reflectivity) is the highest. Based on experience, one would expect this to occur between 00:05 and 00:15 on January 1st, as people tend to light the fireworks right after they have shared New Year’s wishes with each other.</p>
 <div id="setting-up-the-processing-environment" class="section level2">
 <h2><span class="header-section-number">1.1</span> Setting up the processing environment</h2>
 <p>We use <code>vol2bird</code> included in the <a href="http://adokter.github.io/bioRad">bioRad package</a> <span class="citation">(Dokter et al. <a href="#ref-dokter_biorad_2019">2019</a>)</span> to calculate the vertical profiles of reflectivity, from which we determine the exact take off moment of birds. This implies we assume birds take to the skies everywhere simultaneously, but that seems a realistic assumption given that the lighting of fireworks is synchronised by the local time, rather than the time of sunset/sunrise.</p>
@@ -248,6 +248,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2><span class="header-section-number">1.2</span> Calculate the vertical profiles</h2>
 <p>We calculate vertical profiles for the period between December 31st, 2017 22:00 and 01:00 UTC on January 1st, 2018, which corresponds with 23:00 til 02:00 local Amsterdam time (UTC + 1). It is not necessary to generate so many <code>vp</code> files, but it gives a better temporal overview if we add some ‘temporal padding’ around the fireworks event.</p>
 <p><em>Beware: to calculate the vertical profiles, a running instance of <a href="https://www.docker.com">Docker</a> is required. This code chunk will only run in <a href="A1.Full-reproduction-mode.html">full-reproduction mode</a>.</em></p>
+<p>See Appendix [generating-vps-for-den-helder-radar] for a more detailed explanation why we limit <code>vp</code> generation of Den Helder to certain azimuths.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">fireworks_scans &lt;-<span class="st"> </span><span class="kw">Sys.glob</span>(<span class="kw">file.path</span>(<span class="st">&quot;data/raw/pvol/fireworks-2017-2018&quot;</span>, <span class="st">&quot;*_ODIM.h5&quot;</span>))</a>
 <a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw">cat</span>(<span class="st">&quot;Files left to process: &quot;</span>, <span class="kw">length</span>(fireworks_scans), <span class="st">&quot;</span><span class="ch">\n</span><span class="st">&quot;</span>)</a>
 <a class="sourceLine" id="cb3-3" data-line-number="3">i =<span class="st"> </span><span class="dv">1</span></a>
@@ -257,9 +258,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb3-7" data-line-number="7">  }</a>
 <a class="sourceLine" id="cb3-8" data-line-number="8">  </a>
 <a class="sourceLine" id="cb3-9" data-line-number="9">  vpfile_out &lt;-<span class="st"> </span><span class="kw">sub</span>(<span class="st">&quot;raw/pvol/fireworks-2017-2018&quot;</span>, <span class="st">&quot;processed/vp/fireworks-2017-2018&quot;</span>, scan)</a>
-<a class="sourceLine" id="cb3-10" data-line-number="10">  <span class="kw">try</span>(<span class="kw">calculate_vp</span>(scan, <span class="dt">vpfile =</span> vpfile_out, <span class="dt">verbose =</span> <span class="ot">FALSE</span>, <span class="dt">mount =</span> <span class="kw">dirname</span>(fireworks_scans[<span class="dv">1</span>])))</a>
-<a class="sourceLine" id="cb3-11" data-line-number="11">  i =<span class="st"> </span>i <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
-<a class="sourceLine" id="cb3-12" data-line-number="12">}</a></code></pre></div>
+<a class="sourceLine" id="cb3-10" data-line-number="10">  <span class="cf">if</span> (<span class="kw">grepl</span>(<span class="st">&quot;RAD_NL61&quot;</span>, vpfile_out)) {</a>
+<a class="sourceLine" id="cb3-11" data-line-number="11">    <span class="kw">try</span>(<span class="kw">calculate_vp</span>(scan, <span class="dt">vpfile =</span> vpfile_out, <span class="dt">verbose =</span> <span class="ot">FALSE</span>, <span class="dt">mount =</span> <span class="kw">dirname</span>(fireworks_scans[<span class="dv">1</span>]),</a>
+<a class="sourceLine" id="cb3-12" data-line-number="12">                     <span class="dt">azim_min =</span> <span class="dv">90</span>, <span class="dt">azim_max =</span> <span class="dv">200</span>))</a>
+<a class="sourceLine" id="cb3-13" data-line-number="13">  } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb3-14" data-line-number="14">    <span class="kw">try</span>(<span class="kw">calculate_vp</span>(scan, <span class="dt">vpfile =</span> vpfile_out, <span class="dt">verbose =</span> <span class="ot">FALSE</span>, <span class="dt">mount =</span> <span class="kw">dirname</span>(fireworks_scans[<span class="dv">1</span>])))</a>
+<a class="sourceLine" id="cb3-15" data-line-number="15">  }</a>
+<a class="sourceLine" id="cb3-16" data-line-number="16">  i =<span class="st"> </span>i <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb3-17" data-line-number="17">}</a></code></pre></div>
 </div>
 <div id="generate-time-series-of-vertical-profiles" class="section level2">
 <h2><span class="header-section-number">1.3</span> Generate time series of vertical profiles</h2>
@@ -286,7 +292,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p><img src="Fireworks_files/figure-html/generate_vp_timeseries-1.svg" width="672" /></p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="kw">plot</span>(fw_dhl_vpts[indexes_dhl], <span class="dt">main =</span> title_dhl)</a></code></pre></div>
 <p><img src="Fireworks_files/figure-html/generate_vp_timeseries-2.svg" width="672" /></p>
-<p>Both plots for Herwijnen and Den Helder show exactly what we would expect: fairly low densities of birds aloft leading up to midnight (23:00 CET), then suddenly a strong increase of birds right after midnight. For Herwijnen this peak is much more pronounced than for Den Helder, probably due to the different surroundings of the radar. As <code>vol2bird</code> only takes into account rangegates within 5-35km of the radar, in the case of Den Helder this contains a lot more sea surface, from which fewer birds can be expected to take off than from land.</p>
+<p>Both plots for Herwijnen and Den Helder show exactly what we would expect: comparatively low densities of birds aloft leading up to midnight (23:00 CET), then suddenly a strong increase of birds right after midnight. For Den Helder this peak appears much more pronounced, whereas for Herwijnen the period of disturbance seems to take considerably longer. This is probably due to the vastly different environment around the radar site: Herwijnen is located solidly in the center of the country, whereas Den Helder is located close to the coast on a ‘peninsula’ with much less land in the surroundings, especially as <code>vol2bird</code> only takes into account rangegates within 5-35km of the radar.</p>
 </div>
 <div id="identifying-moment-of-take-off" class="section level2">
 <h2><span class="header-section-number">1.4</span> Identifying moment of take-off</h2>
@@ -328,8 +334,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb10-35" data-line-number="35"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">-90</span>),</a>
 <a class="sourceLine" id="cb10-36" data-line-number="36">        <span class="dt">panel.grid.minor =</span> <span class="kw">element_blank</span>())</a></code></pre></div>
 <p><img src="Fireworks_files/figure-html/identify_takeoff-1.svg" width="672" /></p>
-<p>The plot shows <span class="math inline">\(\Delta VIR/{scan}\)</span> peaks earlier for the Den Helder radar than for Herwijnen, but both at roughly the same level of 1066 and 991 respectively.</p>
-<p>We can now identify which scans ‘contain’ the moment of take-off. The datetime values correspond with the start times of the scans and the filenames of the polar volume files.</p>
+<p>The plot shows <span class="math inline">\(\Delta VIR/{scan}\)</span> peaks much stronger and earlier for the Den Helder radar than for Herwijnen, which matches with the more pronounced change in the previous plot of the <code>vpts</code>.</p>
+<p>We can now identify which scans ‘contain’ the peak moment of take-off. The datetime values correspond with the start times of the scans and the filenames of the polar volume files.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">max_vir_deriv[, <span class="dv">2</span><span class="op">:</span><span class="dv">4</span>]</a></code></pre></div>
 <div class="kable-table">
 <table>
@@ -343,7 +349,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <tbody>
 <tr class="odd">
 <td align="left">Den Helder</td>
-<td align="right">1066.0071</td>
+<td align="right">1839.3841</td>
 <td align="left">2017-12-31 23:05:04</td>
 </tr>
 <tr class="even">
@@ -354,6 +360,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </tbody>
 </table>
 </div>
+<p>To illustrate the processing workflow, we focus on these peak moments of take-off, so we store their identifiers for later use.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">pvol_folder &lt;-<span class="st"> &quot;data/raw/pvol/fireworks-2017-2018/&quot;</span></a>
 <a class="sourceLine" id="cb12-2" data-line-number="2">hrw_dt_str &lt;-<span class="st"> </span><span class="kw">strftime</span>(max_vir_deriv[[<span class="dv">2</span>, <span class="dv">4</span>]], <span class="dt">format =</span> <span class="st">&quot;%Y%m%d%H%M&quot;</span>)</a>
 <a class="sourceLine" id="cb12-3" data-line-number="3">dhl_dt_str &lt;-<span class="st"> </span><span class="kw">strftime</span>(max_vir_deriv[[<span class="dv">1</span>, <span class="dv">4</span>]], <span class="dt">format =</span> <span class="st">&quot;%Y%m%d%H%M&quot;</span>)</a>
@@ -367,6 +374,54 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><strong>Herwijnen</strong>: <code>RAD_NL62_VOL_NA_201712312310_ODIM.h5</code></li>
 <li><strong>Den Helder</strong>: <code>RAD_NL61_VOL_NA_201712312305_ODIM.h5</code></li>
 </ul>
+</div>
+<div id="determining-maximum-range-from-radar-to-detect-birds" class="section level2">
+<h2><span class="header-section-number">1.5</span> Determining maximum range from radar to detect birds</h2>
+<p>We can assume that the flight altitudes derived from <code>vol2bird</code> are representative for flight altitudes throughout the country. Given that most of the disturbance happens at comparatively low altitudes, the radar is likely to ‘overshoot’ this entirely at substantial distances away from the radar where compensating for range-effects (e.g. using <span class="citation">(Kranstauber et al. <a href="#ref-kranstauber2020">2020</a>)</span>) will thus have no effect. Therefore we need to calculate the maximum range we could still feasibly measure birds aloft.</p>
+<p>We define the minimum altitude a radar beam must propagate through as the heighest altitude during the fireworks event below which 90% of birds pass through. Assuming uniform distribution of flight altitudes, this would leave 5% of the numbers of birds aloft at range to apply range-bias correction with <span class="citation">(Kranstauber et al. <a href="#ref-kranstauber2020">2020</a>)</span>.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">alt_cutoff &lt;-<span class="st"> </span><span class="fl">0.90</span></a>
+<a class="sourceLine" id="cb13-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb13-3" data-line-number="3">dens_hrw &lt;-<span class="st"> </span><span class="kw">get_quantity</span>(fw_hrw_vpts[indexes_hrw], <span class="st">&quot;dens&quot;</span>)</a>
+<a class="sourceLine" id="cb13-4" data-line-number="4">dens_dhl &lt;-<span class="st"> </span><span class="kw">get_quantity</span>(fw_dhl_vpts[indexes_dhl], <span class="st">&quot;dens&quot;</span>)</a>
+<a class="sourceLine" id="cb13-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb13-6" data-line-number="6"><span class="kw">apply</span>(dens_hrw, <span class="dv">2</span>, <span class="cf">function</span>(x) {<span class="kw">min</span>(<span class="kw">which</span>(<span class="kw">cumsum</span>(x) <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(x) <span class="op">&gt;</span><span class="st"> </span>alt_cutoff))}) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb13-7" data-line-number="7"><span class="st">  </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb13-8" data-line-number="8"><span class="st">  </span>tibble<span class="op">::</span><span class="kw">rownames_to_column</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb13-9" data-line-number="9"><span class="st">  </span><span class="kw">rename</span>(<span class="st">&quot;datetime&quot;</span> =<span class="st"> &quot;rowname&quot;</span>, <span class="st">&quot;height_bin&quot;</span> =<span class="st"> </span><span class="dv">2</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb13-10" data-line-number="10"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">datetime =</span> <span class="kw">as.POSIXct</span>(datetime), <span class="dt">radar =</span> <span class="st">&quot;Herwijnen&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb13-11" data-line-number="11"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">height_bin =</span> height_bin <span class="op">*</span><span class="st"> </span>fw_hrw_vpts<span class="op">$</span>attributes<span class="op">$</span>where<span class="op">$</span>interval) -&gt;<span class="st"> </span>altitudes_hrw</a>
+<a class="sourceLine" id="cb13-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb13-13" data-line-number="13"><span class="kw">apply</span>(dens_dhl, <span class="dv">2</span>, <span class="cf">function</span>(x) {<span class="kw">min</span>(<span class="kw">which</span>(<span class="kw">cumsum</span>(x) <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(x) <span class="op">&gt;</span><span class="st"> </span>alt_cutoff))}) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb13-14" data-line-number="14"><span class="st">  </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb13-15" data-line-number="15"><span class="st">  </span>tibble<span class="op">::</span><span class="kw">rownames_to_column</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb13-16" data-line-number="16"><span class="st">  </span><span class="kw">rename</span>(<span class="st">&quot;datetime&quot;</span> =<span class="st"> &quot;rowname&quot;</span>, <span class="st">&quot;height_bin&quot;</span> =<span class="st"> </span><span class="dv">2</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb13-17" data-line-number="17"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">datetime =</span> <span class="kw">as.POSIXct</span>(datetime), <span class="dt">radar =</span> <span class="st">&quot;Den Helder&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb13-18" data-line-number="18"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">height_bin =</span> height_bin <span class="op">*</span><span class="st"> </span>fw_dhl_vpts<span class="op">$</span>attributes<span class="op">$</span>where<span class="op">$</span>interval) -&gt;<span class="st"> </span>altitudes_dhl</a>
+<a class="sourceLine" id="cb13-19" data-line-number="19"></a>
+<a class="sourceLine" id="cb13-20" data-line-number="20"><span class="kw">bind_rows</span>(altitudes_hrw, altitudes_dhl) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb13-21" data-line-number="21"><span class="st">  </span><span class="kw">filter</span>(<span class="kw">is.finite</span>(height_bin)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb13-22" data-line-number="22"><span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb13-23" data-line-number="23"><span class="st">  </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> datetime, <span class="dt">y =</span> height_bin, <span class="dt">group =</span> radar, <span class="dt">colour =</span> radar)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb13-24" data-line-number="24"><span class="st">  </span><span class="kw">scale_x_datetime</span>(<span class="dt">breaks =</span> <span class="st">&quot;10 min&quot;</span>, <span class="dt">date_labels =</span> <span class="st">&quot;%H:%M&quot;</span>, <span class="dt">expand =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb13-25" data-line-number="25"><span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">breaks =</span> scales<span class="op">::</span><span class="kw">pretty_breaks</span>(<span class="dv">20</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb13-26" data-line-number="26"><span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb13-27" data-line-number="27"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="kw">paste</span>(<span class="st">&quot;Altitude below which &quot;</span>, alt_cutoff <span class="op">*</span><span class="st"> </span><span class="dv">100</span>, <span class="st">&quot;% of birds fly&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>),</a>
+<a class="sourceLine" id="cb13-28" data-line-number="28">       <span class="dt">subtitle =</span> <span class="st">&quot;NYE 2017-2018&quot;</span>,</a>
+<a class="sourceLine" id="cb13-29" data-line-number="29">       <span class="dt">x =</span> <span class="st">&quot;Time (CET)&quot;</span>,</a>
+<a class="sourceLine" id="cb13-30" data-line-number="30">       <span class="dt">y =</span> <span class="st">&quot;Altitude&quot;</span>,</a>
+<a class="sourceLine" id="cb13-31" data-line-number="31">       <span class="dt">colour =</span> <span class="st">&quot;Radar&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb13-32" data-line-number="32"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">-90</span>),</a>
+<a class="sourceLine" id="cb13-33" data-line-number="33">        <span class="dt">panel.grid.minor =</span> <span class="kw">element_blank</span>())</a></code></pre></div>
+<p><img src="Fireworks_files/figure-html/determine_range_of_overshoot-1.svg" width="672" /></p>
+<p>We can see in this plot, and the earlier <code>vpts</code> of Den Helder that there is substantial noise at higher altitudes causing odd spikes in the altitudes. It seems that an altitude of <em>800m</em> as a cutoff point strikes a good balance for both Herwijnen and Den Helder radars. Now we can calculate the distance at which that height is the height of the lowest elevation (0.3 degrees) and round to the nearest kilometer.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">altitude_cutoff &lt;-<span class="st"> </span><span class="dv">800</span></a>
+<a class="sourceLine" id="cb14-2" data-line-number="2">ranges &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">180000</span>, <span class="dv">100</span>)</a>
+<a class="sourceLine" id="cb14-3" data-line-number="3">beamheights &lt;-<span class="st"> </span><span class="kw">beam_height</span>(ranges, <span class="fl">0.3</span>)</a>
+<a class="sourceLine" id="cb14-4" data-line-number="4">nearest_index &lt;-<span class="st"> </span><span class="kw">which</span>(<span class="kw">abs</span>(beamheights <span class="op">-</span><span class="st"> </span>altitude_cutoff) <span class="op">==</span><span class="st"> </span><span class="kw">min</span>(<span class="kw">abs</span>(beamheights <span class="op">-</span><span class="st"> </span>altitude_cutoff)))</a>
+<a class="sourceLine" id="cb14-5" data-line-number="5">distance_cutoff &lt;-<span class="st"> </span>plyr<span class="op">::</span><span class="kw">round_any</span>(ranges[nearest_index], <span class="dv">1000</span>)</a>
+<a class="sourceLine" id="cb14-6" data-line-number="6">distance_cutoff</a></code></pre></div>
+<pre><code>## [1] 80000</code></pre>
+<p>So at roughly 80 kilometers from the radar, the lowest elevation scan pierces the sky at an altitude (800m) where we could still expect ~10% of birds to be above.</p>
 
 </div>
 </div>
@@ -374,6 +429,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="refs" class="references">
 <div id="ref-dokter_biorad_2019">
 <p>Dokter, Adriaan M., Peter Desmet, Jurriaan H. Spaaks, Stijn van Hoey, Lourens Veen, Liesbeth Verlinden, Cecilia Nilsson, et al. 2019. “bioRad: Biological Analysis and Visualization of Weather Radar Data.” <em>Ecography</em> 42 (5): 852–60. <a href="https://doi.org/10.1111/ecog.04028">https://doi.org/10.1111/ecog.04028</a>.</p>
+</div>
+<div id="ref-kranstauber2020">
+<p>Kranstauber, Bart, Willem Bouten, Hidde Leijnse, Berend-Christiaan Wijers, Liesbeth Verlinden, Judy Shamoun-Baranes, and Adriaan M Dokter. 2020. “High-Resolution Spatial Distribution of Bird Movements Estimated from a Weather Radar Network.” <em>Remote Sensing</em> 12 (4). Multidisciplinary Digital Publishing Institute: 635. <a href="https://doi.org/10.3390/rs12040635">https://doi.org/10.3390/rs12040635</a>.</p>
 </div>
 </div>
             </section>
