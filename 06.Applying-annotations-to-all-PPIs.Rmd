@@ -72,15 +72,5 @@ saveRDS(hrw_all, file = "data/processed/hrw.RDS")
 saveRDS(dhl_all, file = "data/processed/dhl.RDS")
 ```
 
-`data/processed/hrw.RDS` and `data/processed/dhl.RDS` now contain `r nrow(hrw_all)` and `r nrow(dhl_all)` PPI rows respectively. Below a few rows of the Herwijnen data for example (with rows containing `NA`s removed):
-
-```{r show_example_overall_dataframe, eval=full_repro}
-hrw_all %>%
-  drop_na() %>%
-  arrange(datetime) %>%
-  head(15) %>%
-  kable(format = "html", col.names = colnames(hrw_all)) %>%
-  kable_styling() %>%
-  scroll_box(width = "100%", height = "600px")
-```
+`data/processed/hrw.RDS` and `data/processed/dhl.RDS` now contain all the PPI rows for each radar respectively.
 
