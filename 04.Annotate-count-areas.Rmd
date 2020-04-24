@@ -71,7 +71,7 @@ compareRaster(as(wb_areas_rasterized_dhl, "Raster"), as(ppi_dhl$data, "RasterLay
 
 Twice a `TRUE`, so the rasters are identical (except for the values), so we can merge the datasets using a `join` on the `wb_area_id`.
 
-```{r}
+```{r add_rasterized_areas_to_ppis}
 # Add the wb_area_id to the PPIs
 ppi_hrw$data$wb_area_id <- unlist(as.data.frame(as(wb_areas_rasterized_hrw, "Raster")))
 ppi_dhl$data$wb_area_id <- unlist(as.data.frame(as(wb_areas_rasterized_dhl, "Raster")))

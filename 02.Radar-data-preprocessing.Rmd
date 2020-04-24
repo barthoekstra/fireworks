@@ -365,7 +365,7 @@ saveRDS(corrected_ppi_dhl, file = "data/processed/corrected_ppi_dhl.RDS")
 
 ## Spatial coordinates
 
-```{r}
+```{r add_spatial_coordinates}
 coords_hrw <- coordinates(corrected_ppi_hrw$data)
 corrected_ppi_hrw$data$x <- coords_hrw[, 1]
 corrected_ppi_hrw$data$y <- coords_hrw[, 2]

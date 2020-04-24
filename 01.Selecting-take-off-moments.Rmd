@@ -186,7 +186,7 @@ bind_rows(altitudes_hrw, altitudes_dhl) %>%
 
 We can see in this plot, and the earlier `vpts` of Den Helder that there is substantial noise at higher altitudes causing odd spikes in the altitudes. It seems that an altitude of _800m_ as a cutoff point strikes a good balance for both Herwijnen and Den Helder radars. Now we can calculate the distance at which that height is the height of the lowest elevation (0.3 degrees) and round to the nearest kilometer. 
 
-```{r}
+```{r determine_distance_cutoff}
 altitude_cutoff <- 800
 ranges <- seq(0, 180000, 100)
 beamheights <- beam_height(ranges, 0.3)
