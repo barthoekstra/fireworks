@@ -9,7 +9,7 @@ We have so far explained the processing 'pipeline' for the PPIs for Herwijnen an
 
 ## Setting-up the environment
 
-```{r setup_apply_processing_to_all_ppis_environment}
+```{r setup_apply_processing_to_all_ppis_environment, eval=full_repro}
 library(dplyr)
 library(tidyr)
 library(kableExtra)
@@ -19,7 +19,7 @@ library(kableExtra)
 ## Load the reference PPIs
 Two PPIs have been processed all the way and those will be our 'reference' PPIs from which we copy the data over to the other PPIs which have not had the same treatment.
 
-```{r load_reference_ppis}
+```{r load_reference_ppis, eval=full_repro}
 ppi_hrw <- readRDS("data/processed/corrected-ppis-lu-sovon/corrected_ppi_hrw_lu_sovon.RDS")
 ppi_dhl <- readRDS("data/processed/corrected-ppis-lu-sovon/corrected_ppi_dhl_lu_sovon.RDS")
 ```
@@ -28,7 +28,7 @@ ppi_dhl <- readRDS("data/processed/corrected-ppis-lu-sovon/corrected_ppi_dhl_lu_
 
 We select the variables related to land use, distance to urbanized areas and population density, waterbird counts and PTT counts and add these to the PPIs that contain just the variables resulting from the range-bias correction [@kranstauber2020]. While we are at it, we will also create dataframes containing all the information within the PPIs, to use for later modelling exercises.
 
-```{r copy_annotations_from_reference_ppis_to_other_ppis}
+```{r copy_annotations_from_reference_ppis_to_other_ppis, eval=full_repro}
 hrw <- ppi_hrw$data@data %>%
   dplyr::select(landuse, landuse_class, type, dist_urban, pop, wb_area_id, wb_area_nr, wb_area_ha, ptt_route)
 
@@ -74,7 +74,7 @@ saveRDS(dhl_all, file = "data/processed/dhl.RDS")
 
 `data/processed/hrw.RDS` and `data/processed/dhl.RDS` now contain `r nrow(hrw_all)` and `r nrow(dhl_all)` PPI rows respectively. Below a few rows of the Herwijnen data for example (with rows containing `NA`s removed):
 
-```{r show_example_overall_dataframe}
+```{r show_example_overall_dataframe, eval=full_repro}
 hrw_all %>%
   drop_na() %>%
   arrange(datetime) %>%
