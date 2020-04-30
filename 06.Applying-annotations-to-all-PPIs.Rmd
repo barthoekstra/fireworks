@@ -66,8 +66,6 @@ for (ppi_path in dhl_ppis) {
     bind_rows(dhl_all) -> dhl_all
 }
 
-dhl_all$datetime <- as.POSIXct(dhl_all$datetime)
-
 saveRDS(hrw_all, file = "data/processed/hrw.RDS")
 saveRDS(dhl_all, file = "data/processed/dhl.RDS")
 ```
