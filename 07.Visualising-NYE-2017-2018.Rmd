@@ -49,7 +49,7 @@ for (i in seq_along(hrw_ppis)) {
 
 In order to run this _comparatively simple_ conversion to a GIF of the fairly PPIs, it may be necessary to increase the memory available to ImageMagick by changing the memory policy in `/etc/ImageMagick-6/policy.xml`. Additionally, we will reduce the resolution of the animated GIF.
 
-```{r process-large-composites-to-animated-gif}
+```{r process-large-composites-to-animated-gif, eval=full_repro}
 width <- 800
 
 composites <- list.files(path = "data/plots/vir-ppis/", pattern = "*.png", full.names = TRUE)
