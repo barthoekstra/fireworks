@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>7 Visualising NYE 2017-2018 | Fireworks</title>
   <meta name="description" content="Using ground-based bird counts and weather radar measurements to estimate numbers of birds aloft during NYE fireworks events." />
-  <meta name="generator" content="bookdown 0.17 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.18 and GitBook 2.6.7" />
 
   <meta property="og:title" content="7 Visualising NYE 2017-2018 | Fireworks" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Bart Hoekstra" />
 
 
-<meta name="date" content="2020-04-24" />
+<meta name="date" content="2020-04-30" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -51,12 +51,12 @@
 
 
 <script src="assets/htmlwidgets-1.5.1/htmlwidgets.js"></script>
-<script src="assets/plotly-binding-4.9.2.1/plotly.js"></script>
+<script src="assets/plotly-binding-4.9.1/plotly.js"></script>
 <script src="assets/typedarray-0.1/typedarray.min.js"></script>
 <link href="assets/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
 <script src="assets/crosstalk-1.0.0/js/crosstalk.min.js"></script>
-<link href="assets/plotly-htmlwidgets-css-1.52.2/plotly-htmlwidgets.css" rel="stylesheet" />
-<script src="assets/plotly-main-1.52.2/plotly-latest.min.js"></script>
+<link href="assets/plotly-htmlwidgets-css-1.49.4/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="assets/plotly-main-1.49.4/plotly-latest.min.js"></script>
 <link href="assets/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
 <script src="assets/leaflet-1.3.1/leaflet.js"></script>
 <link href="assets/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
@@ -66,18 +66,18 @@
 <script src="assets/leaflet-binding-2.0.3/leaflet.js"></script>
 <script src="assets/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script>
 <script src="assets/leaflet-providers-plugin-2.0.3/leaflet-providers-plugin.js"></script>
-<script src="assets/VIR-1/data_stars_VIRa8b729.txt"></script>
+<script src="assets/VIR-1/data_stars_VIR8c7260.txt"></script>
 <script src="assets/joda-0.0.1/joda.js"></script>
 <link href="assets/HomeButton-0.0.1/home-button.css" rel="stylesheet" />
 <script src="assets/HomeButton-0.0.1/home-button.js"></script>
 <script src="assets/HomeButton-0.0.1/easy-button-src.min.js"></script>
-<script src="assets/VID-1/data_stars_VID402ba8.txt"></script>
-<script src="assets/R-1/data_stars_R1b73da.txt"></script>
-<script src="assets/overlap-1/data_stars_overlap37f520.txt"></script>
-<script src="assets/eta_sum-1/data_stars_eta_sum4e30a2.txt"></script>
-<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expected3b41a8.txt"></script>
-<script src="assets/pop-1/data_stars_popfb1349.txt"></script>
-<script src="assets/dist_urban-1/data_stars_dist_urban01ad57.txt"></script>
+<script src="assets/VID-1/data_stars_VID36efca.txt"></script>
+<script src="assets/R-1/data_stars_R12fb3c.txt"></script>
+<script src="assets/overlap-1/data_stars_overlape6db23.txt"></script>
+<script src="assets/eta_sum-1/data_stars_eta_sum5ba628.txt"></script>
+<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expected497a63.txt"></script>
+<script src="assets/pop-1/data_stars_pop98f3b0.txt"></script>
+<script src="assets/dist_urban-1/data_stars_dist_urbanf6354d.txt"></script>
 <script src="assets/kePrint-0.0.1/kePrint.js"></script>
 
 
@@ -237,13 +237,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>With all the preprocessing done, we can now visualise the fireworks disturbance of NYE 2017-2018 with a composite PPI for both the Den Helder and Herwijnen radars.</p>
 <div id="setting-up-the-environment-1" class="section level2">
 <h2><span class="header-section-number">7.1</span> Setting-up the environment</h2>
-<div class="sourceCode" id="cb116"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb116-1" data-line-number="1"><span class="kw">library</span>(bioRad)</a>
-<a class="sourceLine" id="cb116-2" data-line-number="2"><span class="kw">library</span>(ggplot2)</a>
-<a class="sourceLine" id="cb116-3" data-line-number="3"><span class="kw">library</span>(magick)</a></code></pre></div>
+<div class="sourceCode" id="cb118"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb118-1" data-line-number="1"><span class="kw">library</span>(bioRad)</a>
+<a class="sourceLine" id="cb118-2" data-line-number="2"><span class="kw">library</span>(ggplot2)</a>
+<a class="sourceLine" id="cb118-3" data-line-number="3"><span class="kw">library</span>(magick)</a></code></pre></div>
 <pre><code>## Linking to ImageMagick 6.9.7.4
 ## Enabled features: fontconfig, freetype, fftw, lcms, pango, x11
 ## Disabled features: cairo, ghostscript, rsvg, webp</code></pre>
-<div class="sourceCode" id="cb118"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb118-1" data-line-number="1"><span class="kw">library</span>(purrr)</a></code></pre></div>
+<div class="sourceCode" id="cb120"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb120-1" data-line-number="1"><span class="kw">library</span>(purrr)</a></code></pre></div>
 <pre><code>## 
 ## Attaching package: &#39;purrr&#39;</code></pre>
 <pre><code>## The following object is masked from &#39;package:magrittr&#39;:
@@ -256,60 +256,63 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="generating-the-composite-ppis" class="section level2">
 <h2><span class="header-section-number">7.2</span> Generating the composite PPIs</h2>
 <p>We will loop over all the Herwijnen and Den Helder PPIs we have generated so far, create composite PPIs for these and save these as a bunch of .png files we can use separately or include in the animated GIF below.</p>
-<div class="sourceCode" id="cb122"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb122-1" data-line-number="1">hrw_ppis &lt;-<span class="st"> </span><span class="kw">Sys.glob</span>(<span class="kw">file.path</span>(<span class="st">&quot;data/processed/final-ppis&quot;</span>, <span class="st">&quot;*NL62*&quot;</span>))</a>
-<a class="sourceLine" id="cb122-2" data-line-number="2">dhl_ppis &lt;-<span class="st"> </span><span class="kw">Sys.glob</span>(<span class="kw">file.path</span>(<span class="st">&quot;data/processed/final-ppis&quot;</span>, <span class="st">&quot;*NL61*&quot;</span>))</a>
-<a class="sourceLine" id="cb122-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb122-4" data-line-number="4">basemap &lt;-<span class="st"> </span><span class="ot">NULL</span></a>
-<a class="sourceLine" id="cb122-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb122-6" data-line-number="6"><span class="cf">for</span> (i <span class="cf">in</span> <span class="kw">seq_along</span>(hrw_ppis)) {</a>
-<a class="sourceLine" id="cb122-7" data-line-number="7">  ppi_hrw &lt;-<span class="st"> </span><span class="kw">readRDS</span>(hrw_ppis[i])</a>
-<a class="sourceLine" id="cb122-8" data-line-number="8">  ppi_dhl &lt;-<span class="st"> </span><span class="kw">readRDS</span>(dhl_ppis[i])</a>
-<a class="sourceLine" id="cb122-9" data-line-number="9">  </a>
-<a class="sourceLine" id="cb122-10" data-line-number="10">  cppi &lt;-<span class="st"> </span><span class="kw">suppressWarnings</span>(<span class="kw">composite_ppi</span>(<span class="kw">list</span>(ppi_hrw, ppi_dhl), <span class="dt">param =</span> <span class="st">&quot;VIR&quot;</span>, <span class="dt">method =</span> <span class="st">&quot;max&quot;</span>, <span class="dt">nx =</span> <span class="dv">1000</span>, <span class="dt">ny =</span> <span class="dv">1000</span>))</a>
-<a class="sourceLine" id="cb122-11" data-line-number="11">  </a>
-<a class="sourceLine" id="cb122-12" data-line-number="12">  <span class="cf">if</span> (i <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) {</a>
-<a class="sourceLine" id="cb122-13" data-line-number="13">    basemap &lt;-<span class="st"> </span><span class="kw">download_basemap</span>(cppi, <span class="dt">alpha =</span> <span class="fl">0.3</span>)</a>
-<a class="sourceLine" id="cb122-14" data-line-number="14">  }</a>
-<a class="sourceLine" id="cb122-15" data-line-number="15">  </a>
-<a class="sourceLine" id="cb122-16" data-line-number="16">  zeros &lt;-<span class="st"> </span>cppi<span class="op">$</span>data<span class="op">$</span>VIR[cppi<span class="op">$</span>data<span class="op">$</span>VIR <span class="op">==</span><span class="st"> </span><span class="dv">0</span>]</a>
-<a class="sourceLine" id="cb122-17" data-line-number="17">  cppi<span class="op">$</span>data<span class="op">$</span>VIR[zeros] &lt;-<span class="st"> </span><span class="ot">NA</span></a>
-<a class="sourceLine" id="cb122-18" data-line-number="18">  cppi<span class="op">$</span>data<span class="op">$</span>VIR &lt;-<span class="st"> </span><span class="kw">log10</span>(cppi<span class="op">$</span>data<span class="op">$</span>VIR)</a>
-<a class="sourceLine" id="cb122-19" data-line-number="19">  cppi<span class="op">$</span>data<span class="op">$</span>VIR[zeros] &lt;-<span class="st"> </span><span class="dv">0</span></a>
-<a class="sourceLine" id="cb122-20" data-line-number="20">  </a>
-<a class="sourceLine" id="cb122-21" data-line-number="21">  <span class="kw">map</span>(cppi, <span class="dt">map =</span> basemap, <span class="dt">radar_size =</span> <span class="dv">1</span>, <span class="dt">xlim =</span> <span class="kw">c</span>(<span class="fl">3.1</span>, <span class="fl">6.8</span>), <span class="dt">ylim =</span> <span class="kw">c</span>(<span class="dv">51</span>, <span class="dv">54</span>), <span class="dt">zlim =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">4.5</span>), </a>
-<a class="sourceLine" id="cb122-22" data-line-number="22">      <span class="dt">palette =</span> <span class="kw">viridis</span>(<span class="dv">256</span>, <span class="dt">option =</span> <span class="st">&quot;viridis&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.6</span>)) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb122-23" data-line-number="23"><span class="st">    </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Fireworks NYE 2017-2018&quot;</span>,</a>
-<a class="sourceLine" id="cb122-24" data-line-number="24">         <span class="dt">subtitle =</span> <span class="kw">paste</span>(ppi_hrw<span class="op">$</span>datetime, <span class="st">&#39; UTC&#39;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>))</a>
-<a class="sourceLine" id="cb122-25" data-line-number="25">  </a>
-<a class="sourceLine" id="cb122-26" data-line-number="26">  <span class="kw">ggsave</span>(<span class="kw">paste</span>(<span class="st">&quot;data/plots/vir-ppis/&quot;</span>, <span class="kw">strftime</span>(ppi_hrw<span class="op">$</span>datetime, <span class="dt">format =</span> <span class="st">&quot;%Y%m%d%H%M&quot;</span>), <span class="st">&quot;.png&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>))</a>
-<a class="sourceLine" id="cb122-27" data-line-number="27">}</a></code></pre></div>
+<div class="sourceCode" id="cb124"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb124-1" data-line-number="1">hrw_ppis &lt;-<span class="st"> </span><span class="kw">Sys.glob</span>(<span class="kw">file.path</span>(<span class="st">&quot;data/processed/final-ppis&quot;</span>, <span class="st">&quot;*NL62*&quot;</span>))</a>
+<a class="sourceLine" id="cb124-2" data-line-number="2">dhl_ppis &lt;-<span class="st"> </span><span class="kw">Sys.glob</span>(<span class="kw">file.path</span>(<span class="st">&quot;data/processed/final-ppis&quot;</span>, <span class="st">&quot;*NL61*&quot;</span>))</a>
+<a class="sourceLine" id="cb124-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb124-4" data-line-number="4">basemap &lt;-<span class="st"> </span><span class="ot">NULL</span></a>
+<a class="sourceLine" id="cb124-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb124-6" data-line-number="6"><span class="cf">for</span> (i <span class="cf">in</span> <span class="kw">seq_along</span>(hrw_ppis)) {</a>
+<a class="sourceLine" id="cb124-7" data-line-number="7">  ppi_hrw &lt;-<span class="st"> </span><span class="kw">readRDS</span>(hrw_ppis[i])</a>
+<a class="sourceLine" id="cb124-8" data-line-number="8">  ppi_dhl &lt;-<span class="st"> </span><span class="kw">readRDS</span>(dhl_ppis[i])</a>
+<a class="sourceLine" id="cb124-9" data-line-number="9">  </a>
+<a class="sourceLine" id="cb124-10" data-line-number="10">  cppi &lt;-<span class="st"> </span><span class="kw">suppressWarnings</span>(<span class="kw">composite_ppi</span>(<span class="kw">list</span>(ppi_hrw, ppi_dhl), <span class="dt">param =</span> <span class="st">&quot;VIR&quot;</span>, <span class="dt">method =</span> <span class="st">&quot;max&quot;</span>, <span class="dt">nx =</span> <span class="dv">1000</span>, <span class="dt">ny =</span> <span class="dv">1000</span>))</a>
+<a class="sourceLine" id="cb124-11" data-line-number="11">  </a>
+<a class="sourceLine" id="cb124-12" data-line-number="12">  <span class="cf">if</span> (i <span class="op">==</span><span class="st"> </span><span class="dv">1</span>) {</a>
+<a class="sourceLine" id="cb124-13" data-line-number="13">    basemap &lt;-<span class="st"> </span><span class="kw">download_basemap</span>(cppi, <span class="dt">alpha =</span> <span class="fl">0.3</span>)</a>
+<a class="sourceLine" id="cb124-14" data-line-number="14">  }</a>
+<a class="sourceLine" id="cb124-15" data-line-number="15">  </a>
+<a class="sourceLine" id="cb124-16" data-line-number="16">  zeros &lt;-<span class="st"> </span>cppi<span class="op">$</span>data<span class="op">$</span>VIR[cppi<span class="op">$</span>data<span class="op">$</span>VIR <span class="op">==</span><span class="st"> </span><span class="dv">0</span>]</a>
+<a class="sourceLine" id="cb124-17" data-line-number="17">  cppi<span class="op">$</span>data<span class="op">$</span>VIR[zeros] &lt;-<span class="st"> </span><span class="ot">NA</span></a>
+<a class="sourceLine" id="cb124-18" data-line-number="18">  cppi<span class="op">$</span>data<span class="op">$</span>VIR &lt;-<span class="st"> </span><span class="kw">log10</span>(cppi<span class="op">$</span>data<span class="op">$</span>VIR)</a>
+<a class="sourceLine" id="cb124-19" data-line-number="19">  cppi<span class="op">$</span>data<span class="op">$</span>VIR[zeros] &lt;-<span class="st"> </span><span class="dv">0</span></a>
+<a class="sourceLine" id="cb124-20" data-line-number="20">  </a>
+<a class="sourceLine" id="cb124-21" data-line-number="21">  <span class="kw">map</span>(cppi, <span class="dt">map =</span> basemap, <span class="dt">radar_size =</span> <span class="dv">1</span>, <span class="dt">xlim =</span> <span class="kw">c</span>(<span class="fl">3.1</span>, <span class="fl">6.8</span>), <span class="dt">ylim =</span> <span class="kw">c</span>(<span class="dv">51</span>, <span class="dv">54</span>), <span class="dt">zlim =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">4.5</span>), </a>
+<a class="sourceLine" id="cb124-22" data-line-number="22">      <span class="dt">palette =</span> <span class="kw">viridis</span>(<span class="dv">256</span>, <span class="dt">option =</span> <span class="st">&quot;viridis&quot;</span>, <span class="dt">alpha =</span> <span class="fl">0.6</span>)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb124-23" data-line-number="23"><span class="st">    </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Fireworks NYE 2017-2018&quot;</span>,</a>
+<a class="sourceLine" id="cb124-24" data-line-number="24">         <span class="dt">subtitle =</span> <span class="kw">paste</span>(ppi_hrw<span class="op">$</span>datetime, <span class="st">&#39; UTC&#39;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>))</a>
+<a class="sourceLine" id="cb124-25" data-line-number="25">  </a>
+<a class="sourceLine" id="cb124-26" data-line-number="26">  <span class="kw">ggsave</span>(<span class="kw">paste</span>(<span class="st">&quot;data/plots/vir-ppis/&quot;</span>, <span class="kw">strftime</span>(ppi_hrw<span class="op">$</span>datetime, <span class="dt">format =</span> <span class="st">&quot;%Y%m%d%H%M&quot;</span>), <span class="st">&quot;.png&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>))</a>
+<a class="sourceLine" id="cb124-27" data-line-number="27">}</a></code></pre></div>
 </div>
 <div id="visualising-the-composites" class="section level2">
 <h2><span class="header-section-number">7.3</span> Visualising the composites</h2>
 <p>In order to run this <em>comparatively simple</em> conversion to a GIF of the fairly PPIs, it may be necessary to increase the memory available to ImageMagick by changing the memory policy in <code>/etc/ImageMagick-6/policy.xml</code>. Additionally, we will reduce the resolution of the animated GIF.</p>
-<div class="sourceCode" id="cb123"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb123-1" data-line-number="1">width &lt;-<span class="st"> </span><span class="dv">800</span></a>
-<a class="sourceLine" id="cb123-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb123-3" data-line-number="3">composites &lt;-<span class="st"> </span><span class="kw">list.files</span>(<span class="dt">path =</span> <span class="st">&quot;data/plots/vir-ppis/&quot;</span>, <span class="dt">pattern =</span> <span class="st">&quot;*.png&quot;</span>, <span class="dt">full.names =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb123-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb123-5" data-line-number="5">process_image &lt;-<span class="st"> </span><span class="cf">function</span>(img_path) {</a>
-<a class="sourceLine" id="cb123-6" data-line-number="6">  <span class="kw">image_read</span>(img_path) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb123-7" data-line-number="7"><span class="st">    </span><span class="kw">image_resize</span>(<span class="kw">geometry_size_pixels</span>(<span class="dt">width =</span> width)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb123-8" data-line-number="8"><span class="st">    </span><span class="co"># image_convert(format = &quot;jpeg&quot;) %&gt;%</span></a>
-<a class="sourceLine" id="cb123-9" data-line-number="9"><span class="st">    </span><span class="kw">image_write</span>(<span class="dt">path =</span> <span class="kw">paste</span>(tools<span class="op">::</span><span class="kw">file_path_sans_ext</span>(img_path), <span class="st">&quot;.jpeg&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="dt">format =</span> <span class="st">&quot;jpeg&quot;</span>)</a>
-<a class="sourceLine" id="cb123-10" data-line-number="10">}</a>
-<a class="sourceLine" id="cb123-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb123-12" data-line-number="12"><span class="cf">for</span> (file <span class="cf">in</span> <span class="kw">list.files</span>(<span class="dt">path =</span> <span class="st">&quot;data/plots/vir-ppis/&quot;</span>, <span class="dt">pattern =</span> <span class="st">&quot;*.png&quot;</span>, <span class="dt">full.names =</span> <span class="ot">TRUE</span>)) {</a>
-<a class="sourceLine" id="cb123-13" data-line-number="13">  <span class="kw">process_image</span>(file)</a>
-<a class="sourceLine" id="cb123-14" data-line-number="14">}</a>
-<a class="sourceLine" id="cb123-15" data-line-number="15"></a>
-<a class="sourceLine" id="cb123-16" data-line-number="16"><span class="kw">list.files</span>(<span class="dt">path =</span> <span class="st">&quot;data/plots/vir-ppis/&quot;</span>, <span class="dt">pattern =</span> <span class="st">&quot;*.jpeg&quot;</span>, <span class="dt">full.names =</span> T) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb123-17" data-line-number="17"><span class="st">  </span>purrr<span class="op">::</span><span class="kw">map</span>(image_read) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb123-18" data-line-number="18"><span class="st">  </span><span class="kw">image_join</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb123-19" data-line-number="19"><span class="st">  </span><span class="kw">image_animate</span>(<span class="dt">fps =</span> <span class="dv">2</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb123-20" data-line-number="20"><span class="st">  </span><span class="kw">image_write</span>(<span class="st">&quot;data/plots/vir-ppis/NYE-2017-2018.gif&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb125"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb125-1" data-line-number="1">width &lt;-<span class="st"> </span><span class="dv">800</span></a>
+<a class="sourceLine" id="cb125-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb125-3" data-line-number="3">composites &lt;-<span class="st"> </span><span class="kw">list.files</span>(<span class="dt">path =</span> <span class="st">&quot;data/plots/vir-ppis/&quot;</span>, <span class="dt">pattern =</span> <span class="st">&quot;*.png&quot;</span>, <span class="dt">full.names =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb125-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb125-5" data-line-number="5">process_image &lt;-<span class="st"> </span><span class="cf">function</span>(img_path) {</a>
+<a class="sourceLine" id="cb125-6" data-line-number="6">  <span class="kw">image_read</span>(img_path) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb125-7" data-line-number="7"><span class="st">    </span><span class="kw">image_resize</span>(<span class="kw">geometry_size_pixels</span>(<span class="dt">width =</span> width)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb125-8" data-line-number="8"><span class="st">    </span><span class="co"># image_convert(format = &quot;jpeg&quot;) %&gt;%</span></a>
+<a class="sourceLine" id="cb125-9" data-line-number="9"><span class="st">    </span><span class="kw">image_write</span>(<span class="dt">path =</span> <span class="kw">paste</span>(tools<span class="op">::</span><span class="kw">file_path_sans_ext</span>(img_path), <span class="st">&quot;.jpeg&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="dt">format =</span> <span class="st">&quot;jpeg&quot;</span>)</a>
+<a class="sourceLine" id="cb125-10" data-line-number="10">}</a>
+<a class="sourceLine" id="cb125-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb125-12" data-line-number="12"><span class="cf">for</span> (file <span class="cf">in</span> <span class="kw">list.files</span>(<span class="dt">path =</span> <span class="st">&quot;data/plots/vir-ppis/&quot;</span>, <span class="dt">pattern =</span> <span class="st">&quot;*.png&quot;</span>, <span class="dt">full.names =</span> <span class="ot">TRUE</span>)) {</a>
+<a class="sourceLine" id="cb125-13" data-line-number="13">  <span class="kw">process_image</span>(file)</a>
+<a class="sourceLine" id="cb125-14" data-line-number="14">}</a>
+<a class="sourceLine" id="cb125-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb125-16" data-line-number="16"><span class="kw">list.files</span>(<span class="dt">path =</span> <span class="st">&quot;data/plots/vir-ppis/&quot;</span>, <span class="dt">pattern =</span> <span class="st">&quot;*.jpeg&quot;</span>, <span class="dt">full.names =</span> T) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb125-17" data-line-number="17"><span class="st">  </span>purrr<span class="op">::</span><span class="kw">map</span>(image_read) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb125-18" data-line-number="18"><span class="st">  </span><span class="kw">image_join</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb125-19" data-line-number="19"><span class="st">  </span><span class="kw">image_animate</span>(<span class="dt">fps =</span> <span class="dv">2</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb125-20" data-line-number="20"><span class="st">  </span><span class="kw">image_write</span>(<span class="st">&quot;data/plots/vir-ppis/NYE-2017-2018.gif&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb126"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb126-1" data-line-number="1">knitr<span class="op">::</span><span class="kw">include_graphics</span>(<span class="st">&quot;data/plots/vir-ppis/NYE-2017-2018.gif&quot;</span>)</a></code></pre></div>
 <div class="figure">
-<embed src="%22data/plots/vir-ppis/NYE-2017-2018.gif%22" />
-<p class="caption">Animation of VIRs during NYE 2017-2018</p>
+<img src="/mnt/volume_ams3_01/plots/vir-ppis/NYE-2017-2018.gif" alt="Animation of VIRs during NYE 2017-2018"  />
+<p class="caption">
+(#fig:composite_ppi_animation)Animation of VIRs during NYE 2017-2018
+</p>
 </div>
 
 </div>

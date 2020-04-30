@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>5 Processing count results | Fireworks</title>
   <meta name="description" content="Using ground-based bird counts and weather radar measurements to estimate numbers of birds aloft during NYE fireworks events." />
-  <meta name="generator" content="bookdown 0.17 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.18 and GitBook 2.6.7" />
 
   <meta property="og:title" content="5 Processing count results | Fireworks" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Bart Hoekstra" />
 
 
-<meta name="date" content="2020-04-24" />
+<meta name="date" content="2020-04-30" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -51,12 +51,12 @@
 
 
 <script src="assets/htmlwidgets-1.5.1/htmlwidgets.js"></script>
-<script src="assets/plotly-binding-4.9.2.1/plotly.js"></script>
+<script src="assets/plotly-binding-4.9.1/plotly.js"></script>
 <script src="assets/typedarray-0.1/typedarray.min.js"></script>
 <link href="assets/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
 <script src="assets/crosstalk-1.0.0/js/crosstalk.min.js"></script>
-<link href="assets/plotly-htmlwidgets-css-1.52.2/plotly-htmlwidgets.css" rel="stylesheet" />
-<script src="assets/plotly-main-1.52.2/plotly-latest.min.js"></script>
+<link href="assets/plotly-htmlwidgets-css-1.49.4/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="assets/plotly-main-1.49.4/plotly-latest.min.js"></script>
 <link href="assets/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
 <script src="assets/leaflet-1.3.1/leaflet.js"></script>
 <link href="assets/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
@@ -66,18 +66,18 @@
 <script src="assets/leaflet-binding-2.0.3/leaflet.js"></script>
 <script src="assets/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script>
 <script src="assets/leaflet-providers-plugin-2.0.3/leaflet-providers-plugin.js"></script>
-<script src="assets/VIR-1/data_stars_VIRa8b729.txt"></script>
+<script src="assets/VIR-1/data_stars_VIR8c7260.txt"></script>
 <script src="assets/joda-0.0.1/joda.js"></script>
 <link href="assets/HomeButton-0.0.1/home-button.css" rel="stylesheet" />
 <script src="assets/HomeButton-0.0.1/home-button.js"></script>
 <script src="assets/HomeButton-0.0.1/easy-button-src.min.js"></script>
-<script src="assets/VID-1/data_stars_VID402ba8.txt"></script>
-<script src="assets/R-1/data_stars_R1b73da.txt"></script>
-<script src="assets/overlap-1/data_stars_overlap37f520.txt"></script>
-<script src="assets/eta_sum-1/data_stars_eta_sum4e30a2.txt"></script>
-<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expected3b41a8.txt"></script>
-<script src="assets/pop-1/data_stars_popfb1349.txt"></script>
-<script src="assets/dist_urban-1/data_stars_dist_urban01ad57.txt"></script>
+<script src="assets/VID-1/data_stars_VID36efca.txt"></script>
+<script src="assets/R-1/data_stars_R12fb3c.txt"></script>
+<script src="assets/overlap-1/data_stars_overlape6db23.txt"></script>
+<script src="assets/eta_sum-1/data_stars_eta_sum5ba628.txt"></script>
+<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expected497a63.txt"></script>
+<script src="assets/pop-1/data_stars_pop98f3b0.txt"></script>
+<script src="assets/dist_urban-1/data_stars_dist_urbanf6354d.txt"></script>
 <script src="assets/kePrint-0.0.1/kePrint.js"></script>
 
 
@@ -1215,12 +1215,12 @@ Pimpelmees
 <a class="sourceLine" id="cb103-39" data-line-number="39">  <span class="kw">return</span>(species_lut)</a>
 <a class="sourceLine" id="cb103-40" data-line-number="40">}</a>
 <a class="sourceLine" id="cb103-41" data-line-number="41"></a>
-<a class="sourceLine" id="cb103-42" data-line-number="42">species_lut &lt;-<span class="st"> </span><span class="kw">build_species_lut</span>(unique_species, <span class="dt">datasetKey =</span> <span class="st">&quot;4dd32523-a3a3-43b7-84df-4cda02f15cf7&quot;</span>, <span class="dt">class_name =</span> <span class="st">&quot;Aves&quot;</span>)</a>
-<a class="sourceLine" id="cb103-43" data-line-number="43"></a>
-<a class="sourceLine" id="cb103-44" data-line-number="44"><span class="kw">head</span>(species_lut, <span class="dv">10</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb103-45" data-line-number="45"><span class="st">  </span><span class="kw">kable</span>(<span class="dt">format =</span> <span class="st">&quot;html&quot;</span>, <span class="dt">col.names =</span> <span class="kw">colnames</span>(species_lut)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb103-46" data-line-number="46"><span class="st">  </span><span class="kw">kable_styling</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb103-47" data-line-number="47"><span class="st">  </span>kableExtra<span class="op">::</span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;100%&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;400px&quot;</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb103-42" data-line-number="42">species_lut &lt;-<span class="st"> </span><span class="kw">build_species_lut</span>(unique_species, <span class="dt">datasetKey =</span> <span class="st">&quot;4dd32523-a3a3-43b7-84df-4cda02f15cf7&quot;</span>, <span class="dt">class_name =</span> <span class="st">&quot;Aves&quot;</span>)</a></code></pre></div>
+<pre><code>## Warning: Unknown or uninitialised column: `scientificName`.</code></pre>
+<div class="sourceCode" id="cb105"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb105-1" data-line-number="1"><span class="kw">head</span>(species_lut, <span class="dv">10</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb105-2" data-line-number="2"><span class="st">  </span><span class="kw">kable</span>(<span class="dt">format =</span> <span class="st">&quot;html&quot;</span>, <span class="dt">col.names =</span> <span class="kw">colnames</span>(species_lut)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb105-3" data-line-number="3"><span class="st">  </span><span class="kw">kable_styling</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb105-4" data-line-number="4"><span class="st">  </span>kableExtra<span class="op">::</span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;100%&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;400px&quot;</span>)</a></code></pre></div>
 <div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; ">
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
@@ -1322,7 +1322,7 @@ Canadese Gans
 Branta hutchinsii
 </td>
 <td style="text-align:right;">
-5232458
+5232460
 </td>
 </tr>
 <tr>
@@ -1351,49 +1351,49 @@ Cygnus bewickii
 </table>
 </div>
 <p>Finally, the lookup table also contains some scientific names which unfortunately will not match with the life-history characteristics dataset, so these too we will adjust manually.</p>
-<div class="sourceCode" id="cb104"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb104-1" data-line-number="1"><span class="co"># Change to similar species which is in the LHT database</span></a>
-<a class="sourceLine" id="cb104-2" data-line-number="2">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Toendrarietgans&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Anser fabalis&quot;</span>  <span class="co"># Taiga Bean Goose</span></a>
-<a class="sourceLine" id="cb104-3" data-line-number="3">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Kleine Canadese Gans&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Branta leucopsis&quot;</span>  <span class="co"># Barnacle Goose</span></a>
-<a class="sourceLine" id="cb104-4" data-line-number="4">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Kleine Barmsijs&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Acanthis flammea&quot;</span>  <span class="co"># Redpoll</span></a>
-<a class="sourceLine" id="cb104-5" data-line-number="5">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Pontische Meeuw&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Larus argentatus&quot;</span>  <span class="co"># Herring Gull</span></a>
-<a class="sourceLine" id="cb104-6" data-line-number="6">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Indische Gans&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Anser albifrons&quot;</span>  <span class="co"># Greater White-fronted Goose</span></a>
-<a class="sourceLine" id="cb104-7" data-line-number="7">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Canadese Gans&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Branta canadensis&quot;</span>  <span class="co"># Canada Goose</span></a>
-<a class="sourceLine" id="cb104-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb104-9" data-line-number="9"><span class="co"># Change scientific name for same species to match with the LHT database</span></a>
-<a class="sourceLine" id="cb104-10" data-line-number="10">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Kleine Zwaan&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Cygnus columbianus&quot;</span>  <span class="co"># Bewick&#39;s Swan</span></a>
-<a class="sourceLine" id="cb104-11" data-line-number="11">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Kokmeeuw&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Larus ridibundus&quot;</span>  <span class="co"># Black-headed Gull</span></a>
-<a class="sourceLine" id="cb104-12" data-line-number="12">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Smient&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Mareca penelope&quot;</span>  <span class="co"># Wigeon</span></a>
-<a class="sourceLine" id="cb104-13" data-line-number="13">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Krakeend&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Mareca strepera&quot;</span>  <span class="co"># Gadwall</span></a>
-<a class="sourceLine" id="cb104-14" data-line-number="14">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Slobeend&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Spatula clypeata&quot;</span>  <span class="co"># Northern Shoveler</span></a>
-<a class="sourceLine" id="cb104-15" data-line-number="15">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Winterkoning&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Troglodytes troglodytes&quot;</span>  <span class="co"># Wren</span></a>
-<a class="sourceLine" id="cb104-16" data-line-number="16">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Grote Jager&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Catharacta skua&quot;</span>  <span class="co"># Great Skua</span></a>
-<a class="sourceLine" id="cb104-17" data-line-number="17">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Roodborsttapuit&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Saxicola torquatus&quot;</span>  <span class="co"># Stonechat</span></a>
-<a class="sourceLine" id="cb104-18" data-line-number="18">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Strandleeuwerik&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Eremophila alpestris&quot;</span>  <span class="co"># Horned Lark</span></a></code></pre></div>
+<div class="sourceCode" id="cb106"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb106-1" data-line-number="1"><span class="co"># Change to similar species which is in the LHT database</span></a>
+<a class="sourceLine" id="cb106-2" data-line-number="2">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Toendrarietgans&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Anser fabalis&quot;</span>  <span class="co"># Taiga Bean Goose</span></a>
+<a class="sourceLine" id="cb106-3" data-line-number="3">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Kleine Canadese Gans&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Branta leucopsis&quot;</span>  <span class="co"># Barnacle Goose</span></a>
+<a class="sourceLine" id="cb106-4" data-line-number="4">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Kleine Barmsijs&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Acanthis flammea&quot;</span>  <span class="co"># Redpoll</span></a>
+<a class="sourceLine" id="cb106-5" data-line-number="5">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Pontische Meeuw&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Larus argentatus&quot;</span>  <span class="co"># Herring Gull</span></a>
+<a class="sourceLine" id="cb106-6" data-line-number="6">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Indische Gans&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Anser albifrons&quot;</span>  <span class="co"># Greater White-fronted Goose</span></a>
+<a class="sourceLine" id="cb106-7" data-line-number="7">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Canadese Gans&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Branta canadensis&quot;</span>  <span class="co"># Canada Goose</span></a>
+<a class="sourceLine" id="cb106-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb106-9" data-line-number="9"><span class="co"># Change scientific name for same species to match with the LHT database</span></a>
+<a class="sourceLine" id="cb106-10" data-line-number="10">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Kleine Zwaan&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Cygnus columbianus&quot;</span>  <span class="co"># Bewick&#39;s Swan</span></a>
+<a class="sourceLine" id="cb106-11" data-line-number="11">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Kokmeeuw&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Larus ridibundus&quot;</span>  <span class="co"># Black-headed Gull</span></a>
+<a class="sourceLine" id="cb106-12" data-line-number="12">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Smient&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Mareca penelope&quot;</span>  <span class="co"># Wigeon</span></a>
+<a class="sourceLine" id="cb106-13" data-line-number="13">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Krakeend&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Mareca strepera&quot;</span>  <span class="co"># Gadwall</span></a>
+<a class="sourceLine" id="cb106-14" data-line-number="14">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Slobeend&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Spatula clypeata&quot;</span>  <span class="co"># Northern Shoveler</span></a>
+<a class="sourceLine" id="cb106-15" data-line-number="15">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Winterkoning&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Troglodytes troglodytes&quot;</span>  <span class="co"># Wren</span></a>
+<a class="sourceLine" id="cb106-16" data-line-number="16">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Grote Jager&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Catharacta skua&quot;</span>  <span class="co"># Great Skua</span></a>
+<a class="sourceLine" id="cb106-17" data-line-number="17">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Roodborsttapuit&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Saxicola torquatus&quot;</span>  <span class="co"># Stonechat</span></a>
+<a class="sourceLine" id="cb106-18" data-line-number="18">species_lut[species_lut<span class="op">$</span>lookupname <span class="op">==</span><span class="st"> &quot;Strandleeuwerik&quot;</span>, <span class="st">&quot;scientificname&quot;</span>] &lt;-<span class="st"> &quot;Eremophila alpestris&quot;</span>  <span class="co"># Horned Lark</span></a></code></pre></div>
 </div>
 <div id="linking-life-history-traits-to-species" class="section level2">
 <h2><span class="header-section-number">5.4</span> Linking life-history traits to species</h2>
 <p>We use the <em>Life-history characteristics of European birds</em>-dataset <span class="citation">(Storchová and Hořák <a href="#ref-storchova_2018">2018</a>)</span> to calculate the mean mass of all birds in a PPI pixel. This dataset is stored on Dryad and we can <a href="https://doi.org/10.5061/dryad.n6k3n">download</a> it there. Unfortunately the <code>rdryad</code> package is severely out-of-date with the new Dryad API, so we cannot nicely automate this download yet. Anyways, the files should be downloaded manually and added to <code>data/raw/life-history-characteristics/</code>.</p>
 <p>We calculate the mean of the mass of both sexed and unsexed birds and assume they occur</p>
-<div class="sourceCode" id="cb105"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb105-1" data-line-number="1"><span class="kw">read_tsv</span>(<span class="st">&quot;data/raw/life-history-characteristics/Life-history characteristics of European birds.txt&quot;</span>, </a>
-<a class="sourceLine" id="cb105-2" data-line-number="2">         <span class="dt">col_types =</span> <span class="kw">cols_only</span>(<span class="st">&#39;Species&#39;</span> =<span class="st"> </span><span class="kw">col_character</span>(), <span class="st">&#39;WeightU_MEAN&#39;</span> =<span class="st"> </span><span class="kw">col_double</span>(), <span class="st">&#39;WeightM_MEAN&#39;</span> =<span class="st"> </span><span class="kw">col_double</span>(), <span class="st">&#39;WeightF_MEAN&#39;</span> =<span class="st"> </span><span class="kw">col_double</span>())) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb105-3" data-line-number="3"><span class="st">  </span>rowwise <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb105-4" data-line-number="4"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">mean_weight =</span> <span class="kw">mean</span>(<span class="kw">c</span>(WeightU_MEAN, WeightF_MEAN, WeightM_MEAN))) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb105-5" data-line-number="5"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(Species, mean_weight) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb105-6" data-line-number="6"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">species =</span> Species) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb105-7" data-line-number="7"><span class="st">  </span><span class="kw">filter</span>(<span class="op">!</span><span class="kw">any</span>(<span class="kw">str_ends</span>(species, <span class="st">&quot;ssp&quot;</span>))) <span class="op">%&gt;%</span><span class="st">  </span><span class="co"># Filter out birds not identified to species</span></a>
-<a class="sourceLine" id="cb105-8" data-line-number="8"><span class="st">  </span><span class="kw">rowwise</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb105-9" data-line-number="9"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">species =</span> <span class="kw">paste</span>(<span class="kw">str_split</span>(species, <span class="dt">pattern =</span> <span class="st">&quot; &quot;</span>)[[<span class="dv">1</span>]][<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], <span class="dt">collapse =</span> <span class="st">&quot; &quot;</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb105-10" data-line-number="10"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb105-11" data-line-number="11"><span class="st">  </span><span class="kw">group_by</span>(species) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb105-12" data-line-number="12"><span class="st">  </span><span class="kw">summarise</span>(<span class="dt">mean_weight =</span> <span class="kw">mean</span>(mean_weight)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb105-13" data-line-number="13"><span class="st">  </span><span class="kw">drop_na</span>() -&gt;<span class="st"> </span>lhc</a>
-<a class="sourceLine" id="cb105-14" data-line-number="14"></a>
-<a class="sourceLine" id="cb105-15" data-line-number="15">lhc[lhc<span class="op">$</span>species <span class="op">==</span><span class="st"> &quot;Aquila nipalenis&quot;</span>, <span class="st">&quot;species&quot;</span>] &lt;-<span class="st"> &quot;Aquila nipalensis&quot;</span>  <span class="co"># Small error in dataset -&gt; notified author</span></a>
-<a class="sourceLine" id="cb105-16" data-line-number="16"></a>
-<a class="sourceLine" id="cb105-17" data-line-number="17"><span class="kw">head</span>(lhc, <span class="dv">10</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb105-18" data-line-number="18"><span class="st">  </span><span class="kw">kable</span>(<span class="dt">format =</span> <span class="st">&quot;html&quot;</span>, <span class="dt">col.names =</span> <span class="kw">colnames</span>(lhc)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb105-19" data-line-number="19"><span class="st">  </span><span class="kw">kable_styling</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb105-20" data-line-number="20"><span class="st">  </span>kableExtra<span class="op">::</span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;100%&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;400px&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb107"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb107-1" data-line-number="1"><span class="kw">read_tsv</span>(<span class="st">&quot;data/raw/life-history-characteristics/Life-history characteristics of European birds.txt&quot;</span>, </a>
+<a class="sourceLine" id="cb107-2" data-line-number="2">         <span class="dt">col_types =</span> <span class="kw">cols_only</span>(<span class="st">&#39;Species&#39;</span> =<span class="st"> </span><span class="kw">col_character</span>(), <span class="st">&#39;WeightU_MEAN&#39;</span> =<span class="st"> </span><span class="kw">col_double</span>(), <span class="st">&#39;WeightM_MEAN&#39;</span> =<span class="st"> </span><span class="kw">col_double</span>(), <span class="st">&#39;WeightF_MEAN&#39;</span> =<span class="st"> </span><span class="kw">col_double</span>())) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb107-3" data-line-number="3"><span class="st">  </span>rowwise <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb107-4" data-line-number="4"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">mean_weight =</span> <span class="kw">mean</span>(<span class="kw">c</span>(WeightU_MEAN, WeightF_MEAN, WeightM_MEAN))) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb107-5" data-line-number="5"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(Species, mean_weight) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb107-6" data-line-number="6"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">species =</span> Species) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb107-7" data-line-number="7"><span class="st">  </span><span class="kw">filter</span>(<span class="op">!</span><span class="kw">any</span>(<span class="kw">str_ends</span>(species, <span class="st">&quot;ssp&quot;</span>))) <span class="op">%&gt;%</span><span class="st">  </span><span class="co"># Filter out birds not identified to species</span></a>
+<a class="sourceLine" id="cb107-8" data-line-number="8"><span class="st">  </span><span class="kw">rowwise</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb107-9" data-line-number="9"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">species =</span> <span class="kw">paste</span>(<span class="kw">str_split</span>(species, <span class="dt">pattern =</span> <span class="st">&quot; &quot;</span>)[[<span class="dv">1</span>]][<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], <span class="dt">collapse =</span> <span class="st">&quot; &quot;</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb107-10" data-line-number="10"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb107-11" data-line-number="11"><span class="st">  </span><span class="kw">group_by</span>(species) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb107-12" data-line-number="12"><span class="st">  </span><span class="kw">summarise</span>(<span class="dt">mean_weight =</span> <span class="kw">mean</span>(mean_weight)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb107-13" data-line-number="13"><span class="st">  </span><span class="kw">drop_na</span>() -&gt;<span class="st"> </span>lhc</a>
+<a class="sourceLine" id="cb107-14" data-line-number="14"></a>
+<a class="sourceLine" id="cb107-15" data-line-number="15">lhc[lhc<span class="op">$</span>species <span class="op">==</span><span class="st"> &quot;Aquila nipalenis&quot;</span>, <span class="st">&quot;species&quot;</span>] &lt;-<span class="st"> &quot;Aquila nipalensis&quot;</span>  <span class="co"># Small error in dataset -&gt; notified author</span></a>
+<a class="sourceLine" id="cb107-16" data-line-number="16"></a>
+<a class="sourceLine" id="cb107-17" data-line-number="17"><span class="kw">head</span>(lhc, <span class="dv">10</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb107-18" data-line-number="18"><span class="st">  </span><span class="kw">kable</span>(<span class="dt">format =</span> <span class="st">&quot;html&quot;</span>, <span class="dt">col.names =</span> <span class="kw">colnames</span>(lhc)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb107-19" data-line-number="19"><span class="st">  </span><span class="kw">kable_styling</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb107-20" data-line-number="20"><span class="st">  </span>kableExtra<span class="op">::</span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;100%&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;400px&quot;</span>)</a></code></pre></div>
 <div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; ">
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
@@ -1491,14 +1491,14 @@ Acrocephalus melanopogon
 </table>
 </div>
 <p>Now we can try to link the names once again with what can be found in GBIF.</p>
-<div class="sourceCode" id="cb106"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb106-1" data-line-number="1">unique_species_lhc &lt;-<span class="st"> </span><span class="kw">unique</span>(lhc<span class="op">$</span>species)</a>
-<a class="sourceLine" id="cb106-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb106-3" data-line-number="3">lhc_species_lut &lt;-<span class="st"> </span><span class="kw">build_species_lut</span>(unique_species_lhc, <span class="dt">dataset =</span> <span class="ot">NULL</span>)</a>
-<a class="sourceLine" id="cb106-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb106-5" data-line-number="5"><span class="kw">head</span>(lhc_species_lut, <span class="dv">10</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb106-6" data-line-number="6"><span class="st">  </span><span class="kw">kable</span>(<span class="dt">format =</span> <span class="st">&quot;html&quot;</span>, <span class="dt">col.names =</span> <span class="kw">colnames</span>(lhc_species_lut)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb106-7" data-line-number="7"><span class="st">  </span><span class="kw">kable_styling</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb106-8" data-line-number="8"><span class="st">  </span>kableExtra<span class="op">::</span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;100%&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;400px&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb108"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb108-1" data-line-number="1">unique_species_lhc &lt;-<span class="st"> </span><span class="kw">unique</span>(lhc<span class="op">$</span>species)</a>
+<a class="sourceLine" id="cb108-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb108-3" data-line-number="3">lhc_species_lut &lt;-<span class="st"> </span><span class="kw">build_species_lut</span>(unique_species_lhc, <span class="dt">dataset =</span> <span class="ot">NULL</span>)</a>
+<a class="sourceLine" id="cb108-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb108-5" data-line-number="5"><span class="kw">head</span>(lhc_species_lut, <span class="dv">10</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb108-6" data-line-number="6"><span class="st">  </span><span class="kw">kable</span>(<span class="dt">format =</span> <span class="st">&quot;html&quot;</span>, <span class="dt">col.names =</span> <span class="kw">colnames</span>(lhc_species_lut)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb108-7" data-line-number="7"><span class="st">  </span><span class="kw">kable_styling</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb108-8" data-line-number="8"><span class="st">  </span>kableExtra<span class="op">::</span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;100%&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;400px&quot;</span>)</a></code></pre></div>
 <div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; ">
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
@@ -1629,21 +1629,21 @@ Acrocephalus melanopogon
 </table>
 </div>
 <p>With the GBIF IDs/keys in place for both the life-history characteristics, as well as the Sovon counts, we can now link the datasets together. First the waterbirds</p>
-<div class="sourceCode" id="cb107"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb107-1" data-line-number="1">lhc <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb107-2" data-line-number="2"><span class="st">  </span><span class="kw">left_join</span>(lhc_species_lut, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;species&quot;</span> =<span class="st"> &quot;scientificname&quot;</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb107-3" data-line-number="3"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(species, mean_weight, gbif_key) -&gt;<span class="st"> </span>lhc</a>
-<a class="sourceLine" id="cb107-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb107-5" data-line-number="5">wb_data <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb107-6" data-line-number="6"><span class="st">  </span><span class="kw">left_join</span>(species_lut, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;species&quot;</span> =<span class="st"> &quot;lookupname&quot;</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb107-7" data-line-number="7"><span class="st">  </span><span class="kw">left_join</span>(dplyr<span class="op">::</span><span class="kw">select</span>(lhc, mean_weight, gbif_key), <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;gbif_key&quot;</span> =<span class="st"> &quot;gbif_key&quot;</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb107-8" data-line-number="8"><span class="st">  </span><span class="kw">left_join</span>(dplyr<span class="op">::</span><span class="kw">select</span>(lhc, mean_weight, species), <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;scientificname&quot;</span> =<span class="st"> &quot;species&quot;</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb107-9" data-line-number="9"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(<span class="op">-</span><span class="kw">c</span>(mean_weight.x)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb107-10" data-line-number="10"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">mean_weight =</span> mean_weight.y) -&gt;<span class="st"> </span>wb_data_lhc</a>
-<a class="sourceLine" id="cb107-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb107-12" data-line-number="12"><span class="kw">head</span>(wb_data_lhc, <span class="dv">10</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb107-13" data-line-number="13"><span class="st">  </span><span class="kw">kable</span>(<span class="dt">format =</span> <span class="st">&quot;html&quot;</span>, <span class="dt">col.names =</span> <span class="kw">colnames</span>(wb_data_lhc)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb107-14" data-line-number="14"><span class="st">  </span><span class="kw">kable_styling</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb107-15" data-line-number="15"><span class="st">  </span>kableExtra<span class="op">::</span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;100%&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;400px&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb109"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb109-1" data-line-number="1">lhc <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb109-2" data-line-number="2"><span class="st">  </span><span class="kw">left_join</span>(lhc_species_lut, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;species&quot;</span> =<span class="st"> &quot;scientificname&quot;</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb109-3" data-line-number="3"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(species, mean_weight, gbif_key) -&gt;<span class="st"> </span>lhc</a>
+<a class="sourceLine" id="cb109-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb109-5" data-line-number="5">wb_data <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb109-6" data-line-number="6"><span class="st">  </span><span class="kw">left_join</span>(species_lut, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;species&quot;</span> =<span class="st"> &quot;lookupname&quot;</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb109-7" data-line-number="7"><span class="st">  </span><span class="kw">left_join</span>(dplyr<span class="op">::</span><span class="kw">select</span>(lhc, mean_weight, gbif_key), <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;gbif_key&quot;</span> =<span class="st"> &quot;gbif_key&quot;</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb109-8" data-line-number="8"><span class="st">  </span><span class="kw">left_join</span>(dplyr<span class="op">::</span><span class="kw">select</span>(lhc, mean_weight, species), <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;scientificname&quot;</span> =<span class="st"> &quot;species&quot;</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb109-9" data-line-number="9"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(<span class="op">-</span><span class="kw">c</span>(mean_weight.x)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb109-10" data-line-number="10"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">mean_weight =</span> mean_weight.y) -&gt;<span class="st"> </span>wb_data_lhc</a>
+<a class="sourceLine" id="cb109-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb109-12" data-line-number="12"><span class="kw">head</span>(wb_data_lhc, <span class="dv">10</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb109-13" data-line-number="13"><span class="st">  </span><span class="kw">kable</span>(<span class="dt">format =</span> <span class="st">&quot;html&quot;</span>, <span class="dt">col.names =</span> <span class="kw">colnames</span>(wb_data_lhc)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb109-14" data-line-number="14"><span class="st">  </span><span class="kw">kable_styling</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb109-15" data-line-number="15"><span class="st">  </span>kableExtra<span class="op">::</span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;100%&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;400px&quot;</span>)</a></code></pre></div>
 <div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; ">
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
@@ -2170,17 +2170,17 @@ Branta canadensis
 </table>
 </div>
 <p>And then the PTT counts</p>
-<div class="sourceCode" id="cb108"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb108-1" data-line-number="1">ptt_data <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb108-2" data-line-number="2"><span class="st">  </span><span class="kw">left_join</span>(species_lut, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;species&quot;</span> =<span class="st"> &quot;lookupname&quot;</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb108-3" data-line-number="3"><span class="st">  </span><span class="kw">left_join</span>(dplyr<span class="op">::</span><span class="kw">select</span>(lhc, mean_weight, gbif_key), <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;gbif_key&quot;</span> =<span class="st"> &quot;gbif_key&quot;</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb108-4" data-line-number="4"><span class="st">  </span><span class="kw">left_join</span>(dplyr<span class="op">::</span><span class="kw">select</span>(lhc, mean_weight, species), <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;scientificname&quot;</span> =<span class="st"> &quot;species&quot;</span>)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb108-5" data-line-number="5"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(<span class="op">-</span><span class="kw">c</span>(mean_weight.x)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb108-6" data-line-number="6"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">mean_weight =</span> mean_weight.y) -&gt;<span class="st"> </span>ptt_data_lhc</a>
-<a class="sourceLine" id="cb108-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb108-8" data-line-number="8"><span class="kw">head</span>(ptt_data_lhc, <span class="dv">10</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb108-9" data-line-number="9"><span class="st">  </span><span class="kw">kable</span>(<span class="dt">format =</span> <span class="st">&quot;html&quot;</span>, <span class="dt">col.names =</span> <span class="kw">colnames</span>(ptt_data_lhc)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb108-10" data-line-number="10"><span class="st">  </span><span class="kw">kable_styling</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb108-11" data-line-number="11"><span class="st">  </span>kableExtra<span class="op">::</span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;100%&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;400px&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb110"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb110-1" data-line-number="1">ptt_data <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb110-2" data-line-number="2"><span class="st">  </span><span class="kw">left_join</span>(species_lut, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;species&quot;</span> =<span class="st"> &quot;lookupname&quot;</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb110-3" data-line-number="3"><span class="st">  </span><span class="kw">left_join</span>(dplyr<span class="op">::</span><span class="kw">select</span>(lhc, mean_weight, gbif_key), <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;gbif_key&quot;</span> =<span class="st"> &quot;gbif_key&quot;</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb110-4" data-line-number="4"><span class="st">  </span><span class="kw">left_join</span>(dplyr<span class="op">::</span><span class="kw">select</span>(lhc, mean_weight, species), <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;scientificname&quot;</span> =<span class="st"> &quot;species&quot;</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb110-5" data-line-number="5"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(<span class="op">-</span><span class="kw">c</span>(mean_weight.x)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb110-6" data-line-number="6"><span class="st">  </span><span class="kw">rename</span>(<span class="dt">mean_weight =</span> mean_weight.y) -&gt;<span class="st"> </span>ptt_data_lhc</a>
+<a class="sourceLine" id="cb110-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb110-8" data-line-number="8"><span class="kw">head</span>(ptt_data_lhc, <span class="dv">10</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb110-9" data-line-number="9"><span class="st">  </span><span class="kw">kable</span>(<span class="dt">format =</span> <span class="st">&quot;html&quot;</span>, <span class="dt">col.names =</span> <span class="kw">colnames</span>(ptt_data_lhc)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb110-10" data-line-number="10"><span class="st">  </span><span class="kw">kable_styling</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb110-11" data-line-number="11"><span class="st">  </span>kableExtra<span class="op">::</span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;100%&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;400px&quot;</span>)</a></code></pre></div>
 <div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; ">
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <thead>
@@ -2321,7 +2321,7 @@ Zilvermeeuw
 Larus argentatus
 </td>
 <td style="text-align:right;">
-5846445
+2481139
 </td>
 <td style="text-align:right;">
 1054.0
@@ -2707,40 +2707,40 @@ Cyanistes caeruleus
 </table>
 </div>
 <p>Now we can verify if our 1% criteria for species matching is met. We do this by calculating the proportions of birds belonging to a certain species out of the total numbers of birds counted within a count. This should result in an empty dataframe, which will stop the code chunk below from running if that is <em>not</em> the case.</p>
-<div class="sourceCode" id="cb109"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb109-1" data-line-number="1">wb_data_lhc <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb109-2" data-line-number="2"><span class="st">  </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb109-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(count_id) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb109-4" data-line-number="4"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">total_birds_count =</span> <span class="kw">sum</span>(number)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb109-5" data-line-number="5"><span class="st">  </span><span class="kw">group_by</span>(count_id, species) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb109-6" data-line-number="6"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">proportion_species =</span> <span class="kw">sum</span>(number) <span class="op">/</span><span class="st"> </span>total_birds_count) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb109-7" data-line-number="7"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb109-8" data-line-number="8"><span class="st">  </span><span class="kw">arrange</span>(count_id) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb109-9" data-line-number="9"><span class="st">  </span><span class="kw">filter</span>((<span class="kw">is.na</span>(mean_weight) <span class="op">&amp;</span><span class="st"> </span>(proportion_species <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.01</span>))) -&gt;<span class="st"> </span>wb_data_lhc_verify</a>
-<a class="sourceLine" id="cb109-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb109-11" data-line-number="11"><span class="kw">stopifnot</span>(<span class="kw">nrow</span>(wb_data_lhc_verify) <span class="op">==</span><span class="st"> </span><span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb109-12" data-line-number="12"><span class="kw">rm</span>(wb_data_lhc_verify)</a></code></pre></div>
+<div class="sourceCode" id="cb111"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb111-1" data-line-number="1">wb_data_lhc <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb111-2" data-line-number="2"><span class="st">  </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb111-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(count_id) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb111-4" data-line-number="4"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">total_birds_count =</span> <span class="kw">sum</span>(number)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb111-5" data-line-number="5"><span class="st">  </span><span class="kw">group_by</span>(count_id, species) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb111-6" data-line-number="6"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">proportion_species =</span> <span class="kw">sum</span>(number) <span class="op">/</span><span class="st"> </span>total_birds_count) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb111-7" data-line-number="7"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb111-8" data-line-number="8"><span class="st">  </span><span class="kw">arrange</span>(count_id) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb111-9" data-line-number="9"><span class="st">  </span><span class="kw">filter</span>((<span class="kw">is.na</span>(mean_weight) <span class="op">&amp;</span><span class="st"> </span>(proportion_species <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.01</span>))) -&gt;<span class="st"> </span>wb_data_lhc_verify</a>
+<a class="sourceLine" id="cb111-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb111-11" data-line-number="11"><span class="kw">stopifnot</span>(<span class="kw">nrow</span>(wb_data_lhc_verify) <span class="op">==</span><span class="st"> </span><span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb111-12" data-line-number="12"><span class="kw">rm</span>(wb_data_lhc_verify)</a></code></pre></div>
 <p>And once again, we can do the same for the PTT counts.</p>
-<div class="sourceCode" id="cb110"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb110-1" data-line-number="1">ptt_data_lhc <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb110-2" data-line-number="2"><span class="st">  </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb110-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(count_id) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb110-4" data-line-number="4"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">total_birds_count =</span> <span class="kw">sum</span>(number)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb110-5" data-line-number="5"><span class="st">  </span><span class="kw">group_by</span>(count_id, species) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb110-6" data-line-number="6"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">proportion_species =</span> <span class="kw">sum</span>(number) <span class="op">/</span><span class="st"> </span>total_birds_count) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb110-7" data-line-number="7"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb110-8" data-line-number="8"><span class="st">  </span><span class="kw">arrange</span>(count_id) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb110-9" data-line-number="9"><span class="st">  </span><span class="kw">filter</span>((<span class="kw">is.na</span>(mean_weight) <span class="op">&amp;</span><span class="st"> </span>(proportion_species <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.01</span>))) -&gt;<span class="st"> </span>ptt_data_lhc_verify</a>
-<a class="sourceLine" id="cb110-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb110-11" data-line-number="11"><span class="kw">stopifnot</span>(<span class="kw">nrow</span>(ptt_data_lhc_verify) <span class="op">==</span><span class="st"> </span><span class="dv">0</span>)</a>
-<a class="sourceLine" id="cb110-12" data-line-number="12"><span class="kw">rm</span>(ptt_data_lhc_verify)</a></code></pre></div>
+<div class="sourceCode" id="cb112"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb112-1" data-line-number="1">ptt_data_lhc <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb112-2" data-line-number="2"><span class="st">  </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb112-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(count_id) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb112-4" data-line-number="4"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">total_birds_count =</span> <span class="kw">sum</span>(number)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb112-5" data-line-number="5"><span class="st">  </span><span class="kw">group_by</span>(count_id, species) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb112-6" data-line-number="6"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">proportion_species =</span> <span class="kw">sum</span>(number) <span class="op">/</span><span class="st"> </span>total_birds_count) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb112-7" data-line-number="7"><span class="st">  </span><span class="kw">ungroup</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb112-8" data-line-number="8"><span class="st">  </span><span class="kw">arrange</span>(count_id) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb112-9" data-line-number="9"><span class="st">  </span><span class="kw">filter</span>((<span class="kw">is.na</span>(mean_weight) <span class="op">&amp;</span><span class="st"> </span>(proportion_species <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.01</span>))) -&gt;<span class="st"> </span>ptt_data_lhc_verify</a>
+<a class="sourceLine" id="cb112-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb112-11" data-line-number="11"><span class="kw">stopifnot</span>(<span class="kw">nrow</span>(ptt_data_lhc_verify) <span class="op">==</span><span class="st"> </span><span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb112-12" data-line-number="12"><span class="kw">rm</span>(ptt_data_lhc_verify)</a></code></pre></div>
 <p>With that out of the way we can <em>finally</em> remove the remaining empty rows and save the PTT and waterbird counts in their final form.</p>
-<div class="sourceCode" id="cb111"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb111-1" data-line-number="1">ptt_data_lhc <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb111-2" data-line-number="2"><span class="st">  </span><span class="kw">drop_na</span>() -&gt;<span class="st"> </span>ptt_data</a>
-<a class="sourceLine" id="cb111-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb111-4" data-line-number="4">wb_data_lhc <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb111-5" data-line-number="5"><span class="st">  </span><span class="kw">drop_na</span>() -&gt;<span class="st"> </span>wb_data</a></code></pre></div>
+<div class="sourceCode" id="cb113"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb113-1" data-line-number="1">ptt_data_lhc <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb113-2" data-line-number="2"><span class="st">  </span><span class="kw">drop_na</span>() -&gt;<span class="st"> </span>ptt_data</a>
+<a class="sourceLine" id="cb113-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb113-4" data-line-number="4">wb_data_lhc <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb113-5" data-line-number="5"><span class="st">  </span><span class="kw">drop_na</span>() -&gt;<span class="st"> </span>wb_data</a></code></pre></div>
 <p>And we save the data for further use.</p>
-<div class="sourceCode" id="cb112"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb112-1" data-line-number="1"><span class="kw">saveRDS</span>(ptt_data, <span class="dt">file =</span> <span class="st">&quot;data/processed/sovon/ptt.RDS&quot;</span>)</a>
-<a class="sourceLine" id="cb112-2" data-line-number="2"><span class="kw">saveRDS</span>(wb_data, <span class="dt">file =</span> <span class="st">&quot;data/processed/sovon/wb.RDS&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb114"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb114-1" data-line-number="1"><span class="kw">saveRDS</span>(ptt_data, <span class="dt">file =</span> <span class="st">&quot;data/processed/sovon/ptt.RDS&quot;</span>)</a>
+<a class="sourceLine" id="cb114-2" data-line-number="2"><span class="kw">saveRDS</span>(wb_data, <span class="dt">file =</span> <span class="st">&quot;data/processed/sovon/wb.RDS&quot;</span>)</a></code></pre></div>
 
 </div>
 </div>
