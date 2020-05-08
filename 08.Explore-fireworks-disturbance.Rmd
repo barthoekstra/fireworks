@@ -13,24 +13,26 @@ With the annotated PPIs and the processed Sovon counts, we can start to explore 
 
 The following parameters we assume are important predictors for measured bird densities aloft:
 
-1. The number of birds on the ground.
-2. The total biomass of birds on the ground.
+1. The total biomass of birds on the ground.
 2. The average bodymass of the birds on the ground.
 3. The take-off habitat of these birds.
-4. The human population density in the vicinity of birds, corrected for the distance to urban areas.
+4. The human population density in the vicinity of birds.
+5. The distance to the nearest urban area.
 
 ## Setting-up the environment
 
 Load the required packages.
 
 ```{r setup_exploration_environment}
+library(ggstatsplot)
 library(ggplot2)
 library(dplyr)
+library(readr)
 library(tidyr)
 library(gbm)
 library(dismo)
 library(ggBRT)
-library(ggpointdensity)
+library(patchwork)
 ```
 
 For starters, we'll load the dataframes containing all the PPIs and Sovon counts.
@@ -45,7 +47,7 @@ wb_raw <- readRDS("data/processed/sovon/wb.RDS")
 
 ## Calculating bird parameters
 
-We use the waterbird count from January 2018, and the point-transect counts from 2017, as these are the best in terms of coverage. We calculate the `nr_birds` and `total_biomass` parameters first, because we need to spread these out over the number of PPI pixels that are contained within a count when we join the counts and PPIs.
+We use the waterbird count from January 2018, and the point-transect counts from 2017, as these are the best in terms of coverage. We calculate the `total_biomass` parameter first, because we need to spread these out over the number of PPI pixels that are contained within a count when we join the counts and PPIs.
 
 ```{r}
 wb_year <- 2018
@@ -58,12 +60,10 @@ wb_raw %>%
   mutate(specific_biomass = number * mean_weight) %>%
   ungroup() %>%
   group_by(area_nr, year) %>%
-  summarise(nr_birds = sum(number),
-            total_biomass = sum(specific_biomass)) %>%
+  summarise(total_biomass = sum(specific_biomass)) %>%
   ungroup() %>%
   group_by(area_nr) %>%  # Below is only required if year-filter is NOT set, otherwise does nothing
-  summarise(nr_birds = mean(nr_birds),
-            total_biomass = mean(total_biomass)) -> wb
+  summarise(total_biomass = mean(total_biomass)) -> wb
 
 ptt_raw %>%
   filter(year == ptt_year) %>%
@@ -71,58 +71,52 @@ ptt_raw %>%
   mutate(specific_biomass = number * mean_weight) %>%
   ungroup() %>%
   group_by(route, year) %>%
-  summarise(nr_birds = sum(number),
-            total_biomass = sum(specific_biomass)) %>%
+  summarise(total_biomass = sum(specific_biomass)) %>%
   ungroup() %>%
   group_by(route) %>%  # Below is only required if year-filter is NOT set, otherwise does nothing
-  summarise(nr_birds = mean(nr_birds),
-            total_biomass = mean(total_biomass)) -> ptt
+  summarise(total_biomass = mean(total_biomass)) -> ptt
 ```
 
 With `nr_birds` and `total_biomass` calculated, we can join the waterbird and point-transect counts with the PPIs.
 
 ```{r}
 ppi_hrw %>%
-  left_join(dplyr::select(wb, area_nr, nr_birds, total_biomass), by = c("wb_area_nr" = "area_nr")) %>%
-  rename(wb_nr_birds = nr_birds, wb_total_biomass = total_biomass) %>%
+  left_join(dplyr::select(wb, area_nr, total_biomass), by = c("wb_area_nr" = "area_nr")) %>%
+  rename(wb_total_biomass = total_biomass) %>%
   group_by(datetime, wb_area_nr) %>%
-  mutate(wb_nr_birds = wb_nr_birds / n(),  # This results in decimals for nrs of birds, but that's fine
-         wb_total_biomass = wb_total_biomass / n(),
+  mutate(wb_total_biomass = wb_total_biomass / n(),
          wb_n = n()) %>%  
   ungroup() %>%
-  left_join(dplyr::select(ptt, route, nr_birds, total_biomass), by = c("ptt_route" = "route")) %>%
-  rename(ptt_nr_birds = nr_birds, ptt_total_biomass = total_biomass) %>%
+  left_join(dplyr::select(ptt, route, total_biomass), by = c("ptt_route" = "route")) %>%
+  rename(ptt_total_biomass = total_biomass) %>%
   group_by(datetime, ptt_route) %>%
-  mutate(ptt_nr_birds = ptt_nr_birds / n(),  # This results in decimals for nrs of birds, but that's fine
-         ptt_total_biomass = ptt_total_biomass / n(),
+  mutate(ptt_total_biomass = ptt_total_biomass / n(),
          ptt_n = n()) %>% 
   ungroup() %>%
-  filter_at(vars(wb_nr_birds, ptt_nr_birds), any_vars(!is.na(.))) %>%
+  filter_at(vars(wb_total_biomass, ptt_total_biomass), any_vars(!is.na(.))) %>%
   rowwise() %>%
-  mutate(nr_birds = sum(wb_nr_birds, ptt_nr_birds, na.rm = TRUE),
-         total_biomass = sum(wb_total_biomass, ptt_total_biomass, na.rm = TRUE)) %>%
-  ungroup() -> hrw
+  mutate(total_biomass = sum(wb_total_biomass, ptt_total_biomass, na.rm = TRUE)) %>%
+  ungroup() %>%
+  rename(human_pop = pop)  -> hrw
 
 ppi_dhl %>%
-  left_join(dplyr::select(wb, area_nr, nr_birds, total_biomass), by = c("wb_area_nr" = "area_nr")) %>%
-  rename(wb_nr_birds = nr_birds, wb_total_biomass = total_biomass) %>%
+  left_join(dplyr::select(wb, area_nr, total_biomass), by = c("wb_area_nr" = "area_nr")) %>%
+  rename(wb_total_biomass = total_biomass) %>%
   group_by(datetime, wb_area_nr) %>%
-  mutate(wb_nr_birds = wb_nr_birds / n(),
-         wb_total_biomass = wb_total_biomass / n(),
+  mutate(wb_total_biomass = wb_total_biomass / n(),
          wb_n = n()) %>%
   ungroup() %>%
-  left_join(dplyr::select(ptt, route, nr_birds, total_biomass), by = c("ptt_route" = "route")) %>%
-  rename(ptt_nr_birds = nr_birds, ptt_total_biomass = total_biomass) %>%
+  left_join(dplyr::select(ptt, route, total_biomass), by = c("ptt_route" = "route")) %>%
+  rename(ptt_total_biomass = total_biomass) %>%
   group_by(datetime, ptt_route) %>%
-  mutate(ptt_nr_birds = ptt_nr_birds / n(),
-         ptt_total_biomass = ptt_total_biomass / n(),
+  mutate(ptt_total_biomass = ptt_total_biomass / n(),
          ptt_n = n()) %>%
   ungroup() %>%
-  filter_at(vars(wb_nr_birds, ptt_nr_birds), any_vars(!is.na(.))) %>%
+  filter_at(vars(wb_total_biomass, ptt_total_biomass), any_vars(!is.na(.))) %>%
   rowwise() %>%
-  mutate(nr_birds = sum(wb_nr_birds, ptt_nr_birds, na.rm = TRUE),
-         total_biomass = sum(wb_total_biomass, ptt_total_biomass, na.rm = TRUE)) %>%
-  ungroup() -> dhl
+  mutate(total_biomass = sum(wb_total_biomass, ptt_total_biomass, na.rm = TRUE)) %>%
+  ungroup() %>%
+  rename(human_pop = pop) -> dhl
 ```
 
 We can also add the `avg_bodymass` of birds within a PPI pixel, which we calculate separately from a combination of the waterbird and point-transect counts. There is no need to 'split' this over the number of PPI pixels, as it is an average that we can assume applies throughout the area.
@@ -166,26 +160,31 @@ Now, finally, all the relevant variables are present in the PPIs.
 
 ## Preparing a dataset for modelling
 
-As we're mostly interested in the moment of en masse take-off of birds, we'll subset a dataset which contains only the moments that the measured `VIR` is increasing, a period that spans 23:00 - 23:20 CET.
+As we're mostly interested in the moment of en masse take-off of birds, we'll subset a dataset which contains only the moments that the measured `VIR` is increasing, a period that spans 23:00 - 23:20 CET. Furthermore, we remove landuse classes if less than 50 PPI pixels per timeframe are contained within the dataset, to ensure the training and bootstrapping process will have sufficient datapoints to work with.
 
 ```{r}
 start <- as.POSIXct("2017-12-31 23:00:00", tz = "UTC")
 end <- as.POSIXct("2017-12-31 23:20:05", tz = "UTC")
 
-# mdl_variables <- c("VIR", "datetime", "dist_radar", "x", "y", "landuse", "dist_urban", "pop", "nr_birds", "total_biomass", "avg_bodymass")
-mdl_variables <- c("VIR", "datetime", "dist_radar", "x", "y", "landuse", "dist_urban", "total_biomass", "avg_bodymass", "disturb_pot")
-log10_variables <- c("VIR", "dist_urban", "pop", "nr_birds", "total_biomass", "disturb_pot")
-# log10_variables <- c("VIR")
-factor_variables <- c("landuse", "datetime")
+mdl_variables <- c("VIR", "datetime", "dist_radar", "x", "y", "landuse_class", 
+                   "total_biomass", "avg_bodymass", "dist_urban", "human_pop", "disturb_pot", "pixel")  # all
+mdl_variables <- c("VIR", "datetime", "dist_radar", "landuse_class", 
+                   "total_biomass", "dist_urban", "human_pop", "disturb_pot", "pixel")
+log10_variables <- c("VIR", "dist_urban", "human_pop", "total_biomass", "avg_bodymass", "dist_urban", "disturb_pot")
+factor_variables <- c("landuse_class", "datetime")
 
-prepare_modelling_dataset <- function(x, variables, dt_start, dt_end, VIR_minimum = 0) {
+prepare_modelling_dataset <- function(x, variables, dt_start, dt_end, VIR_minimum = 0, min_sample_size = 50) {
   x %>%
-    mutate(disturb_pot = pop / dist_urban) %>%
+    mutate(disturb_pot = human_pop / dist_urban) %>%
     filter(VIR > VIR_minimum,
            datetime >= dt_start & datetime < dt_end,
            dist_radar < 80000) %>%
     dplyr::select(all_of(mdl_variables)) %>%
     mutate_if(names(.) %in% log10_variables, log10) %>%
+    ungroup() %>%
+    group_by(landuse_class, datetime) %>%
+    mutate(nr_cells = n()) %>%
+    filter(nr_cells > min_sample_size) %>%
     ungroup() %>%
     mutate_at(vars(all_of(factor_variables)), factor) %>%
     filter_all(all_vars(is.finite(.))) %>%
@@ -197,7 +196,169 @@ prepare_modelling_dataset <- function(x, variables, dt_start, dt_end, VIR_minimu
 
 hrw_cleaned <- prepare_modelling_dataset(hrw, variables = mdl_variables, dt_start = start, dt_end = end)
 dhl_cleaned <- prepare_modelling_dataset(dhl, variables = mdl_variables, dt_start = start, dt_end = end)
+
+saveRDS(hrw_cleaned, file = "data/models/hrw_cleaned.RDS")
+saveRDS(dhl_cleaned, file = "data/models/dhl_cleaned.RDS")
 ```
+
+## Check for correlations among predictors
+
+We have to see if variables are strongly correlated and thus unfit for modelling, so we calculate Spearman correlation coefficients for all numerical predictors. As this is ecological data, some degree of correlation is inevitable for most variables.
+
+```{r warning=FALSE, fig.width=10}
+dhl_cleaned["radar"] <- "Den Helder"
+hrw_cleaned["radar"] <- "Herwijnen"
+radar_cleaned <- bind_rows(dhl_cleaned, hrw_cleaned)
+
+predictors <- mdl_variables[!mdl_variables %in% c("VIR", "landuse_class", "landuse", "datetime", "pixel", "x", "y")]
+corr_radar <- grouped_ggcorrmat(radar_cleaned, output = "plot", type = "spearman", cor.vars = all_of(predictors), grouping.var = "radar",
+                                colors = c("#2166AC", "#F7F7F7", "#B2182B"), title.prefix = "Radar")
+corr_radar
+```
+
+## Distribution of landuse classes in modelling dataset
+
+```{r}
+dhl %>%
+  filter(datetime == "2018-01-01 00:10:04", dist_radar < 80000) %>%
+  mutate(disturb_pot = log10(pop / dist_urban)) %>%
+  filter(is.finite(disturb_pot)) %>%
+  mutate(data = "Counts") -> dhl_normal
+
+dhl %>%
+  filter(datetime == "2018-01-01 00:10:04", dist_radar < 80000, VIR > 10) %>%
+  mutate(disturb_pot = log10(pop / dist_urban)) %>%
+  filter(is.finite(disturb_pot)) %>%
+  mutate(data = "Reflected") -> dhl_reflected
+
+bind_rows(dhl_normal, dhl_reflected) %>%
+  select(landuse_class, disturb_pot, data) %>%
+  pivot_longer(cols = c(disturb_pot), values_to = "disturb_pot") %>%
+  mutate(radar = "Den Helder") -> d4
+```
+
+```{r}
+ggplot(d4) +
+  geom_density(aes(x = disturb_pot, colour = data)) +
+  facet_wrap(vars(landuse_class))
+```
+
+
+```{r}
+hrw %>%
+  filter(datetime == "2018-01-01 00:10:04", dist_radar < 80000) %>%
+  mutate(disturb_pot = log10(pop / dist_urban)) %>%
+  filter(is.finite(disturb_pot)) %>%
+  mutate(data = "Counts") -> hrw_normal
+
+hrw %>%
+  filter(datetime == "2018-01-01 00:10:04", dist_radar < 80000, VIR > 10) %>%
+  mutate(disturb_pot = log10(pop / dist_urban)) %>%
+  filter(is.finite(disturb_pot)) %>%
+  mutate(data = "Reflected") -> hrw_reflected
+
+bind_rows(hrw_normal, hrw_reflected) %>%
+  select(landuse_class, disturb_pot, data) %>%
+  pivot_longer(cols = c(disturb_pot), values_to = "disturb_pot") %>%
+  mutate(radar = "Herwijnen") -> h4
+```
+
+```{r}
+bind_rows(d4, h4) %>%
+  filter(data == "Counts") %>%
+  ggplot() +
+  geom_density(aes(x = disturb_pot, colour = radar)) +
+  facet_wrap(vars(landuse_class)) +
+  labs(title = "Distribution of land use classes in Counts")
+```
+
+```{r}
+bind_rows(d4, h4) %>%
+  filter(data == "Reflected") %>%
+  ggplot() +
+  geom_density(aes(x = disturb_pot, colour = radar)) +
+  facet_wrap(vars(landuse_class)) +
+  labs(title = "Distribution of land use classes in Reflected")
+```
+
+
+```{r}
+ppi_birds <- ppi
+
+ppi_birds$data@data %>%
+  left_join(dplyr::select(wb, area_nr, total_biomass), by = c("wb_area_nr" = "area_nr")) %>%
+  rename(wb_total_biomass = total_biomass) %>%
+  group_by(wb_area_nr) %>%
+  mutate(wb_total_biomass = wb_total_biomass / n(),
+         wb_n = n()) %>%  
+  ungroup() %>%
+  left_join(dplyr::select(ptt, route, total_biomass), by = c("ptt_route" = "route")) %>%
+  rename(ptt_total_biomass = total_biomass) %>%
+  group_by(ptt_route) %>%
+  mutate(ptt_total_biomass = ptt_total_biomass / n(),
+         ptt_n = n()) %>% 
+  ungroup() %>%
+  # filter_at(vars(wb_total_biomass, ptt_total_biomass), any_vars(!is.na(.))) %>%
+  rowwise() %>%
+  mutate(total_biomass = sum(wb_total_biomass, ptt_total_biomass, na.rm = TRUE)) %>%
+  ungroup() %>%
+  rename(human_pop = pop)  -> ppi_birds$data@data
+```
+
+mapview(ppi_hrw$data[, , c("pop", "dist_urban")], alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
+        na.color = "#00000000", map.types = c("CartoDB.Positron", "CartoDB.DarkMatter", "Esri.WorldImagery"),
+        layer.name = c("pop", "dist_urban"))
+
+
+```{r}
+radar_cleaned %>%
+  ggplot() +
+  geom_bar(aes(y = landuse_class)) +
+  scale_x_continuous(trans = "log10") +
+  facet_wrap(vars(radar))
+```
+
+```{r}
+radar_cleaned %>%
+  ggplot() +
+  geom_bar(aes(y = landuse_class)) +
+  scale_x_continuous(trans = "log10") +
+  facet_wrap(vars(radar))
+```
+
+```{r}
+d <- dhl_default$gbm.call$dataframe
+d["r"] <- resid(dhl_default)
+ds <- sample_frac(d, 0.05)
+default <- correlog(ds$x, ds$y, ds$r, increment = 2000, resamp = 100)
+
+d_nospatial <- dhl_nospatial$gbm.call$dataframe
+d_nospatial["r"] <- resid(dhl_nospatial)
+ds_nospatial <- sample_frac(d, 0.05)
+nospatial <- correlog(ds_nospatial$x, ds_nospatial$y, ds_nospatial$r, increment = 2000, resamp = 100)
+
+plot(default)
+plot(nospatial)
+```
+
+```{r}
+plot(default)
+```
+
+```{r}
+plot(nospatial)
+```
+
+```{r}
+default_pgirmess <- correlog(coords = cbind(ds$x, ds$y), z = ds$r, method = "Moran")
+plot(default_pgirmess)
+```
+
+```{r}
+nospatial_pgirmess <- correlog(coords = cbind(ds_nospatial$x, ds_nospatial$y), z = ds_nospatial$r, method = "Moran")
+plot(nospatial_pgirmess)
+```
+
 
 ## Modelling
 
