@@ -9,6 +9,7 @@ library(bioRad)
 library(ggplot2)
 library(magick)
 library(purrr)
+library(viridis)
 ```
 
 ## Generating the composite PPIs
@@ -36,7 +37,7 @@ for (i in seq_along(hrw_ppis)) {
   cppi$data$VIR <- log10(cppi$data$VIR)
   cppi$data$VIR[zeros] <- 0
   
-  map(cppi, map = basemap, radar_size = 1, xlim = c(3.1, 6.8), ylim = c(51, 54), zlim = c(0, 4.5), 
+  bioRad::map(cppi, map = basemap, radar_size = 1, xlim = c(3.1, 6.8), ylim = c(51, 54), zlim = c(0, 4.5), 
       palette = viridis(256, option = "viridis", alpha = 0.6)) + 
     labs(title = "Fireworks NYE 2017-2018",
          subtitle = paste(ppi_hrw$datetime, ' UTC', sep = ""))
@@ -72,5 +73,7 @@ list.files(path = "data/plots/vir-ppis/", pattern = "*.jpeg", full.names = T) %>
   image_write("data/plots/vir-ppis/NYE-2017-2018.gif")
 ```
 
-![Animation of VIRs during NYE 2017-2018]("data/plots/vir-ppis/NYE-2017-2018.gif")
+```{r composite_ppi_animation, fig.cap='Animation of VIRs during NYE 2017-2018'}
+knitr::include_graphics("data/plots/vir-ppis/NYE-2017-2018.gif")
+```
 
