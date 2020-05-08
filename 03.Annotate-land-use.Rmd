@@ -104,6 +104,62 @@ compareCRS(ppi_dhl$data@proj4string, landuse_dhl_reprojected@crs)
 
 Apparently that is the case.
 
+### Reclassifying land use types to functional classes
+
+The `CLC2018` dataset contains a total of 44 land use classes. For our purpose, we reduce these 44 to 5 classes with more biologically relevant groupings, specifically:
+
+1. Urban area
+2. Agricultural area
+3. Semi-open area
+4. Forests
+5. Wetlands
+6. Water bodies
+
+The following table is used to convert/reclassify the classes contained within the `CLC2018` dataset, with the original land use classes under `landuse_class` and how they will be reclassified under `landuse_target`.
+
+```{r}
+landuse_classes %<>%
+  mutate(landuse_target = case_when(
+    landuse_id >= 100 & landuse_id < 200 ~ "Urban area",
+    landuse_id >= 200 & landuse_id <= 213 ~ "Agricultural area",
+    landuse_id >= 221 & landuse_id <= 223 ~ "Semi-open area",
+    landuse_id >= 231 & landuse_id <= 243 ~ "Agricultural area",
+    landuse_id >= 244 & landuse_id < 300 ~ "Forests",
+    landuse_id >= 300 & landuse_id <= 313 ~ "Forests",
+    landuse_id >= 321 & landuse_id <= 335 ~ "Semi-open area",
+    landuse_id >= 400 & landuse_id < 500 ~ "Wetlands",
+    landuse_id >= 500 & landuse_id < 999 ~ "Water bodies",
+    landuse_id == 999 ~ "NODATA")) %>%
+  mutate(landuse_target_id = case_when(
+    landuse_target == "Urban area" ~ 1,
+    landuse_target == "Agricultural area" ~ 2,
+    landuse_target == "Semi-open area" ~ 3,
+    landuse_target == "Forests" ~ 4,
+    landuse_target == "Wetlands" ~ 5,
+    landuse_target == "Water bodies" ~ 6,
+    landuse_target == "NODATA" ~ 9
+  ))
+
+landuse_classes
+```
+
+With a sort-of 'raster attribute table' in place, we can now reclassify the detailed landuse classes to the broader categories listed above.
+
+```{r}
+landuse_crop_dhl <- ratify(reclassify(landuse_crop_dhl, cbind(landuse_classes$landuse_id, landuse_classes$landuse_target_id)), count = TRUE)
+landuse_crop_hrw <- ratify(reclassify(landuse_crop_hrw, cbind(landuse_classes$landuse_id, landuse_classes$landuse_target_id)), count = TRUE)
+```
+
+This leaves us with the following count of cells per land use category
+
+```{r}
+cellcounts <- cbind(levels(landuse_crop_hrw)[[1]]["COUNT"], levels(landuse_crop_dhl)[[1]]["COUNT"])
+colnames(cellcounts) <- c("Herwijnen", "Den Helder")
+rownames(cellcounts) <- unique(landuse_classes$landuse_target)[-7]
+cellcounts
+```
+
+
 ### Resampling the land use map to a lower resolution
 
 The cellsize of the PPIs is `r ppi_dhl$data@grid@cellsize`x`r ppi_dhl$data@grid@cellsize` meters, but the land use map is much more finely detailed (~100x100m), so we need to resample the latter to derive a land use map at a `r ppi_dhl$data@grid@cellsize`x`r ppi_dhl$data@grid@cellsize` meter resolution as well.
