@@ -86,7 +86,7 @@ image(landuse_crop_dhl, main = "Den Helder")
 
 ### Reprojecting the land use map
 
-Now that the land use map is cropped, we can start the reprojecting to the CRS of the radar PPI. As we're dealing with categorical data, we set `method = "ngb"` to use nearest neighbour interpolation.
+Now that the land use map is cropped, we can start the reprojection to the CRS of the radar PPI. As we're dealing with categorical data, we set `method = "ngb"` to use nearest neighbour interpolation. Despite using interpolation, this reprojection does not change the resolution from the base of the `CLC2018` dataset to that of the PPI, so we'll have to do that next.
 
 ```{r reproject_landuse_maps, warning=FALSE}
 landuse_hrw_reprojected <- projectRaster(landuse_crop_hrw, crs = ppi_proj4_hrw, method = "ngb")
@@ -115,7 +115,7 @@ The `CLC2018` dataset contains a total of 44 land use classes. For our purpose, 
 5. Wetlands
 6. Water bodies
 
-The following table is used to convert/reclassify the classes contained within the `CLC2018` dataset, with the original land use classes under `landuse_class` and how they will be reclassified under `landuse_target`.
+The following table is used to convert/reclassify the classes contained within the `CLC2018` dataset, with the original land use classes under `landuse_class` and how they will be reclassified under `landuse_target`. We also indicate whether these areas are inhabited (inhabited = 1), or uninhabited (inhabited = 0).
 
 ```{r}
 landuse_classes %<>%
@@ -140,25 +140,27 @@ landuse_classes %<>%
     landuse_target == "NODATA" ~ 9
   ))
 
+landuse_classes$inhabited <- 0
+landuse_classes$inhabited[landuse_classes$landuse_class == "Discontinuous urban fabric"] <- 1
+
 landuse_classes
 ```
 
 With a sort-of 'raster attribute table' in place, we can now reclassify the detailed landuse classes to the broader categories listed above.
 
 ```{r}
-landuse_crop_dhl <- ratify(reclassify(landuse_crop_dhl, cbind(landuse_classes$landuse_id, landuse_classes$landuse_target_id)), count = TRUE)
-landuse_crop_hrw <- ratify(reclassify(landuse_crop_hrw, cbind(landuse_classes$landuse_id, landuse_classes$landuse_target_id)), count = TRUE)
+landuse_dhl_reclassified <- ratify(reclassify(landuse_dhl_reprojected, cbind(landuse_classes$landuse_id, landuse_classes$landuse_target_id)), count = TRUE)
+landuse_hrw_reclassified <- ratify(reclassify(landuse_hrw_reprojected, cbind(landuse_classes$landuse_id, landuse_classes$landuse_target_id)), count = TRUE)
 ```
 
-This leaves us with the following count of cells per land use category
+This leaves us with the following count of ~100x100m cells per land use category
 
 ```{r}
-cellcounts <- cbind(levels(landuse_crop_hrw)[[1]]["COUNT"], levels(landuse_crop_dhl)[[1]]["COUNT"])
+cellcounts <- cbind(levels(landuse_hrw_reclassified)[[1]]["COUNT"], levels(landuse_dhl_reclassified)[[1]]["COUNT"])
 colnames(cellcounts) <- c("Herwijnen", "Den Helder")
 rownames(cellcounts) <- unique(landuse_classes$landuse_target)[-7]
 cellcounts
 ```
-
 
 ### Resampling the land use map to a lower resolution
 
@@ -166,43 +168,34 @@ The cellsize of the PPIs is `r ppi_dhl$data@grid@cellsize`x`r ppi_dhl$data@grid@
 
 Simple nearest neighbour resampling was tested, but resulted in large parts of fairly small water bodies and especially the rivers 'disappearing' from the map, whereas these represent important habitats for birds to forage and roost. So instead, majority resampling, tweaked to retain more of the aforementioned water features was used to resize the land use raster to an appropriate resolution. The tweak constituted of setting the values of water courses and water bodies to the maximum value (total coverage of the assessed window) if half or more of the assessed window contained pixels classified as water courses or water bodies. The quality of this resampling was assessed visually.
 
-```{r define_majority_resampling_technique}
-majority_resampling <- function(raster, reference_raster, overwrite = FALSE) {
+```{r define_calculate_land_use_proportion_technique}
+calculate_land_use_proportion <- function(raster, reference_raster, overwrite = FALSE) {
   values <- c(sort(unique(getValues(raster))))
   
   # classes: multidimensional logical array for the classes contained within the land use map
+  # 1 if a land use class is present on that position, 0 if not
   classes <- layerize(raster, filename = paste("data/processed/landuse/layerize/", substitute(raster), sep = ""),
                       format = "raster", bylayer = TRUE, classes = values, overwrite = overwrite)
   # factor: nr of cells in both horizontal and vertical direction to aggregate
   factor <- round(dim(raster)[1:2] / dim(reference_raster)[1:2])
-  # agg: aggregated version of classes (aggregation factor defined by factor) containing max values per class, so 1 if a class is present
-  agg <- aggregate(classes, factor, na.rm = TRUE, fun = max)
-  # x: resampled agg, now roughly containing land coverage percentages. Method must be bilinear, otherwise arbitrary choices keep being made.
+  # agg: aggregated version of classes (aggregation factor defined by factor) containing mean coverage by a class in a given area
+  # 1 corresponds with full coverage, 0 with no coverage of that class within the pixel at all
+  agg <- aggregate(classes, factor, na.rm = TRUE, fun = mean)
+  # x: the agg and ppi pixels almost overlap exactly, but there is a teeny tiny difference which we can
+  # iron out by resampling once more.
   x <- resample(agg, reference_raster)
-
-  # Tweak the importance of water courses and bodies
-  water_courses_id <- match(511, values)
-  water_bodies_id <- match(512, values)
-  x[[water_courses_id]][x[[water_courses_id]] >= 0.5] <- 1.1
-  x[[water_bodies_id]][x[[water_bodies_id]] >= 0.5] <- 1.1
-
-  # Flatten x in y
-  y <- which.max(x)
-
-  # Reclassify back to original values
-  values <- data.frame(seq(1, length(values)), values)
-  colnames(values) <- c("is", "becomes")
-  y <- reclassify(y, values)
-
-  return(y)
+  
+  return(x)
 }
 ```
 
-```{r resize_landuse_with_majority_resampling}
-landuse_hrw <- majority_resampling(landuse_hrw_reprojected, as(ppi_hrw$data, "RasterLayer"), overwrite = TRUE)
-landuse_dhl <- majority_resampling(landuse_dhl_reprojected, as(ppi_dhl$data, "RasterLayer"), overwrite = TRUE)
-writeRaster(landuse_hrw, "data/processed/landuse/landuse_hrw_500m.tif", overwrite = TRUE)
-writeRaster(landuse_dhl, "data/processed/landuse/landuse_dhl_500m.tif", overwrite = TRUE)
+```{r resize_landuse_with_calculate_land_use_proportion}
+landuse_hrw <- calculate_land_use_proportion(landuse_hrw_reclassified, as(ppi_hrw$data, "RasterLayer"), overwrite = TRUE)
+landuse_dhl <- calculate_land_use_proportion(landuse_dhl_reclassified, as(ppi_dhl$data, "RasterLayer"), overwrite = TRUE)
+names(landuse_hrw) <- c("urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies")
+names(landuse_dhl) <- c("urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies")
+writeRaster(landuse_hrw, "data/processed/landuse/landuse_hrw.tif", overwrite = TRUE)
+writeRaster(landuse_dhl, "data/processed/landuse/landuse_dhl.tif", overwrite = TRUE)
 ```
 
 By now the resampled land use raster should be very similar to the PPI raster, with the exception of — of course — the values contained within.
@@ -221,68 +214,53 @@ saveRDS(landuse_dhl, "data/processed/landuse/landuse_dhl.RDS")
 
 ## Adding land use classifications to the PPIs
 
-With the land use rasters overlapping exactly with the PPIs, we can simply extract the values of the resampled land use rasters and add these as additional parameters to the PPIs. Besides the code used, we will also add a description of the codes.
+With the land use rasters overlapping exactly with the PPIs, we can simply extract the values of the resampled land use rasters and add these as additional parameters to the PPIs.
 
 ```{r store_classification_values_in_ppis}
 landuse_hrw <- readRDS("data/processed/landuse/landuse_hrw.RDS")
 landuse_dhl <- readRDS("data/processed/landuse/landuse_dhl.RDS")
 
-values_hrw <- as.data.frame(landuse_hrw@data@values)
-values_dhl <- as.data.frame(landuse_dhl@data@values)
+values_hrw <- rasterToPoints(landuse_hrw, spatial = TRUE)
+values_dhl <- rasterToPoints(landuse_dhl, spatial = TRUE)
 
-ppi_hrw$data$landuse <- as.numeric(unlist(values_hrw))
-ppi_dhl$data$landuse <- as.numeric(unlist(values_dhl))
-
-ppi_hrw$data@data <- ppi_hrw$data@data %>%
-  left_join(landuse_classes, by = c("landuse" = "landuse_id"))
-ppi_hrw$data$ID <- NULL
-
-ppi_dhl$data@data <- ppi_dhl$data@data %>%
-  left_join(landuse_classes, by = c("landuse" = "landuse_id"))
-ppi_dhl$data$ID <- NULL
-```
-
-## Classify land use types in Urban vs. Rural
-
-As we are interested in the effect urbanization has on the take-off decision of birds during the fireworks event, it is useful to categorise the land use types we have found so far as either 'urban' or 'rural' as well.
-
-```{r classify_land_use_urban_vs_rural}
-urban_hrw <- ppi_hrw$data@data$landuse < 200
-ppi_hrw$data$type <- rep("rural", nrow(ppi_hrw$data))
-ppi_hrw$data$type[urban_hrw] <- "urban"
-ppi_hrw$data$type <- as.factor(ppi_hrw$data$type)
-
-urban_dhl <- ppi_dhl$data@data$landuse < 200
-ppi_dhl$data$type <- rep("rural", nrow(ppi_dhl$data))
-ppi_dhl$data$type[urban_dhl] <- "urban"
-ppi_dhl$data$type <- as.factor(ppi_dhl$data$type)
+ppi_hrw$data@data <- cbind(ppi_hrw$data@data, values_hrw@data)
+ppi_dhl$data@data <- cbind(ppi_dhl$data@data, values_dhl@data)
 ```
 
 ## Calculate distance to nearest urban area
 
-For every cell on the raster that is not a cell we have just classified as 'urban' we will calculate the distance (in meters) to the nearest cell classified as 'urban'.
+We can use the distance to the nearest inhabited urban area as a proxy for disturbance. To calculate this, we reclassify the raster to cells containing inhabited urban area and everything else. For every cell on the raster that is not a cell we have just classified as inhabited urban area, we will calculate the distance (in meters) to the nearest cell classified as inhabited urban area.
 
 ```{r calculate_distance_to_urban_areas}
-urban_hrw <- ppi_hrw$data[, , "type", drop = FALSE]
-urban_hrw$type[urban_hrw$type == "rural"] <- NaN
-distance_to_urban_hrw <- distance(as(urban_hrw, 'RasterLayer'))
+dhl_inhabited <- ratify(reclassify(landuse_dhl_reprojected, cbind(landuse_classes$landuse_id, landuse_classes$inhabited)), count = TRUE)
+hrw_inhabited <- ratify(reclassify(landuse_hrw_reprojected, cbind(landuse_classes$landuse_id, landuse_classes$inhabited)), count = TRUE)
 
-urban_dhl <- ppi_dhl$data[, , "type", drop = FALSE]
-urban_dhl$type[urban_dhl$type == "rural"] <- NaN
-distance_to_urban_dhl <- distance(as(urban_dhl, 'RasterLayer'))
+dhl_inhabited <- calculate_land_use_proportion(dhl_inhabited, as(ppi_dhl$data, "RasterLayer"), overwrite = TRUE)
+hrw_inhabited <- calculate_land_use_proportion(hrw_inhabited, as(ppi_hrw$data, "RasterLayer"), overwrite = TRUE)
 
-writeRaster(distance_to_urban_hrw, "data/processed/landuse/dist_urban_hrw_500m.tif", overwrite = TRUE)
-writeRaster(distance_to_urban_dhl, "data/processed/landuse/dist_urban_dhl_500m.tif", overwrite = TRUE)
+names(dhl_inhabited) <- c("uninhabited", "inhabited")
+names(hrw_inhabited) <- c("uninhabited", "inhabited")
+
+dist_dhl <- dhl_inhabited
+dist_dhl[dist_dhl$inhabited < 0.5] <- NA  # Set to NA if probability of inhabited area is < 0.5
+dist_dhl <- distance(dist_dhl$inhabited)
+
+dist_hrw <- hrw_inhabited
+dist_hrw[dist_hrw$inhabited < 0.5] <- NA
+dist_hrw <- distance(dist_hrw$inhabited)
+
+writeRaster(dist_hrw, "data/processed/landuse/dist_urban_hrw.tif", overwrite = TRUE)
+writeRaster(dist_dhl, "data/processed/landuse/dist_urban_dhl.tif", overwrite = TRUE)
 ```
 
 And we add these values to the PPIs again.
 
 ```{r store_distance_to_urban_areas_in_ppi}
-values_dist_urban_hrw <- as.data.frame(distance_to_urban_hrw@data@values)
-values_dist_urban_dhl <- as.data.frame(distance_to_urban_dhl@data@values)
+values_dist_hrw <- rasterToPoints(dist_hrw, spatial = TRUE)
+values_dist_dhl <- rasterToPoints(dist_dhl, spatial = TRUE)
 
-ppi_hrw$data$dist_urban <- as.numeric(unlist(values_dist_urban_hrw))
-ppi_dhl$data$dist_urban <- as.numeric(unlist(values_dist_urban_dhl))
+ppi_hrw$data@data$dist_urban <- values_dist_hrw@data$layer
+ppi_dhl$data@data$dist_urban <- values_dist_dhl@data$layer
 ```
 
 ## Add population density
