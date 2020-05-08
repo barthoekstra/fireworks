@@ -37,7 +37,7 @@ And we load and prepare the land use map it's all about. To aid the classificati
 ```{r load_landuse_map, warning=FALSE}
 landuse <- raster("data/raw/landuse/clc2018_clc2018_v2018_20_raster100m/CLC2018_CLC2018_V2018_20.tif")
 landuse_classes <- read.csv("data/raw/landuse/clc2018_clc2018_v2018_20_raster100m/Legend/CLC2018_CLC2018_V2018_20_QGIS.txt",
-                            col.names = c("landuse_id", "r", "g", "b", "x", "landuse_class"))[, c("landuse_id", "landuse_class")]
+                            col.names = c("landuse_id", "r", "g", "b", "x", "landuse_class"), header = FALSE)[, c("landuse_id", "landuse_class"),]
 ```
 
 ### Cropping the land use map
@@ -70,23 +70,15 @@ ext_dhl <- extent(c(bbox_landuse_dhl[1], bbox_landuse_dhl[3], bbox_landuse_dhl[2
 
 landuse_crop_hrw <- crop(landuse, ext_hrw)
 landuse_crop_dhl <- crop(landuse, ext_dhl)
+
+sea_id <- match('Sea and ocean', landuse_classes$landuse_class)
+landuse_crop_hrw[is.na(landuse_crop_hrw)] <- landuse_classes[sea_id, "landuse_id"]  # Convert Sea that is set to NaN
+landuse_crop_dhl[is.na(landuse_crop_dhl)] <- landuse_classes[sea_id, "landuse_id"]
 ```
 
 And plot the result:
 
 ```{r plot_cropped_landuse_maps}
-par(pty = "s", mfrow = c(1, 2))
-image(landuse_crop_hrw, main = "Herwijnen")
-image(landuse_crop_dhl, main = "Den Helder")
-```
-
-Apparantly large swathes of the North Sea are set to `NaN`, so we better convert those to 'Sea and ocean' as well.
-
-```{r plot_cropped_landuse_maps_filled_NAs}
-sea_id <- match('Sea and ocean', landuse_classes$landuse_class)
-landuse_crop_hrw[is.na(landuse_crop_hrw)] <- landuse_classes[sea_id, "landuse_id"]
-landuse_crop_dhl[is.na(landuse_crop_dhl)] <- landuse_classes[sea_id, "landuse_id"]
-
 par(pty = "s", mfrow = c(1, 2))
 image(landuse_crop_hrw, main = "Herwijnen")
 image(landuse_crop_dhl, main = "Den Helder")
