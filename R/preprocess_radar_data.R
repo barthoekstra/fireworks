@@ -10,11 +10,20 @@ preprocess_radar_data <- function(pvol_path, ei_rays, pvol_dynamic_groundclutter
   pvol <- read_pvolfile(pvol_path, param = "all")
   
   # Filter clutter
-  pvol <- remove_rays(pvol, rays = ei_rays)
+  if (!is.null(ei_rays)) {
+    pvol <- remove_rays(pvol, rays = ei_rays)
+  }
+  
   pvol <- suppressWarnings(calculate_dpr(pvol))
   pvol <- remove_precipitation(pvol)
-  pvol <- remove_groundclutter(pvol, pvol_dynamic_groundclutter)
-  pvol <- remove_groundclutter(pvol, pvol_static_groundclutter)
+  
+  if (!is.null(pvol_dynamic_groundclutter)) {
+    pvol <- remove_groundclutter(pvol, pvol_dynamic_groundclutter)
+  }
+  
+  if (!is.null(pvol_static_groundclutter)) {
+    pvol <- remove_groundclutter(pvol, pvol_static_groundclutter)
+  }
   
   # Calculate VPs
   vp_out <- paste("data/processed/vp/", basename(pvol_path), sep = "")
