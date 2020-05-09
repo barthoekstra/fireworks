@@ -6,7 +6,8 @@ source("R/remove_precipitation.R")
 source("R/remove_groundclutter.R")
 source("R/calculate_distance_to_radar.R")
 
-preprocess_radar_data <- function(pvol_path, ei_rays, pvol_dynamic_groundclutter, pvol_static_groundclutter, azim_limits = NULL, overwrite = FALSE) {
+preprocess_radar_data <- function(pvol_path, ei_rays, pvol_dynamic_groundclutter, pvol_static_groundclutter, azim_limits = NULL, overwrite = FALSE,
+                                  res = 500) {
   pvol <- read_pvolfile(pvol_path, param = "all")
   
   # Filter clutter
@@ -39,7 +40,7 @@ preprocess_radar_data <- function(pvol_path, ei_rays, pvol_dynamic_groundclutter
   }
   
   # Apply range-bias correction
-  corrected_ppi <- integrate_to_ppi(pvol, vp, res = 500, xlim = c(-150000, 150000), ylim = c(-150000, 150000))
+  corrected_ppi <- integrate_to_ppi(pvol, vp, res = res, xlim = c(-150000, 150000), ylim = c(-150000, 150000))
   
   # Calculate distance to radar for all PPI pixels
   corrected_ppi <- calculate_distance_to_radar(corrected_ppi)
