@@ -267,7 +267,7 @@ ppi_dhl$data@data$dist_urban <- values_dist_dhl@data$layer
 
 ## Add population density
 
-Another proxy for disturbance is simply the number of humans living in a certain area. The Dutch Central Bureau of Statistics (CBS) annually publishes a dataset containing the number of inhabitants organized in 500x500m grid cells. We will now add this to the PPIs as well.
+Another proxy for disturbance is simply the number of humans living in a certain area. The Dutch Central Bureau of Statistics (CBS) annually publishes [a dataset](https://www.cbs.nl/nl-nl/dossier/nederland-regionaal/geografische-data/kaart-van-500-meter-bij-500-meter-met-statistieken) containing the number of inhabitants organized in 500x500m grid cells. We will now add this to the PPIs as well.
 
 ```{r add_population_density, message=FALSE}
 cbs_maps <- st_read("data/raw/population-density/2019-CBS_VK500_2018_v1/CBS_VK500_2018_v1.shp")
