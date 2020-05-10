@@ -335,7 +335,7 @@ saveRDS(ppi_dhl, file = "data/processed/corrected_ppi_dhl_lu.RDS")
 
 ### Plotting human parameters on an interactive map
 
-We have now generated 'human relevant' paramters for later modelling stages. Let's plot them on an interactive map again for reference.
+We have now generated 'human relevant' parameters for later modelling stages. Let's plot them on an interactive map again for reference.
 
 #### Interactive map of Herwijnen
 ```{r interactive_map_herwijnen, warning=FALSE}
