@@ -166,7 +166,7 @@ cellcounts
 
 The cellsize of the PPIs is `r ppi_dhl$data@grid@cellsize`x`r ppi_dhl$data@grid@cellsize` meters, but the land use map is much more finely detailed (~100x100m), so we need to resample the latter to derive a land use map at a `r ppi_dhl$data@grid@cellsize`x`r ppi_dhl$data@grid@cellsize` meter resolution as well.
 
-Simple nearest neighbour resampling was tested, but resulted in large parts of fairly small water bodies and especially the rivers 'disappearing' from the map, whereas these represent important habitats for birds to forage and roost. So instead, majority resampling, tweaked to retain more of the aforementioned water features was used to resize the land use raster to an appropriate resolution. The tweak constituted of setting the values of water courses and water bodies to the maximum value (total coverage of the assessed window) if half or more of the assessed window contained pixels classified as water courses or water bodies. The quality of this resampling was assessed visually.
+As the resolution of the PPIs is so much higher than that of the land use map, we need to resample the latter to a lower resolution. Instead of classifying a single pixel in the PPI as belonging to a single land use class, we will do so using land use proportions. We therefore calculate the proportions belonging to each of the land use classes within an area of cells roughly the size of the PPI pixels. Subsequently we resample this to match 1:1 with the PPI pixels and store the land use proportions for each of the land use classes in the PPIs. This is done in the `calculate_land_use_proportion()` function below.
 
 ```{r define_calculate_land_use_proportion_technique}
 calculate_land_use_proportion <- function(raster, reference_raster, overwrite = FALSE) {
@@ -189,6 +189,8 @@ calculate_land_use_proportion <- function(raster, reference_raster, overwrite = 
 }
 ```
 
+We can now calculate the proportions and will save these to some raster files for potential inspection in GIS software.
+
 ```{r resize_landuse_with_calculate_land_use_proportion}
 landuse_hrw <- calculate_land_use_proportion(landuse_hrw_reclassified, as(ppi_hrw$data, "RasterLayer"), overwrite = TRUE)
 landuse_dhl <- calculate_land_use_proportion(landuse_dhl_reclassified, as(ppi_dhl$data, "RasterLayer"), overwrite = TRUE)
@@ -206,11 +208,11 @@ compareRaster(landuse_dhl, as(ppi_dhl$data, "RasterLayer"), extent = TRUE, rowco
 ```
 
 Ok, let's save a copy of what we have so far.
+
 ```{r save_resampled_rasters}
 saveRDS(landuse_hrw, "data/processed/landuse/landuse_hrw.RDS")
 saveRDS(landuse_dhl, "data/processed/landuse/landuse_dhl.RDS")
 ```
-
 
 ## Adding land use classifications to the PPIs
 
