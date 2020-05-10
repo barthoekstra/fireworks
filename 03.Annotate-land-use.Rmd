@@ -267,82 +267,66 @@ ppi_dhl$data@data$dist_urban <- values_dist_dhl@data$layer
 
 ## Add population density
 
+Another proxy for disturbance is simply the number of humans living in a certain area. The Dutch Central Bureau of Statistics (CBS) annually publishes a dataset containing the number of inhabitants organized in 500x500m grid cells. We will now add this to the PPIs as well.
+
 ```{r add_population_density, message=FALSE}
 cbs_maps <- st_read("data/raw/population-density/2019-CBS_VK500_2018_v1/CBS_VK500_2018_v1.shp")
 
 cbs_hrw <- st_transform(cbs_maps, ppi_hrw$data@proj4string)
 cbs_dhl <- st_transform(cbs_maps, ppi_dhl$data@proj4string)
 
-# Rasterize
-pop_density_rasterized_hrw <- st_rasterize(cbs_hrw["INWONER"],
-                                           template = st_as_stars(st_bbox(ppi_hrw$data), dx = ppi_hrw$data@grid@cellsize[1], dy = ppi_hrw$data@grid@cellsize[2], 
-                                                                  values = NA_real_))
-pop_density_rasterized_dhl <- st_rasterize(cbs_dhl["INWONER"],
-                                           template = st_as_stars(st_bbox(ppi_dhl$data), dx = ppi_dhl$data@grid@cellsize[1], dy = ppi_dhl$data@grid@cellsize[2],
-                                                                  values = NA_real_))
-```
+# Template for the rasterization following the standard 500x500m resolution of the CBS grid
+template_hrw <- st_as_stars(st_bbox(cbs_hrw["INWONER"]), values = NA_real_, dx = 500, dy = 500)
+template_dhl <- st_as_stars(st_bbox(cbs_dhl["INWONER"]), values = NA_real_, dx = 500, dy = 500)
 
-```{r verify_population_density_rasters, results='hold'}
-compareRaster(as(pop_density_rasterized_hrw, "Raster"), as(ppi_hrw$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
-compareRaster(as(pop_density_rasterized_dhl, "Raster"), as(ppi_dhl$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
-```
+# Now rasterize
+pop_density_rasterized_hrw <- as(st_rasterize(cbs_hrw["INWONER"], template = template_hrw), "Raster")
+pop_density_rasterized_dhl <- as(st_rasterize(cbs_dhl["INWONER"], template = template_dhl), "Raster")
 
-We can now calculate the total population in an area within ~2.5km around the center point.
-
-```{r calculate_population_within_window_around_centerpoint}
-weights <- matrix(1, nrow = 11, ncol = 11)
+# Set negative or NA raster values to 0
 pop_density_rasterized_hrw[pop_density_rasterized_hrw < 0] <- 0
 pop_density_rasterized_dhl[pop_density_rasterized_dhl < 0] <- 0
-pop_hrw <- focal(as(pop_density_rasterized_hrw, "Raster"), w = weights, fun = sum, na.rm = TRUE)
-pop_dhl <- focal(as(pop_density_rasterized_dhl, "Raster"), w = weights, fun = sum, na.rm = TRUE)
+
+# Now aggregate by summing up values in cells to 'cover' the values that fit in a PPI pixel
+factor_hrw <- round(dim(pop_density_rasterized_hrw)[1:2] / dim(as(ppi_hrw$data, "RasterLayer"))[1:2])
+factor_dhl <- round(dim(pop_density_rasterized_dhl)[1:2] / dim(as(ppi_dhl$data, "RasterLayer"))[1:2])
+agg_hrw <- aggregate(pop_density_rasterized_hrw, factor_hrw, na.rm = TRUE, fun = sum)
+agg_dhl <- aggregate(pop_density_rasterized_dhl, factor_dhl, na.rm = TRUE, fun = sum)
+
+# Resample to make the PPI and CBS population grids line up 1:1
+pop_density_rasterized_hrw <- resample(agg_hrw, as(ppi_hrw$data, "RasterLayer"))
+pop_density_rasterized_dhl <- resample(agg_dhl, as(ppi_dhl$data, "RasterLayer"))
+```
+
+Once again, verify if the PPI pixels match up exactly with the CBS population grids 
+
+```{r verify_population_density_rasters, results='hold'}
+compareRaster(as(x_hrw, "Raster"), as(ppi_hrw$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
+compareRaster(as(x_dhl, "Raster"), as(ppi_dhl$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
+```
+
+Now as a final step we will calculate the total population within the neighborhood surrounding the PPI pixels, to get a more representative measure of disturbance potential in the surrounding area. 
+
+```{r calculate_population_within_window_around_centerpoint}
+weights <- matrix(1, nrow = 3, ncol = 3)
+pop_hrw <- focal(pop_density_rasterized_hrw, w = weights, fun = sum, na.rm = TRUE)
+pop_dhl <- focal(pop_density_rasterized_dhl, w = weights, fun = sum, na.rm = TRUE)
+
+pop_hrw[is.na(pop_hrw)] <- 0
+pop_dhl[is.na(pop_dhl)] <- 0
 ```
 
 And add it to the PPIs.
 
 ```{r add_total_population_to_ppis}
-values_pop_hrw <- as.data.frame(pop_hrw@data@values)
-values_pop_dhl <- as.data.frame(pop_dhl@data@values)
+values_pop_hrw <- rasterToPoints(pop_hrw, spatial = TRUE)
+values_pop_dhl <- rasterToPoints(pop_dhl, spatial = TRUE)
 
-ppi_hrw$data$pop <- as.numeric(unlist(values_pop_hrw))
-ppi_dhl$data$pop <- as.numeric(unlist(values_pop_dhl))
+ppi_hrw$data@data$human_pop <- values_pop_hrw@data$layer
+ppi_dhl$data@data$human_pop <- values_pop_dhl@data$layer
 ```
 
-
-## Testing
-
-Let's make a few plots to see if what we have now gathered as additional information makes any sense.
-
-### Plotting total VIR per land use type
-
-```{r total_vir_vs_land_use_type, fig.show='hold', dev='png'}
-data_hrw <- ppi_hrw$data@data %>%
-  filter(landuse_class != "Land principally occupied by agriculture with significant areas of natural vegetation" & landuse_class != "Sea and ocean") %>%
-  group_by(landuse_class) %>%
-  add_count() %>%
-  mutate(total_landuse_class = sum(VIR), total_prop_landuse_class = sum(VIR) / n)
-
-data_dhl <- ppi_dhl$data@data %>%
-  filter(landuse_class != "Land principally occupied by agriculture with significant areas of natural vegetation" & landuse_class != "Sea and ocean") %>%
-  group_by(landuse_class) %>%
-  add_count() %>%
-  mutate(total_landuse_class = sum(VIR), total_prop_landuse_class = sum(VIR) / n)
-
-ggplot(data_hrw, aes(landuse_class, total_prop_landuse_class, fill = type)) + geom_col() + coord_flip() + labs(title = "Herwijnen")
-ggplot(data_dhl, aes(landuse_class, total_prop_landuse_class, fill = type)) + geom_col() + coord_flip() + labs(title = "Den Helder")
-```
-
-### Plotting a distance to urban areas effect for VIR
-
-```{r distance_to_urban_vs_vir, warning=FALSE, fig.show='hold', dev='png'}
-ggplot(ppi_dhl$data@data, aes(x = dist_urban, y = VIR, colour = landuse_class)) + 
-  geom_point(alpha = 0.5) + ylim(c(0, 500000)) + theme(legend.position = "none") +
-  scale_x_continuous(trans = "log10")
-ggplot(ppi_hrw$data@data, aes(x = dist_urban, y = VIR, colour = landuse_class)) + 
-  geom_point(alpha = 0.5) + ylim(c(0, 500000)) + theme(legend.position = "none") +
-  scale_x_continuous(trans = "log10")
-```
-
-That seems alright, so we can save the PPIS we have now annotated.
+And finally we save these PPIs again.
 
 ```{r save_ppis_with_landuse_parameters}
 saveRDS(ppi_hrw, file = "data/processed/corrected_ppi_hrw_lu.RDS")
@@ -351,18 +335,21 @@ saveRDS(ppi_dhl, file = "data/processed/corrected_ppi_dhl_lu.RDS")
 
 ### Plotting human parameters on an interactive map
 
+We have now generated 'human relevant' paramters for later modelling stages. Let's plot them on an interactive map again for reference.
+
 #### Interactive map of Herwijnen
-```{r interactive_map_herwijnen}
-mapview(ppi_hrw$data[, , c("pop", "dist_urban")], alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
+```{r interactive_map_herwijnen, warning=FALSE}
+human_parameters <- c("urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies", "dist_urban", "human_pop")
+
+mapview(ppi_hrw$data[, , human_parameters], alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
         na.color = "#00000000", map.types = c("CartoDB.Positron", "CartoDB.DarkMatter", "Esri.WorldImagery"),
-        layer.name = c("pop", "dist_urban"))
+        layer.name = human_parameters)
 ```
 
-
 #### Interactive map of Den Helder
-```{r interactive_map_den_helder}
-mapview(ppi_dhl$data[, , c("pop", "dist_urban")], alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
+```{r interactive_map_den_helder, warning=FALSE}
+mapview(ppi_dhl$data[, , human_parameters], alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
         na.color = "#00000000", map.types = c("CartoDB.Positron", "CartoDB.DarkMatter", "Esri.WorldImagery"),
-        layer.name = c("pop", "dist_urban"))
+        layer.name = human_parameters)
 ```
 
