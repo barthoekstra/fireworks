@@ -3,7 +3,7 @@
 We have so far explained the processing 'pipeline' for the PPIs for Herwijnen and Den Helder radars, but have only applied this to a single moment in time, a single volume scan. Now we will apply the processing to all other available PPIs by simply copying over the annotations.
 
 1. Pre-processed the radar data, by removing clutter and applying the range-bias correction [@kranstauber2020].
-2. Annotated the PPIs with land use classes, distance to urban areas and (human) population density.
+2. Annotated the PPIs with land use class proportions, distance to urban areas and human population.
 3. Annotated the PPIs with corresponding count locations for the Sovon data.
 4. Connected the Sovon count data with life-history characteristics for the species contained within.
 
@@ -29,11 +29,14 @@ ppi_dhl <- readRDS("data/processed/corrected-ppis-lu-sovon/corrected_ppi_dhl_lu_
 We select the variables related to land use, distance to urbanized areas and population density, waterbird counts and PTT counts and add these to the PPIs that contain just the variables resulting from the range-bias correction [@kranstauber2020]. While we are at it, we will also create dataframes containing all the information within the PPIs, to use for later modelling exercises.
 
 ```{r copy_annotations_from_reference_ppis_to_other_ppis, eval=full_repro}
+columns <- c("urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies",
+             "dist_urban", "human_pop", "wb_area_id", "wb_area_nr", "wb_area_ha", "ptt_route")
+
 hrw <- ppi_hrw$data@data %>%
-  dplyr::select(landuse, landuse_class, type, dist_urban, pop, wb_area_id, wb_area_nr, wb_area_ha, ptt_route)
+  dplyr::select(all_of(columns))
 
 dhl <- ppi_dhl$data@data %>%
-  dplyr::select(landuse, landuse_class, type, dist_urban, pop, wb_area_id, wb_area_nr, wb_area_ha, ptt_route)
+  dplyr::select(all_of(columns))
 
 hrw_all <- ppi_hrw$data@data %>%
   filter(row_number() == 0)
