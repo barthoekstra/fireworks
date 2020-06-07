@@ -301,8 +301,8 @@ pop_density_rasterized_dhl <- resample(agg_dhl, as(ppi_dhl$data, "RasterLayer"))
 Once again, verify if the PPI pixels match up exactly with the CBS population grids 
 
 ```{r verify_population_density_rasters, results='hold'}
-compareRaster(as(x_hrw, "Raster"), as(ppi_hrw$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
-compareRaster(as(x_dhl, "Raster"), as(ppi_dhl$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
+compareRaster(pop_density_rasterized_hrw, as(ppi_hrw$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
+compareRaster(pop_density_rasterized_dhl, as(ppi_dhl$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
 ```
 
 Now as a final step we will calculate the total population within the neighborhood surrounding the PPI pixels, to get a more representative measure of disturbance potential in the surrounding area. 
