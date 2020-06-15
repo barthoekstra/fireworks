@@ -416,7 +416,7 @@ for (pvol in hrw_pvols) {
                         ei_rays = ei_rays_hrw, 
                         pvol_dynamic_groundclutter = dynamic_groundclutter_hrw,
                         pvol_static_groundclutter = static_groundclutter_hrw,
-                        res = 2000)
+                        res = 1000)
 }
 
 for (pvol in dhl_pvols) {
@@ -425,6 +425,6 @@ for (pvol in dhl_pvols) {
                         pvol_dynamic_groundclutter = dynamic_groundclutter_dhl,
                         pvol_static_groundclutter = static_groundclutter_dhl, 
                         azim_limits = c(90, 200),
-                        res = 2000)
+                        res = 1000)
 }
 ```
