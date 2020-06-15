@@ -71,12 +71,12 @@
 #' # plot the calculated max product on the basemap
 #' map(my_composite, bm)
 #' }
-composite_ppi <- function(x, param = "DBZH", nx = 100, ny = 100, xlim, ylim, res, crs, raster = NA, method = "max", idp = 2, idw_max_distance = NA, coverage) {
+comp_ppi <- function(x, param = "DBZH", nx = 100, ny = 100, xlim, ylim, res, crs, raster = NA, method = "max", idp = 2, idw_max_distance = NA, coverage) {
   if (FALSE %in% sapply(x, is.ppi)) {
     stop("'composite' expects objects of class ppi only")
   }
-  if (!is.count(nx) && missing(res)) stop("'nx' should be an integer")
-  if (!is.count(ny) && missing(res)) stop("'ny' should be an integer")
+  if (!assertthat::is.count(nx) && missing(res)) stop("'nx' should be an integer")
+  if (!assertthat::is.count(ny) && missing(res)) stop("'ny' should be an integer")
   if (!missing(xlim)) {
     if (length(xlim) != 2 & !is.numeric(xlim)) stop("'xlim' should be a numeric vector of length two")
     if (is.na(xlim[1]) | is.na(xlim[2]) | xlim[1] > xlim[2]) stop("'xlim' should be a vector with two numeric values for lower and upper bound respectively")
@@ -86,8 +86,8 @@ composite_ppi <- function(x, param = "DBZH", nx = 100, ny = 100, xlim, ylim, res
     if (is.na(ylim[1]) | is.na(ylim[2]) | ylim[1] > ylim[2]) stop("'ylim' should be a vector with two numeric values for lower and upper bound respectively")
   }
   if (!missing(res)) {
-    assert_that(is.numeric(res))
-    assert_that(length(res) <= 2)
+    assertthat::assert_that(is.numeric(res))
+    assertthat::assert_that(length(res) <= 2)
     t_res <- res
   } else {
     t_res <- NULL
@@ -107,7 +107,7 @@ composite_ppi <- function(x, param = "DBZH", nx = 100, ny = 100, xlim, ylim, res
   if (length(param) == 1 && param == "all") {
     param <- names(x[[1]]$data)
   }
-  ppis <- lapply(x, `[.ppi`, i = param)
+  ppis <- lapply(x, bioRad:::`[.ppi`, i = param)
   
   lons <- sapply(ppis, function(x) x$geo$bbox["lon", ])
   lats <- sapply(ppis, function(x) x$geo$bbox["lat", ])
@@ -121,21 +121,21 @@ composite_ppi <- function(x, param = "DBZH", nx = 100, ny = 100, xlim, ylim, res
                  ncol = 2, dimnames = dimnames(ppis[[1]]$geo$bbox)
   )
   
-  if (!are_equal(raster, NA)) {
+  if (!assertthat::are_equal(raster, NA)) {
     r <- raster::raster(raster)
   } else {
     d_crs <- CRS("+proj=longlat +datum=WGS84")
     if (!is.null(t_res) && !is.null(t_crs)) {
-      r <- raster(ext = raster::extent(c(min(lons), max(lons), min(lats), max(lats))), crs = t_crs, resolution = t_res)
+      r <- raster::raster(ext = raster::extent(c(min(lons), max(lons), min(lats), max(lats))), crs = t_crs, resolution = t_res)
     } else if (!is.null(t_crs) && is.null(t_res)) {
-      r <- raster(ncols = nx, nrows = ny, ext = raster::extent(c(min(lons), max(lons), min(lats), max(lats))), crs = t_crs)
+      r <- raster::raster(ncols = nx, nrows = ny, ext = raster::extent(c(min(lons), max(lons), min(lats), max(lats))), crs = t_crs)
     } else if (is.null(t_crs) && !is.null(t_res)) {
-      r <- raster(ext = raster::extent(c(min(lons), max(lons), min(lats), max(lats))), crs = d_crs)
+      r <- raster::raster(ext = raster::extent(c(min(lons), max(lons), min(lats), max(lats))), crs = d_crs)
       t_crs <- CRS(paste0("+proj=aeqd +units=m +ellps=WGS84 +lat_0=", mean(lats), " +lon_0=", mean(lons)))
       r <- raster::projectExtent(r, t_crs)
       raster::res(r) <- t_res
     } else {
-      r <- raster(ncols = nx, nrows = ny, ext = raster::extent(c(min(lons), max(lons), min(lats), max(lats))), crs = d_crs)
+      r <- raster::raster(ncols = nx, nrows = ny, ext = raster::extent(c(min(lons), max(lons), min(lats), max(lats))), crs = d_crs)
     }
   }
   
@@ -180,7 +180,7 @@ composite_ppi <- function(x, param = "DBZH", nx = 100, ny = 100, xlim, ylim, res
     
     if(param_method == "max") spGrid@data[, p] <- do.call(function(...) pmax(..., na.rm = TRUE), merged)
     if(param_method == "min") spGrid@data[, p] <- do.call(function(...) pmin(..., na.rm = TRUE), merged)
-    if(param_method == "mean") as.data.frame(merged) %>% rowMeans(na.rm=TRUE) -> spGrid@data[, p]
+    if(param_method == "mean") as.data.frame(merged) %>% rowMeans(na.rm = TRUE) -> spGrid@data[, p]
     if(param_method == "idw"){
       brick_data <- suppressWarnings(raster::brick(raster::brick(spGrid), nl = length(merged)))
       brick_weights <- brick_data
