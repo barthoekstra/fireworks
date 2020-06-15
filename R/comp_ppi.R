@@ -124,14 +124,14 @@ comp_ppi <- function(x, param = "DBZH", nx = 100, ny = 100, xlim, ylim, res, crs
   if (!assertthat::are_equal(raster, NA)) {
     r <- raster::raster(raster)
   } else {
-    d_crs <- CRS("+proj=longlat +datum=WGS84")
+    d_crs <- sp::CRS("+proj=longlat +datum=WGS84")
     if (!is.null(t_res) && !is.null(t_crs)) {
       r <- raster::raster(ext = raster::extent(c(min(lons), max(lons), min(lats), max(lats))), crs = t_crs, resolution = t_res)
     } else if (!is.null(t_crs) && is.null(t_res)) {
       r <- raster::raster(ncols = nx, nrows = ny, ext = raster::extent(c(min(lons), max(lons), min(lats), max(lats))), crs = t_crs)
     } else if (is.null(t_crs) && !is.null(t_res)) {
       r <- raster::raster(ext = raster::extent(c(min(lons), max(lons), min(lats), max(lats))), crs = d_crs)
-      t_crs <- CRS(paste0("+proj=aeqd +units=m +ellps=WGS84 +lat_0=", mean(lats), " +lon_0=", mean(lons)))
+      t_crs <- sp::CRS(paste0("+proj=aeqd +units=m +ellps=WGS84 +lat_0=", mean(lats), " +lon_0=", mean(lons)))
       r <- raster::projectExtent(r, t_crs)
       raster::res(r) <- t_res
     } else {
@@ -152,11 +152,11 @@ comp_ppi <- function(x, param = "DBZH", nx = 100, ny = 100, xlim, ylim, res, crs
   # merge
   projs <- sapply(ppis,
                   function(x) {
-                    over(
+                    sp::over(
                       suppressWarnings(
-                        spTransform(
+                        sp::spTransform(
                           spGrid,
-                          CRS(proj4string(x$data))
+                          sp::CRS(sp::proj4string(x$data))
                         )
                       ),
                       x$data[param]
