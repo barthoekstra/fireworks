@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>1 Selecting firework take-off moment | Fireworks</title>
   <meta name="description" content="Using ground-based bird counts and weather radar measurements to estimate numbers of birds aloft during NYE fireworks events." />
-  <meta name="generator" content="bookdown 0.18 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.19 and GitBook 2.6.7" />
 
   <meta property="og:title" content="1 Selecting firework take-off moment | Fireworks" />
   <meta property="og:type" content="book" />
@@ -24,7 +24,7 @@
 <meta name="author" content="Bart Hoekstra" />
 
 
-<meta name="date" content="2020-04-30" />
+<meta name="date" content="2020-06-15" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -51,12 +51,12 @@
 
 
 <script src="assets/htmlwidgets-1.5.1/htmlwidgets.js"></script>
-<script src="assets/plotly-binding-4.9.1/plotly.js"></script>
+<script src="assets/plotly-binding-4.9.2.1/plotly.js"></script>
 <script src="assets/typedarray-0.1/typedarray.min.js"></script>
-<link href="assets/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
-<script src="assets/crosstalk-1.0.0/js/crosstalk.min.js"></script>
-<link href="assets/plotly-htmlwidgets-css-1.49.4/plotly-htmlwidgets.css" rel="stylesheet" />
-<script src="assets/plotly-main-1.49.4/plotly-latest.min.js"></script>
+<link href="assets/crosstalk-1.1.0.1/css/crosstalk.css" rel="stylesheet" />
+<script src="assets/crosstalk-1.1.0.1/js/crosstalk.min.js"></script>
+<link href="assets/plotly-htmlwidgets-css-1.52.2/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="assets/plotly-main-1.52.2/plotly-latest.min.js"></script>
 <link href="assets/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
 <script src="assets/leaflet-1.3.1/leaflet.js"></script>
 <link href="assets/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
@@ -66,18 +66,29 @@
 <script src="assets/leaflet-binding-2.0.3/leaflet.js"></script>
 <script src="assets/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script>
 <script src="assets/leaflet-providers-plugin-2.0.3/leaflet-providers-plugin.js"></script>
-<script src="assets/VIR-1/data_stars_VIR8c7260.txt"></script>
+<script src="assets/VIR-1/data_stars_VIR1a3f95.txt"></script>
 <script src="assets/joda-0.0.1/joda.js"></script>
+<script src="assets/joda-0.0.1/addImageQuery-bindings.js"></script>
+<script src="assets/clipboard-0.0.1/setClipboardText.js"></script>
 <link href="assets/HomeButton-0.0.1/home-button.css" rel="stylesheet" />
 <script src="assets/HomeButton-0.0.1/home-button.js"></script>
 <script src="assets/HomeButton-0.0.1/easy-button-src.min.js"></script>
-<script src="assets/VID-1/data_stars_VID36efca.txt"></script>
-<script src="assets/R-1/data_stars_R12fb3c.txt"></script>
-<script src="assets/overlap-1/data_stars_overlape6db23.txt"></script>
-<script src="assets/eta_sum-1/data_stars_eta_sum5ba628.txt"></script>
-<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expected497a63.txt"></script>
-<script src="assets/pop-1/data_stars_pop98f3b0.txt"></script>
-<script src="assets/dist_urban-1/data_stars_dist_urbanf6354d.txt"></script>
+<script src="assets/VID-1/data_stars_VIDf98d6e.txt"></script>
+<script src="assets/R-1/data_stars_Rb53c91.txt"></script>
+<script src="assets/overlap-1/data_stars_overlap7260eb.txt"></script>
+<script src="assets/eta_sum-1/data_stars_eta_sum3f6dc1.txt"></script>
+<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expected374cd5.txt"></script>
+<script src="assets/dist_radar-1/data_stars_dist_radar2dfb93.txt"></script>
+<script src="assets/x-1/data_stars_xac5418.txt"></script>
+<script src="assets/y-1/data_stars_yacf309.txt"></script>
+<script src="assets/urban-1/data_stars_urban531ef6.txt"></script>
+<script src="assets/agricultural-1/data_stars_agriculturalace419.txt"></script>
+<script src="assets/semiopen-1/data_stars_semiopen39c01e.txt"></script>
+<script src="assets/forests-1/data_stars_forestscf025b.txt"></script>
+<script src="assets/wetlands-1/data_stars_wetlands8b197a.txt"></script>
+<script src="assets/waterbodies-1/data_stars_waterbodies4d78a2.txt"></script>
+<script src="assets/dist_urban-1/data_stars_dist_urbanba94cf.txt"></script>
+<script src="assets/human_pop-1/data_stars_human_popb45e23.txt"></script>
 <script src="assets/kePrint-0.0.1/kePrint.js"></script>
 
 
@@ -177,17 +188,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2.6" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#range-bias-correction"><i class="fa fa-check"></i><b>2.6</b> Range-bias correction</a></li>
 <li class="chapter" data-level="2.7" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#distance-to-radar"><i class="fa fa-check"></i><b>2.7</b> Distance to radar</a></li>
 <li class="chapter" data-level="2.8" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#spatial-coordinates"><i class="fa fa-check"></i><b>2.8</b> Spatial coordinates</a></li>
-<li class="chapter" data-level="2.9" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#preprocess-additional-scans"><i class="fa fa-check"></i><b>2.9</b> Preprocess additional scans</a></li>
+<li class="chapter" data-level="2.9" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#visualising-range-bias-correction"><i class="fa fa-check"></i><b>2.9</b> Visualising range-bias correction</a></li>
+<li class="chapter" data-level="2.10" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#preprocess-additional-scans"><i class="fa fa-check"></i><b>2.10</b> Preprocess additional scans</a></li>
 </ul></li>
 <li class="part"><span><b>II Land use</b></span></li>
 <li class="chapter" data-level="3" data-path="03.Annotate-land-use.html"><a href="03.Annotate-land-use.html"><i class="fa fa-check"></i><b>3</b> Annotating land use</a><ul>
 <li class="chapter" data-level="3.1" data-path="03.Annotate-land-use.html"><a href="03.Annotate-land-use.html#setting-up-the-annotation-environment"><i class="fa fa-check"></i><b>3.1</b> Setting up the annotation environment</a></li>
 <li class="chapter" data-level="3.2" data-path="03.Annotate-land-use.html"><a href="03.Annotate-land-use.html#converting-the-land-use-map"><i class="fa fa-check"></i><b>3.2</b> Converting the land use map</a></li>
 <li class="chapter" data-level="3.3" data-path="03.Annotate-land-use.html"><a href="03.Annotate-land-use.html#adding-land-use-classifications-to-the-ppis"><i class="fa fa-check"></i><b>3.3</b> Adding land use classifications to the PPIs</a></li>
-<li class="chapter" data-level="3.4" data-path="03.Annotate-land-use.html"><a href="03.Annotate-land-use.html#classify-land-use-types-in-urban-vs.rural"><i class="fa fa-check"></i><b>3.4</b> Classify land use types in Urban vs. Rural</a></li>
-<li class="chapter" data-level="3.5" data-path="03.Annotate-land-use.html"><a href="03.Annotate-land-use.html#calculate-distance-to-nearest-urban-area"><i class="fa fa-check"></i><b>3.5</b> Calculate distance to nearest urban area</a></li>
-<li class="chapter" data-level="3.6" data-path="03.Annotate-land-use.html"><a href="03.Annotate-land-use.html#add-population-density"><i class="fa fa-check"></i><b>3.6</b> Add population density</a></li>
-<li class="chapter" data-level="3.7" data-path="03.Annotate-land-use.html"><a href="03.Annotate-land-use.html#testing"><i class="fa fa-check"></i><b>3.7</b> Testing</a></li>
+<li class="chapter" data-level="3.4" data-path="03.Annotate-land-use.html"><a href="03.Annotate-land-use.html#calculate-distance-to-nearest-urban-area"><i class="fa fa-check"></i><b>3.4</b> Calculate distance to nearest urban area</a></li>
+<li class="chapter" data-level="3.5" data-path="03.Annotate-land-use.html"><a href="03.Annotate-land-use.html#add-population-density"><i class="fa fa-check"></i><b>3.5</b> Add population density</a></li>
 </ul></li>
 <li class="part"><span><b>III Sovon counts</b></span></li>
 <li class="chapter" data-level="4" data-path="04.Annotate-count-areas.html"><a href="04.Annotate-count-areas.html"><i class="fa fa-check"></i><b>4</b> Annotating count areas</a><ul>
@@ -206,10 +216,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="6.2" data-path="06.Applying-annotations-to-all-PPIs.html"><a href="06.Applying-annotations-to-all-PPIs.html#load-the-reference-ppis"><i class="fa fa-check"></i><b>6.2</b> Load the reference PPIs</a></li>
 <li class="chapter" data-level="6.3" data-path="06.Applying-annotations-to-all-PPIs.html"><a href="06.Applying-annotations-to-all-PPIs.html#copy-annotations-from-reference-ppis-to-other-ppis"><i class="fa fa-check"></i><b>6.3</b> Copy annotations from reference PPIs to other PPIs</a></li>
 </ul></li>
-<li class="chapter" data-level="7" data-path="07.Visualising-NYE-2017-2018.html"><a href="07.Visualising-NYE-2017-2018.html"><i class="fa fa-check"></i><b>7</b> Visualising NYE 2017-2018</a><ul>
-<li class="chapter" data-level="7.1" data-path="07.Visualising-NYE-2017-2018.html"><a href="07.Visualising-NYE-2017-2018.html#setting-up-the-environment-1"><i class="fa fa-check"></i><b>7.1</b> Setting-up the environment</a></li>
-<li class="chapter" data-level="7.2" data-path="07.Visualising-NYE-2017-2018.html"><a href="07.Visualising-NYE-2017-2018.html#generating-the-composite-ppis"><i class="fa fa-check"></i><b>7.2</b> Generating the composite PPIs</a></li>
-<li class="chapter" data-level="7.3" data-path="07.Visualising-NYE-2017-2018.html"><a href="07.Visualising-NYE-2017-2018.html#visualising-the-composites"><i class="fa fa-check"></i><b>7.3</b> Visualising the composites</a></li>
+<li class="chapter" data-level="7" data-path="07.Composite-all-PPIs.html"><a href="07.Composite-all-PPIs.html"><i class="fa fa-check"></i><b>7</b> Composite all PPIs</a><ul>
+<li class="chapter" data-level="7.1" data-path="07.Composite-all-PPIs.html"><a href="07.Composite-all-PPIs.html#setting-up-the-environment-1"><i class="fa fa-check"></i><b>7.1</b> Setting-up the environment</a></li>
+<li class="chapter" data-level="7.2" data-path="07.Composite-all-PPIs.html"><a href="07.Composite-all-PPIs.html#generating-the-composite-ppis"><i class="fa fa-check"></i><b>7.2</b> Generating the composite PPIs</a></li>
+<li class="chapter" data-level="7.3" data-path="07.Composite-all-PPIs.html"><a href="07.Composite-all-PPIs.html#visualising-the-composites"><i class="fa fa-check"></i><b>7.3</b> Visualising the composites</a></li>
 </ul></li>
 <li class="part"><span><b>IV Appendix</b></span></li>
 <li class="chapter" data-level="8" data-path="A1.Generating-VPs-for-Den-Helder-radar.html"><a href="A1.Generating-VPs-for-Den-Helder-radar.html"><i class="fa fa-check"></i><b>8</b> Generating vertical profiles for Den Helder radar</a></li>
@@ -317,26 +327,26 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a class="sourceLine" id="cb10-18" data-line-number="18"><span class="st">  </span><span class="kw">group_by</span>(variable, radar) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb10-19" data-line-number="19"><span class="st">  </span><span class="kw">filter</span>(variable <span class="op">==</span><span class="st"> &quot;vir_deriv&quot;</span>) <span class="op">%&gt;%</span></a>
 <a class="sourceLine" id="cb10-20" data-line-number="20"><span class="st">  </span><span class="kw">summarize</span>(<span class="dt">max_value =</span> <span class="kw">max</span>(value), <span class="dt">datetime =</span> datetime[<span class="kw">which.max</span>(value)]) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb10-21" data-line-number="21"><span class="st">  </span><span class="kw">arrange</span>(radar)  <span class="co"># Sort so order remains the same</span></a>
-<a class="sourceLine" id="cb10-22" data-line-number="22"></a>
-<a class="sourceLine" id="cb10-23" data-line-number="23"><span class="kw">theme_set</span>(<span class="kw">theme_bw</span>())</a>
-<a class="sourceLine" id="cb10-24" data-line-number="24"><span class="kw">ggplot</span>(integrated_l, <span class="kw">aes</span>(<span class="dt">x =</span> datetime)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb10-25" data-line-number="25"><span class="st">  </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">y =</span> value, <span class="dt">colour =</span> radar, <span class="dt">linetype =</span> variable)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb10-26" data-line-number="26"><span class="st">  </span><span class="kw">scale_x_datetime</span>(<span class="dt">breaks =</span> <span class="st">&quot;10 min&quot;</span>, <span class="dt">date_labels =</span> <span class="st">&quot;%H:%M&quot;</span>, <span class="dt">expand =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb10-27" data-line-number="27"><span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb10-28" data-line-number="28"><span class="st">  </span><span class="kw">scale_linetype_discrete</span>(<span class="dt">name =</span> <span class="st">&quot;Line type&quot;</span>, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;VIR&quot;</span>, <span class="kw">expression</span>(<span class="kw">paste</span>(Delta,<span class="st">&quot;VIR/scan&quot;</span>)))) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb10-29" data-line-number="29"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Time series of Vertically Integrated Reflectivities (VIR)&quot;</span>,</a>
-<a class="sourceLine" id="cb10-30" data-line-number="30">       <span class="dt">subtitle =</span> <span class="st">&quot;NYE 2017-2018&quot;</span>,</a>
-<a class="sourceLine" id="cb10-31" data-line-number="31">       <span class="dt">x =</span> <span class="st">&quot;Time (CET)&quot;</span>,</a>
-<a class="sourceLine" id="cb10-32" data-line-number="32">       <span class="dt">y =</span> <span class="st">&quot;VIR&quot;</span>,</a>
-<a class="sourceLine" id="cb10-33" data-line-number="33">       <span class="dt">colour =</span> <span class="st">&quot;Radar&quot;</span>,</a>
-<a class="sourceLine" id="cb10-34" data-line-number="34">       <span class="dt">linetype =</span> <span class="st">&quot;Linetype&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb10-35" data-line-number="35"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">-90</span>),</a>
-<a class="sourceLine" id="cb10-36" data-line-number="36">        <span class="dt">panel.grid.minor =</span> <span class="kw">element_blank</span>())</a></code></pre></div>
+<a class="sourceLine" id="cb10-21" data-line-number="21"><span class="st">  </span><span class="kw">arrange</span>(radar)  <span class="co"># Sort so order remains the same</span></a></code></pre></div>
+<pre><code>## `summarise()` regrouping output by &#39;variable&#39; (override with `.groups` argument)</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="kw">theme_set</span>(<span class="kw">theme_bw</span>())</a>
+<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="kw">ggplot</span>(integrated_l, <span class="kw">aes</span>(<span class="dt">x =</span> datetime)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb12-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">y =</span> value, <span class="dt">colour =</span> radar, <span class="dt">linetype =</span> variable)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb12-4" data-line-number="4"><span class="st">  </span><span class="kw">scale_x_datetime</span>(<span class="dt">breaks =</span> <span class="st">&quot;10 min&quot;</span>, <span class="dt">date_labels =</span> <span class="st">&quot;%H:%M&quot;</span>, <span class="dt">expand =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb12-5" data-line-number="5"><span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb12-6" data-line-number="6"><span class="st">  </span><span class="kw">scale_linetype_discrete</span>(<span class="dt">name =</span> <span class="st">&quot;Line type&quot;</span>, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;VIR&quot;</span>, <span class="kw">expression</span>(<span class="kw">paste</span>(Delta,<span class="st">&quot;VIR/scan&quot;</span>)))) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb12-7" data-line-number="7"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Time series of Vertically Integrated Reflectivities (VIR)&quot;</span>,</a>
+<a class="sourceLine" id="cb12-8" data-line-number="8">       <span class="dt">subtitle =</span> <span class="st">&quot;NYE 2017-2018&quot;</span>,</a>
+<a class="sourceLine" id="cb12-9" data-line-number="9">       <span class="dt">x =</span> <span class="st">&quot;Time (CET)&quot;</span>,</a>
+<a class="sourceLine" id="cb12-10" data-line-number="10">       <span class="dt">y =</span> <span class="st">&quot;VIR&quot;</span>,</a>
+<a class="sourceLine" id="cb12-11" data-line-number="11">       <span class="dt">colour =</span> <span class="st">&quot;Radar&quot;</span>,</a>
+<a class="sourceLine" id="cb12-12" data-line-number="12">       <span class="dt">linetype =</span> <span class="st">&quot;Linetype&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb12-13" data-line-number="13"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">-90</span>),</a>
+<a class="sourceLine" id="cb12-14" data-line-number="14">        <span class="dt">panel.grid.minor =</span> <span class="kw">element_blank</span>())</a></code></pre></div>
 <p><img src="Fireworks_files/figure-html/identify_takeoff-1.svg" width="672" /></p>
 <p>The plot shows <span class="math inline">\(\Delta VIR/{scan}\)</span> peaks much stronger and earlier for the Den Helder radar than for Herwijnen, which matches with the more pronounced change in the previous plot of the <code>vpts</code>.</p>
 <p>We can now identify which scans ‘contain’ the peak moment of take-off. The datetime values correspond with the start times of the scans and the filenames of the polar volume files.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">max_vir_deriv[, <span class="dv">2</span><span class="op">:</span><span class="dv">4</span>]</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">max_vir_deriv[, <span class="dv">2</span><span class="op">:</span><span class="dv">4</span>]</a></code></pre></div>
 <div class="kable-table">
 <table>
 <thead>
@@ -350,25 +360,25 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <tr class="odd">
 <td align="left">Den Helder</td>
 <td align="right">1839.3841</td>
-<td align="left">2017-12-31 23:05:04</td>
+<td align="left">2017-12-31 23:05:00</td>
 </tr>
 <tr class="even">
 <td align="left">Herwijnen</td>
 <td align="right">991.1317</td>
-<td align="left">2017-12-31 23:10:04</td>
+<td align="left">2017-12-31 23:10:00</td>
 </tr>
 </tbody>
 </table>
 </div>
 <p>To illustrate the processing workflow, we focus on these peak moments of take-off, so we store their identifiers for later use.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">pvol_folder &lt;-<span class="st"> &quot;data/raw/pvol/fireworks-2017-2018/&quot;</span></a>
-<a class="sourceLine" id="cb12-2" data-line-number="2">hrw_dt_str &lt;-<span class="st"> </span><span class="kw">strftime</span>(max_vir_deriv[[<span class="dv">2</span>, <span class="dv">4</span>]], <span class="dt">format =</span> <span class="st">&quot;%Y%m%d%H%M&quot;</span>)</a>
-<a class="sourceLine" id="cb12-3" data-line-number="3">dhl_dt_str &lt;-<span class="st"> </span><span class="kw">strftime</span>(max_vir_deriv[[<span class="dv">1</span>, <span class="dv">4</span>]], <span class="dt">format =</span> <span class="st">&quot;%Y%m%d%H%M&quot;</span>)</a>
-<a class="sourceLine" id="cb12-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb12-5" data-line-number="5">pvol_hrw_path &lt;-<span class="st"> </span><span class="kw">paste</span>(pvol_folder, <span class="st">&quot;RAD_NL62_VOL_NA_&quot;</span>, hrw_dt_str, <span class="st">&quot;_ODIM.h5&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)</a>
-<a class="sourceLine" id="cb12-6" data-line-number="6">pvol_dhl_path &lt;-<span class="st"> </span><span class="kw">paste</span>(pvol_folder, <span class="st">&quot;RAD_NL61_VOL_NA_&quot;</span>, dhl_dt_str, <span class="st">&quot;_ODIM.h5&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)</a>
-<a class="sourceLine" id="cb12-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb12-8" data-line-number="8"><span class="kw">save</span>(pvol_hrw_path, pvol_dhl_path, <span class="dt">file =</span> <span class="st">&quot;data/processed/pvol_selection.RData&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">pvol_folder &lt;-<span class="st"> &quot;data/raw/pvol/fireworks-2017-2018/&quot;</span></a>
+<a class="sourceLine" id="cb14-2" data-line-number="2">hrw_dt_str &lt;-<span class="st"> </span><span class="kw">strftime</span>(max_vir_deriv[[<span class="dv">2</span>, <span class="dv">4</span>]], <span class="dt">format =</span> <span class="st">&quot;%Y%m%d%H%M&quot;</span>)</a>
+<a class="sourceLine" id="cb14-3" data-line-number="3">dhl_dt_str &lt;-<span class="st"> </span><span class="kw">strftime</span>(max_vir_deriv[[<span class="dv">1</span>, <span class="dv">4</span>]], <span class="dt">format =</span> <span class="st">&quot;%Y%m%d%H%M&quot;</span>)</a>
+<a class="sourceLine" id="cb14-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb14-5" data-line-number="5">pvol_hrw_path &lt;-<span class="st"> </span><span class="kw">paste</span>(pvol_folder, <span class="st">&quot;RAD_NL62_VOL_NA_&quot;</span>, hrw_dt_str, <span class="st">&quot;_ODIM.h5&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)</a>
+<a class="sourceLine" id="cb14-6" data-line-number="6">pvol_dhl_path &lt;-<span class="st"> </span><span class="kw">paste</span>(pvol_folder, <span class="st">&quot;RAD_NL61_VOL_NA_&quot;</span>, dhl_dt_str, <span class="st">&quot;_ODIM.h5&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)</a>
+<a class="sourceLine" id="cb14-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb14-8" data-line-number="8"><span class="kw">save</span>(pvol_hrw_path, pvol_dhl_path, <span class="dt">file =</span> <span class="st">&quot;data/processed/pvol_selection.RData&quot;</span>)</a></code></pre></div>
 <p>So we will continue using the following files in this study:</p>
 <ul>
 <li><strong>Herwijnen</strong>: <code>RAD_NL62_VOL_NA_201712312310_ODIM.h5</code></li>
@@ -379,47 +389,47 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2><span class="header-section-number">1.5</span> Determining maximum range from radar to detect birds</h2>
 <p>We can assume that the flight altitudes derived from <code>vol2bird</code> are representative for flight altitudes throughout the country. Given that most of the disturbance happens at comparatively low altitudes, the radar is likely to ‘overshoot’ this entirely at substantial distances away from the radar where compensating for range-effects (e.g. using <span class="citation">(Kranstauber et al. <a href="#ref-kranstauber2020">2020</a>)</span>) will thus have no effect. Therefore we need to calculate the maximum range we could still feasibly measure birds aloft.</p>
 <p>We define the minimum altitude a radar beam must propagate through as the heighest altitude during the fireworks event below which 90% of birds pass through. Assuming uniform distribution of flight altitudes, this would leave 5% of the numbers of birds aloft at range to apply range-bias correction with <span class="citation">(Kranstauber et al. <a href="#ref-kranstauber2020">2020</a>)</span>.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">alt_cutoff &lt;-<span class="st"> </span><span class="fl">0.90</span></a>
-<a class="sourceLine" id="cb13-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb13-3" data-line-number="3">dens_hrw &lt;-<span class="st"> </span><span class="kw">get_quantity</span>(fw_hrw_vpts[indexes_hrw], <span class="st">&quot;dens&quot;</span>)</a>
-<a class="sourceLine" id="cb13-4" data-line-number="4">dens_dhl &lt;-<span class="st"> </span><span class="kw">get_quantity</span>(fw_dhl_vpts[indexes_dhl], <span class="st">&quot;dens&quot;</span>)</a>
-<a class="sourceLine" id="cb13-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb13-6" data-line-number="6"><span class="kw">apply</span>(dens_hrw, <span class="dv">2</span>, <span class="cf">function</span>(x) {<span class="kw">min</span>(<span class="kw">which</span>(<span class="kw">cumsum</span>(x) <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(x) <span class="op">&gt;</span><span class="st"> </span>alt_cutoff))}) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb13-7" data-line-number="7"><span class="st">  </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb13-8" data-line-number="8"><span class="st">  </span>tibble<span class="op">::</span><span class="kw">rownames_to_column</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb13-9" data-line-number="9"><span class="st">  </span><span class="kw">rename</span>(<span class="st">&quot;datetime&quot;</span> =<span class="st"> &quot;rowname&quot;</span>, <span class="st">&quot;height_bin&quot;</span> =<span class="st"> </span><span class="dv">2</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb13-10" data-line-number="10"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">datetime =</span> <span class="kw">as.POSIXct</span>(datetime), <span class="dt">radar =</span> <span class="st">&quot;Herwijnen&quot;</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb13-11" data-line-number="11"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">height_bin =</span> height_bin <span class="op">*</span><span class="st"> </span>fw_hrw_vpts<span class="op">$</span>attributes<span class="op">$</span>where<span class="op">$</span>interval) -&gt;<span class="st"> </span>altitudes_hrw</a>
-<a class="sourceLine" id="cb13-12" data-line-number="12"></a>
-<a class="sourceLine" id="cb13-13" data-line-number="13"><span class="kw">apply</span>(dens_dhl, <span class="dv">2</span>, <span class="cf">function</span>(x) {<span class="kw">min</span>(<span class="kw">which</span>(<span class="kw">cumsum</span>(x) <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(x) <span class="op">&gt;</span><span class="st"> </span>alt_cutoff))}) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb13-14" data-line-number="14"><span class="st">  </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb13-15" data-line-number="15"><span class="st">  </span>tibble<span class="op">::</span><span class="kw">rownames_to_column</span>() <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb13-16" data-line-number="16"><span class="st">  </span><span class="kw">rename</span>(<span class="st">&quot;datetime&quot;</span> =<span class="st"> &quot;rowname&quot;</span>, <span class="st">&quot;height_bin&quot;</span> =<span class="st"> </span><span class="dv">2</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb13-17" data-line-number="17"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">datetime =</span> <span class="kw">as.POSIXct</span>(datetime), <span class="dt">radar =</span> <span class="st">&quot;Den Helder&quot;</span>) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb13-18" data-line-number="18"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">height_bin =</span> height_bin <span class="op">*</span><span class="st"> </span>fw_dhl_vpts<span class="op">$</span>attributes<span class="op">$</span>where<span class="op">$</span>interval) -&gt;<span class="st"> </span>altitudes_dhl</a>
-<a class="sourceLine" id="cb13-19" data-line-number="19"></a>
-<a class="sourceLine" id="cb13-20" data-line-number="20"><span class="kw">bind_rows</span>(altitudes_hrw, altitudes_dhl) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb13-21" data-line-number="21"><span class="st">  </span><span class="kw">filter</span>(<span class="kw">is.finite</span>(height_bin)) <span class="op">%&gt;%</span></a>
-<a class="sourceLine" id="cb13-22" data-line-number="22"><span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span></a>
-<a class="sourceLine" id="cb13-23" data-line-number="23"><span class="st">  </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> datetime, <span class="dt">y =</span> height_bin, <span class="dt">group =</span> radar, <span class="dt">colour =</span> radar)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb13-24" data-line-number="24"><span class="st">  </span><span class="kw">scale_x_datetime</span>(<span class="dt">breaks =</span> <span class="st">&quot;10 min&quot;</span>, <span class="dt">date_labels =</span> <span class="st">&quot;%H:%M&quot;</span>, <span class="dt">expand =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="op">+</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb13-25" data-line-number="25"><span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">breaks =</span> scales<span class="op">::</span><span class="kw">pretty_breaks</span>(<span class="dv">20</span>)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb13-26" data-line-number="26"><span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>)) <span class="op">+</span></a>
-<a class="sourceLine" id="cb13-27" data-line-number="27"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="kw">paste</span>(<span class="st">&quot;Altitude below which &quot;</span>, alt_cutoff <span class="op">*</span><span class="st"> </span><span class="dv">100</span>, <span class="st">&quot;% of birds fly&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>),</a>
-<a class="sourceLine" id="cb13-28" data-line-number="28">       <span class="dt">subtitle =</span> <span class="st">&quot;NYE 2017-2018&quot;</span>,</a>
-<a class="sourceLine" id="cb13-29" data-line-number="29">       <span class="dt">x =</span> <span class="st">&quot;Time (CET)&quot;</span>,</a>
-<a class="sourceLine" id="cb13-30" data-line-number="30">       <span class="dt">y =</span> <span class="st">&quot;Altitude&quot;</span>,</a>
-<a class="sourceLine" id="cb13-31" data-line-number="31">       <span class="dt">colour =</span> <span class="st">&quot;Radar&quot;</span>) <span class="op">+</span></a>
-<a class="sourceLine" id="cb13-32" data-line-number="32"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">-90</span>),</a>
-<a class="sourceLine" id="cb13-33" data-line-number="33">        <span class="dt">panel.grid.minor =</span> <span class="kw">element_blank</span>())</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">alt_cutoff &lt;-<span class="st"> </span><span class="fl">0.90</span></a>
+<a class="sourceLine" id="cb15-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb15-3" data-line-number="3">dens_hrw &lt;-<span class="st"> </span><span class="kw">get_quantity</span>(fw_hrw_vpts[indexes_hrw], <span class="st">&quot;dens&quot;</span>)</a>
+<a class="sourceLine" id="cb15-4" data-line-number="4">dens_dhl &lt;-<span class="st"> </span><span class="kw">get_quantity</span>(fw_dhl_vpts[indexes_dhl], <span class="st">&quot;dens&quot;</span>)</a>
+<a class="sourceLine" id="cb15-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb15-6" data-line-number="6"><span class="kw">apply</span>(dens_hrw, <span class="dv">2</span>, <span class="cf">function</span>(x) {<span class="kw">min</span>(<span class="kw">which</span>(<span class="kw">cumsum</span>(x) <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(x) <span class="op">&gt;</span><span class="st"> </span>alt_cutoff))}) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb15-7" data-line-number="7"><span class="st">  </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb15-8" data-line-number="8"><span class="st">  </span>tibble<span class="op">::</span><span class="kw">rownames_to_column</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb15-9" data-line-number="9"><span class="st">  </span><span class="kw">rename</span>(<span class="st">&quot;datetime&quot;</span> =<span class="st"> &quot;rowname&quot;</span>, <span class="st">&quot;height_bin&quot;</span> =<span class="st"> </span><span class="dv">2</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb15-10" data-line-number="10"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">datetime =</span> <span class="kw">as.POSIXct</span>(datetime), <span class="dt">radar =</span> <span class="st">&quot;Herwijnen&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb15-11" data-line-number="11"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">height_bin =</span> height_bin <span class="op">*</span><span class="st"> </span>fw_hrw_vpts<span class="op">$</span>attributes<span class="op">$</span>where<span class="op">$</span>interval) -&gt;<span class="st"> </span>altitudes_hrw</a>
+<a class="sourceLine" id="cb15-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb15-13" data-line-number="13"><span class="kw">apply</span>(dens_dhl, <span class="dv">2</span>, <span class="cf">function</span>(x) {<span class="kw">min</span>(<span class="kw">which</span>(<span class="kw">cumsum</span>(x) <span class="op">/</span><span class="st"> </span><span class="kw">sum</span>(x) <span class="op">&gt;</span><span class="st"> </span>alt_cutoff))}) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb15-14" data-line-number="14"><span class="st">  </span><span class="kw">as.data.frame</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb15-15" data-line-number="15"><span class="st">  </span>tibble<span class="op">::</span><span class="kw">rownames_to_column</span>() <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb15-16" data-line-number="16"><span class="st">  </span><span class="kw">rename</span>(<span class="st">&quot;datetime&quot;</span> =<span class="st"> &quot;rowname&quot;</span>, <span class="st">&quot;height_bin&quot;</span> =<span class="st"> </span><span class="dv">2</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb15-17" data-line-number="17"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">datetime =</span> <span class="kw">as.POSIXct</span>(datetime), <span class="dt">radar =</span> <span class="st">&quot;Den Helder&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb15-18" data-line-number="18"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">height_bin =</span> height_bin <span class="op">*</span><span class="st"> </span>fw_dhl_vpts<span class="op">$</span>attributes<span class="op">$</span>where<span class="op">$</span>interval) -&gt;<span class="st"> </span>altitudes_dhl</a>
+<a class="sourceLine" id="cb15-19" data-line-number="19"></a>
+<a class="sourceLine" id="cb15-20" data-line-number="20"><span class="kw">bind_rows</span>(altitudes_hrw, altitudes_dhl) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb15-21" data-line-number="21"><span class="st">  </span><span class="kw">filter</span>(<span class="kw">is.finite</span>(height_bin)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb15-22" data-line-number="22"><span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb15-23" data-line-number="23"><span class="st">  </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> datetime, <span class="dt">y =</span> height_bin, <span class="dt">group =</span> radar, <span class="dt">colour =</span> radar)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb15-24" data-line-number="24"><span class="st">  </span><span class="kw">scale_x_datetime</span>(<span class="dt">breaks =</span> <span class="st">&quot;10 min&quot;</span>, <span class="dt">date_labels =</span> <span class="st">&quot;%H:%M&quot;</span>, <span class="dt">expand =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb15-25" data-line-number="25"><span class="st">  </span><span class="kw">scale_y_continuous</span>(<span class="dt">breaks =</span> scales<span class="op">::</span><span class="kw">pretty_breaks</span>(<span class="dv">20</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb15-26" data-line-number="26"><span class="st">  </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> <span class="kw">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;red&quot;</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb15-27" data-line-number="27"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="kw">paste</span>(<span class="st">&quot;Altitude below which &quot;</span>, alt_cutoff <span class="op">*</span><span class="st"> </span><span class="dv">100</span>, <span class="st">&quot;% of birds fly&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>),</a>
+<a class="sourceLine" id="cb15-28" data-line-number="28">       <span class="dt">subtitle =</span> <span class="st">&quot;NYE 2017-2018&quot;</span>,</a>
+<a class="sourceLine" id="cb15-29" data-line-number="29">       <span class="dt">x =</span> <span class="st">&quot;Time (CET)&quot;</span>,</a>
+<a class="sourceLine" id="cb15-30" data-line-number="30">       <span class="dt">y =</span> <span class="st">&quot;Altitude&quot;</span>,</a>
+<a class="sourceLine" id="cb15-31" data-line-number="31">       <span class="dt">colour =</span> <span class="st">&quot;Radar&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb15-32" data-line-number="32"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">-90</span>),</a>
+<a class="sourceLine" id="cb15-33" data-line-number="33">        <span class="dt">panel.grid.minor =</span> <span class="kw">element_blank</span>())</a></code></pre></div>
 <p><img src="Fireworks_files/figure-html/determine_range_of_overshoot-1.svg" width="672" /></p>
 <p>We can see in this plot, and the earlier <code>vpts</code> of Den Helder that there is substantial noise at higher altitudes causing odd spikes in the altitudes. It seems that an altitude of <em>800m</em> as a cutoff point strikes a good balance for both Herwijnen and Den Helder radars. Now we can calculate the distance at which that height is the height of the lowest elevation (0.3 degrees) and round to the nearest kilometer.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">altitude_cutoff &lt;-<span class="st"> </span><span class="dv">800</span></a>
-<a class="sourceLine" id="cb14-2" data-line-number="2">ranges &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">180000</span>, <span class="dv">100</span>)</a>
-<a class="sourceLine" id="cb14-3" data-line-number="3">beamheights &lt;-<span class="st"> </span><span class="kw">beam_height</span>(ranges, <span class="fl">0.3</span>)</a>
-<a class="sourceLine" id="cb14-4" data-line-number="4">nearest_index &lt;-<span class="st"> </span><span class="kw">which</span>(<span class="kw">abs</span>(beamheights <span class="op">-</span><span class="st"> </span>altitude_cutoff) <span class="op">==</span><span class="st"> </span><span class="kw">min</span>(<span class="kw">abs</span>(beamheights <span class="op">-</span><span class="st"> </span>altitude_cutoff)))</a>
-<a class="sourceLine" id="cb14-5" data-line-number="5">distance_cutoff &lt;-<span class="st"> </span>plyr<span class="op">::</span><span class="kw">round_any</span>(ranges[nearest_index], <span class="dv">1000</span>)</a>
-<a class="sourceLine" id="cb14-6" data-line-number="6">distance_cutoff</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">altitude_cutoff &lt;-<span class="st"> </span><span class="dv">800</span></a>
+<a class="sourceLine" id="cb16-2" data-line-number="2">ranges &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">180000</span>, <span class="dv">100</span>)</a>
+<a class="sourceLine" id="cb16-3" data-line-number="3">beamheights &lt;-<span class="st"> </span><span class="kw">beam_height</span>(ranges, <span class="fl">0.3</span>)</a>
+<a class="sourceLine" id="cb16-4" data-line-number="4">nearest_index &lt;-<span class="st"> </span><span class="kw">which</span>(<span class="kw">abs</span>(beamheights <span class="op">-</span><span class="st"> </span>altitude_cutoff) <span class="op">==</span><span class="st"> </span><span class="kw">min</span>(<span class="kw">abs</span>(beamheights <span class="op">-</span><span class="st"> </span>altitude_cutoff)))</a>
+<a class="sourceLine" id="cb16-5" data-line-number="5">distance_cutoff &lt;-<span class="st"> </span>plyr<span class="op">::</span><span class="kw">round_any</span>(ranges[nearest_index], <span class="dv">1000</span>)</a>
+<a class="sourceLine" id="cb16-6" data-line-number="6">distance_cutoff</a></code></pre></div>
 <pre><code>## [1] 80000</code></pre>
 <p>So at roughly 80 kilometers from the radar, the lowest elevation scan pierces the sky at an altitude (800m) where we could still expect ~10% of birds to be above.</p>
 
