@@ -324,8 +324,8 @@ vp_hrw <- calculate_vp(file = pvol_hrw_path, vpfile = paste("data/processed/vp/"
 vp_dhl <- calculate_vp(file = pvol_dhl_path, vpfile = paste("data/processed/vp/", basename(pvol_dhl_path), sep = ""), 
                        verbose = FALSE, azim_min = 90, azim_max = 200)
 
-corrected_ppi_hrw <- integrate_to_ppi(pvol_hrw, vp_hrw, res = 500, xlim = c(-150000, 150000), ylim = c(-150000, 150000))
-corrected_ppi_dhl <- integrate_to_ppi(pvol_dhl, vp_dhl, res = 500, xlim = c(-150000, 150000), ylim = c(-150000, 150000))
+corrected_ppi_hrw <- integrate_to_ppi(pvol_hrw, vp_hrw, res = 1000, xlim = c(-150000, 150000), ylim = c(-150000, 150000))
+corrected_ppi_dhl <- integrate_to_ppi(pvol_dhl, vp_dhl, res = 1000, xlim = c(-150000, 150000), ylim = c(-150000, 150000))
 
 saveRDS(corrected_ppi_hrw, file = "data/processed/corrected_ppi_hrw.RDS")
 saveRDS(corrected_ppi_dhl, file = "data/processed/corrected_ppi_dhl.RDS")
@@ -339,16 +339,6 @@ p_vir_dhl <- plot(corrected_ppi_dhl, param = "VIR", zlim = c(0, 20000)) + labs(t
 ggarrange(p_vir_hrw, p_vir_dhl, ncol = 2, nrow = 1, common.legend = TRUE, legend = "right")
 ```
 
-It's a little hard to interpret with the PPI pixels that contain no birds set to `0` and no landscape below, so let’s see what it looks like on a basemap. As there are some ships out at the North Sea causing reflectivities orders of magnitude higher and thus stretching the colormap, we — for now — need to 'clip' these values to a maximum set at the value of the 99th percentile.
-
-```{r clip_values_for_visualisation}
-source("R/clip.R")
-filtered_corrected_ppi_hrw <- corrected_ppi_hrw
-filtered_corrected_ppi_hrw$data@data <- as.data.frame(apply(filtered_corrected_ppi_hrw$data@data, 2, clip, bounds = c(0.05, 0.99)))
-filtered_corrected_ppi_dhl <- corrected_ppi_dhl
-filtered_corrected_ppi_dhl$data@data <- as.data.frame(apply(filtered_corrected_ppi_dhl$data@data, 2, clip, bounds = c(0.05, 0.99)))
-```
-
 ## Distance to radar
 
 To assess the quality of the range-bias correction, it is also useful to calculate the distance to the radar from a given PPI pixel. Ideally, the range-bias correction would strongly reduce the effect of distance to the radar for measured densities of birds, but we still have to see if that is the case indeed. By including the distance to the radar in the PPIs, we can also include it in our modelling efforts later on.
@@ -358,12 +348,11 @@ source("R/calculate_distance_to_radar.R")
 
 corrected_ppi_hrw <- calculate_distance_to_radar(corrected_ppi_hrw)
 corrected_ppi_dhl <- calculate_distance_to_radar(corrected_ppi_dhl)
-
-saveRDS(corrected_ppi_hrw, file = "data/processed/corrected_ppi_hrw.RDS")
-saveRDS(corrected_ppi_dhl, file = "data/processed/corrected_ppi_dhl.RDS")
 ```
 
 ## Spatial coordinates
+
+Furthermore, it can be useful to keep spatial coordinates to correct for spatial autocorrelation should this be necessary, so we calculate these as well.
 
 ```{r add_spatial_coordinates}
 coords_hrw <- coordinates(corrected_ppi_hrw$data)
@@ -373,6 +362,21 @@ corrected_ppi_hrw$data$y <- coords_hrw[, 2]
 coords_dhl <- coordinates(corrected_ppi_dhl$data)
 corrected_ppi_dhl$data$x <- coords_dhl[, 1]
 corrected_ppi_dhl$data$y <- coords_dhl[, 2]
+
+saveRDS(corrected_ppi_hrw, file = "data/processed/corrected_ppi_hrw.RDS")
+saveRDS(corrected_ppi_dhl, file = "data/processed/corrected_ppi_dhl.RDS")
+```
+
+## Visualising range-bias correction
+
+Now we can finally have a proper look at the range-corrected versions of the PPI overlaid on an interactive map. It's a little hard to interpret with the PPI pixels that contain no birds set to `0` and no landscape below, so let’s see what it looks like on a basemap with those removed. As there are some ships out at the North Sea causing reflectivities orders of magnitude higher and thus stretching the colormap, we — for now — need to 'clip' these values to a maximum set at the value of the 99th percentile.
+
+```{r clip_values_for_visualisation}
+source("R/clip.R")
+filtered_corrected_ppi_hrw <- corrected_ppi_hrw
+filtered_corrected_ppi_hrw$data@data <- as.data.frame(apply(filtered_corrected_ppi_hrw$data@data, 2, clip, bounds = c(0.05, 0.99)))
+filtered_corrected_ppi_dhl <- corrected_ppi_dhl
+filtered_corrected_ppi_dhl$data@data <- as.data.frame(apply(filtered_corrected_ppi_dhl$data@data, 2, clip, bounds = c(0.05, 0.99)))
 ```
 
 ### Range-corrected PPI of Herwijnen radar
@@ -411,7 +415,8 @@ for (pvol in hrw_pvols) {
   preprocess_radar_data(pvol_path = pvol, 
                         ei_rays = ei_rays_hrw, 
                         pvol_dynamic_groundclutter = dynamic_groundclutter_hrw,
-                        pvol_static_groundclutter = static_groundclutter_hrw)
+                        pvol_static_groundclutter = static_groundclutter_hrw,
+                        res = 1000)
 }
 
 for (pvol in dhl_pvols) {
@@ -419,6 +424,7 @@ for (pvol in dhl_pvols) {
                         ei_rays = ei_rays_dhl,
                         pvol_dynamic_groundclutter = dynamic_groundclutter_dhl,
                         pvol_static_groundclutter = static_groundclutter_dhl, 
-                        azim_limits = c(90, 200))
+                        azim_limits = c(90, 200),
+                        res = 1000)
 }
 ```

@@ -1,6 +1,6 @@
-# Visualising NYE 2017-2018
+# Composite all PPIs
 
-With all the preprocessing done, we can now visualise the fireworks disturbance of NYE 2017-2018 with a composite PPI for both the Den Helder and Herwijnen radars.
+With all the preprocessing done, we can now make composites of the PPIs to 'solve' the overlapping areas of the Den Helder and Herwijnen radars. While we're at it, we will also render out these composites, to visualise the en-masse take-off of birds.
 
 ## Setting-up the environment
 
@@ -14,9 +14,10 @@ library(viridis)
 
 ## Generating the composite PPIs
 
-We will loop over all the Herwijnen and Den Helder PPIs we have generated so far, create composite PPIs for these and save these as a bunch of .png files we can use separately or include in the animated GIF below.
+We will loop over all the Herwijnen and Den Helder PPIs we have generated so far, create composite PPIs for these and additionally save these as a bunch of .png files we can use separately or include in the animated GIF below.
 
-```{r generating_composites, fig.width=10, fig.height=10, eval=full_repro, message=FALSE, warning=FALSE}
+```{r generating_composites, fig.width=10, fig.height=10, message=FALSE, warning=FALSE}
+source("R/comp_ppi.R")
 hrw_ppis <- Sys.glob(file.path("data/processed/final-ppis", "*NL62*"))
 dhl_ppis <- Sys.glob(file.path("data/processed/final-ppis", "*NL61*"))
 
@@ -26,16 +27,25 @@ for (i in seq_along(hrw_ppis)) {
   ppi_hrw <- readRDS(hrw_ppis[i])
   ppi_dhl <- readRDS(dhl_ppis[i])
   
-  cppi <- suppressWarnings(composite_ppi(list(ppi_hrw, ppi_dhl), param = "VIR", method = "max", nx = 1000, ny = 1000))
+  ppi_hrw$data$VIR[ppi_hrw$data$VIR == 0] <- NA
+  ppi_hrw$data$VID[ppi_hrw$data$VIR == 0] <- NA
+  ppi_dhl$data$VIR[ppi_dhl$data$VIR == 0] <- NA
+  ppi_dhl$data$VID[ppi_dhl$data$VIR == 0] <- NA
+  
+  # cppi <- suppressWarnings(composite_ppi(list(ppi_hrw, ppi_dhl), param = "VIR", method = "max", nx = 1000, ny = 1000))
+  params <- c("VIR", "VID", "R", "overlap", "eta_sum", "eta_sum_expected", 
+              "dist_radar", "x", "y", 
+              "urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies", "dist_urban", "human_pop")
+  cppi <- comp_ppi(list(ppi_hrw, ppi_dhl), param = params, method = "mean", res = c(1000, 1000))
+  
+  saveRDS(cppi, file = paste("data/processed/composite-ppis/", strftime(ppi_hrw$datetime, format = "%Y%m%d%H%M"), ".RDS", sep = ""))
   
   if (i == 1) {
     basemap <- download_basemap(cppi, alpha = 0.3)
   }
   
-  zeros <- cppi$data$VIR[cppi$data$VIR == 0]
-  cppi$data$VIR[zeros] <- NA
   cppi$data$VIR <- log10(cppi$data$VIR)
-  cppi$data$VIR[zeros] <- 0
+  cppi$data$VIR[is.na(cppi$data$VIR)] <- 0
   
   bioRad::map(cppi, map = basemap, radar_size = 1, xlim = c(3.1, 6.8), ylim = c(51, 54), zlim = c(0, 4.5), 
       palette = viridis(256, option = "viridis", alpha = 0.6)) + 
@@ -48,7 +58,7 @@ for (i in seq_along(hrw_ppis)) {
 
 ## Visualising the composites
 
-In order to run this _comparatively simple_ conversion to a GIF of the fairly PPIs, it may be necessary to increase the memory available to ImageMagick by changing the memory policy in `/etc/ImageMagick-6/policy.xml`. Additionally, we will reduce the resolution of the animated GIF.
+In order to run this _comparatively simple_ conversion to a GIF of the PPIs, it may be necessary to increase the memory available to ImageMagick by changing the memory policy in `/etc/ImageMagick-6/policy.xml`. Additionally, we will reduce the resolution of the animated GIF.
 
 ```{r process-large-composites-to-animated-gif, eval=full_repro}
 width <- 800

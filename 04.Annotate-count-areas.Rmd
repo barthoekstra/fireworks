@@ -133,7 +133,7 @@ ptt %>%
   ungroup() %>%
   filter(xcoor2 != 0) %>% # Throw out last point from route where distance to next point is not relevant
   group_by(route) %>%
-  summarise(avg_interpoint_distance = mean(interpoint_distance)) -> ptt_interpoint_distances
+  summarise(avg_interpoint_distance = mean(interpoint_distance), .groups = "keep") -> ptt_interpoint_distances
   
 ptt %>%
   left_join(ptt_interpoint_distances, by = c("route" = "route")) -> ptt
@@ -145,18 +145,22 @@ We can now calculate the convex hulls of the points grouped by `route`.
 
 ```{r calculate_route_convex_hulls, fig.show='hold'}
 ptt %>%
-  st_as_sf(coords = c("xcoor", "ycoor"), crs = 28992) %>%
+  ungroup() %>%
+  st_as_sf(coords = c("xcoor", "ycoor"), crs = 28992) %>%  # original CRS = EPSG:28992 (RD New)
   st_transform(crs = ppi_hrw$data@proj4string) %>%
   group_by(route, avg_interpoint_distance) %>%
-  summarise() %>%
-  st_convex_hull() -> ptt_convex_hulls_hrw
+  summarise(.groups = "drop") %>%
+  st_convex_hull() %>%
+  st_as_sf() -> ptt_convex_hulls_hrw  # Somehow it's necessary to reconvert to sf?
 
 ptt %>%
-  st_as_sf(coords = c("xcoor", "ycoor"), crs = 28992) %>%  # original CRS = EPSG:28992 (RD New)
+  ungroup() %>%
+  st_as_sf(coords = c("xcoor", "ycoor"), crs = 28992) %>%
   st_transform(crs = ppi_dhl$data@proj4string) %>%
   group_by(route, avg_interpoint_distance) %>%
-  summarise() %>%
-  st_convex_hull() -> ptt_convex_hulls_dhl
+  summarise(.groups = "drop") %>%
+  st_convex_hull() %>%
+  st_as_sf() -> ptt_convex_hulls_dhl
 
 plot(ptt_convex_hulls_hrw[1], main = "PTT Routes Herwijnen: Route")
 plot(ptt_convex_hulls_hrw[2], main = "PTT Routes Herwijnen: Avg interpoint dist.")

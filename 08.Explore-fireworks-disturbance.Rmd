@@ -96,8 +96,7 @@ ppi_hrw %>%
   filter_at(vars(wb_total_biomass, ptt_total_biomass), any_vars(!is.na(.))) %>%
   rowwise() %>%
   mutate(total_biomass = sum(wb_total_biomass, ptt_total_biomass, na.rm = TRUE)) %>%
-  ungroup() %>%
-  rename(human_pop = pop)  -> hrw
+  ungroup() -> hrw
 
 ppi_dhl %>%
   left_join(dplyr::select(wb, area_nr, total_biomass), by = c("wb_area_nr" = "area_nr")) %>%
@@ -115,8 +114,7 @@ ppi_dhl %>%
   filter_at(vars(wb_total_biomass, ptt_total_biomass), any_vars(!is.na(.))) %>%
   rowwise() %>%
   mutate(total_biomass = sum(wb_total_biomass, ptt_total_biomass, na.rm = TRUE)) %>%
-  ungroup() %>%
-  rename(human_pop = pop) -> dhl
+  ungroup() -> dhl
 ```
 
 We can also add the `avg_bodymass` of birds within a PPI pixel, which we calculate separately from a combination of the waterbird and point-transect counts. There is no need to 'split' this over the number of PPI pixels, as it is an average that we can assume applies throughout the area.
@@ -163,15 +161,20 @@ Now, finally, all the relevant variables are present in the PPIs.
 As we're mostly interested in the moment of en masse take-off of birds, we'll subset a dataset which contains only the moments that the measured `VIR` is increasing, a period that spans 23:00 - 23:20 CET. Furthermore, we remove landuse classes if less than 50 PPI pixels per timeframe are contained within the dataset, to ensure the training and bootstrapping process will have sufficient datapoints to work with.
 
 ```{r}
-start <- as.POSIXct("2017-12-31 23:00:00", tz = "UTC")
-end <- as.POSIXct("2017-12-31 23:20:05", tz = "UTC")
+# start <- as.POSIXct("2017-12-31 23:00:00", tz = "UTC")
+# end <- as.POSIXct("2017-12-31 23:20:05", tz = "UTC")
+
+start <- as.POSIXct("2017-12-31 23:05:00", tz = "UTC")
+end <- as.POSIXct("2017-12-31 23:10:00", tz = "UTC")
 
 mdl_variables <- c("VIR", "datetime", "dist_radar", "x", "y", "landuse_class", 
                    "total_biomass", "avg_bodymass", "dist_urban", "human_pop", "disturb_pot", "pixel")  # all
 mdl_variables <- c("VIR", "datetime", "dist_radar", "landuse_class", 
                    "total_biomass", "dist_urban", "human_pop", "disturb_pot", "pixel")
-log10_variables <- c("VIR", "dist_urban", "human_pop", "total_biomass", "avg_bodymass", "dist_urban", "disturb_pot")
-factor_variables <- c("landuse_class", "datetime")
+mdl_variables <- c("VIR", "total_biomass", "dist_radar", "agricultural", "semiopen", "forests", "wetlands", "waterbodies",
+                   "dist_urban", "human_pop", "disturb_pot")
+log10_variables <- c("VIR", "dist_urban", "human_pop", "total_biomass", "dist_urban", "disturb_pot")
+# factor_variables <- c("landuse_class", "datetime")
 
 prepare_modelling_dataset <- function(x, variables, dt_start, dt_end, VIR_minimum = 0, min_sample_size = 50) {
   x %>%
@@ -181,12 +184,7 @@ prepare_modelling_dataset <- function(x, variables, dt_start, dt_end, VIR_minimu
            dist_radar < 80000) %>%
     dplyr::select(all_of(mdl_variables)) %>%
     mutate_if(names(.) %in% log10_variables, log10) %>%
-    ungroup() %>%
-    group_by(landuse_class, datetime) %>%
-    mutate(nr_cells = n()) %>%
-    filter(nr_cells > min_sample_size) %>%
-    ungroup() %>%
-    mutate_at(vars(all_of(factor_variables)), factor) %>%
+    # mutate_if(is.numeric, log10) %>%
     filter_all(all_vars(is.finite(.))) %>%
     as.data.frame() %>%
     droplevels() -> y
@@ -197,8 +195,14 @@ prepare_modelling_dataset <- function(x, variables, dt_start, dt_end, VIR_minimu
 hrw_cleaned <- prepare_modelling_dataset(hrw, variables = mdl_variables, dt_start = start, dt_end = end)
 dhl_cleaned <- prepare_modelling_dataset(dhl, variables = mdl_variables, dt_start = start, dt_end = end)
 
+hrw_cleaned$radar <- "Herwijnen"
+dhl_cleaned$radar <- "Den Helder"
+all_cleaned <- bind_rows(hrw_cleaned, dhl_cleaned)
+all_cleaned$radar <- as.factor(all_cleaned$radar)
+
 saveRDS(hrw_cleaned, file = "data/models/hrw_cleaned.RDS")
 saveRDS(dhl_cleaned, file = "data/models/dhl_cleaned.RDS")
+saveRDS(all_cleaned, file = "data/models/all.RDS")
 ```
 
 ## Check for correlations among predictors
@@ -210,11 +214,22 @@ dhl_cleaned["radar"] <- "Den Helder"
 hrw_cleaned["radar"] <- "Herwijnen"
 radar_cleaned <- bind_rows(dhl_cleaned, hrw_cleaned)
 
-predictors <- mdl_variables[!mdl_variables %in% c("VIR", "landuse_class", "landuse", "datetime", "pixel", "x", "y")]
-corr_radar <- grouped_ggcorrmat(radar_cleaned, output = "plot", type = "spearman", cor.vars = all_of(predictors), grouping.var = "radar",
-                                colors = c("#2166AC", "#F7F7F7", "#B2182B"), title.prefix = "Radar")
+predictors <- mdl_variables[!mdl_variables %in% c("VIR", "landuse_class", "landuse", "datetime", "pixel", "x", "y", "radar")]
+corr_radar <- ggcorrmat(all_cleaned, output = "plot", type = "spearman", cor.vars = all_of(predictors),
+                                colors = c("#2166AC", "#F7F7F7", "#B2182B"))
 corr_radar
 ```
+
+```{r}
+#  [1] "VIR"           "total_biomass" "dist_radar"    "agricultural"  "semiopen"      "forests"       "wetlands"      "waterbodies"   "dist_urban"   
+# [10] "human_pop"     "disturb_pot"   "radar"  
+dataset <- all_cleaned
+sample <- dim(dataset)[1]
+br_vir <- gbm.step(data = dataset, gbm.x = c(2, 3, 4, 5, 6, 7, 8, 11, 12), gbm.y = 1, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, 
+                   learning.rate = 0.03)
+```
+
+
 
 ## Distribution of landuse classes in modelling dataset
 
