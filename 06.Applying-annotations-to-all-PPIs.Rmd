@@ -15,7 +15,6 @@ library(tidyr)
 library(kableExtra)
 ```
 
-
 ## Load the reference PPIs
 Two PPIs have been processed all the way and those will be our 'reference' PPIs from which we copy the data over to the other PPIs which have not had the same treatment.
 
@@ -24,13 +23,52 @@ ppi_hrw <- readRDS("data/processed/corrected-ppis-lu-sovon/corrected_ppi_hrw_lu_
 ppi_dhl <- readRDS("data/processed/corrected-ppis-lu-sovon/corrected_ppi_dhl_lu_sovon.RDS")
 ```
 
+## Add biomass to reference PPIs
+We have previously calculated the `total_biomass` already for all the count areas/routes, but now we will annotate the reference PPIs with these values as well. We correct for the size of an area the count is conducted in by 'spreading' the total biomass over the number of pixels annotated with a certain count area/route. 
+
+```{r add_biomass_to_ppis}
+wb <- readRDS("data/processed/sovon/wb_biomass.RDS")
+ptt <- readRDS("data/processed/sovon/ptt_biomass.RDS")
+
+ppi_hrw$data@data %<>%
+  left_join(dplyr::select(wb, area_nr, total_biomass), by = c("wb_area_nr" = "area_nr")) %>%
+  rename(wb_total_biomass = total_biomass) %>%
+  group_by(wb_area_nr) %>%
+  mutate(wb_total_biomass = wb_total_biomass / n()) %>%  
+  ungroup() %>%
+  left_join(dplyr::select(ptt, route, total_biomass), by = c("ptt_route" = "route")) %>%
+  rename(ptt_total_biomass = total_biomass) %>%
+  group_by(ptt_route) %>%
+  mutate(ptt_total_biomass = ptt_total_biomass / n()) %>% 
+  ungroup() %>%
+  rowwise() %>%
+  mutate(total_biomass = sum(wb_total_biomass, ptt_total_biomass, na.rm = TRUE)) %>%
+  ungroup()
+
+ppi_dhl$data@data %<>%
+  left_join(dplyr::select(wb, area_nr, total_biomass), by = c("wb_area_nr" = "area_nr")) %>%
+  rename(wb_total_biomass = total_biomass) %>%
+  group_by(wb_area_nr) %>%
+  mutate(wb_total_biomass = wb_total_biomass / n()) %>%
+  ungroup() %>%
+  left_join(dplyr::select(ptt, route, total_biomass), by = c("ptt_route" = "route")) %>%
+  rename(ptt_total_biomass = total_biomass) %>%
+  group_by(ptt_route) %>%
+  mutate(ptt_total_biomass = ptt_total_biomass / n()) %>%
+  ungroup() %>%
+  rowwise() %>%
+  mutate(total_biomass = sum(wb_total_biomass, ptt_total_biomass, na.rm = TRUE)) %>%
+  ungroup()
+```
+
 ## Copy annotations from reference PPIs to other PPIs
 
 We select the variables related to land use, distance to urbanized areas and population density, waterbird counts and PTT counts and add these to the PPIs that contain just the variables resulting from the range-bias correction [@kranstauber2020]. While we are at it, we will also create dataframes containing all the information within the PPIs, to use for later modelling exercises.
 
 ```{r copy_annotations_from_reference_ppis_to_other_ppis}
 columns <- c("urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies",
-             "dist_urban", "human_pop", "wb_area_id", "wb_area_nr", "ptt_route")
+             "dist_urban", "human_pop", "wb_area_id", "wb_area_nr", "ptt_route",
+             "wb_area_id", "wb_area_nr", "wb_area_ha", "ptt_route", "wb_total_biomass", "ptt_total_biomass", "total_biomass")
 
 hrw <- ppi_hrw$data@data %>%
   dplyr::select(all_of(columns))

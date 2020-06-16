@@ -44,46 +44,6 @@ ptt_raw <- readRDS("data/processed/sovon/ptt.RDS")
 wb_raw <- readRDS("data/processed/sovon/wb.RDS")
 ```
 
-With `nr_birds` and `total_biomass` calculated, we can join the waterbird and point-transect counts with the PPIs.
-
-```{r}
-ppi_hrw %>%
-  left_join(dplyr::select(wb, area_nr, total_biomass), by = c("wb_area_nr" = "area_nr")) %>%
-  rename(wb_total_biomass = total_biomass) %>%
-  group_by(datetime, wb_area_nr) %>%
-  mutate(wb_total_biomass = wb_total_biomass / n(),
-         wb_n = n()) %>%  
-  ungroup() %>%
-  left_join(dplyr::select(ptt, route, total_biomass), by = c("ptt_route" = "route")) %>%
-  rename(ptt_total_biomass = total_biomass) %>%
-  group_by(datetime, ptt_route) %>%
-  mutate(ptt_total_biomass = ptt_total_biomass / n(),
-         ptt_n = n()) %>% 
-  ungroup() %>%
-  filter_at(vars(wb_total_biomass, ptt_total_biomass), any_vars(!is.na(.))) %>%
-  rowwise() %>%
-  mutate(total_biomass = sum(wb_total_biomass, ptt_total_biomass, na.rm = TRUE)) %>%
-  ungroup() -> hrw
-
-ppi_dhl %>%
-  left_join(dplyr::select(wb, area_nr, total_biomass), by = c("wb_area_nr" = "area_nr")) %>%
-  rename(wb_total_biomass = total_biomass) %>%
-  group_by(datetime, wb_area_nr) %>%
-  mutate(wb_total_biomass = wb_total_biomass / n(),
-         wb_n = n()) %>%
-  ungroup() %>%
-  left_join(dplyr::select(ptt, route, total_biomass), by = c("ptt_route" = "route")) %>%
-  rename(ptt_total_biomass = total_biomass) %>%
-  group_by(datetime, ptt_route) %>%
-  mutate(ptt_total_biomass = ptt_total_biomass / n(),
-         ptt_n = n()) %>%
-  ungroup() %>%
-  filter_at(vars(wb_total_biomass, ptt_total_biomass), any_vars(!is.na(.))) %>%
-  rowwise() %>%
-  mutate(total_biomass = sum(wb_total_biomass, ptt_total_biomass, na.rm = TRUE)) %>%
-  ungroup() -> dhl
-```
-
 ## Preparing a dataset for modelling
 
 As we're mostly interested in the moment of en masse take-off of birds, we'll subset a dataset which contains only the moments that the measured `VIR` is increasing, a period that spans 23:00 - 23:20 CET. Furthermore, we remove landuse classes if less than 50 PPI pixels per timeframe are contained within the dataset, to ensure the training and bootstrapping process will have sufficient datapoints to work with.
