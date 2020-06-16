@@ -98,7 +98,7 @@ comp_ppi <- function(x, param = "DBZH", nx = 100, ny = 100, xlim, ylim, res, crs
   } else {
     t_crs <- NULL
   }
-  if (!all(method %in% c("max", "min", "mean", "idw"))) stop("'method' should be one or multiple of 'max', 'mean', 'min' or 'idw'")
+  if (!all(method %in% c("max", "min", "mean", "idw", "factor"))) stop("'method' should be one or multiple of 'max', 'mean', 'min', 'idw' or 'factor'")
   if (length(method) != length(param) & length(method) != 1) stop("'method' should be of length 1 or length(param)")
   if (!missing(coverage)) {
     if (!coverage %in% c("count", "radars")) stop("'coverage' should be 'count' or 'radars'")
@@ -166,6 +166,7 @@ comp_ppi <- function(x, param = "DBZH", nx = 100, ny = 100, xlim, ylim, res, crs
   
   for (p in param) {
     if (p == "coverage") next()
+    
     if (length(param) > 1) {
       merged <- projs[p, ]
     } else {
@@ -176,6 +177,14 @@ comp_ppi <- function(x, param = "DBZH", nx = 100, ny = 100, xlim, ylim, res, crs
       param_method <- method[match(p, param)]
     } else {
       param_method <- method
+    }
+    
+    if (typeof(merged[[1]]) == "character" | param_method == "factor") {
+      # Apparently we're dealing with characters/factors, so we cannot use the regular composite methods
+      # Instead we'll return a vector of strings for overlapping values
+      c <- do.call("cbind", merged)
+      spGrid@data[, p] <- c
+      next()
     }
     
     if(param_method == "max") spGrid@data[, p] <- do.call(function(...) pmax(..., na.rm = TRUE), merged)
