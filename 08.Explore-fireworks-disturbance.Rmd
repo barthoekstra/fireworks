@@ -44,38 +44,6 @@ ptt_raw <- readRDS("data/processed/sovon/ptt.RDS")
 wb_raw <- readRDS("data/processed/sovon/wb.RDS")
 ```
 
-## Calculating bird parameters
-
-We use the waterbird count from January 2018, and the point-transect counts from 2017, as these are the best in terms of coverage. We calculate the `total_biomass` parameter first, because we need to spread these out over the number of PPI pixels that are contained within a count when we join the counts and PPIs.
-
-```{r}
-wb_year <- 2018
-ptt_year <- 2017
-
-wb_raw %>%
-  mutate(area_nr = as.character(area_nr)) %>%
-  filter(year == wb_year) %>%
-  rowwise() %>%
-  mutate(specific_biomass = number * mean_weight) %>%
-  ungroup() %>%
-  group_by(area_nr, year) %>%
-  summarise(total_biomass = sum(specific_biomass)) %>%
-  ungroup() %>%
-  group_by(area_nr) %>%  # Below is only required if year-filter is NOT set, otherwise does nothing
-  summarise(total_biomass = mean(total_biomass)) -> wb
-
-ptt_raw %>%
-  filter(year == ptt_year) %>%
-  rowwise() %>%
-  mutate(specific_biomass = number * mean_weight) %>%
-  ungroup() %>%
-  group_by(route, year) %>%
-  summarise(total_biomass = sum(specific_biomass)) %>%
-  ungroup() %>%
-  group_by(route) %>%  # Below is only required if year-filter is NOT set, otherwise does nothing
-  summarise(total_biomass = mean(total_biomass)) -> ptt
-```
-
 With `nr_birds` and `total_biomass` calculated, we can join the waterbird and point-transect counts with the PPIs.
 
 ```{r}

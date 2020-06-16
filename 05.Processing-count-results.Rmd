@@ -301,3 +301,42 @@ saveRDS(ptt_data, file = "data/processed/sovon/ptt.RDS")
 saveRDS(wb_data, file = "data/processed/sovon/wb.RDS")
 ```
 
+## Calculating total bird biomass
+
+While we are at it, we will already calculate the total biomass contained within each of the count areas, so we can then add these values to the PPIs through the IDs of the count areas/routes. We use the waterbird count from January 2018, and the point-transect counts from 2017, as these are the best in terms of coverage.
+
+```{r calculate_total_biomass}
+wb_year <- 2018
+ptt_year <- 2017
+
+wb_data %>%
+  mutate(area_nr = as.character(area_nr)) %>%
+  filter(year == wb_year) %>%
+  rowwise() %>%
+  mutate(specific_biomass = number * mean_weight) %>%
+  ungroup() %>%
+  group_by(area_nr, year) %>%
+  summarise(total_biomass = sum(specific_biomass), .groups = "drop_last") %>%
+  ungroup() %>%
+  group_by(area_nr) %>%  # Below is only required if year-filter is NOT set, otherwise does nothing
+  summarise(total_biomass = mean(total_biomass), .groups = "drop_last") -> wb_biomass
+
+ptt_data %>%
+  filter(year == ptt_year) %>%
+  rowwise() %>%
+  mutate(specific_biomass = number * mean_weight) %>%
+  ungroup() %>%
+  group_by(route, year) %>%
+  summarise(total_biomass = sum(specific_biomass), .groups = "drop_last") %>%
+  ungroup() %>%
+  group_by(route) %>%  # Below is only required if year-filter is NOT set, otherwise does nothing
+  summarise(total_biomass = mean(total_biomass), .groups = "drop_last") -> ptt_biomass
+```
+
+And now we will save these datasets of `total_biomass` as well.
+
+```{r save_total_biomass}
+saveRDS(wb_biomass, file = "data/processed/sovon/wb_biomass.RDS")
+saveRDS(ptt_biomass, file = "data/processed/sovon/ptt_biomass.RDS")
+```
+
