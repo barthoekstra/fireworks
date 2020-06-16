@@ -5,7 +5,7 @@
 We have so far:
 
 1. Pre-processed the radar data, by removing clutter and applying the range-bias correction [@kranstauber2020].
-2. Annotated the PPIs with land use classes, distance to urban areas and (human) population density.
+2. Annotated the PPIs with land use proportions, distance to urban areas and (human) population density.
 3. Annotated the PPIs with relevant count identifiers from the Sovon data.
 4. Pre-processed the Sovon counts and added relevant life-history characteristics to the species contained within.
 
@@ -14,10 +14,9 @@ With the annotated PPIs and the processed Sovon counts, we can start to explore 
 The following parameters we assume are important predictors for measured bird densities aloft:
 
 1. The total biomass of birds on the ground.
-2. The average bodymass of the birds on the ground.
-3. The take-off habitat of these birds.
-4. The human population density in the vicinity of birds.
-5. The distance to the nearest urban area.
+2. The take-off habitat of these birds.
+3. The human population density in the vicinity of birds.
+4. The distance to the nearest inhabited urban area.
 
 ## Setting-up the environment
 
@@ -116,45 +115,6 @@ ppi_dhl %>%
   mutate(total_biomass = sum(wb_total_biomass, ptt_total_biomass, na.rm = TRUE)) %>%
   ungroup() -> dhl
 ```
-
-We can also add the `avg_bodymass` of birds within a PPI pixel, which we calculate separately from a combination of the waterbird and point-transect counts. There is no need to 'split' this over the number of PPI pixels, as it is an average that we can assume applies throughout the area.
-
-```{r}
-calculate_average_bird_bodymass <- function(wb_area_nr, wb_year, ptt_route, ptt_year) {
-  wb_raw %>%
-    filter(area_nr == wb_area_nr, 
-           year == wb_year) %>%
-    dplyr::select(number, mean_weight) -> wb_temp
-  
-  ptt_raw %>%
-    filter(route == ptt_route,
-           year == ptt_year) %>%
-    dplyr::select(number, mean_weight) -> ptt_temp
-  
-  wb_temp %>%
-    bind_rows(ptt_temp) -> weights
-  
-  weighted.mean(weights$mean_weight, weights$number, na.rm = TRUE)
-}
-
-hrw %>%
-  dplyr::select(wb_area_nr, ptt_route) %>%
-  distinct() %>%
-  rowwise() %>%
-  mutate(avg_bodymass = calculate_average_bird_bodymass(wb_area_nr, wb_year, ptt_route, ptt_year)) %>%
-  right_join(hrw, by = c("wb_area_nr" = "wb_area_nr", "ptt_route" = "ptt_route")) %>%
-  ungroup() -> hrw
-
-dhl %>%
-  dplyr::select(wb_area_nr, ptt_route) %>%
-  distinct() %>%
-  rowwise() %>%
-  mutate(avg_bodymass = calculate_average_bird_bodymass(wb_area_nr, wb_year, ptt_route, ptt_year)) %>%
-  right_join(dhl, by = c("wb_area_nr" = "wb_area_nr", "ptt_route" = "ptt_route")) %>%
-  ungroup() -> dhl
-```
-
-Now, finally, all the relevant variables are present in the PPIs.
 
 ## Preparing a dataset for modelling
 
