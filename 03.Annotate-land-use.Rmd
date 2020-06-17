@@ -117,7 +117,7 @@ The `CLC2018` dataset contains a total of 44 land use classes. For our purpose, 
 
 The following table is used to convert/reclassify the classes contained within the `CLC2018` dataset, with the original land use classes under `landuse_class` and how they will be reclassified under `landuse_target`. We also indicate whether these areas are inhabited (inhabited = 1), or uninhabited (inhabited = 0).
 
-```{r}
+```{r make_land_use_reclassification_table}
 landuse_classes %<>%
   mutate(landuse_target = case_when(
     landuse_id >= 100 & landuse_id < 200 ~ "Urban area",
@@ -148,14 +148,14 @@ landuse_classes
 
 With a sort-of 'raster attribute table' in place, we can now reclassify the detailed landuse classes to the broader categories listed above.
 
-```{r}
+```{r reclassify_land_use_classes}
 landuse_dhl_reclassified <- ratify(reclassify(landuse_dhl_reprojected, cbind(landuse_classes$landuse_id, landuse_classes$landuse_target_id)), count = TRUE)
 landuse_hrw_reclassified <- ratify(reclassify(landuse_hrw_reprojected, cbind(landuse_classes$landuse_id, landuse_classes$landuse_target_id)), count = TRUE)
 ```
 
 This leaves us with the following count of ~100x100m cells per land use category
 
-```{r}
+```{r calculate_cell_counts_per_land_use_class}
 cellcounts <- cbind(levels(landuse_hrw_reclassified)[[1]]["COUNT"], levels(landuse_dhl_reclassified)[[1]]["COUNT"])
 colnames(cellcounts) <- c("Herwijnen", "Den Helder")
 rownames(cellcounts) <- unique(landuse_classes$landuse_target)[-7]
