@@ -116,15 +116,13 @@ ggplot(integrated_l, aes(x = datetime)) +
         panel.grid.minor = element_blank())
 ```
 
-The plot shows $\Delta VIR/{scan}$ peaks much stronger and earlier for the Den Helder radar than for Herwijnen, which matches with the more pronounced change in the previous plot of the `vpts`.
+The plot shows a rapid increase in `VIR` in the first 15 and 20 minutes after midnight (23:00 CET) for the Den Helder and Herwijnen radar respectively. After that period, `VIR` starts to drop, faster for Den Helder than for Herwijnen, possibly as a result of birds dispersing from the North Holland mainland towards the IJsselmeer area, which we have deliberately excluded from the generation of the vertical profiles (by selecting azimuths that are above land).
 
-We can now identify which scans 'contain' the peak moment of take-off. The datetime values correspond with the start times of the scans and the filenames of the polar volume files.
+To reduce the effect of bird dispersal on our analysis, we will thus define the take-off moment as the first 15 minutes after midnight (23:00 CET). We will use the moments of peak growth in `VIR` ($\Delta{VIR}$) to illustrate the data preprocessing with.
 
 ```{r identify_takeoff_scans}
 max_vir_deriv[, 2:4]
 ```
-
-To illustrate the processing workflow, we focus on these peak moments of take-off, so we store their identifiers for later use.
 
 ```{r save_takeoff_scans}
 pvol_folder <- "data/raw/pvol/fireworks-2017-2018/"
@@ -137,7 +135,7 @@ pvol_dhl_path <- paste(pvol_folder, "RAD_NL61_VOL_NA_", dhl_dt_str, "_ODIM.h5", 
 save(pvol_hrw_path, pvol_dhl_path, file = "data/processed/pvol_selection.RData")
 ```
 
-So we will continue using the following files in this study:
+So at first we will continue using the following files in this study:
 
 - **Herwijnen**: ``r basename(pvol_hrw_path)``
 - **Den Helder**: ``r basename(pvol_dhl_path)``
