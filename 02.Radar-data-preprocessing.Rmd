@@ -324,8 +324,8 @@ vp_hrw <- calculate_vp(file = pvol_hrw_path, vpfile = paste("data/processed/vp/"
 vp_dhl <- calculate_vp(file = pvol_dhl_path, vpfile = paste("data/processed/vp/", basename(pvol_dhl_path), sep = ""), 
                        verbose = FALSE, azim_min = 90, azim_max = 200)
 
-corrected_ppi_hrw <- integrate_to_ppi(pvol_hrw, vp_hrw, res = 1000, xlim = c(-150000, 150000), ylim = c(-150000, 150000))
-corrected_ppi_dhl <- integrate_to_ppi(pvol_dhl, vp_dhl, res = 1000, xlim = c(-150000, 150000), ylim = c(-150000, 150000))
+corrected_ppi_hrw <- integrate_to_ppi(pvol_hrw, vp_hrw, res = 500, xlim = c(-150000, 150000), ylim = c(-150000, 150000))
+corrected_ppi_dhl <- integrate_to_ppi(pvol_dhl, vp_dhl, res = 500, xlim = c(-150000, 150000), ylim = c(-150000, 150000))
 
 saveRDS(corrected_ppi_hrw, file = "data/processed/corrected_ppi_hrw.RDS")
 saveRDS(corrected_ppi_dhl, file = "data/processed/corrected_ppi_dhl.RDS")
@@ -416,7 +416,7 @@ for (pvol in hrw_pvols) {
                         ei_rays = ei_rays_hrw, 
                         pvol_dynamic_groundclutter = dynamic_groundclutter_hrw,
                         pvol_static_groundclutter = static_groundclutter_hrw,
-                        res = 1000)
+                        res = 500)
 }
 
 for (pvol in dhl_pvols) {
@@ -425,6 +425,6 @@ for (pvol in dhl_pvols) {
                         pvol_dynamic_groundclutter = dynamic_groundclutter_dhl,
                         pvol_static_groundclutter = static_groundclutter_dhl, 
                         azim_limits = c(90, 200),
-                        res = 1000)
+                        res = 500)
 }
 ```
