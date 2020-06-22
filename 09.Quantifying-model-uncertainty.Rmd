@@ -1,0 +1,36 @@
+# Quantifying model uncertainty
+
+The partial dependence plots generated in the previous chapter visualise the marginal effect of certain predictors on the outcome `log(VIR)`. We use a bootstrapping approach to quantify the model uncertainty.
+
+## Setting-up the environment
+```{r}
+library(gbm)
+library(dismo)
+library(ggBRT)
+```
+
+
+## Load the constructed models
+```{r}
+models <- readRDS("data/models/brt_models.RDS")
+```
+
+## Determine evaluation grid
+
+In the previous chapter we have seen that the partial dependence plots are difficult to interpret when the data is not distributed evenly across the entire range. A good example of this is the proportion of an area covered by `forests`: this is always never close to `1` in The Netherlands, as forests are comparatively rare habitats. Instead of bootstrapping estimates for the entire domain of variable values, we will thus limit it by the central 90% of the data. The calculation of the evaluation grid is based off of the `plot.gbm.4list()` function, originally written by Elith & Leathwick (@TODO: Add ref), included in `ggBRT`, so we can directly plug it in the bootstrapping functions provided by the same package.
+
+```{r}
+calculate_evaluation_grid <- function(model, qlim = c(0.05, 0.95), continuous.resolution = 100) {
+  variables <- model$var.names
+  grid <- vector("list", length(variables))
+  for (i in seq_along(variables)) {
+    quantiles <- quantile(model$gbm.call$dataframe[, variables[i]], qlim)
+    grid[[i]] <- expand.grid(seq(from = quantiles[1], to = quantiles[2], length.out = continuous.resolution))
+    colnames(grid[[i]]) <- paste("X", i, sep = "")
+  }
+  grid
+}
+
+grid <- calculate_evaluation_grid(models[[2]], qlim = c(0.05, 0.95))
+```
+
