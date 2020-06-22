@@ -1,21 +1,20 @@
 # (PART) Fireworks disturbance {-}
 
-# Exploring fireworks disturbance
+# Modelling fireworks disturbance
 
 We have so far:
 
-1. Pre-processed the radar data, by removing clutter and applying the range-bias correction [@kranstauber2020].
-2. Annotated the PPIs with land use proportions, distance to urban areas and (human) population density.
-3. Annotated the PPIs with relevant count identifiers from the Sovon data.
-4. Pre-processed the Sovon counts and added relevant life-history characteristics to the species contained within.
+1. Pre-processed the radar data by removing clutter and applying the range-bias correction [@kranstauber2020].
+2. Annotated the PPIs with land use proportions and indicators of disturbance, i.e. distance to inhabited urban areas and (human) population density.
+3. Annotated the PPIs with the calculated total biomass calculated from the Sovon counts.
 
-With the annotated PPIs and the processed Sovon counts, we can start to explore the relation between fireworks disturbance and the birds measured aloft during NYE 2017-2018.
+With the dataset of annotated PPIs, we can start to explore the relation between fireworks disturbance and the birds measured aloft during NYE 2017-2018.
 
 The following parameters we assume are important predictors for measured bird densities aloft:
 
 1. The total biomass of birds on the ground.
 2. The take-off habitat of these birds.
-3. The human population density in the vicinity of birds.
+3. The human population in the vicinity of birds.
 4. The distance to the nearest inhabited urban area.
 
 ## Setting-up the environment
@@ -32,604 +31,138 @@ library(gbm)
 library(dismo)
 library(ggBRT)
 library(patchwork)
+library(pdp)
 ```
 
-For starters, we'll load the dataframes containing all the PPIs and Sovon counts.
+In the previous chapter, we have created a dataset encompassing all the data contained within the individual PPIs. We will use this for further modelling.
 
-```{r load_prepared_ppis_and_sovon_counts}
-ppi_hrw <- readRDS("data/processed/hrw.RDS")
-ppi_dhl <- readRDS("data/processed/dhl.RDS")
-
-ptt_raw <- readRDS("data/processed/sovon/ptt.RDS")
-wb_raw <- readRDS("data/processed/sovon/wb.RDS")
+```{r}
+data <- readRDS("data/processed/all-500m.RDS")
 ```
 
 ## Preparing a dataset for modelling
 
-As we're mostly interested in the moment of en masse take-off of birds, we'll subset a dataset which contains only the moments that the measured `VIR` is increasing, a period that spans 23:00 - 23:20 CET. Furthermore, we remove landuse classes if less than 50 PPI pixels per timeframe are contained within the dataset, to ensure the training and bootstrapping process will have sufficient datapoints to work with.
+As we're mostly interested in the moment of en masse take-off of birds, and we want to limit the effects of dispersal, we will limit our analysis to the first 10 minutes after 00:05 on January 1st, 2018 (or 23:05 on December 31st, 2017 in UTC), as both radar sites (Den Helder and Herwijnen) show a low `VIR` prior to, a rapid increase in `VIR` for that period, and the start of a decreasing `VIR` after that period (see [Identifying moment of take-off]). Making sure birds are still sufficiently 'linked' to the take-off sites requires that we limit our analyses to at most these scans.
 
 ```{r}
-# start <- as.POSIXct("2017-12-31 23:00:00", tz = "UTC")
-# end <- as.POSIXct("2017-12-31 23:20:05", tz = "UTC")
+dt_start <- as.POSIXct("2017-12-31 23:05:00", tz = "UTC")
+dt_end <- as.POSIXct("2017-12-31 23:15:00", tz = "UTC")
 
-start <- as.POSIXct("2017-12-31 23:05:00", tz = "UTC")
-end <- as.POSIXct("2017-12-31 23:10:00", tz = "UTC")
-
-mdl_variables <- c("VIR", "datetime", "dist_radar", "x", "y", "landuse_class", 
-                   "total_biomass", "avg_bodymass", "dist_urban", "human_pop", "disturb_pot", "pixel")  # all
-mdl_variables <- c("VIR", "datetime", "dist_radar", "landuse_class", 
-                   "total_biomass", "dist_urban", "human_pop", "disturb_pot", "pixel")
-mdl_variables <- c("VIR", "total_biomass", "dist_radar", "agricultural", "semiopen", "forests", "wetlands", "waterbodies",
-                   "dist_urban", "human_pop", "disturb_pot")
+mdl_variables <- c("VIR", "dist_radar", "datetime", "total_biomass", "urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies", 
+                   "dist_urban", "human_pop", "disturb_pot", "pixel")
 log10_variables <- c("VIR", "dist_urban", "human_pop", "total_biomass", "dist_urban", "disturb_pot")
-# factor_variables <- c("landuse_class", "datetime")
 
-prepare_modelling_dataset <- function(x, variables, dt_start, dt_end, VIR_minimum = 0, min_sample_size = 50) {
-  x %>%
-    mutate(disturb_pot = human_pop / dist_urban) %>%
-    filter(VIR > VIR_minimum,
-           datetime >= dt_start & datetime < dt_end,
-           dist_radar < 80000) %>%
-    dplyr::select(all_of(mdl_variables)) %>%
-    mutate_if(names(.) %in% log10_variables, log10) %>%
-    # mutate_if(is.numeric, log10) %>%
-    filter_all(all_vars(is.finite(.))) %>%
-    as.data.frame() %>%
-    droplevels() -> y
-  
-  return(y)
-}
-
-hrw_cleaned <- prepare_modelling_dataset(hrw, variables = mdl_variables, dt_start = start, dt_end = end)
-dhl_cleaned <- prepare_modelling_dataset(dhl, variables = mdl_variables, dt_start = start, dt_end = end)
-
-hrw_cleaned$radar <- "Herwijnen"
-dhl_cleaned$radar <- "Den Helder"
-all_cleaned <- bind_rows(hrw_cleaned, dhl_cleaned)
-all_cleaned$radar <- as.factor(all_cleaned$radar)
-
-saveRDS(hrw_cleaned, file = "data/models/hrw_cleaned.RDS")
-saveRDS(dhl_cleaned, file = "data/models/dhl_cleaned.RDS")
-saveRDS(all_cleaned, file = "data/models/all.RDS")
+data %>%
+  mutate(disturb_pot = human_pop / dist_urban) %>%
+  filter(VIR > 0,
+         datetime >= dt_start & datetime < dt_end,
+         dist_radar < 80000) %>%
+  dplyr::select(all_of(mdl_variables)) %>%
+  mutate(across(all_of(log10_variables), log10)) %>%
+  filter_all(all_vars(is.finite(.))) %>%
+  as.data.frame() %>%
+  droplevels() -> data_cleaned
 ```
 
 ## Check for correlations among predictors
 
-We have to see if variables are strongly correlated and thus unfit for modelling, so we calculate Spearman correlation coefficients for all numerical predictors. As this is ecological data, some degree of correlation is inevitable for most variables.
+We have to see if variables are strongly correlated and thus unfit for being included in the same model, so we calculate Spearman correlation coefficients for all numerical predictors. As this is ecological data, some degree of correlation is of course inevitable for most variables.
 
 ```{r warning=FALSE, fig.width=10}
-dhl_cleaned["radar"] <- "Den Helder"
-hrw_cleaned["radar"] <- "Herwijnen"
-radar_cleaned <- bind_rows(dhl_cleaned, hrw_cleaned)
-
-predictors <- mdl_variables[!mdl_variables %in% c("VIR", "landuse_class", "landuse", "datetime", "pixel", "x", "y", "radar")]
-corr_radar <- ggcorrmat(all_cleaned, output = "plot", type = "spearman", cor.vars = all_of(predictors),
-                                colors = c("#2166AC", "#F7F7F7", "#B2182B"))
+predictors <- mdl_variables[!mdl_variables %in% c("VIR", "datetime", "pixel", "x", "y")]
+corr_radar <- ggcorrmat(data_cleaned, output = "plot", type = "spearman", cor.vars = all_of(predictors), colors = c("#2166AC", "#F7F7F7", "#B2182B"))
 corr_radar
 ```
 
+## Determine the most suitable proxy for disturbance
+
+As could be expected, the three 'disturbance parameters' (`dist_urban`, `human_pop`, `disturb_pot`) are highly correlated, so we have to see which of these is most suitable to include in our model. To assess that, we will simply compare the performance of each of the models trained with a single disturbance parameter.
+
 ```{r}
-#  [1] "VIR"           "total_biomass" "dist_radar"    "agricultural"  "semiopen"      "forests"       "wetlands"      "waterbodies"   "dist_urban"   
-# [10] "human_pop"     "disturb_pot"   "radar"  
-dataset <- all_cleaned
-sample <- dim(dataset)[1]
-br_vir <- gbm.step(data = dataset, gbm.x = c(2, 3, 4, 5, 6, 7, 8, 11, 12), gbm.y = 1, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, 
-                   learning.rate = 0.03)
+lr <- 0.35
+silence <- FALSE
+
+base_model <- c("dist_radar", "total_biomass", "urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies")
+brt_dist_urban <- gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = match(c(base_model, "dist_urban"), colnames(data_cleaned)), 
+                           bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, learning.rate = lr, 
+                           tolerance.method = "fixed", tolerance = 8e-4, silent = silence)
+brt_human_pop <- gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = match(c(base_model, "human_pop"), colnames(data_cleaned)), 
+                          bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, learning.rate = lr, 
+                          tolerance.method = "fixed", tolerance = 8e-4, silent = silence)
+brt_disturb_pot <- gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = match(c(base_model, "disturb_pot"), colnames(data_cleaned)), 
+                            bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, learning.rate = lr, 
+                            tolerance.method = "fixed", tolerance = 8e-4, silent = silence)
+
+ggPerformance("dist_urban" = brt_dist_urban, "human_pop" = brt_human_pop, "disturb_pot" = brt_disturb_pot)
 ```
 
+It turns out performance is broadly very similar across the measures of disturbance potential, but results may vary due to the non-deterministic behaviour of gradient-boosted machines. So, assuming `human_pop` captures the 'intensity' of fireworks and `dist_urban` captures some 'distance-dependence' of this effect, we will simply continue using the combined feature of 'disturbance potential' defined as $disturb\_pot = \frac{human\_pop}{dist\_urban}$.
 
+## Train a model for the each of selected scans
 
-## Distribution of landuse classes in modelling dataset
-
-```{r}
-dhl %>%
-  filter(datetime == "2018-01-01 00:10:04", dist_radar < 80000) %>%
-  mutate(disturb_pot = log10(pop / dist_urban)) %>%
-  filter(is.finite(disturb_pot)) %>%
-  mutate(data = "Counts") -> dhl_normal
-
-dhl %>%
-  filter(datetime == "2018-01-01 00:10:04", dist_radar < 80000, VIR > 10) %>%
-  mutate(disturb_pot = log10(pop / dist_urban)) %>%
-  filter(is.finite(disturb_pot)) %>%
-  mutate(data = "Reflected") -> dhl_reflected
-
-bind_rows(dhl_normal, dhl_reflected) %>%
-  select(landuse_class, disturb_pot, data) %>%
-  pivot_longer(cols = c(disturb_pot), values_to = "disturb_pot") %>%
-  mutate(radar = "Den Helder") -> d4
-```
+For the timestamps we have now selected, we can train `gbm` models to determine for which timestamp it performs best.
 
 ```{r}
-ggplot(d4) +
-  geom_density(aes(x = disturb_pot, colour = data)) +
-  facet_wrap(vars(landuse_class))
-```
+nr_scans <- length(unique(data_cleaned$datetime))
+datetimes <- sort(unique(data_cleaned$datetime))
+models <- vector("list", nr_scans)
+lr <- 0.05
 
-
-```{r}
-hrw %>%
-  filter(datetime == "2018-01-01 00:10:04", dist_radar < 80000) %>%
-  mutate(disturb_pot = log10(pop / dist_urban)) %>%
-  filter(is.finite(disturb_pot)) %>%
-  mutate(data = "Counts") -> hrw_normal
-
-hrw %>%
-  filter(datetime == "2018-01-01 00:10:04", dist_radar < 80000, VIR > 10) %>%
-  mutate(disturb_pot = log10(pop / dist_urban)) %>%
-  filter(is.finite(disturb_pot)) %>%
-  mutate(data = "Reflected") -> hrw_reflected
-
-bind_rows(hrw_normal, hrw_reflected) %>%
-  select(landuse_class, disturb_pot, data) %>%
-  pivot_longer(cols = c(disturb_pot), values_to = "disturb_pot") %>%
-  mutate(radar = "Herwijnen") -> h4
-```
-
-```{r}
-bind_rows(d4, h4) %>%
-  filter(data == "Counts") %>%
-  ggplot() +
-  geom_density(aes(x = disturb_pot, colour = radar)) +
-  facet_wrap(vars(landuse_class)) +
-  labs(title = "Distribution of land use classes in Counts")
-```
-
-```{r}
-bind_rows(d4, h4) %>%
-  filter(data == "Reflected") %>%
-  ggplot() +
-  geom_density(aes(x = disturb_pot, colour = radar)) +
-  facet_wrap(vars(landuse_class)) +
-  labs(title = "Distribution of land use classes in Reflected")
-```
-
-
-```{r}
-ppi_birds <- ppi
-
-ppi_birds$data@data %>%
-  left_join(dplyr::select(wb, area_nr, total_biomass), by = c("wb_area_nr" = "area_nr")) %>%
-  rename(wb_total_biomass = total_biomass) %>%
-  group_by(wb_area_nr) %>%
-  mutate(wb_total_biomass = wb_total_biomass / n(),
-         wb_n = n()) %>%  
-  ungroup() %>%
-  left_join(dplyr::select(ptt, route, total_biomass), by = c("ptt_route" = "route")) %>%
-  rename(ptt_total_biomass = total_biomass) %>%
-  group_by(ptt_route) %>%
-  mutate(ptt_total_biomass = ptt_total_biomass / n(),
-         ptt_n = n()) %>% 
-  ungroup() %>%
-  # filter_at(vars(wb_total_biomass, ptt_total_biomass), any_vars(!is.na(.))) %>%
-  rowwise() %>%
-  mutate(total_biomass = sum(wb_total_biomass, ptt_total_biomass, na.rm = TRUE)) %>%
-  ungroup() %>%
-  rename(human_pop = pop)  -> ppi_birds$data@data
-```
-
-mapview(ppi_hrw$data[, , c("pop", "dist_urban")], alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
-        na.color = "#00000000", map.types = c("CartoDB.Positron", "CartoDB.DarkMatter", "Esri.WorldImagery"),
-        layer.name = c("pop", "dist_urban"))
-
-
-```{r}
-radar_cleaned %>%
-  ggplot() +
-  geom_bar(aes(y = landuse_class)) +
-  scale_x_continuous(trans = "log10") +
-  facet_wrap(vars(radar))
-```
-
-```{r}
-radar_cleaned %>%
-  ggplot() +
-  geom_bar(aes(y = landuse_class)) +
-  scale_x_continuous(trans = "log10") +
-  facet_wrap(vars(radar))
-```
-
-```{r}
-d <- dhl_default$gbm.call$dataframe
-d["r"] <- resid(dhl_default)
-ds <- sample_frac(d, 0.05)
-default <- correlog(ds$x, ds$y, ds$r, increment = 2000, resamp = 100)
-
-d_nospatial <- dhl_nospatial$gbm.call$dataframe
-d_nospatial["r"] <- resid(dhl_nospatial)
-ds_nospatial <- sample_frac(d, 0.05)
-nospatial <- correlog(ds_nospatial$x, ds_nospatial$y, ds_nospatial$r, increment = 2000, resamp = 100)
-
-plot(default)
-plot(nospatial)
-```
-
-```{r}
-plot(default)
-```
-
-```{r}
-plot(nospatial)
-```
-
-```{r}
-default_pgirmess <- correlog(coords = cbind(ds$x, ds$y), z = ds$r, method = "Moran")
-plot(default_pgirmess)
-```
-
-```{r}
-nospatial_pgirmess <- correlog(coords = cbind(ds_nospatial$x, ds_nospatial$y), z = ds_nospatial$r, method = "Moran")
-plot(nospatial_pgirmess)
-```
-
-
-## Modelling
-
-```{r}
-learning_rates <- c(0.01, 0.05, 0.1, 0.15, 0.2, 0.3, 0.5, 1)
-max_trees <- 5000
-performance <- c()
-dhl_small <- dhl_cleaned %>% sample_n(10000)
-
-for (i in seq_along(learning_rates)) {
-  print(learning_rates[i])
-  br_dhl_vir <- gbm.step(data = dhl_small, gbm.x = 2:12, gbm.y = 1, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, 
-                         max.trees = max_trees, tolerance.method = "auto", learning.rate = learning_rates[i])
-  dhl_vir <- dhl_small
-  dhl_vir$pred <- predict(br_dhl_vir, dhl_small, n.trees = br_dhl_vir$n.trees, type = "response")
+for (i in seq_along(datetimes)) {
+  scan_start <- datetimes[i]
+  scan_end <- scan_start + 5 * 60
   
-  gbm.plot(br_dhl_vir, smooth = TRUE, rug = TRUE, common.scale = FALSE)
+  data_cleaned %>%
+    filter(datetime >= scan_start & datetime < scan_end) -> data_scan
   
-  performance[i] <- br_dhl_vir$cv.statistics$deviance.mean
+  models[[i]] <- gbm.step(data = data_scan, gbm.y = 1, gbm.x = match(c(base_model, "disturb_pot"), colnames(data_scan)),
+                          bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, learning.rate = lr,
+                          tolerance.method = "fixed", tolerance = 8e-4, plot.main = TRUE, verbose = FALSE)
 }
 
-plot(learning_rates, performance)
+saveRDS(models, file = "data/models/brt_models.RDS")
 ```
 
 ```{r}
-sample <- dim(dhl_cleaned)[1]
+models <- readRDS("data/models/brt_models.RDS")
+names(models) <- datetimes
+perf <- do.call(ggPerformance, m)
+
+best_model_id <- which.max(perf["cvPer.Expl", ])
+
+perf
+```
+
+We can now also compare the relative influence of the variables used in these models.
+
+```{r}
+relinf <- suppressMessages(do.call(ggMultiInfluence, models))
+rownames(relinf) <- relinf$Predictor
+relinf <- relinf[, c(2:3)]
+```
+
+The model trained on the `r best_model_id`nd scan (starting at `r strftime(as.POSIXct(colnames(perf)[best_model_id]), format = "%H:%M %Z")`) has the highest cross-validated percentage deviance explained. Additionally, the relative influence of `total_biomass` (`r round(relinf["total_biomass", 2], digits = 2)`) suggests a clear link between birds counted on the ground and what is measured aloft, which one would expect if birds are still sufficiently 'tied' to their take-off habitats.
+
+## Partial dependence
+
+Partial dependence plots (PDP) can visualse the modelled marginel effect a feature has on the predicted output of a model. For exploratory purposes, we will create a quick visualisation of the PDPs for both trained models, before we start with a bootstrapping procedure to test the robustness of these results.
+
+```{r warning=FALSE, message=FALSE}
+plot_pdp <- function(model, predictor) {
+  p <- partial(model, train = model$gbm.call$dataframe, pred.var = predictor, type = "regression", plot = TRUE, plot.engine ="ggplot2",
+               smooth = TRUE, rug = TRUE, n.trees = model$n.trees, x)
+  p
+}
+modelnames <- names(models)
+i <- 1
+
+for (model in models) {
+  predictors <- model$var.names
   
-br_dhl_vir <- gbm.step(data = dhl_cleaned, gbm.x = 2:12, gbm.y = 1, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, 
-                       max.trees = round(sample * 0.3), tolerance.method = "auto", learning.rate = 0.15)
-dhl_vir <- dhl_cleaned
-dhl_vir$pred <- predict(br_dhl_vir, dhl_cleaned, n.trees = br_dhl_vir$n.trees, type = "response")
-
-gbm.plot(br_dhl_vir, smooth = TRUE, rug = TRUE, common.scale = FALSE)
-
-ggplot(dhl_vir, aes(x = pred, y = VIR)) +
-  geom_pointdensity() +
-  geom_abline() +
-  facet_wrap(vars(datetime))
-```
-
-```{r}
-brt1.prerun<- plot.gbm.4list(br_dhl_vir)
-brt1.boot <- gbm.bootstrap.functions(br_dhl_vir, list.predictors=brt1.prerun, n.reps=100)
-```
-
-```{r}
-# mdl_variables <- c("VIR", "datetime", "dist_radar", "x", "y", "landuse", "dist_urban", "pop", "nr_birds", "total_biomass", "avg_bodymass")
-bootstrap(br_dhl_vir, booted.preds = brt1.boot$function.preds, predictor = "avg_bodymass", type.ci = "ribbon", common.scale = FALSE, rug = TRUE)
-```
-
-```{r}
-sample <- dim(hrw_cleaned)[1]
-  
-br_hrw_vir <- gbm.step(data = hrw_cleaned, gbm.x = 2:10, gbm.y = 1, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, 
-                       max.trees = round(sample * 0.3), tolerance.method = "auto", learning.rate = 0.15)
-hrw_vir <- hrw_cleaned
-hrw_vir$pred <- predict(br_hrw_vir, hrw_cleaned, n.trees = br_hrw_vir$n.trees, type = "response")
-
-gbm.plot(br_hrw_vir, smooth = TRUE, rug = TRUE, common.scale = FALSE)
-
-ggplot(hrw_vir, aes(x = pred, y = VIR)) +
-  geom_pointdensity() +
-  geom_abline() +
-  facet_wrap(vars(datetime))
-
-# saveRDS(br_hrw_vir, file = "data/models/br_hrw_vir.RDS")
-```
-
-```{r}
-hrw.prerun<- plot.gbm.4list(br_hrw_vir)
-hrw.boot <- gbm.bootstrap.functions(br_hrw_vir, list.predictors=hrw.prerun, n.reps=100)
-saveRDS(hrw.boot, file = "data/models/bootstrap_hrw.RDS")
-```
-
-
-```{r}
-br.boot <- readRDS("data/models/bootstrap_hrw.RDS")
-br.model <- readRDS("data/models/br_hrw_vir.RDS")
-radar <- "herwijnen"
-
-for (var in br.boot[["gbm.call"]][["predictor.names"]]) {
-  p <- bootstrap(br.model, booted.preds = br.boot$function.preds, type.ci = "ribbon", 
-                 common.scale = FALSE, predictor = var, rug = TRUE)
-  if (var == "landuse") {
-    if (radar == "herwijnen") {
-      breaks <- c("211", "222", "231", "242", "243", "311", "312", "313", "321", "322", "324", "411", "412", "423", "511", "512", "523")
-      labels <- c("Non-irrigated arable land",
-                  "Fruit trees and berry plantations",
-                  "Pastures",
-                  "Complex cultivation patterns",
-                  "Mixed agricultural-natural",
-                  "Broad-leaved forest",
-                  "Coniferous forest",
-                  "Mixed forest",
-                  "Natural grasslands",
-                  "Moors and heathland",
-                  "Transitional woodland-shrub",
-                  "Inland marshes",
-                  "Peat bogs",
-                  "Intertidal flats",
-                  "Water courses",
-                  "Water bodies",
-                  "Sea and ocean")
-    } else if (radar == "denhelder") {
-      breaks <- c("211", "222", "231", "242", "243", "311", "312", "313", "321", "322", "324", "411", "511", "512")
-      labels <- c("Non-irrigated arable land",
-                  "Fruit trees and berry plantations",
-                  "Pastures",
-                  "Complex cultivation patterns",
-                  "Mixed agricultural-natural",
-                  "Broad-leaved forest",
-                  "Coniferous forest",
-                  "Mixed forest",
-                  "Natural grasslands",
-                  "Moors and heathland",
-                  "Transitional woodland-shrub",
-                  "Inland marshes",
-                  "Water courses",
-                  "Water bodies")
-    }
-    
-    p <- p + scale_y_discrete(breaks = breaks, labels = labels)
-  }
-  print(p)
-  ggsave(filename = paste0("data/plots/partial-effects/", radar, "/", var, ".png"), dpi = 100, device = "png", width = 20, height = 16, units = "cm")
+  plots <- lapply(model$var.names, function(x) {plot_pdp(model = model, predictor = x)})
+  print(wrap_plots(plots) + plot_annotation(title = modelnames[i]))
+  i <- i + 1
 }
 ```
 
-
-
-
-
-
-```{r}
-sample <- dim(dhl_cleaned)[1]
-  
-br_dhl_vir <- gbm.step(data = dhl_cleaned, gbm.x = 2:12, gbm.y = 1, bag.fraction = 0.5, family = "gaussian", tree.complexity = 2, 
-                       max.trees = round(sample * 0.3), tolerance.method = "auto", learning.rate = 0.2)
-dhl_vir <- dhl_cleaned
-dhl_vir$pred <- predict(br_dhl_vir, dhl_cleaned, n.trees = br_dhl_vir$n.trees, type = "response")
-
-gbm.plot(br_dhl_vir, smooth = TRUE, rug = TRUE, common.scale = FALSE)
-
-ggplot(dhl_vir, aes(x = pred, y = VIR)) +
-  geom_pointdensity() +
-  geom_abline() +
-  facet_wrap(vars(datetime))
-```
-
-
-```{r}
-sample <- dim(hrw_cleaned)[1]
-  
-br_hrw_vir <- gbm.step(data = hrw_cleaned, gbm.x = 2:12, gbm.y = 1, bag.fraction = 0.5, family = "gaussian", tree.complexity = 2,
-                       max.trees = round(sample * 0.3), tolerance.method = "auto", learning.rate = 0.01)
-hrw_vir <- hrw_cleaned
-hrw_vir$pred <- predict(br_hrw_vir, hrw_cleaned, n.trees = br_hrw_vir$n.trees, type = "response")
-
-gbm.plot(br_hrw_vir, smooth = TRUE, rug = TRUE, common.scale = FALSE)
-
-ggplot(hrw_vir, aes(x = pred, y = VIR)) +
-  geom_pointdensity() +
-  geom_abline() +
-  facet_wrap(vars(datetime))
-```
-
-
-
-
-
-
-
-
-## Calculating bird parameters
-
-We need to calculate the number of birds on the ground and average mass of these birds
-
-```{r calculate_birds_parameters}
-wb_raw %>%
-  mutate(area_nr = as.character(area_nr)) %>%
-  filter(year == 2018) %>%
-  group_by(area_nr) %>%
-  summarise(nr_birds = sum(number),
-            avg_mass = weighted.mean(mean_weight, number)) %>%
-  ungroup() %>%
-  group_by(area_nr) %>%
-  summarise(nr_birds = mean(nr_birds),
-            avg_mass = mean(avg_mass)) -> wb
-
-ptt_raw %>%
-  filter(year == 2017) %>%
-  group_by(route) %>%
-  summarise(nr_birds = sum(number),
-            avg_mass = weighted.mean(mean_weight, number)) %>%
-  ungroup() %>%
-  group_by(route) %>%
-  summarise(nr_birds = mean(nr_birds),
-            avg_mass = mean(avg_mass)) -> ptt
-```
-
-Ideally, both the `wb` and `ptt` datasets cover somewhat different species compositions. We can easily see this if we visualise the distributions of `mean_weight` for these datasets.
-
-```{r compare_distributions_of_avg_mass}
-bind_rows(dplyr::select(wb, nr_birds, avg_mass), dplyr::select(ptt, nr_birds, avg_mass), .id = "source") %>%
-  mutate(source = case_when(
-    source == 1 ~ "WB",
-    source == 2 ~ "PTT"
-  )) %>%
-  ggplot(aes(x = avg_mass)) +
-  geom_density(aes(group = source, color = source)) +
-  labs(title = "Distribution of average mass in PTT and Waterbird counts")
-```
-
-And indeed, the distributions of `avg_mass` for PTT counts is shifted considerably to lower average weights.
-
-## Connecting Sovon counts with the PPIs
-
-Now that we have calculated the necessary 'bird parameters', we can attach these to the PPIs using a few simple `left_join`s. Subsequently, we will recalculate the `avg_mass` as the mean of average masses in the PTT and waterbird counts, and `nr_birds` by adding the numbers of birds in the PTT and waterbird counts together. The former is probably not particularly useful, so probably best to throw out at some point.
-
-```{r link_counts_with_PPIs, results='hold'}
-ppi_hrw$data@data %>%
-  left_join(dplyr::select(wb, area_nr, nr_birds, avg_mass), by = c("wb_area_nr" = "area_nr")) %>%
-  rename(wb_nr_birds = nr_birds, wb_avg_mass = avg_mass) %>%
-  group_by(wb_area_nr) %>%
-  mutate(wb_nr_birds = wb_nr_birds / n()) %>%
-  ungroup() %>%
-  left_join(dplyr::select(ptt, route, nr_birds, avg_mass), by = c("ptt_route" = "route")) %>%
-  rename(ptt_nr_birds = nr_birds, ptt_avg_mass = avg_mass) %>%
-  group_by(ptt_route) %>%
-  mutate(ptt_nr_birds = ptt_nr_birds / n()) %>%
-  ungroup() %>%
-  mutate(nr_birds = wb_nr_birds + ptt_nr_birds,
-         avg_mass = mean(c(wb_avg_mass, ptt_avg_mass), na.rm = TRUE)) -> ppi_hrw$data@data
-
-ppi_dhl$data@data %>%
-  left_join(dplyr::select(wb, area_nr, nr_birds, avg_mass), by = c("wb_area_nr" = "area_nr")) %>%
-  rename(wb_nr_birds = nr_birds, wb_avg_mass = avg_mass) %>%
-  group_by(wb_area_nr) %>%
-  mutate(wb_nr_birds = wb_nr_birds / n()) %>%
-  ungroup() %>%
-  left_join(dplyr::select(ptt, route, nr_birds, avg_mass), by = c("ptt_route" = "route")) %>%
-  rename(ptt_nr_birds = nr_birds, ptt_avg_mass = avg_mass) %>%
-  group_by(ptt_route) %>%
-  mutate(ptt_nr_birds = ptt_nr_birds / n()) %>%
-  ungroup() %>%
-  mutate(nr_birds = wb_nr_birds + ptt_nr_birds,
-         avg_mass = mean(c(wb_avg_mass, ptt_avg_mass), na.rm = TRUE)) -> ppi_dhl$data@data
-```
-
-## Correcting for dispersion
-
-As birds can cross substantial distances within 5 minutes (the period a single scan takes), we somehow have to take this into account during the modelling. A simple approach is to 'smooth' out the numbers of birds in space, by averaging the bird numbers within a given window around a focal cell. We will create a simple function to do that
-
-```{r smooth_bird_numbers_in_space}
-smooth_ppi <- function(ppi, var, gridsize = c(3, 3)) {
-  weights <- matrix(1, nrow = gridsize[1], ncol = gridsize[2])
-  
-  smooth_raster <- raster(ppi$data[var])
-  smooth_nonan <- smooth_raster
-  smooth_nonan[is.na(smooth_nonan)] <- 0
-  smooth_raster <- focal(smooth_nonan, w = weights, fun = mean, pad = TRUE, padValue = 0)
-  
-  return(unlist(as.data.frame(as(smooth_raster, "Raster"))))
-}
-
-ppi_hrw$data$birds_smooth_9 <- smooth_ppi(ppi_hrw, "wb_nr_birds")
-ppi_hrw$data$birds_smooth_15 <- smooth_ppi(ppi_hrw, "wb_nr_birds", gridsize = c(5, 5))
-ppi_dhl$data$birds_smooth_9 <- smooth_ppi(ppi_dhl, "wb_nr_birds")
-ppi_dhl$data$birds_smooth_15 <- smooth_ppi(ppi_dhl, "wb_nr_birds", gridsize = c(5, 5))
-```
-
-```{r plot_PPIs, results='hold'}
-plot(ppi_hrw, param = "ptt_nr_birds", zlim = c(min(ppi_hrw$data@data$ptt_nr_birds, na.rm = TRUE), quantile(ppi_hrw$data@data$ptt_nr_birds, 0.95, na.rm = TRUE)))
-plot(ppi_hrw, param = "wb_nr_birds", zlim = c(min(ppi_hrw$data@data$wb_nr_birds, na.rm = TRUE), quantile(ppi_hrw$data@data$wb_nr_birds, 0.95, na.rm = TRUE)))
-plot(ppi_hrw, param = "VIR", zlim = c(min(ppi_hrw$data$VIR), quantile(ppi_hrw$data$VIR, 0.99)))
-```
-
-
-
-
-
-
-
-```{r gam_model_sample, results='hold'}
-ppi_hrw_mass <- ppi_hrw$data@data
-
-ppi_hrw_mass %>%
-  filter(VIR > 50 & wb_nr_birds > 0 & type == "rural" & VIR < quantile(ppi_hrw_mass$VIR, 0.99, na.rm = TRUE)) %>%
-  # filter(birds_smooth_9 < quantile(ppi_hrw_mass$birds_smooth_9, 0.99, na.rm = TRUE)) %>%
-  mutate(vid_new = VIR / wb_avg_mass,
-         birds = wb_nr_birds * wb_avg_mass,
-         # pop_eff = pop / (dist_urban / 1000),
-         pop_eff = pop * (1 / dist_urban),
-         birds_smooth_log = log(birds_smooth_9)) %>%
-  group_by(pop_eff) %>%
-  mutate(avg_mass_pop = mean(wb_avg_mass),
-         avg_birds_pop = mean(birds_smooth_9),
-         sum_birds_pop = sum(birds_smooth_9),
-         sum_vid_pop = sum(vid_new),
-         birds = mean(c(birds_smooth_9, wb_nr_birds), drop.na = TRUE)) %>%
-  ungroup() %>%
-  mutate(sum_birds_pop = scale(sum_birds_pop, scale = TRUE, center = TRUE) * 10 + 10,
-         sum_vid_pop = scale(sum_vid_pop, scale = TRUE, center = TRUE) * 10 + 10) %>%
-  group_by(vid_new) %>%
-  mutate(avg_mass_pop_vid = mean(wb_avg_mass),
-         avg_birds_pop_vid = mean(birds_smooth_9)) %>%
-  ungroup() %>%
-  mutate(landuse_overall = 
-           case_when(
-             (landuse >= 100 & landuse < 200) ~ "Urban",
-             (landuse >= 200 & landuse < 300) ~ "Agricultural areas",
-             (landuse >= 300 & landuse < 500) ~ "Natural areas",
-             (landuse >= 500 & landuse < 999) ~ "Water bodies"
-           )) %>%
-  dplyr::select(VIR, wb_nr_birds, birds, birds_smooth_9, birds_smooth_15, pop, dist_urban, pop_eff, landuse_overall) %>%
-  drop_na() -> ppi_mdl
-  # drop_na() -> ppi_mdl
-# ppi_hrw$data@data %>%
-#   filter(VIR > 0 & VIR < quantile(ppi_hrw$data@data$VIR, 0.99, na.rm = TRUE)) %>%
-#   filter(birds_smooth_9 > 0 & birds_smooth_9 < quantile(ppi_hrw$data@data$VIR, 0.99, na.rm = TRUE)) %>%
-#   filter(type == "rural") %>%
-#   mutate(landuse_overall = case_when(
-#              (landuse >= 100 & landuse < 200) ~ "Urban",
-#              (landuse >= 200 & landuse < 300) ~ "Agriculture",
-#              (landuse >= 300 & landuse < 500) ~ "Nature",
-#              (landuse >= 500 & landuse < 999) ~ "Water bodies"
-#            )) %>%
-#   drop_na() -> ppi_mdl
-
-# m1 <- glm(VIR ~ wb_nr_birds + pop + dist_urban + landuse_overall, data = ppi_mdl, family = Gamma(link = "log"))
-m1 <- gam(VIR ~ s(birds) + s(pop) + s(dist_urban, k = 20) + landuse_overall,
-data = ppi_mdl, method = "REML", family = Gamma(link = "log"))
-# gam(vid_new ~ s(birds_smooth_9, k = 20) + s(pop) + s(dist_urban) + s(pop_eff) + landuse_overall, data = ppi_mdl, method = "REML", family = Gamma(link = "log")) -> m1
-summary(m1)
-plot(m1)
-gam.check(m1)
-# with(summary(m1), 1 - deviance/null.deviance)
-```
-
-```{r}
-ppi_hrw_mass %>%
-  dplyr::select(VIR, dist_radar, x, y, landuse, dist_urban, nr_birds) -> ppi_mdl
-
-ppi_mdl %>%
-  filter(VIR > 0) %>%
-  mutate(VIR_log10 = log10(VIR),
-         landuse_overall = case_when(
-           landuse_overall == "Agricultural areas" ~ 1,
-           landuse_overall == "Water bodies" ~ 2,
-           landuse_overall == "Natural areas" ~ 3
-         ))-> ppi_bt
-
-ppi_bt$landuse_overall <- as.numeric(ppi_bt$landuse_overall)
-
-ppi_bt <- as.data.frame(ppi_bt)
-
-response <- "VIR_log10"
-predictors <- c("wb_nr_birds", "birds", "birds_smooth_9", "pop", "dist_urban", "pop_eff", "landuse_overall")
-
-bt <- gbm.step(data = ppi_bt, gbm.x = 2:8, gbm.y = 10, tree.complexity = 2, bag.fraction = 0.5, family = "gaussian")
-```
-
-```{r}
-# a <- predict(bt5, ppi_bt, n.trees = 10000, type = "response")
-# ppi_bt$preds <- a
-# 
-# ggplot(ppi_bt, aes(x = preds, y = VIR_log10)) +
-#   geom_pointdensity() + 
-#   geom_abline()
-```
 
