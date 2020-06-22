@@ -21,7 +21,7 @@ The following parameters we assume are important predictors for measured bird de
 
 Load the required packages.
 
-```{r setup_exploration_environment}
+```{r setup_modelling_environment}
 library(ggstatsplot)
 library(ggplot2)
 library(dplyr)
