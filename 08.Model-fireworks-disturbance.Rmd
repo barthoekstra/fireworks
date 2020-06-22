@@ -36,7 +36,7 @@ library(pdp)
 
 In the previous chapter, we have created a dataset encompassing all the data contained within the individual PPIs. We will use this for further modelling.
 
-```{r}
+```{r load_data}
 data <- readRDS("data/processed/all-500m.RDS")
 ```
 
@@ -44,7 +44,7 @@ data <- readRDS("data/processed/all-500m.RDS")
 
 As we're mostly interested in the moment of en masse take-off of birds, and we want to limit the effects of dispersal, we will limit our analysis to the first 10 minutes after 00:05 on January 1st, 2018 (or 23:05 on December 31st, 2017 in UTC), as both radar sites (Den Helder and Herwijnen) show a low `VIR` prior to, a rapid increase in `VIR` for that period, and the start of a decreasing `VIR` after that period (see [Identifying moment of take-off]). Making sure birds are still sufficiently 'linked' to the take-off sites requires that we limit our analyses to at most these scans.
 
-```{r}
+```{r prepare_modelling_dataset}
 dt_start <- as.POSIXct("2017-12-31 23:05:00", tz = "UTC")
 dt_end <- as.POSIXct("2017-12-31 23:15:00", tz = "UTC")
 
@@ -68,7 +68,7 @@ data %>%
 
 We have to see if variables are strongly correlated and thus unfit for being included in the same model, so we calculate Spearman correlation coefficients for all numerical predictors. As this is ecological data, some degree of correlation is of course inevitable for most variables.
 
-```{r warning=FALSE, fig.width=10}
+```{r check_for_correlations, warning=FALSE, fig.width=10}
 predictors <- mdl_variables[!mdl_variables %in% c("VIR", "datetime", "pixel", "x", "y")]
 corr_radar <- ggcorrmat(data_cleaned, output = "plot", type = "spearman", cor.vars = all_of(predictors), colors = c("#2166AC", "#F7F7F7", "#B2182B"))
 corr_radar
@@ -78,7 +78,7 @@ corr_radar
 
 As could be expected, the three 'disturbance parameters' (`dist_urban`, `human_pop`, `disturb_pot`) are highly correlated, so we have to see which of these is most suitable to include in our model. To assess that, we will simply compare the performance of each of the models trained with a single disturbance parameter.
 
-```{r}
+```{r compare_disturbance_proxies, results='hold'}
 lr <- 0.35
 silence <- FALSE
 
@@ -100,9 +100,9 @@ It turns out performance is broadly very similar across the measures of disturba
 
 ## Train a model for the each of selected scans
 
-For the timestamps we have now selected, we can train `gbm` models to determine for which timestamp it performs best.
+For the timestamps we have now selected, we can train `gbm` models to determine for which timestamp the model performs best.
 
-```{r}
+```{r train_model_for_seperate_scans, results='hold'}
 nr_scans <- length(unique(data_cleaned$datetime))
 datetimes <- sort(unique(data_cleaned$datetime))
 models <- vector("list", nr_scans)
@@ -123,7 +123,7 @@ for (i in seq_along(datetimes)) {
 saveRDS(models, file = "data/models/brt_models.RDS")
 ```
 
-```{r}
+```{r compare_performance_scan_models}
 models <- readRDS("data/models/brt_models.RDS")
 names(models) <- datetimes
 perf <- do.call(ggPerformance, m)
@@ -135,7 +135,7 @@ perf
 
 We can now also compare the relative influence of the variables used in these models.
 
-```{r}
+```{r determine_relatieve_influence_of_predictors, results='hold'}
 relinf <- suppressMessages(do.call(ggMultiInfluence, models))
 rownames(relinf) <- relinf$Predictor
 relinf <- relinf[, c(2:3)]
@@ -147,7 +147,7 @@ The model trained on the `r best_model_id`nd scan (starting at `r strftime(as.PO
 
 Partial dependence plots (PDP) can visualse the modelled marginel effect a feature has on the predicted output of a model. For exploratory purposes, we will create a quick visualisation of the PDPs for both trained models, before we start with a bootstrapping procedure to test the robustness of these results.
 
-```{r warning=FALSE, message=FALSE, results='hold'}
+```{r visualise_partial_dependencies, warning=FALSE, message=FALSE, results='hold'}
 plot_pdp <- function(model, predictor) {
   p <- partial(model, train = model$gbm.call$dataframe, pred.var = predictor, type = "regression", plot = TRUE, plot.engine ="ggplot2",
                smooth = TRUE, rug = TRUE, n.trees = model$n.trees)
