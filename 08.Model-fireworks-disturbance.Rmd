@@ -80,7 +80,7 @@ As could be expected, the three 'disturbance parameters' (`dist_urban`, `human_p
 
 ```{r compare_disturbance_proxies, results='hold'}
 lr <- 0.35
-silence <- FALSE
+silence <- TRUE
 
 base_model <- c("dist_radar", "total_biomass", "urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies")
 brt_dist_urban <- gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = match(c(base_model, "dist_urban"), colnames(data_cleaned)), 
