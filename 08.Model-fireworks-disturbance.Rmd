@@ -147,19 +147,21 @@ The model trained on the `r best_model_id`nd scan (starting at `r strftime(as.PO
 
 Partial dependence plots (PDP) can visualse the modelled marginel effect a feature has on the predicted output of a model. For exploratory purposes, we will create a quick visualisation of the PDPs for both trained models, before we start with a bootstrapping procedure to test the robustness of these results.
 
-```{r warning=FALSE, message=FALSE}
+```{r warning=FALSE, message=FALSE, results='hold'}
 plot_pdp <- function(model, predictor) {
   p <- partial(model, train = model$gbm.call$dataframe, pred.var = predictor, type = "regression", plot = TRUE, plot.engine ="ggplot2",
-               smooth = TRUE, rug = TRUE, n.trees = model$n.trees, x)
+               smooth = TRUE, rug = TRUE, n.trees = model$n.trees)
   p
 }
 modelnames <- names(models)
 i <- 1
 
 for (model in models) {
-  predictors <- model$var.names
-  
-  plots <- lapply(model$var.names, function(x) {plot_pdp(model = model, predictor = x)})
+  plots <- lapply(rownames(relinf), function(x) {
+    plot_pdp(model = model, predictor = x) + 
+      xlab(paste(x, " (", round(relinf[x, i]), "%)", sep = "")) +
+      ylab("log(VIR)")
+    })
   print(wrap_plots(plots) + plot_annotation(title = modelnames[i]))
   i <- i + 1
 }
