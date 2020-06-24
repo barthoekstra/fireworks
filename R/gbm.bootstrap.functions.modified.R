@@ -88,7 +88,7 @@ gbm.bootstrap.functions.modified <- function(
     #make the predictions
     function.preds[,,i] <- plot.gbm.boot(boot.model.gbm, list.4.preds = list.predictors, continuous.resolution = n.divisions)
     # Store relative influence
-    ri <- as.matrix(boot.model.gbm$contributions)
+    ri <- as.data.frame(boot.model.gbm$contributions)
     rel.infs[, j] <- ri[boot.model.gbm$var.names, "rel.inf"]
     j <- j + 1
   }
