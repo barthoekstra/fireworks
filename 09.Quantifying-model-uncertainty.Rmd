@@ -7,6 +7,8 @@ The partial dependence plots generated in the previous chapter visualise the mar
 library(gbm)
 library(dismo)
 library(ggBRT)
+library(parallel)
+library(tidyverse)
 ```
 
 
@@ -31,6 +33,38 @@ calculate_evaluation_grid <- function(model, qlim = c(0.05, 0.95), continuous.re
   grid
 }
 
-grid <- calculate_evaluation_grid(models[[2]], qlim = c(0.05, 0.95))
+grids <- lapply(models, function(x) calculate_evaluation_grid(x, qlim = c(0.05, 0.95)))
 ```
 
+
+```{r}
+bootstraps <- mcmapply(function(m, g) gbm.bootstrap.functions.modified(m, list.predictors = g, n.reps = 2), m = models, g = grids, SIMPLIFY = FALSE)
+saveRDS(bootstraps, file = "data/models/brt_models_bootstrap.RDS")
+```
+
+```{r}
+as.data.frame(bootstraps[[2]]$rel.infs) %>% 
+  rownames_to_column(var = "predictor") %>% 
+  pivot_longer(-predictor, names_to = "bootstrap_sample") -> bootstrap_long
+
+bootstrap_long %>%
+  pivot_wider(names_from = predictor, values_from = value) %>%
+  median_qi(.width = c(0.5), .exclude = "bootstrap_sample") %>%
+  select(-contains(".")) %>%
+  pivot_longer(cols = everything(), names_to = "predictor", values_to = "bootstrap_median") -> predictor_summaries
+
+predictor_summaries[order(-predictor_summaries$bootstrap_median), ] %>% 
+  rowid_to_column(var = "rank") %>% 
+  select(predictor, rank) %>%
+  mutate(rank = fct_rev(as.factor(rank))) -> predictor_summaries
+
+bootstrap_long %>%
+  left_join(predictor_summaries, by = "predictor") %>%
+  ggplot(aes(y = rank, x = value)) + 
+  stat_eye(point_interval = median_qi, .width = c(0.90, 0.5)) +  # Thinnest black bar represents 95%, other 50% and point = median
+  scale_y_discrete(labels = rev(predictor_summaries$predictor)) + 
+  labs(x = "Relative influence (%)",
+       y = "Predictor", 
+       title = "") +
+  coord_cartesian(xlim = c(0, 30), expand = FALSE)
+```
