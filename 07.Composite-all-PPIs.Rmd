@@ -52,11 +52,14 @@ for (i in seq_along(hrw_ppis)) {
   cppi$data$x <- coords_cppi[, 1]
   cppi$data$y <- coords_cppi[, 2]
   
+  # Add pixel ID
+  cppi$data@data %>%
+    mutate(pixel = row_number()) -> cppi$data@data
+  
   saveRDS(cppi, file = paste("data/processed/composite-ppis/", strftime(ppi_hrw$datetime, format = "%Y%m%d%H%M"), ".RDS", sep = ""))
   
   cppi$data@data %>%
-    mutate(datetime = as.POSIXct(ppi_hrw$datetime),
-           pixel = row_number()) %>%
+    mutate(datetime = as.POSIXct(ppi_hrw$datetime)) %>%
     bind_rows(all) -> all
   
   if (i == 1) {
