@@ -50,18 +50,19 @@ dt_end <- as.POSIXct("2017-12-31 23:15:00", tz = "UTC")
 
 mdl_variables <- c("VIR", "dist_radar", "datetime", "total_biomass", "urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies", 
                    "dist_urban", "human_pop", "disturb_pot", "pixel")
-log10_variables <- c("VIR", "dist_urban", "human_pop", "total_biomass", "dist_urban", "disturb_pot")
+log10_variables <- c("dist_urban", "human_pop", "total_biomass", "dist_urban", "disturb_pot")
 
 data %>%
-  mutate(disturb_pot = human_pop / dist_urban) %>%
-  filter(VIR > 0,
+  filter(coverage > 0,
          datetime >= dt_start & datetime < dt_end,
+         total_biomass > 0,
          dist_radar < 80000) %>%
+  mutate(disturb_pot = human_pop / dist_urban,
+         total_biomass = total_biomass / 1000,
+         VIR = log10(VIR)) %>%
   dplyr::select(all_of(mdl_variables)) %>%
-  mutate(across(all_of(log10_variables), log10)) %>%
   filter_all(all_vars(is.finite(.))) %>%
-  as.data.frame() %>%
-  droplevels() -> data_cleaned
+  identity() -> data_cleaned
 ```
 
 ## Check for correlations among predictors
