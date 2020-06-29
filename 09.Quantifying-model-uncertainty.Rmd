@@ -31,14 +31,21 @@ calculate_evaluation_grid <- function(model, qlim = c(0.05, 0.95), continuous.re
   variables <- model$var.names
   grid <- vector("list", length(variables))
   for (i in seq_along(variables)) {
-    quantiles <- quantile(model$gbm.call$dataframe[, variables[i]], qlim)
+    if (typeof(qlim) == "list") {
+      quantiles <- quantile(model$gbm.call$dataframe[, variables[i]], as.numeric(unlist(qlim[variables[i]])))
+    } else {
+      quantiles <- quantile(model$gbm.call$dataframe[, variables[i]], qlim)
+    }
     grid[[i]] <- expand.grid(seq(from = quantiles[1], to = quantiles[2], length.out = continuous.resolution))
     colnames(grid[[i]]) <- paste("X", i, sep = "")
   }
   grid
 }
 
-grids <- lapply(models, function(x) calculate_evaluation_grid(x, qlim = c(0.05, 0.95)))
+qlims <- list(c(0, 1), c(0.05, 0.95), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0.05, 0.95))
+names(qlims) <- models[[1]]$var.names
+
+grids <- lapply(models, function(x) calculate_evaluation_grid(x, qlim = qlims, continuous.resolution = 10000))
 ```
 
 
