@@ -8,7 +8,12 @@ library(gbm)
 library(dismo)
 library(ggBRT)
 library(parallel)
-library(tidyverse)
+library(ggdist)
+library(pdp)
+library(tibble)
+library(dplyr)
+library(tidyr)
+library(forcats)
 ```
 
 
