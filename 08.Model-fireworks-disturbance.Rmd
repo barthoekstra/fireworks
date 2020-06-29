@@ -43,11 +43,13 @@ data <- readRDS("data/processed/all.RDS")
 
 ## Preparing a dataset for modelling
 
-As we're mostly interested in the moment of en masse take-off of birds, and we want to limit the effects of dispersal, we will limit our analysis to the first 10 minutes after 00:05 on January 1st, 2018 (or 23:05 on December 31st, 2017 in UTC), as both radar sites (Den Helder and Herwijnen) show a low `VIR` prior to, a rapid increase in `VIR` for that period, and the start of a decreasing `VIR` after that period (see [Identifying moment of take-off]). Making sure birds are still sufficiently 'linked' to the take-off sites requires that we limit our analyses to at most these scans.
+As we're mostly interested in the moment of en masse take-off of birds, and we want to limit the effects of dispersal, we will limit our analysis to the first 5 minutes after 00:05 on January 1st, 2018 (or 23:05 on December 31st, 2017 in UTC), as both radar sites (Den Helder and Herwijnen) show a low `VIR` prior to and a rapid increase in `VIR` for that period (see [Identifying moment of take-off]). Making sure birds are thus still sufficiently 'linked' to the take-off sites requires that we limit our analysis to only this one scan.
+
+Furthermore, we want to make sure the area included is at least 'covered' by 1 radar, we have an estimate of total_biomass for these sites and the proportion of urban area contained within the PPI pixels is less than .25.
 
 ```{r prepare_modelling_dataset}
 dt_start <- as.POSIXct("2017-12-31 23:05:00", tz = "UTC")
-dt_end <- as.POSIXct("2017-12-31 23:15:00", tz = "UTC")
+dt_end <- as.POSIXct("2017-12-31 23:10:00", tz = "UTC")
 
 mdl_variables <- c("VIR", "dist_radar", "datetime", "total_biomass", "urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies", 
                    "dist_urban", "human_pop", "disturb_pot", "pixel")
@@ -57,10 +59,12 @@ data %>%
   filter(coverage > 0,
          datetime >= dt_start & datetime < dt_end,
          total_biomass > 0,
-         dist_radar < 80000) %>%
-  mutate(disturb_pot = human_pop / dist_urban,
-         total_biomass = total_biomass / 1000,
-         VIR = log10(VIR)) %>%
+         dist_radar < 80000,
+         urban < 0.25) %>%
+  mutate(VIR = replace_na(VIR, 0.001),
+         VIR = log10(VIR),
+         disturb_pot = human_pop / dist_urban,
+         total_biomass = total_biomass / 1000) %>%
   dplyr::select(all_of(mdl_variables)) %>%
   filter_all(all_vars(is.finite(.))) %>%
   identity() -> data_cleaned
@@ -81,14 +85,14 @@ corr_radar
 As could be expected, the three 'disturbance parameters' (`dist_urban`, `human_pop`, `disturb_pot`) are highly correlated, so we have to see which of these is most suitable to include in our model. To assess that, we will simply compare the performance of each of the models trained with a single disturbance parameter.
 
 ```{r compare_disturbance_proxies, results='hold'}
-lr <- 0.5
+lr <- 0.03
 silence <- FALSE
 
 base_model <- c("dist_radar", "total_biomass", "urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies")
 disturbance_proxies <- c("dist_urban", "human_pop", "disturb_pot")
 x_vars <- lapply(disturbance_proxies, function(x) match(c(base_model,x), colnames(data_cleaned)))
 
-overall_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, learning.rate = lr, tolerance.method = "fixed", tolerance = 8e-4, silent = silence))
+overall_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, learning.rate = lr, silent = silence))
 
 ggPerformance("dist_urban" = overall_models[[1]], "human_pop" = overall_models[[2]], "disturb_pot" = overall_models[[3]])
 ```
@@ -110,7 +114,7 @@ datasets <- lapply(datetimes, function(x) filter(data_cleaned, datetime >= x & d
 models <- mclapply(datasets, function(x) {
   gbm.step(data = x, gbm.y = 1, gbm.x = match(c(base_model, "disturb_pot"), colnames(x)), bag.fraction = 0.75, family = "gaussian", 
            tree.complexity = 2, learning.rate = lr, tolerance.method = "fixed", tolerance = 8e-4, plot.main = TRUE, verbose = FALSE)
-})
+}, mc.preschedule = TRUE, mc.silent = FALSE)
 
 saveRDS(models, file = "data/models/brt_models.RDS")
 ```
