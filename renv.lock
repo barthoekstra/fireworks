@@ -74,6 +74,13 @@
       "Repository": "CRAN",
       "Hash": "93c391a020536628b5e14a21b7a57f4f"
     },
+    "HDInterval": {
+      "Package": "HDInterval",
+      "Version": "0.2.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "3b986a53325a1d95610b8d86a284dac0"
+    },
     "KernSmooth": {
       "Package": "KernSmooth",
       "Version": "2.23-17",
@@ -741,6 +748,13 @@
       "Repository": "CRAN",
       "Hash": "5d6f67b947e0962cf93208f139acd475"
     },
+    "ggdist": {
+      "Package": "ggdist",
+      "Version": "2.1.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "718f6813c6fd171c8ad3dfd879d95d6a"
+    },
     "ggmap": {
       "Package": "ggmap",
       "Version": "3.0.0",
@@ -1356,6 +1370,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "d547eab65958fc4f5d68ad0adfacfcf4"
+    },
+    "pdp": {
+      "Package": "pdp",
+      "Version": "0.7.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "e049aac9d7c1cc7e72f6736038954737"
     },
     "performance": {
       "Package": "performance",
