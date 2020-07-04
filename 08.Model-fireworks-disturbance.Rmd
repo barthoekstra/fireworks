@@ -33,13 +33,13 @@ library(ggBRT)
 library(patchwork)
 library(pdp)
 library(parallel)
+cpucores <- 5
 ```
 
 In the previous chapter, we have created a dataset encompassing all the data contained within the individual PPIs. We will use this for further modelling.
 
 ```{r load_data}
 data <- readRDS("data/processed/all.RDS")
-cpucores <- 5
 ```
 
 ## Preparing a dataset for modelling
@@ -91,13 +91,14 @@ As could be expected, the three 'disturbance parameters' (`dist_urban`, `human_p
 
 ```{r compare_disturbance_proxies, results='hold'}
 lr <- 0.03
+max_trees <- nrow(data_cleaned) * 0.25
 silence <- FALSE
 
 base_model <- c("dist_radar", "total_biomass", "urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies")
 disturbance_proxies <- c("dist_urban", "human_pop", "disturb_pot")
 x_vars <- lapply(disturbance_proxies, function(x) match(c(base_model,x), colnames(data_cleaned)))
 
-disturbance_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, learning.rate = lr, silent = silence), mc.cores = cpucores)
+disturbance_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, learning.rate = lr, silent = silence, max.trees = max_trees, step.size = 50), mc.cores = cpucores)
 names(disturbance_models) <- disturbance_proxies
 
 ggPerformance("dist_urban" = disturbance_models[[1]], "human_pop" = disturbance_models[[2]], "disturb_pot" = disturbance_models[[3]])
@@ -135,6 +136,66 @@ sum_corr
 ```
 
 So, the 'least correlated' variable is `r least_correlated$parameter` and we will therefore continue using the model trained with this proxy for disturbance.
+
+## Determine best hyperparameter settings for `lr`
+
+To avoid overfitting to noise, we will limit the maximum nr of trees used in the model to 25% of the number of datapoints, which yields a possible `r round(nrow(data_cleaned) * 0.25)` trees to be used. We still want to make sure our model reaches some measure of optimality (in this case a reduction of cross-validated deviance), we have to do a hyperparameter search for a suitable combination of maximum number of trees and learning rate. See Elith et al. for an explanation on the linkage between number of trees and learning rate.
+
+```{r}
+learning_rates <- c(0.03, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3)  # Lower and higher learning rates increase error or do not converge
+
+# Parallelised hyperparameter search somehow seems to hang occasionally, so unfortunately we switch to serial processing
+# hyperparms <- mclapply(learning_rates, function(x) { gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x_vars[[1]], bag.fraction = 0.5, family = "gaussian",
+#                                                             tree.complexity = 2, learning.rate = x, max.trees = max_trees, step.size = 50) }, 
+#                        mc.cores = 5, mc.preschedule = TRUE)
+hyperparms <- lapply(learning_rates, function(x) { gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x_vars[[which.min(sum_corr$sum_corr)]], bag.fraction = 0.5, 
+                                                            family = "gaussian", plot.main = FALSE, tree.complexity = 2, learning.rate = x, max.trees = max_trees * 2,
+                                                            step.size = 50, silent = TRUE)})
+
+max_used_trees <- max(unlist(lapply(hyperparms, function(x) {if (!is.null(x)) { max(x$trees.fitted) }})))
+trees <- data.frame(trees = seq(from = 50, to = max_used_trees * 2, by = 50))
+holdout_deviance <- lapply(hyperparms, function(x) { if (!is.null(x)) { x$cv.values }} )
+missing <- which(unlist(lapply(holdout_deviance, is.null)))
+
+h <- matrix(data = NA, nrow = dim(trees)[1], ncol = length(holdout_deviance))
+for (i in seq_along(holdout_deviance)) {
+  h[1:length(holdout_deviance[[i]]), i] <- holdout_deviance[[i]]
+}
+h <- as.data.frame(h)
+
+hp <- data.frame(trees, h)
+colnames(hp) <- c(colnames(trees), learning_rates)
+
+hp %>%
+  pivot_longer(cols = c(-trees), names_to = "lr", values_to = "holdout_deviance") %>%
+  identity() -> hp
+
+ggplot(hp) +
+  geom_line(aes(x = trees, y = holdout_deviance, color = lr))
+```
+
+It seems a learning rate of 0.20 and a maximum number of trees of `r round(nrow(data_cleaned) * 0.25)` seems to perform best on this dataset. We can now retrain our most performant disturbance model with these new parameters.
+
+## Retraining the disturbance models using optimised learning rate and maximum number of trees
+
+We can now retrain the models with the best combination of learning rate and maximum number of trees.
+
+```{r}
+lr <- 0.2
+max_trees <- nrow(data_cleaned) * 0.25
+silence <- FALSE
+
+base_model <- c("dist_radar", "total_biomass", "urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies")
+disturbance_proxies <- c("dist_urban", "human_pop", "disturb_pot")
+x_vars <- lapply(disturbance_proxies, function(x) match(c(base_model,x), colnames(data_cleaned)))
+
+disturbance_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, learning.rate = lr, silent = silence, max.trees = max_trees, step.size = 50), mc.cores = cpucores)
+names(disturbance_models) <- disturbance_proxies
+
+ggPerformance("dist_urban" = disturbance_models[[1]], "human_pop" = disturbance_models[[2]], "disturb_pot" = disturbance_models[[3]])
+```
+
+So the model with the disturbance proxy of ``r least_correlated$parameter`` continues to perform best and we'll save it for future use.
 
 ```{r save_model}
 model_disturbance_best <- disturbance_models[match(least_correlated$parameter, disturbance_proxies)]
