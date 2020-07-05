@@ -264,7 +264,3 @@ for (model in models) {
 }
 ```
 
-```{r}
-
-
-```
