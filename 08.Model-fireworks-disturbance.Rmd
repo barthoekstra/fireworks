@@ -89,7 +89,7 @@ corr_radar
 
 As could be expected, the three 'disturbance parameters' (`dist_urban`, `human_pop`, `disturb_pot`) are highly correlated, so we should see which of these is most suitable to include in our model, as it makes no sense to include all. To assess that, we will simply compare the performance of each of the models trained with a single disturbance parameter.
 
-```{r compare_disturbance_proxies, results='hold'}
+```{r compare_disturbance_proxies, eval=full_repro}
 lr <- 0.03
 max_trees <- nrow(data_cleaned) * 0.25
 silence <- FALSE
@@ -98,9 +98,16 @@ base_model <- c("dist_radar", "total_biomass", "urban", "agricultural", "semiope
 disturbance_proxies <- c("dist_urban", "human_pop", "disturb_pot")
 x_vars <- lapply(disturbance_proxies, function(x) match(c(base_model,x), colnames(data_cleaned)))
 
-disturbance_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, learning.rate = lr, silent = silence, max.trees = max_trees, step.size = 50), mc.cores = cpucores)
+# disturbance_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, learning.rate = lr, silent = silence, max.trees = max_trees, step.size = 50), mc.cores = cpucores)
+disturbance_models <- lapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, learning.rate = lr, silent = silence, max.trees = max_trees, step.size = 50, verbose = FALSE))
 names(disturbance_models) <- disturbance_proxies
+saveRDS(disturbance_models, file = "data/models/brt_models_disturbance.RDS")
+```
 
+Let's compare the performance:
+
+```{r compare_disturbance_proxies_performance, results='hold'}
+disturbance_models <- readRDS("data/models/brt_models_disturbance.RDS")
 ggPerformance("dist_urban" = disturbance_models[[1]], "human_pop" = disturbance_models[[2]], "disturb_pot" = disturbance_models[[3]])
 ```
 
@@ -141,7 +148,7 @@ So, the 'least correlated' variable is `r least_correlated$parameter` and we wil
 
 To avoid overfitting to noise, we will limit the maximum nr of trees used in the model to 25% of the number of datapoints, which yields a possible `r round(nrow(data_cleaned) * 0.25)` trees to be used. We still want to make sure our model reaches some measure of optimality (in this case a reduction of cross-validated deviance), we have to do a hyperparameter search for a suitable combination of maximum number of trees and learning rate. See Elith et al. for an explanation on the linkage between number of trees and learning rate.
 
-```{r determine_hyperparameter_settings}
+```{r determine_hyperparameter_settings, eval=full_repro}
 learning_rates <- c(0.03, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3)  # Lower and higher learning rates increase error or do not converge
 
 # Parallelised hyperparameter search somehow seems to hang occasionally, so unfortunately we switch to serial processing
@@ -151,7 +158,11 @@ learning_rates <- c(0.03, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3)  # Lower and higher l
 hyperparms <- lapply(learning_rates, function(x) { gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x_vars[[which.min(sum_corr$sum_corr)]], bag.fraction = 0.5, 
                                                             family = "gaussian", plot.main = FALSE, tree.complexity = 2, learning.rate = x, max.trees = max_trees * 2,
                                                             step.size = 50, silent = TRUE)})
+saveRDS(hyperparms, file = "data/models/brt_models_hyperparms.RDS")
+```
 
+```{r compare_hyperparameter_settings}
+hyperparms <- readRDS(file = "data/models/brt_models_hyperparms.RDS")
 max_used_trees <- max(unlist(lapply(hyperparms, function(x) {if (!is.null(x)) { max(x$trees.fitted) }})))
 trees <- data.frame(trees = seq(from = 50, to = max_used_trees * 2, by = 50))
 holdout_deviance <- lapply(hyperparms, function(x) { if (!is.null(x)) { x$cv.values }} )
@@ -180,7 +191,7 @@ It seems a learning rate of 0.20 and a maximum number of trees of `r round(nrow(
 
 We can now retrain the models with the best combination of learning rate and maximum number of trees.
 
-```{r retrain_disturbance_models}
+```{r retrain_disturbance_models, eval=full_repro}
 lr <- 0.2
 max_trees <- nrow(data_cleaned) * 0.25
 silence <- FALSE
@@ -189,9 +200,16 @@ base_model <- c("dist_radar", "total_biomass", "urban", "agricultural", "semiope
 disturbance_proxies <- c("dist_urban", "human_pop", "disturb_pot")
 x_vars <- lapply(disturbance_proxies, function(x) match(c(base_model,x), colnames(data_cleaned)))
 
-disturbance_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, learning.rate = lr, silent = silence, max.trees = max_trees, step.size = 50), mc.cores = cpucores)
+# disturbance_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, learning.rate = lr, silent = silence, max.trees = max_trees, step.size = 50), mc.cores = cpucores)
+disturbance_models <- lapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, learning.rate = lr, silent = silence, max.trees = max_trees, step.size = 50, verbose = FALSE))
 names(disturbance_models) <- disturbance_proxies
+saveRDS(disturbance_models, file = "data/models/brt_models_disturbance.RDS")
+```
 
+And once again we can compare the performance
+
+```{r compare_performance_retrained_disturbance_models}
+disturbance_models <- readRDS("data/models/brt_models_disturbance.RDS")
 ggPerformance("dist_urban" = disturbance_models[[1]], "human_pop" = disturbance_models[[2]], "disturb_pot" = disturbance_models[[3]])
 ```
 
@@ -217,7 +235,7 @@ The high relative importance of `total_biomass` (`r round(relinf["total_biomass"
 
 As the land use proportions are also somewhat correlated, and `agricultural` land use is by far the most common in The Netherlands, it may be a worthwhile exercise to model the effects of each land use proportion seperately. This way, we may discover effects that disappear because of the compound effects of correlation among the other predictors. Additionally, as `agricultural` is so (comparatively) strongly correlated with the other land use classes, we train a model with all land use classes except for `agricultural`.
 
-```{r train_landscape_models}
+```{r train_landscape_models, eval=full_repro}
 lr <- 0.2
 silence <- FALSE
 
@@ -228,11 +246,17 @@ all_x_vars <- unique(unlist(x_vars))
 x_vars[[length(x_vars) + 1]] <- all_x_vars[!all_x_vars %in% match("agricultural", colnames(data_cleaned))]
 
 # Parallelised model training - again - seems to hang occasionally, so unfortunately we switch to serial processing
-landscape_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, learning.rate = lr, silent = silence), mc.cores = cpucores-1, mc.preschedule = TRUE)
-# landscape_models <- lapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2,
-#                                                         learning.rate = lr, silent = silence))
+# landscape_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, learning.rate = lr, silent = silence), mc.cores = cpucores-1, mc.preschedule = TRUE)
+landscape_models <- lapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2,
+                                                        learning.rate = lr, silent = silence))
 names(landscape_models) <- c(landscapes, "nonagricultural")
+saveRDS(landscape_models, file = "data/models/brt_models_landscapes.RDS")
+```
 
+And once again we compare the performance
+
+```{r compare_performance_of_landscape_models}
+landscape_models <- readRDS("data/models/brt_models_landscapes.RDS")
 ggPerformance("urban" = landscape_models[[1]], "agricultural" = landscape_models[[2]], "semiopen" = landscape_models[[3]], "forests" = landscape_models[[4]], 
               "wetlands" = landscape_models[[5]], "waterbodies" = landscape_models[[6]], "nonagricultural" = landscape_models[[7]])
 ```
