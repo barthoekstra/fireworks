@@ -6,7 +6,7 @@ We have so far:
 
 1. Pre-processed the radar data by removing clutter and applying the range-bias correction [@kranstauber2020].
 2. Annotated the PPIs with land use proportions and indicators of disturbance, i.e. distance to inhabited urban areas and (human) population density.
-3. Annotated the PPIs with the calculated total biomass calculated from the Sovon counts.
+3. Annotated the PPIs with the total biomass calculated from the Sovon counts.
 
 With the dataset of annotated PPIs, we can start to explore the relation between fireworks disturbance and the birds measured aloft during NYE 2017-2018.
 
@@ -50,7 +50,7 @@ Furthermore, we want to make sure that:
 1. the area is 'covered' by at least 1 radar,
 2. we have an estimate of `total_biomass`for these sites,
 3. the proportion of urban area (`urban`) in the PPI pixel is less than .25,
-4. `VIR` is > 0 (otherwise log-conversion will return `-Inf`).
+4. `VIR` is > 0 (otherwise log-conversion will return `-Inf`), so we replace 0-values with 1e-3.
 
 ```{r prepare_modelling_dataset}
 dt_start <- as.POSIXct("2017-12-31 23:05:00", tz = "UTC")
@@ -141,7 +141,7 @@ So, the 'least correlated' variable is `r least_correlated$parameter` and we wil
 
 To avoid overfitting to noise, we will limit the maximum nr of trees used in the model to 25% of the number of datapoints, which yields a possible `r round(nrow(data_cleaned) * 0.25)` trees to be used. We still want to make sure our model reaches some measure of optimality (in this case a reduction of cross-validated deviance), we have to do a hyperparameter search for a suitable combination of maximum number of trees and learning rate. See Elith et al. for an explanation on the linkage between number of trees and learning rate.
 
-```{r}
+```{r determine_hyperparameter_settings}
 learning_rates <- c(0.03, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3)  # Lower and higher learning rates increase error or do not converge
 
 # Parallelised hyperparameter search somehow seems to hang occasionally, so unfortunately we switch to serial processing
@@ -180,7 +180,7 @@ It seems a learning rate of 0.20 and a maximum number of trees of `r round(nrow(
 
 We can now retrain the models with the best combination of learning rate and maximum number of trees.
 
-```{r}
+```{r retrain_disturbance_models}
 lr <- 0.2
 max_trees <- nrow(data_cleaned) * 0.25
 silence <- FALSE
@@ -215,21 +215,26 @@ The high relative importance of `total_biomass` (`r round(relinf["total_biomass"
 
 ## Models for seperate land uses
 
-As the land use proportions are also somewhat correlated, and `agricultural` land use is by far the most common in The Netherlands, it may be a worthwhile exercise to model the effects of each land use proportion seperately. This way, we may discover effects that disappear because of the compound effects of correlation among the other predictors.
+As the land use proportions are also somewhat correlated, and `agricultural` land use is by far the most common in The Netherlands, it may be a worthwhile exercise to model the effects of each land use proportion seperately. This way, we may discover effects that disappear because of the compound effects of correlation among the other predictors. Additionally, as `agricultural` is so (comparatively) strongly correlated with the other land use classes, we train a model with all land use classes except for `agricultural`.
 
 ```{r train_landscape_models}
-lr <- 0.03
+lr <- 0.2
 silence <- FALSE
 
 base_model <- c("dist_radar", "total_biomass", least_correlated$parameter)
 landscapes <- c("urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies")
 x_vars <- lapply(landscapes, function(x) match(c(base_model,x), colnames(data_cleaned)))
+all_x_vars <- unique(unlist(x_vars))
+x_vars[[length(x_vars) + 1]] <- all_x_vars[!all_x_vars %in% match("agricultural", colnames(data_cleaned))]
 
-landscape_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, learning.rate = lr, silent = silence), mc.cores = cpucores)
-names(landscape_models) <- landscapes
+# Parallelised model training - again - seems to hang occasionally, so unfortunately we switch to serial processing
+landscape_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, learning.rate = lr, silent = silence), mc.cores = cpucores-1, mc.preschedule = TRUE)
+# landscape_models <- lapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2,
+#                                                         learning.rate = lr, silent = silence))
+names(landscape_models) <- c(landscapes, "nonagricultural")
 
-ggPerformance("urban" = landscape_models[[1]], "agricultural" = landscape_models[[2]], "semiopen" = landscape_models[[3]],
-              "forests" = landscape_models[[4]], "wetlands" = landscape_models[[5]], "waterbodies" = landscape_models[[6]])
+ggPerformance("urban" = landscape_models[[1]], "agricultural" = landscape_models[[2]], "semiopen" = landscape_models[[3]], "forests" = landscape_models[[4]], 
+              "wetlands" = landscape_models[[5]], "waterbodies" = landscape_models[[6]], "nonagricultural" = landscape_models[[7]])
 ```
 
 With these models trained as well, we will save the final set of models.
