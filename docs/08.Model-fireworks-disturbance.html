@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>8 Modelling fireworks disturbance | Fireworks</title>
+  <meta name="description" content="Using ground-based bird counts and weather radar measurements to estimate numbers of birds aloft during NYE fireworks events." />
+  <meta name="generator" content="bookdown 0.19 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="8 Modelling fireworks disturbance | Fireworks" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="Using ground-based bird counts and weather radar measurements to estimate numbers of birds aloft during NYE fireworks events." />
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="8 Modelling fireworks disturbance | Fireworks" />
+  
+  <meta name="twitter:description" content="Using ground-based bird counts and weather radar measurements to estimate numbers of birds aloft during NYE fireworks events." />
+  
+
+<meta name="author" content="Bart Hoekstra" />
+
+
+<meta name="date" content="2020-07-07" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="07.Composite-all-PPIs.html"/>
+<link rel="next" href="09.Quantifying-model-uncertainty.html"/>
+<script src="assets/jquery-2.2.3/jquery.min.js"></script>
+<link href="assets/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<script src="assets/htmlwidgets-1.5.1/htmlwidgets.js"></script>
+<script src="assets/plotly-binding-4.9.2.1/plotly.js"></script>
+<script src="assets/typedarray-0.1/typedarray.min.js"></script>
+<link href="assets/crosstalk-1.1.0.1/css/crosstalk.css" rel="stylesheet" />
+<script src="assets/crosstalk-1.1.0.1/js/crosstalk.min.js"></script>
+<link href="assets/plotly-htmlwidgets-css-1.52.2/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="assets/plotly-main-1.52.2/plotly-latest.min.js"></script>
+<link href="assets/leaflet-1.3.1/leaflet.css" rel="stylesheet" />
+<script src="assets/leaflet-1.3.1/leaflet.js"></script>
+<link href="assets/leafletfix-1.0.0/leafletfix.css" rel="stylesheet" />
+<script src="assets/Proj4Leaflet-1.0.1/proj4-compressed.js"></script>
+<script src="assets/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
+<link href="assets/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet" />
+<script src="assets/leaflet-binding-2.0.3/leaflet.js"></script>
+<script src="assets/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script>
+<script src="assets/leaflet-providers-plugin-2.0.3/leaflet-providers-plugin.js"></script>
+<script src="assets/VIR-1/data_stars_VIR52d8a0.txt"></script>
+<script src="assets/joda-0.0.1/joda.js"></script>
+<script src="assets/joda-0.0.1/addImageQuery-bindings.js"></script>
+<script src="assets/clipboard-0.0.1/setClipboardText.js"></script>
+<link href="assets/HomeButton-0.0.1/home-button.css" rel="stylesheet" />
+<script src="assets/HomeButton-0.0.1/home-button.js"></script>
+<script src="assets/HomeButton-0.0.1/easy-button-src.min.js"></script>
+<script src="assets/VID-1/data_stars_VID72b903.txt"></script>
+<script src="assets/R-1/data_stars_Rd4a978.txt"></script>
+<script src="assets/overlap-1/data_stars_overlapf52ad9.txt"></script>
+<script src="assets/eta_sum-1/data_stars_eta_sumb278fa.txt"></script>
+<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expected2a0b13.txt"></script>
+<script src="assets/dist_radar-1/data_stars_dist_radar7dea05.txt"></script>
+<script src="assets/x-1/data_stars_xfb0c68.txt"></script>
+<script src="assets/y-1/data_stars_y70ab56.txt"></script>
+<script src="assets/urban-1/data_stars_urban1a7e42.txt"></script>
+<script src="assets/agricultural-1/data_stars_agriculturalb6a87c.txt"></script>
+<script src="assets/semiopen-1/data_stars_semiopen6132fb.txt"></script>
+<script src="assets/forests-1/data_stars_forests9c32f6.txt"></script>
+<script src="assets/wetlands-1/data_stars_wetlands93214c.txt"></script>
+<script src="assets/waterbodies-1/data_stars_waterbodies98a5b3.txt"></script>
+<script src="assets/dist_urban-1/data_stars_dist_urban6b571c.txt"></script>
+<script src="assets/human_pop-1/data_stars_human_pop06b5ae.txt"></script>
+<script src="assets/kePrint-0.0.1/kePrint.js"></script>
+<script src="assets/resid-1/data_stars_resida81fec.txt"></script>
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a><ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#abstract"><i class="fa fa-check"></i>Abstract</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#how-to-use-this-document"><i class="fa fa-check"></i>How to use this document</a></li>
+</ul></li>
+<li class="part"><span><b>I Weather radar data</b></span></li>
+<li class="chapter" data-level="1" data-path="01.Selecting-take-off-moments.html"><a href="01.Selecting-take-off-moments.html"><i class="fa fa-check"></i><b>1</b> Selecting firework take-off moment</a><ul>
+<li class="chapter" data-level="1.1" data-path="01.Selecting-take-off-moments.html"><a href="01.Selecting-take-off-moments.html#setting-up-the-processing-environment"><i class="fa fa-check"></i><b>1.1</b> Setting up the processing environment</a></li>
+<li class="chapter" data-level="1.2" data-path="01.Selecting-take-off-moments.html"><a href="01.Selecting-take-off-moments.html#calculate-the-vertical-profiles"><i class="fa fa-check"></i><b>1.2</b> Calculate the vertical profiles</a></li>
+<li class="chapter" data-level="1.3" data-path="01.Selecting-take-off-moments.html"><a href="01.Selecting-take-off-moments.html#generate-time-series-of-vertical-profiles"><i class="fa fa-check"></i><b>1.3</b> Generate time series of vertical profiles</a></li>
+<li class="chapter" data-level="1.4" data-path="01.Selecting-take-off-moments.html"><a href="01.Selecting-take-off-moments.html#identifying-moment-of-take-off"><i class="fa fa-check"></i><b>1.4</b> Identifying moment of take-off</a></li>
+<li class="chapter" data-level="1.5" data-path="01.Selecting-take-off-moments.html"><a href="01.Selecting-take-off-moments.html#determining-maximum-range-from-radar-to-detect-birds"><i class="fa fa-check"></i><b>1.5</b> Determining maximum range from radar to detect birds</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html"><i class="fa fa-check"></i><b>2</b> Radar Data Preprocessing</a><ul>
+<li class="chapter" data-level="2.1" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#setting-up-the-pre-processing-environment"><i class="fa fa-check"></i><b>2.1</b> Setting-up the pre-processing environment</a></li>
+<li class="chapter" data-level="2.2" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#removing-electromagnetic-interference"><i class="fa fa-check"></i><b>2.2</b> Removing electromagnetic interference</a></li>
+<li class="chapter" data-level="2.3" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#filter-meteorology-using-the-depolarization-ratio"><i class="fa fa-check"></i><b>2.3</b> Filter meteorology using the depolarization ratio</a></li>
+<li class="chapter" data-level="2.4" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#remove-classified-precipitation-from-polar-volumes"><i class="fa fa-check"></i><b>2.4</b> Remove classified precipitation from polar volumes</a></li>
+<li class="chapter" data-level="2.5" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#filter-ground-clutter"><i class="fa fa-check"></i><b>2.5</b> Filter ground clutter</a></li>
+<li class="chapter" data-level="2.6" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#range-bias-correction"><i class="fa fa-check"></i><b>2.6</b> Range-bias correction</a></li>
+<li class="chapter" data-level="2.7" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#distance-to-radar"><i class="fa fa-check"></i><b>2.7</b> Distance to radar</a></li>
+<li class="chapter" data-level="2.8" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#spatial-coordinates"><i class="fa fa-check"></i><b>2.8</b> Spatial coordinates</a></li>
+<li class="chapter" data-level="2.9" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#visualising-range-bias-correction"><i class="fa fa-check"></i><b>2.9</b> Visualising range-bias correction</a></li>
+<li class="chapter" data-level="2.10" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#preprocess-additional-scans"><i class="fa fa-check"></i><b>2.10</b> Preprocess additional scans</a></li>
+</ul></li>
+<li class="part"><span><b>II Land use</b></span></li>
+<li class="chapter" data-level="3" data-path="03.Annotate-land-use.html"><a href="03.Annotate-land-use.html"><i class="fa fa-check"></i><b>3</b> Annotating land use</a><ul>
+<li class="chapter" data-level="3.1" data-path="03.Annotate-land-use.html"><a href="03.Annotate-land-use.html#setting-up-the-annotation-environment"><i class="fa fa-check"></i><b>3.1</b> Setting up the annotation environment</a></li>
+<li class="chapter" data-level="3.2" data-path="03.Annotate-land-use.html"><a href="03.Annotate-land-use.html#converting-the-land-use-map"><i class="fa fa-check"></i><b>3.2</b> Converting the land use map</a></li>
+<li class="chapter" data-level="3.3" data-path="03.Annotate-land-use.html"><a href="03.Annotate-land-use.html#adding-land-use-classifications-to-the-ppis"><i class="fa fa-check"></i><b>3.3</b> Adding land use classifications to the PPIs</a></li>
+<li class="chapter" data-level="3.4" data-path="03.Annotate-land-use.html"><a href="03.Annotate-land-use.html#calculate-distance-to-nearest-urban-area"><i class="fa fa-check"></i><b>3.4</b> Calculate distance to nearest urban area</a></li>
+<li class="chapter" data-level="3.5" data-path="03.Annotate-land-use.html"><a href="03.Annotate-land-use.html#add-population-density"><i class="fa fa-check"></i><b>3.5</b> Add population density</a></li>
+</ul></li>
+<li class="part"><span><b>III Sovon counts</b></span></li>
+<li class="chapter" data-level="4" data-path="04.Annotate-count-areas.html"><a href="04.Annotate-count-areas.html"><i class="fa fa-check"></i><b>4</b> Annotating count areas</a><ul>
+<li class="chapter" data-level="4.1" data-path="04.Annotate-count-areas.html"><a href="04.Annotate-count-areas.html#setting-up-the-annotation-environment-1"><i class="fa fa-check"></i><b>4.1</b> Setting up the annotation environment</a></li>
+<li class="chapter" data-level="4.2" data-path="04.Annotate-count-areas.html"><a href="04.Annotate-count-areas.html#annotate-ppis-with-waterbird-area-codes"><i class="fa fa-check"></i><b>4.2</b> Annotate PPIs with waterbird area codes</a></li>
+<li class="chapter" data-level="4.3" data-path="04.Annotate-count-areas.html"><a href="04.Annotate-count-areas.html#annotate-ppis-with-point-transect-counts"><i class="fa fa-check"></i><b>4.3</b> Annotate PPIs with point-transect-counts</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="05.Processing-count-results.html"><a href="05.Processing-count-results.html"><i class="fa fa-check"></i><b>5</b> Processing count results</a><ul>
+<li class="chapter" data-level="5.1" data-path="05.Processing-count-results.html"><a href="05.Processing-count-results.html#setting-up-the-processing-environment-1"><i class="fa fa-check"></i><b>5.1</b> Setting up the processing environment</a></li>
+<li class="chapter" data-level="5.2" data-path="05.Processing-count-results.html"><a href="05.Processing-count-results.html#loading-the-sovon-count-data"><i class="fa fa-check"></i><b>5.2</b> Loading the Sovon count data</a></li>
+<li class="chapter" data-level="5.3" data-path="05.Processing-count-results.html"><a href="05.Processing-count-results.html#filteringpreprocessing-species-names"><i class="fa fa-check"></i><b>5.3</b> Filtering/preprocessing species names</a></li>
+<li class="chapter" data-level="5.4" data-path="05.Processing-count-results.html"><a href="05.Processing-count-results.html#linking-life-history-traits-to-species"><i class="fa fa-check"></i><b>5.4</b> Linking life-history traits to species</a></li>
+<li class="chapter" data-level="5.5" data-path="05.Processing-count-results.html"><a href="05.Processing-count-results.html#calculating-total-bird-biomass"><i class="fa fa-check"></i><b>5.5</b> Calculating total bird biomass</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="06.Applying-annotations-to-all-PPIs.html"><a href="06.Applying-annotations-to-all-PPIs.html"><i class="fa fa-check"></i><b>6</b> Apply processing to all PPIs</a><ul>
+<li class="chapter" data-level="6.1" data-path="06.Applying-annotations-to-all-PPIs.html"><a href="06.Applying-annotations-to-all-PPIs.html#setting-up-the-environment"><i class="fa fa-check"></i><b>6.1</b> Setting-up the environment</a></li>
+<li class="chapter" data-level="6.2" data-path="06.Applying-annotations-to-all-PPIs.html"><a href="06.Applying-annotations-to-all-PPIs.html#load-the-reference-ppis"><i class="fa fa-check"></i><b>6.2</b> Load the reference PPIs</a></li>
+<li class="chapter" data-level="6.3" data-path="06.Applying-annotations-to-all-PPIs.html"><a href="06.Applying-annotations-to-all-PPIs.html#add-biomass-to-reference-ppis"><i class="fa fa-check"></i><b>6.3</b> Add biomass to reference PPIs</a></li>
+<li class="chapter" data-level="6.4" data-path="06.Applying-annotations-to-all-PPIs.html"><a href="06.Applying-annotations-to-all-PPIs.html#copy-annotations-from-reference-ppis-to-other-ppis"><i class="fa fa-check"></i><b>6.4</b> Copy annotations from reference PPIs to other PPIs</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="07.Composite-all-PPIs.html"><a href="07.Composite-all-PPIs.html"><i class="fa fa-check"></i><b>7</b> Composite all PPIs</a><ul>
+<li class="chapter" data-level="7.1" data-path="07.Composite-all-PPIs.html"><a href="07.Composite-all-PPIs.html#setting-up-the-environment-1"><i class="fa fa-check"></i><b>7.1</b> Setting-up the environment</a></li>
+<li class="chapter" data-level="7.2" data-path="07.Composite-all-PPIs.html"><a href="07.Composite-all-PPIs.html#generating-the-composite-ppis"><i class="fa fa-check"></i><b>7.2</b> Generating the composite PPIs</a></li>
+<li class="chapter" data-level="7.3" data-path="07.Composite-all-PPIs.html"><a href="07.Composite-all-PPIs.html#visualising-the-composites"><i class="fa fa-check"></i><b>7.3</b> Visualising the composites</a></li>
+</ul></li>
+<li class="part"><span><b>IV Fireworks disturbance</b></span></li>
+<li class="chapter" data-level="8" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html"><i class="fa fa-check"></i><b>8</b> Modelling fireworks disturbance</a><ul>
+<li class="chapter" data-level="8.1" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#setting-up-the-environment-2"><i class="fa fa-check"></i><b>8.1</b> Setting-up the environment</a></li>
+<li class="chapter" data-level="8.2" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#preparing-a-dataset-for-modelling"><i class="fa fa-check"></i><b>8.2</b> Preparing a dataset for modelling</a></li>
+<li class="chapter" data-level="8.3" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#check-for-correlations-among-predictors"><i class="fa fa-check"></i><b>8.3</b> Check for correlations among predictors</a></li>
+<li class="chapter" data-level="8.4" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#determine-the-most-suitable-proxy-for-disturbance"><i class="fa fa-check"></i><b>8.4</b> Determine the most suitable proxy for disturbance</a></li>
+<li class="chapter" data-level="8.5" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#determine-best-hyperparameter-settings-for-lr"><i class="fa fa-check"></i><b>8.5</b> Determine best hyperparameter settings for <code>lr</code></a></li>
+<li class="chapter" data-level="8.6" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#retraining-the-disturbance-models-using-optimised-learning-rate-and-maximum-number-of-trees"><i class="fa fa-check"></i><b>8.6</b> Retraining the disturbance models using optimised learning rate and maximum number of trees</a></li>
+<li class="chapter" data-level="8.7" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#relative-influence-of-variables"><i class="fa fa-check"></i><b>8.7</b> Relative influence of variables</a></li>
+<li class="chapter" data-level="8.8" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#models-for-seperate-land-uses"><i class="fa fa-check"></i><b>8.8</b> Models for seperate land uses</a></li>
+<li class="chapter" data-level="8.9" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#partial-dependence"><i class="fa fa-check"></i><b>8.9</b> Partial dependence</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="09.Quantifying-model-uncertainty.html"><a href="09.Quantifying-model-uncertainty.html"><i class="fa fa-check"></i><b>9</b> Quantifying model uncertainty</a><ul>
+<li class="chapter" data-level="9.1" data-path="09.Quantifying-model-uncertainty.html"><a href="09.Quantifying-model-uncertainty.html#setting-up-the-environment-3"><i class="fa fa-check"></i><b>9.1</b> Setting-up the environment</a></li>
+<li class="chapter" data-level="9.2" data-path="09.Quantifying-model-uncertainty.html"><a href="09.Quantifying-model-uncertainty.html#load-the-constructed-models"><i class="fa fa-check"></i><b>9.2</b> Load the constructed models</a></li>
+<li class="chapter" data-level="9.3" data-path="09.Quantifying-model-uncertainty.html"><a href="09.Quantifying-model-uncertainty.html#determine-evaluation-grid"><i class="fa fa-check"></i><b>9.3</b> Determine evaluation grid</a></li>
+<li class="chapter" data-level="9.4" data-path="09.Quantifying-model-uncertainty.html"><a href="09.Quantifying-model-uncertainty.html#bootstrapped-retraining-of-gbm-models"><i class="fa fa-check"></i><b>9.4</b> Bootstrapped retraining of <code>gbm</code> models</a></li>
+<li class="chapter" data-level="9.5" data-path="09.Quantifying-model-uncertainty.html"><a href="09.Quantifying-model-uncertainty.html#plot-bootstrapped-uncertainties"><i class="fa fa-check"></i><b>9.5</b> Plot bootstrapped uncertainties</a></li>
+<li class="chapter" data-level="9.6" data-path="09.Quantifying-model-uncertainty.html"><a href="09.Quantifying-model-uncertainty.html#show-model-residuals"><i class="fa fa-check"></i><b>9.6</b> Show model residuals</a></li>
+</ul></li>
+<li class="part"><span><b>V Appendix</b></span></li>
+<li class="chapter" data-level="10" data-path="A1.Generating-VPs-for-Den-Helder-radar.html"><a href="A1.Generating-VPs-for-Den-Helder-radar.html"><i class="fa fa-check"></i><b>10</b> Generating vertical profiles for Den Helder radar</a></li>
+<li class="part"><span><b>VI Other</b></span></li>
+<li class="chapter" data-level="11" data-path="References.html"><a href="References.html"><i class="fa fa-check"></i><b>11</b> References</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Fireworks</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="modelling-fireworks-disturbance" class="section level1">
+<h1><span class="header-section-number">8</span> Modelling fireworks disturbance</h1>
+<p>We have so far:</p>
+<ol style="list-style-type: decimal">
+<li>Pre-processed the radar data by removing clutter and applying the range-bias correction <span class="citation">(Kranstauber et al. <a href="#ref-kranstauber2020">2020</a>)</span>.</li>
+<li>Annotated the PPIs with land use proportions and indicators of disturbance, i.e. distance to inhabited urban areas and (human) population density.</li>
+<li>Annotated the PPIs with the total biomass calculated from the Sovon counts.</li>
+</ol>
+<p>With the dataset of annotated PPIs, we can start to explore the relation between fireworks disturbance and the birds measured aloft during NYE 2017-2018.</p>
+<p>The following parameters we assume are important predictors for measured bird densities aloft:</p>
+<ol style="list-style-type: decimal">
+<li>The total biomass of birds on the ground.</li>
+<li>The take-off habitat of these birds.</li>
+<li>The human population in the vicinity of birds.</li>
+<li>The distance to the nearest inhabited urban area.</li>
+</ol>
+<div id="setting-up-the-environment-2" class="section level2">
+<h2><span class="header-section-number">8.1</span> Setting-up the environment</h2>
+<p>Load the required packages.</p>
+<div class="sourceCode" id="cb137"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb137-1" data-line-number="1"><span class="kw">library</span>(ggstatsplot)</a>
+<a class="sourceLine" id="cb137-2" data-line-number="2"><span class="kw">library</span>(ggplot2)</a>
+<a class="sourceLine" id="cb137-3" data-line-number="3"><span class="kw">library</span>(dplyr)</a>
+<a class="sourceLine" id="cb137-4" data-line-number="4"><span class="kw">library</span>(readr)</a>
+<a class="sourceLine" id="cb137-5" data-line-number="5"><span class="kw">library</span>(tidyr)</a>
+<a class="sourceLine" id="cb137-6" data-line-number="6"><span class="kw">library</span>(gbm)</a>
+<a class="sourceLine" id="cb137-7" data-line-number="7"><span class="kw">library</span>(dismo)</a>
+<a class="sourceLine" id="cb137-8" data-line-number="8"><span class="kw">library</span>(ggBRT)</a>
+<a class="sourceLine" id="cb137-9" data-line-number="9"><span class="kw">library</span>(patchwork)</a>
+<a class="sourceLine" id="cb137-10" data-line-number="10"><span class="kw">library</span>(pdp)</a>
+<a class="sourceLine" id="cb137-11" data-line-number="11"><span class="kw">library</span>(parallel)</a>
+<a class="sourceLine" id="cb137-12" data-line-number="12">cpucores &lt;-<span class="st"> </span><span class="dv">5</span></a></code></pre></div>
+<p>In the previous chapter, we have created a dataset encompassing all the data contained within the individual PPIs. We will use this for further modelling.</p>
+<div class="sourceCode" id="cb138"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb138-1" data-line-number="1">data &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data/processed/all.RDS&quot;</span>)</a></code></pre></div>
+</div>
+<div id="preparing-a-dataset-for-modelling" class="section level2">
+<h2><span class="header-section-number">8.2</span> Preparing a dataset for modelling</h2>
+<p>As we’re mostly interested in the moment of en masse take-off of birds, and we want to limit the effects of dispersal, we will limit our analysis to the first 5 minutes after 00:05 on January 1st, 2018 (or 23:05 on December 31st, 2017 in UTC), as both radar sites (Den Helder and Herwijnen) show a low <code>VIR</code> prior to and a rapid increase in <code>VIR</code> for that period (see <a href="01.Selecting-take-off-moments.html#identifying-moment-of-take-off">Identifying moment of take-off</a>). Making sure birds are thus still sufficiently ‘linked’ to the take-off sites requires that we limit our analysis to only this one scan.</p>
+<p>Furthermore, we want to make sure that:
+1. the area is ‘covered’ by at least 1 radar,
+2. we have an estimate of <code>total_biomass</code>for these sites,
+3. the proportion of urban area (<code>urban</code>) in the PPI pixel is less than .25,
+4. <code>VIR</code> is &gt; 0 (otherwise log-conversion will return <code>-Inf</code>), so we replace 0-values with 1e-3.</p>
+<div class="sourceCode" id="cb139"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb139-1" data-line-number="1">dt_start &lt;-<span class="st"> </span><span class="kw">as.POSIXct</span>(<span class="st">&quot;2017-12-31 23:05:00&quot;</span>, <span class="dt">tz =</span> <span class="st">&quot;UTC&quot;</span>)</a>
+<a class="sourceLine" id="cb139-2" data-line-number="2">dt_end &lt;-<span class="st"> </span><span class="kw">as.POSIXct</span>(<span class="st">&quot;2017-12-31 23:10:00&quot;</span>, <span class="dt">tz =</span> <span class="st">&quot;UTC&quot;</span>)</a>
+<a class="sourceLine" id="cb139-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb139-4" data-line-number="4">mdl_variables &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;VIR&quot;</span>, <span class="st">&quot;dist_radar&quot;</span>, <span class="st">&quot;datetime&quot;</span>, <span class="st">&quot;total_biomass&quot;</span>, <span class="st">&quot;urban&quot;</span>, <span class="st">&quot;agricultural&quot;</span>, <span class="st">&quot;semiopen&quot;</span>, <span class="st">&quot;forests&quot;</span>, <span class="st">&quot;wetlands&quot;</span>, <span class="st">&quot;waterbodies&quot;</span>, </a>
+<a class="sourceLine" id="cb139-5" data-line-number="5">                   <span class="st">&quot;dist_urban&quot;</span>, <span class="st">&quot;human_pop&quot;</span>, <span class="st">&quot;disturb_pot&quot;</span>, <span class="st">&quot;pixel&quot;</span>)</a>
+<a class="sourceLine" id="cb139-6" data-line-number="6">log10_variables &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;dist_urban&quot;</span>, <span class="st">&quot;human_pop&quot;</span>, <span class="st">&quot;total_biomass&quot;</span>, <span class="st">&quot;dist_urban&quot;</span>, <span class="st">&quot;disturb_pot&quot;</span>)</a>
+<a class="sourceLine" id="cb139-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb139-8" data-line-number="8">data <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb139-9" data-line-number="9"><span class="st">  </span><span class="kw">filter</span>(coverage <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb139-10" data-line-number="10">         datetime <span class="op">&gt;=</span><span class="st"> </span>dt_start <span class="op">&amp;</span><span class="st"> </span>datetime <span class="op">&lt;</span><span class="st"> </span>dt_end,</a>
+<a class="sourceLine" id="cb139-11" data-line-number="11">         total_biomass <span class="op">&gt;</span><span class="st"> </span><span class="dv">0</span>,</a>
+<a class="sourceLine" id="cb139-12" data-line-number="12">         dist_radar <span class="op">&lt;</span><span class="st"> </span><span class="dv">80000</span>,</a>
+<a class="sourceLine" id="cb139-13" data-line-number="13">         urban <span class="op">&lt;</span><span class="st"> </span><span class="fl">0.25</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb139-14" data-line-number="14"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">VIR =</span> <span class="kw">replace_na</span>(VIR, <span class="fl">0.001</span>),</a>
+<a class="sourceLine" id="cb139-15" data-line-number="15">         <span class="dt">VIR =</span> <span class="kw">log10</span>(VIR),</a>
+<a class="sourceLine" id="cb139-16" data-line-number="16">         <span class="dt">disturb_pot =</span> human_pop <span class="op">/</span><span class="st"> </span>dist_urban,</a>
+<a class="sourceLine" id="cb139-17" data-line-number="17">         <span class="dt">total_biomass =</span> total_biomass <span class="op">/</span><span class="st"> </span><span class="dv">1000</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb139-18" data-line-number="18"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">select</span>(<span class="kw">all_of</span>(mdl_variables)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb139-19" data-line-number="19"><span class="st">  </span><span class="kw">filter_all</span>(<span class="kw">all_vars</span>(<span class="kw">is.finite</span>(.))) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb139-20" data-line-number="20"><span class="st">  </span><span class="kw">identity</span>() -&gt;<span class="st"> </span>data_cleaned</a></code></pre></div>
+</div>
+<div id="check-for-correlations-among-predictors" class="section level2">
+<h2><span class="header-section-number">8.3</span> Check for correlations among predictors</h2>
+<p>We have to see if variables are strongly correlated and thus unfit for being included in the same model, so we calculate Spearman correlation coefficients for all numerical predictors. As this is ecological data, some degree of correlation is of course inevitable for most variables.</p>
+<div class="sourceCode" id="cb140"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb140-1" data-line-number="1">predictors &lt;-<span class="st"> </span>mdl_variables[<span class="op">!</span>mdl_variables <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;VIR&quot;</span>, <span class="st">&quot;datetime&quot;</span>, <span class="st">&quot;pixel&quot;</span>, <span class="st">&quot;x&quot;</span>, <span class="st">&quot;y&quot;</span>)]</a>
+<a class="sourceLine" id="cb140-2" data-line-number="2">corr_radar &lt;-<span class="st"> </span><span class="kw">ggcorrmat</span>(data_cleaned, <span class="dt">output =</span> <span class="st">&quot;plot&quot;</span>, <span class="dt">type =</span> <span class="st">&quot;spearman&quot;</span>, <span class="dt">cor.vars =</span> <span class="kw">all_of</span>(predictors), <span class="dt">colors =</span> <span class="kw">c</span>(<span class="st">&quot;#2166AC&quot;</span>, <span class="st">&quot;#F7F7F7&quot;</span>, <span class="st">&quot;#B2182B&quot;</span>))</a>
+<a class="sourceLine" id="cb140-3" data-line-number="3">corr_radar</a></code></pre></div>
+<p><img src="Fireworks_files/figure-html/check_for_correlations-1.svg" width="960" /></p>
+</div>
+<div id="determine-the-most-suitable-proxy-for-disturbance" class="section level2">
+<h2><span class="header-section-number">8.4</span> Determine the most suitable proxy for disturbance</h2>
+<p>As could be expected, the three ‘disturbance parameters’ (<code>dist_urban</code>, <code>human_pop</code>, <code>disturb_pot</code>) are highly correlated, so we should see which of these is most suitable to include in our model, as it makes no sense to include all. To assess that, we will simply compare the performance of each of the models trained with a single disturbance parameter.</p>
+<div class="sourceCode" id="cb141"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb141-1" data-line-number="1">lr &lt;-<span class="st"> </span><span class="fl">0.03</span></a>
+<a class="sourceLine" id="cb141-2" data-line-number="2">max_trees &lt;-<span class="st"> </span><span class="kw">nrow</span>(data_cleaned) <span class="op">*</span><span class="st"> </span><span class="fl">0.25</span></a>
+<a class="sourceLine" id="cb141-3" data-line-number="3">silence &lt;-<span class="st"> </span><span class="ot">FALSE</span></a>
+<a class="sourceLine" id="cb141-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb141-5" data-line-number="5">base_model &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;dist_radar&quot;</span>, <span class="st">&quot;total_biomass&quot;</span>, <span class="st">&quot;urban&quot;</span>, <span class="st">&quot;agricultural&quot;</span>, <span class="st">&quot;semiopen&quot;</span>, <span class="st">&quot;forests&quot;</span>, <span class="st">&quot;wetlands&quot;</span>, <span class="st">&quot;waterbodies&quot;</span>)</a>
+<a class="sourceLine" id="cb141-6" data-line-number="6">disturbance_proxies &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;dist_urban&quot;</span>, <span class="st">&quot;human_pop&quot;</span>, <span class="st">&quot;disturb_pot&quot;</span>)</a>
+<a class="sourceLine" id="cb141-7" data-line-number="7">x_vars &lt;-<span class="st"> </span><span class="kw">lapply</span>(disturbance_proxies, <span class="cf">function</span>(x) <span class="kw">match</span>(<span class="kw">c</span>(base_model,x), <span class="kw">colnames</span>(data_cleaned)))</a></code></pre></div>
+<div class="sourceCode" id="cb142"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb142-1" data-line-number="1"><span class="co"># disturbance_models &lt;- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = &quot;gaussian&quot;, tree.complexity = 2, learning.rate = lr, silent = silence, max.trees = max_trees, step.size = 50), mc.cores = cpucores)</span></a>
+<a class="sourceLine" id="cb142-2" data-line-number="2">disturbance_models &lt;-<span class="st"> </span><span class="kw">lapply</span>(x_vars, <span class="cf">function</span>(x) <span class="kw">gbm.step</span>(<span class="dt">data =</span> data_cleaned, <span class="dt">gbm.y =</span> <span class="dv">1</span>, <span class="dt">gbm.x =</span> x, <span class="dt">bag.fraction =</span> <span class="fl">0.75</span>, <span class="dt">family =</span> <span class="st">&quot;gaussian&quot;</span>, <span class="dt">tree.complexity =</span> <span class="dv">2</span>, <span class="dt">learning.rate =</span> lr, <span class="dt">silent =</span> silence, <span class="dt">max.trees =</span> max_trees, <span class="dt">step.size =</span> <span class="dv">50</span>, <span class="dt">verbose =</span> <span class="ot">FALSE</span>))</a>
+<a class="sourceLine" id="cb142-3" data-line-number="3"><span class="kw">names</span>(disturbance_models) &lt;-<span class="st"> </span>disturbance_proxies</a>
+<a class="sourceLine" id="cb142-4" data-line-number="4"><span class="kw">saveRDS</span>(disturbance_models, <span class="dt">file =</span> <span class="st">&quot;data/models/brt_models_disturbance.RDS&quot;</span>)</a></code></pre></div>
+<p>Let’s compare the performance:</p>
+<div class="sourceCode" id="cb143"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb143-1" data-line-number="1">disturbance_models &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data/models/brt_models_disturbance.RDS&quot;</span>)</a>
+<a class="sourceLine" id="cb143-2" data-line-number="2"><span class="kw">ggPerformance</span>(<span class="st">&quot;dist_urban&quot;</span> =<span class="st"> </span>disturbance_models[[<span class="dv">1</span>]], <span class="st">&quot;human_pop&quot;</span> =<span class="st"> </span>disturbance_models[[<span class="dv">2</span>]], <span class="st">&quot;disturb_pot&quot;</span> =<span class="st"> </span>disturbance_models[[<span class="dv">3</span>]])</a></code></pre></div>
+<div class="kable-table">
+
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+dist_urban
+</th>
+<th style="text-align:right;">
+human_pop
+</th>
+<th style="text-align:right;">
+disturb_pot
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Total.Deviance
+</td>
+<td style="text-align:right;">
+7.0319551
+</td>
+<td style="text-align:right;">
+7.0319551
+</td>
+<td style="text-align:right;">
+7.0319551
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Residual.Deviance
+</td>
+<td style="text-align:right;">
+2.3667489
+</td>
+<td style="text-align:right;">
+2.8488395
+</td>
+<td style="text-align:right;">
+2.7367378
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Correlation
+</td>
+<td style="text-align:right;">
+0.8162388
+</td>
+<td style="text-align:right;">
+0.7723324
+</td>
+<td style="text-align:right;">
+0.7827168
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AUC
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Per.Expl
+</td>
+<td style="text-align:right;">
+66.3429470
+</td>
+<td style="text-align:right;">
+59.4872340
+</td>
+<td style="text-align:right;">
+61.0814105
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cvDeviance
+</td>
+<td style="text-align:right;">
+3.0884135
+</td>
+<td style="text-align:right;">
+3.1894147
+</td>
+<td style="text-align:right;">
+3.1822746
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cvCorrelation
+</td>
+<td style="text-align:right;">
+0.7490918
+</td>
+<td style="text-align:right;">
+0.7388797
+</td>
+<td style="text-align:right;">
+0.7401407
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cvAUC
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cvPer.Expl
+</td>
+<td style="text-align:right;">
+56.0803015
+</td>
+<td style="text-align:right;">
+54.6439836
+</td>
+<td style="text-align:right;">
+54.7455218
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>It turns out performance is more similar than dissimilar across these disturbance proxies, though results may vary due to the non-deterministic behaviour of gradient-boosted machines. So we will stick with the model containing a disturbance proxy that is least correlated with the other predictor variables.</p>
+<div class="sourceCode" id="cb144"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb144-1" data-line-number="1">corr_radar_df &lt;-<span class="st"> </span><span class="kw">ggcorrmat</span>(data_cleaned, <span class="dt">output =</span> <span class="st">&quot;dataframe&quot;</span>, <span class="dt">type =</span> <span class="st">&quot;spearman&quot;</span>, <span class="dt">col.vars =</span> <span class="kw">all_of</span>(predictors))</a>
+<a class="sourceLine" id="cb144-2" data-line-number="2">corr_radar_df <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw">filter</span>(parameter1 <span class="op">%in%</span><span class="st"> </span>disturbance_proxies <span class="op">|</span><span class="st"> </span>parameter2 <span class="op">%in%</span><span class="st"> </span>disturbance_proxies)</a>
+<a class="sourceLine" id="cb144-3" data-line-number="3">  </a>
+<a class="sourceLine" id="cb144-4" data-line-number="4">swap_vars &lt;-<span class="st"> </span><span class="cf">function</span>(x, first_col) {</a>
+<a class="sourceLine" id="cb144-5" data-line-number="5">  <span class="cf">if</span> (<span class="op">!</span>x[<span class="st">&quot;parameter1&quot;</span>] <span class="op">%in%</span><span class="st"> </span>first_col) {</a>
+<a class="sourceLine" id="cb144-6" data-line-number="6">    x_param1 &lt;-<span class="st"> </span>x[<span class="st">&quot;parameter1&quot;</span>]</a>
+<a class="sourceLine" id="cb144-7" data-line-number="7">    x_param2 &lt;-<span class="st"> </span>x[<span class="st">&quot;parameter2&quot;</span>]</a>
+<a class="sourceLine" id="cb144-8" data-line-number="8">    x[<span class="st">&quot;parameter1&quot;</span>] &lt;-<span class="st"> </span>x_param2</a>
+<a class="sourceLine" id="cb144-9" data-line-number="9">    x[<span class="st">&quot;parameter2&quot;</span>] &lt;-<span class="st"> </span>x_param1</a>
+<a class="sourceLine" id="cb144-10" data-line-number="10">    x</a>
+<a class="sourceLine" id="cb144-11" data-line-number="11">  } <span class="cf">else</span> {</a>
+<a class="sourceLine" id="cb144-12" data-line-number="12">    x</a>
+<a class="sourceLine" id="cb144-13" data-line-number="13">  }</a>
+<a class="sourceLine" id="cb144-14" data-line-number="14">}</a>
+<a class="sourceLine" id="cb144-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb144-16" data-line-number="16">corr_radar_df[, <span class="kw">c</span>(<span class="st">&quot;parameter1&quot;</span>, <span class="st">&quot;parameter2&quot;</span>)] &lt;-<span class="st"> </span><span class="kw">t</span>(<span class="kw">apply</span>(corr_radar_df[, <span class="kw">c</span>(<span class="st">&quot;parameter1&quot;</span>, <span class="st">&quot;parameter2&quot;</span>)], <span class="dv">1</span>, swap_vars, disturbance_proxies))</a>
+<a class="sourceLine" id="cb144-17" data-line-number="17"></a>
+<a class="sourceLine" id="cb144-18" data-line-number="18">corr_radar_df <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb144-19" data-line-number="19"><span class="st">  </span><span class="kw">filter</span>(<span class="op">!</span>parameter2 <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(disturbance_proxies, <span class="st">&quot;VIR&quot;</span>)) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb144-20" data-line-number="20"><span class="st">  </span>dplyr<span class="op">::</span><span class="kw">rename</span>(<span class="dt">parameter =</span> parameter1) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb144-21" data-line-number="21"><span class="st">  </span><span class="kw">group_by</span>(parameter) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb144-22" data-line-number="22"><span class="st">  </span><span class="kw">summarise</span>(<span class="dt">sum_corr =</span> <span class="kw">sum</span>(rho<span class="op">^</span><span class="dv">2</span>), <span class="dt">.groups =</span> <span class="st">&quot;drop_last&quot;</span>) <span class="op">%&gt;%</span><span class="st">  </span><span class="co"># Sum of squares to add &#39;punish&#39; extra for high correlations</span></a>
+<a class="sourceLine" id="cb144-23" data-line-number="23"><span class="st">  </span><span class="kw">identity</span>() -&gt;<span class="st"> </span>sum_corr</a>
+<a class="sourceLine" id="cb144-24" data-line-number="24"></a>
+<a class="sourceLine" id="cb144-25" data-line-number="25">least_correlated &lt;-<span class="st"> </span>sum_corr[<span class="kw">which.min</span>(sum_corr<span class="op">$</span>sum_corr), ]</a>
+<a class="sourceLine" id="cb144-26" data-line-number="26">sum_corr</a></code></pre></div>
+<div class="kable-table">
+
+<table>
+<thead>
+<tr>
+<th style="text-align:right;">
+sum_corr
+</th>
+<th style="text-align:left;">
+.groups
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1.616829
+</td>
+<td style="text-align:left;">
+drop_last
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>So, the ‘least correlated’ variable is and we will therefore continue using the model trained with this proxy for disturbance.</p>
+</div>
+<div id="determine-best-hyperparameter-settings-for-lr" class="section level2">
+<h2><span class="header-section-number">8.5</span> Determine best hyperparameter settings for <code>lr</code></h2>
+<p>To avoid overfitting to noise, we will limit the maximum nr of trees used in the model to 25% of the number of datapoints, which yields a possible 2817 trees to be used. We still want to make sure our model reaches some measure of optimality (in this case a reduction of cross-validated deviance), we have to do a hyperparameter search for a suitable combination of maximum number of trees and learning rate. See Elith et al. for an explanation on the linkage between number of trees and learning rate.</p>
+<div class="sourceCode" id="cb145"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb145-1" data-line-number="1">learning_rates &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.03</span>, <span class="fl">0.05</span>, <span class="fl">0.1</span>, <span class="fl">0.15</span>, <span class="fl">0.2</span>, <span class="fl">0.25</span>, <span class="fl">0.3</span>)  <span class="co"># Lower and higher learning rates increase error or do not converge</span></a></code></pre></div>
+<div class="sourceCode" id="cb146"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb146-1" data-line-number="1"><span class="co"># Parallelised hyperparameter search somehow seems to hang occasionally, so unfortunately we switch to serial processing</span></a>
+<a class="sourceLine" id="cb146-2" data-line-number="2"><span class="co"># hyperparms &lt;- mclapply(learning_rates, function(x) { gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x_vars[[1]], bag.fraction = 0.5, family = &quot;gaussian&quot;,</span></a>
+<a class="sourceLine" id="cb146-3" data-line-number="3"><span class="co">#                                                             tree.complexity = 2, learning.rate = x, max.trees = max_trees, step.size = 50) }, </span></a>
+<a class="sourceLine" id="cb146-4" data-line-number="4"><span class="co">#                        mc.cores = 5, mc.preschedule = TRUE)</span></a>
+<a class="sourceLine" id="cb146-5" data-line-number="5">hyperparms &lt;-<span class="st"> </span><span class="kw">lapply</span>(learning_rates, <span class="cf">function</span>(x) { <span class="kw">gbm.step</span>(<span class="dt">data =</span> data_cleaned, <span class="dt">gbm.y =</span> <span class="dv">1</span>, <span class="dt">gbm.x =</span> x_vars[[<span class="kw">which.min</span>(sum_corr<span class="op">$</span>sum_corr)]], <span class="dt">bag.fraction =</span> <span class="fl">0.5</span>, </a>
+<a class="sourceLine" id="cb146-6" data-line-number="6">                                                            <span class="dt">family =</span> <span class="st">&quot;gaussian&quot;</span>, <span class="dt">plot.main =</span> <span class="ot">FALSE</span>, <span class="dt">tree.complexity =</span> <span class="dv">2</span>, <span class="dt">learning.rate =</span> x, <span class="dt">max.trees =</span> max_trees <span class="op">*</span><span class="st"> </span><span class="dv">2</span>,</a>
+<a class="sourceLine" id="cb146-7" data-line-number="7">                                                            <span class="dt">step.size =</span> <span class="dv">50</span>, <span class="dt">silent =</span> <span class="ot">TRUE</span>)})</a>
+<a class="sourceLine" id="cb146-8" data-line-number="8"><span class="kw">saveRDS</span>(hyperparms, <span class="dt">file =</span> <span class="st">&quot;data/models/brt_models_hyperparms.RDS&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb147"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb147-1" data-line-number="1">hyperparms &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="dt">file =</span> <span class="st">&quot;data/models/brt_models_hyperparms.RDS&quot;</span>)</a>
+<a class="sourceLine" id="cb147-2" data-line-number="2">max_used_trees &lt;-<span class="st"> </span><span class="kw">max</span>(<span class="kw">unlist</span>(<span class="kw">lapply</span>(hyperparms, <span class="cf">function</span>(x) {<span class="cf">if</span> (<span class="op">!</span><span class="kw">is.null</span>(x)) { <span class="kw">max</span>(x<span class="op">$</span>trees.fitted) }})))</a>
+<a class="sourceLine" id="cb147-3" data-line-number="3">trees &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">trees =</span> <span class="kw">seq</span>(<span class="dt">from =</span> <span class="dv">50</span>, <span class="dt">to =</span> max_used_trees <span class="op">*</span><span class="st"> </span><span class="dv">2</span>, <span class="dt">by =</span> <span class="dv">50</span>))</a>
+<a class="sourceLine" id="cb147-4" data-line-number="4">holdout_deviance &lt;-<span class="st"> </span><span class="kw">lapply</span>(hyperparms, <span class="cf">function</span>(x) { <span class="cf">if</span> (<span class="op">!</span><span class="kw">is.null</span>(x)) { x<span class="op">$</span>cv.values }} )</a>
+<a class="sourceLine" id="cb147-5" data-line-number="5">missing &lt;-<span class="st"> </span><span class="kw">which</span>(<span class="kw">unlist</span>(<span class="kw">lapply</span>(holdout_deviance, is.null)))</a>
+<a class="sourceLine" id="cb147-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb147-7" data-line-number="7">h &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dt">data =</span> <span class="ot">NA</span>, <span class="dt">nrow =</span> <span class="kw">dim</span>(trees)[<span class="dv">1</span>], <span class="dt">ncol =</span> <span class="kw">length</span>(holdout_deviance))</a>
+<a class="sourceLine" id="cb147-8" data-line-number="8"><span class="cf">for</span> (i <span class="cf">in</span> <span class="kw">seq_along</span>(holdout_deviance)) {</a>
+<a class="sourceLine" id="cb147-9" data-line-number="9">  h[<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(holdout_deviance[[i]]), i] &lt;-<span class="st"> </span>holdout_deviance[[i]]</a>
+<a class="sourceLine" id="cb147-10" data-line-number="10">}</a>
+<a class="sourceLine" id="cb147-11" data-line-number="11">h &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(h)</a>
+<a class="sourceLine" id="cb147-12" data-line-number="12"></a>
+<a class="sourceLine" id="cb147-13" data-line-number="13">hp &lt;-<span class="st"> </span><span class="kw">data.frame</span>(trees, h)</a>
+<a class="sourceLine" id="cb147-14" data-line-number="14"><span class="kw">colnames</span>(hp) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">colnames</span>(trees), learning_rates)</a>
+<a class="sourceLine" id="cb147-15" data-line-number="15"></a>
+<a class="sourceLine" id="cb147-16" data-line-number="16">hp <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb147-17" data-line-number="17"><span class="st">  </span><span class="kw">pivot_longer</span>(<span class="dt">cols =</span> <span class="kw">c</span>(<span class="op">-</span>trees), <span class="dt">names_to =</span> <span class="st">&quot;lr&quot;</span>, <span class="dt">values_to =</span> <span class="st">&quot;holdout_deviance&quot;</span>) <span class="op">%&gt;%</span></a>
+<a class="sourceLine" id="cb147-18" data-line-number="18"><span class="st">  </span><span class="kw">identity</span>() -&gt;<span class="st"> </span>hp</a>
+<a class="sourceLine" id="cb147-19" data-line-number="19"></a>
+<a class="sourceLine" id="cb147-20" data-line-number="20"><span class="kw">ggplot</span>(hp) <span class="op">+</span></a>
+<a class="sourceLine" id="cb147-21" data-line-number="21"><span class="st">  </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x =</span> trees, <span class="dt">y =</span> holdout_deviance, <span class="dt">color =</span> lr))</a></code></pre></div>
+<pre><code>## Warning: Removed 936 row(s) containing missing values (geom_path).</code></pre>
+<p><img src="Fireworks_files/figure-html/compare_hyperparameter_settings-1.svg" width="672" /></p>
+<p>It seems a learning rate of 0.20 and a maximum number of trees of 2817 seems to perform best on this dataset. We can now retrain our most performant disturbance model with these new parameters.</p>
+</div>
+<div id="retraining-the-disturbance-models-using-optimised-learning-rate-and-maximum-number-of-trees" class="section level2">
+<h2><span class="header-section-number">8.6</span> Retraining the disturbance models using optimised learning rate and maximum number of trees</h2>
+<p>We can now retrain the models with the best combination of learning rate and maximum number of trees.</p>
+<div class="sourceCode" id="cb149"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb149-1" data-line-number="1">lr &lt;-<span class="st"> </span><span class="fl">0.2</span></a>
+<a class="sourceLine" id="cb149-2" data-line-number="2">max_trees &lt;-<span class="st"> </span><span class="kw">nrow</span>(data_cleaned) <span class="op">*</span><span class="st"> </span><span class="fl">0.25</span></a>
+<a class="sourceLine" id="cb149-3" data-line-number="3">silence &lt;-<span class="st"> </span><span class="ot">FALSE</span></a>
+<a class="sourceLine" id="cb149-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb149-5" data-line-number="5">base_model &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;dist_radar&quot;</span>, <span class="st">&quot;total_biomass&quot;</span>, <span class="st">&quot;urban&quot;</span>, <span class="st">&quot;agricultural&quot;</span>, <span class="st">&quot;semiopen&quot;</span>, <span class="st">&quot;forests&quot;</span>, <span class="st">&quot;wetlands&quot;</span>, <span class="st">&quot;waterbodies&quot;</span>)</a>
+<a class="sourceLine" id="cb149-6" data-line-number="6">disturbance_proxies &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;dist_urban&quot;</span>, <span class="st">&quot;human_pop&quot;</span>, <span class="st">&quot;disturb_pot&quot;</span>)</a>
+<a class="sourceLine" id="cb149-7" data-line-number="7">x_vars &lt;-<span class="st"> </span><span class="kw">lapply</span>(disturbance_proxies, <span class="cf">function</span>(x) <span class="kw">match</span>(<span class="kw">c</span>(base_model,x), <span class="kw">colnames</span>(data_cleaned)))</a>
+<a class="sourceLine" id="cb149-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb149-9" data-line-number="9"><span class="co"># disturbance_models &lt;- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = &quot;gaussian&quot;, tree.complexity = 2, learning.rate = lr, silent = silence, max.trees = max_trees, step.size = 50), mc.cores = cpucores)</span></a>
+<a class="sourceLine" id="cb149-10" data-line-number="10">disturbance_models &lt;-<span class="st"> </span><span class="kw">lapply</span>(x_vars, <span class="cf">function</span>(x) <span class="kw">gbm.step</span>(<span class="dt">data =</span> data_cleaned, <span class="dt">gbm.y =</span> <span class="dv">1</span>, <span class="dt">gbm.x =</span> x, <span class="dt">bag.fraction =</span> <span class="fl">0.75</span>, <span class="dt">family =</span> <span class="st">&quot;gaussian&quot;</span>, <span class="dt">tree.complexity =</span> <span class="dv">2</span>, <span class="dt">learning.rate =</span> lr, <span class="dt">silent =</span> silence, <span class="dt">max.trees =</span> max_trees, <span class="dt">step.size =</span> <span class="dv">50</span>, <span class="dt">verbose =</span> <span class="ot">FALSE</span>))</a>
+<a class="sourceLine" id="cb149-11" data-line-number="11"><span class="kw">names</span>(disturbance_models) &lt;-<span class="st"> </span>disturbance_proxies</a>
+<a class="sourceLine" id="cb149-12" data-line-number="12"><span class="kw">saveRDS</span>(disturbance_models, <span class="dt">file =</span> <span class="st">&quot;data/models/brt_models_disturbance.RDS&quot;</span>)</a></code></pre></div>
+<p>And once again we can compare the performance</p>
+<div class="sourceCode" id="cb150"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb150-1" data-line-number="1">disturbance_models &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data/models/brt_models_disturbance.RDS&quot;</span>)</a>
+<a class="sourceLine" id="cb150-2" data-line-number="2"><span class="kw">ggPerformance</span>(<span class="st">&quot;dist_urban&quot;</span> =<span class="st"> </span>disturbance_models[[<span class="dv">1</span>]], <span class="st">&quot;human_pop&quot;</span> =<span class="st"> </span>disturbance_models[[<span class="dv">2</span>]], <span class="st">&quot;disturb_pot&quot;</span> =<span class="st"> </span>disturbance_models[[<span class="dv">3</span>]])</a></code></pre></div>
+<div class="kable-table">
+
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+dist_urban
+</th>
+<th style="text-align:right;">
+human_pop
+</th>
+<th style="text-align:right;">
+disturb_pot
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Total.Deviance
+</td>
+<td style="text-align:right;">
+7.0319551
+</td>
+<td style="text-align:right;">
+7.0319551
+</td>
+<td style="text-align:right;">
+7.0319551
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Residual.Deviance
+</td>
+<td style="text-align:right;">
+2.3667489
+</td>
+<td style="text-align:right;">
+2.8488395
+</td>
+<td style="text-align:right;">
+2.7367378
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Correlation
+</td>
+<td style="text-align:right;">
+0.8162388
+</td>
+<td style="text-align:right;">
+0.7723324
+</td>
+<td style="text-align:right;">
+0.7827168
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AUC
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Per.Expl
+</td>
+<td style="text-align:right;">
+66.3429470
+</td>
+<td style="text-align:right;">
+59.4872340
+</td>
+<td style="text-align:right;">
+61.0814105
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cvDeviance
+</td>
+<td style="text-align:right;">
+3.0884135
+</td>
+<td style="text-align:right;">
+3.1894147
+</td>
+<td style="text-align:right;">
+3.1822746
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cvCorrelation
+</td>
+<td style="text-align:right;">
+0.7490918
+</td>
+<td style="text-align:right;">
+0.7388797
+</td>
+<td style="text-align:right;">
+0.7401407
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cvAUC
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cvPer.Expl
+</td>
+<td style="text-align:right;">
+56.0803015
+</td>
+<td style="text-align:right;">
+54.6439836
+</td>
+<td style="text-align:right;">
+54.7455218
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>So the model with the disturbance proxy of `` continues to perform best and we’ll save it for future use.</p>
+<div class="sourceCode" id="cb151"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb151-1" data-line-number="1">model_disturbance_best &lt;-<span class="st"> </span>disturbance_models[<span class="kw">match</span>(least_correlated<span class="op">$</span>parameter, disturbance_proxies)]</a>
+<a class="sourceLine" id="cb151-2" data-line-number="2"><span class="kw">saveRDS</span>(model_disturbance_best, <span class="dt">file =</span> <span class="st">&quot;data/models/brt_models_disturbance_best.RDS&quot;</span>)</a></code></pre></div>
+</div>
+<div id="relative-influence-of-variables" class="section level2">
+<h2><span class="header-section-number">8.7</span> Relative influence of variables</h2>
+<p>We can now also compare the relative influence of the variables used in this model.</p>
+<div class="sourceCode" id="cb152"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb152-1" data-line-number="1">relinf &lt;-<span class="st"> </span><span class="kw">ggInfluence</span>(disturbance_models<span class="op">$</span>dist_urban, <span class="dt">show.signif =</span> <span class="ot">FALSE</span>, <span class="dt">main =</span> <span class="st">&quot;Relative influence of predictor variables on log(VIR)&quot;</span>)</a></code></pre></div>
+<p><img src="Fireworks_files/figure-html/determine_relatieve_influence_of_predictors-1.svg" width="672" /></p>
+<div class="sourceCode" id="cb153"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb153-1" data-line-number="1">relinf</a></code></pre></div>
+<div class="kable-table">
+
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+rel.inf
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+agricultural
+</td>
+<td style="text-align:right;">
+56.4570685
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+dist_radar
+</td>
+<td style="text-align:right;">
+25.1010968
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+total_biomass
+</td>
+<td style="text-align:right;">
+11.0246923
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+dist_urban
+</td>
+<td style="text-align:right;">
+3.1113062
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+forests
+</td>
+<td style="text-align:right;">
+1.1231622
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+semiopen
+</td>
+<td style="text-align:right;">
+1.0900101
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+waterbodies
+</td>
+<td style="text-align:right;">
+0.8080390
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+urban
+</td>
+<td style="text-align:right;">
+0.6423723
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+wetlands
+</td>
+<td style="text-align:right;">
+0.6422525
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The high relative importance of <code>total_biomass</code> (11%) suggests a clear link between birds counted on the ground (by Sovon’s observers) and what is measured aloft, exactly what one would expect if birds are still sufficiently ‘tied’ to their take-off habitat.</p>
+</div>
+<div id="models-for-seperate-land-uses" class="section level2">
+<h2><span class="header-section-number">8.8</span> Models for seperate land uses</h2>
+<p>As the land use proportions are also somewhat correlated, and <code>agricultural</code> land use is by far the most common in The Netherlands, it may be a worthwhile exercise to model the effects of each land use proportion seperately. This way, we may discover effects that disappear because of the compound effects of correlation among the other predictors. Additionally, as <code>agricultural</code> is so (comparatively) strongly correlated with the other land use classes, we train a model with all land use classes except for <code>agricultural</code>.</p>
+<div class="sourceCode" id="cb154"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb154-1" data-line-number="1">lr &lt;-<span class="st"> </span><span class="fl">0.2</span></a>
+<a class="sourceLine" id="cb154-2" data-line-number="2">silence &lt;-<span class="st"> </span><span class="ot">FALSE</span></a>
+<a class="sourceLine" id="cb154-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb154-4" data-line-number="4">base_model &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;dist_radar&quot;</span>, <span class="st">&quot;total_biomass&quot;</span>, least_correlated<span class="op">$</span>parameter)</a>
+<a class="sourceLine" id="cb154-5" data-line-number="5">landscapes &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;urban&quot;</span>, <span class="st">&quot;agricultural&quot;</span>, <span class="st">&quot;semiopen&quot;</span>, <span class="st">&quot;forests&quot;</span>, <span class="st">&quot;wetlands&quot;</span>, <span class="st">&quot;waterbodies&quot;</span>)</a>
+<a class="sourceLine" id="cb154-6" data-line-number="6">x_vars &lt;-<span class="st"> </span><span class="kw">lapply</span>(landscapes, <span class="cf">function</span>(x) <span class="kw">match</span>(<span class="kw">c</span>(base_model,x), <span class="kw">colnames</span>(data_cleaned)))</a>
+<a class="sourceLine" id="cb154-7" data-line-number="7">all_x_vars &lt;-<span class="st"> </span><span class="kw">unique</span>(<span class="kw">unlist</span>(x_vars))</a>
+<a class="sourceLine" id="cb154-8" data-line-number="8">x_vars[[<span class="kw">length</span>(x_vars) <span class="op">+</span><span class="st"> </span><span class="dv">1</span>]] &lt;-<span class="st"> </span>all_x_vars[<span class="op">!</span>all_x_vars <span class="op">%in%</span><span class="st"> </span><span class="kw">match</span>(<span class="st">&quot;agricultural&quot;</span>, <span class="kw">colnames</span>(data_cleaned))]</a>
+<a class="sourceLine" id="cb154-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb154-10" data-line-number="10"><span class="co"># Parallelised model training - again - seems to hang occasionally, so unfortunately we switch to serial processing</span></a>
+<a class="sourceLine" id="cb154-11" data-line-number="11"><span class="co"># landscape_models &lt;- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = &quot;gaussian&quot;, tree.complexity = 2, learning.rate = lr, silent = silence), mc.cores = cpucores-1, mc.preschedule = TRUE)</span></a>
+<a class="sourceLine" id="cb154-12" data-line-number="12">landscape_models &lt;-<span class="st"> </span><span class="kw">lapply</span>(x_vars, <span class="cf">function</span>(x) <span class="kw">gbm.step</span>(<span class="dt">data =</span> data_cleaned, <span class="dt">gbm.y =</span> <span class="dv">1</span>, <span class="dt">gbm.x =</span> x, <span class="dt">bag.fraction =</span> <span class="fl">0.75</span>, <span class="dt">family =</span> <span class="st">&quot;gaussian&quot;</span>, <span class="dt">tree.complexity =</span> <span class="dv">2</span>,</a>
+<a class="sourceLine" id="cb154-13" data-line-number="13">                                                        <span class="dt">learning.rate =</span> lr, <span class="dt">silent =</span> silence))</a>
+<a class="sourceLine" id="cb154-14" data-line-number="14"><span class="kw">names</span>(landscape_models) &lt;-<span class="st"> </span><span class="kw">c</span>(landscapes, <span class="st">&quot;nonagricultural&quot;</span>)</a>
+<a class="sourceLine" id="cb154-15" data-line-number="15"><span class="kw">saveRDS</span>(landscape_models, <span class="dt">file =</span> <span class="st">&quot;data/models/brt_models_landscapes.RDS&quot;</span>)</a></code></pre></div>
+<p>And once again we compare the performance</p>
+<div class="sourceCode" id="cb155"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb155-1" data-line-number="1">landscape_models &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;data/models/brt_models_landscapes.RDS&quot;</span>)</a>
+<a class="sourceLine" id="cb155-2" data-line-number="2"><span class="kw">ggPerformance</span>(<span class="st">&quot;urban&quot;</span> =<span class="st"> </span>landscape_models[[<span class="dv">1</span>]], <span class="st">&quot;agricultural&quot;</span> =<span class="st"> </span>landscape_models[[<span class="dv">2</span>]], <span class="st">&quot;semiopen&quot;</span> =<span class="st"> </span>landscape_models[[<span class="dv">3</span>]], <span class="st">&quot;forests&quot;</span> =<span class="st"> </span>landscape_models[[<span class="dv">4</span>]], </a>
+<a class="sourceLine" id="cb155-3" data-line-number="3">              <span class="st">&quot;wetlands&quot;</span> =<span class="st"> </span>landscape_models[[<span class="dv">5</span>]], <span class="st">&quot;waterbodies&quot;</span> =<span class="st"> </span>landscape_models[[<span class="dv">6</span>]], <span class="st">&quot;nonagricultural&quot;</span> =<span class="st"> </span>landscape_models[[<span class="dv">7</span>]])</a></code></pre></div>
+<div class="kable-table">
+
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+urban
+</th>
+<th style="text-align:right;">
+agricultural
+</th>
+<th style="text-align:right;">
+semiopen
+</th>
+<th style="text-align:right;">
+forests
+</th>
+<th style="text-align:right;">
+wetlands
+</th>
+<th style="text-align:right;">
+waterbodies
+</th>
+<th style="text-align:right;">
+nonagricultural
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Total.Deviance
+</td>
+<td style="text-align:right;">
+7.0319551
+</td>
+<td style="text-align:right;">
+7.0319551
+</td>
+<td style="text-align:right;">
+7.0319551
+</td>
+<td style="text-align:right;">
+7.0319551
+</td>
+<td style="text-align:right;">
+7.0319551
+</td>
+<td style="text-align:right;">
+7.0319551
+</td>
+<td style="text-align:right;">
+7.0319551
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Residual.Deviance
+</td>
+<td style="text-align:right;">
+1.6266843
+</td>
+<td style="text-align:right;">
+2.3224084
+</td>
+<td style="text-align:right;">
+1.6994135
+</td>
+<td style="text-align:right;">
+1.7599157
+</td>
+<td style="text-align:right;">
+1.7558358
+</td>
+<td style="text-align:right;">
+1.6057816
+</td>
+<td style="text-align:right;">
+1.6740604
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Correlation
+</td>
+<td style="text-align:right;">
+0.8789736
+</td>
+<td style="text-align:right;">
+0.8206322
+</td>
+<td style="text-align:right;">
+0.8728558
+</td>
+<td style="text-align:right;">
+0.8680067
+</td>
+<td style="text-align:right;">
+0.8683816
+</td>
+<td style="text-align:right;">
+0.8805921
+</td>
+<td style="text-align:right;">
+0.8749946
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+AUC
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Per.Expl
+</td>
+<td style="text-align:right;">
+76.8672549
+</td>
+<td style="text-align:right;">
+66.9735038
+</td>
+<td style="text-align:right;">
+75.8329873
+</td>
+<td style="text-align:right;">
+74.9725972
+</td>
+<td style="text-align:right;">
+75.0306166
+</td>
+<td style="text-align:right;">
+77.1645071
+</td>
+<td style="text-align:right;">
+76.1935280
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cvDeviance
+</td>
+<td style="text-align:right;">
+2.8920640
+</td>
+<td style="text-align:right;">
+2.9986167
+</td>
+<td style="text-align:right;">
+2.8260679
+</td>
+<td style="text-align:right;">
+2.8946978
+</td>
+<td style="text-align:right;">
+2.9030938
+</td>
+<td style="text-align:right;">
+2.8211973
+</td>
+<td style="text-align:right;">
+2.8180917
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cvCorrelation
+</td>
+<td style="text-align:right;">
+0.7682607
+</td>
+<td style="text-align:right;">
+0.7576189
+</td>
+<td style="text-align:right;">
+0.7735187
+</td>
+<td style="text-align:right;">
+0.7675001
+</td>
+<td style="text-align:right;">
+0.7662938
+</td>
+<td style="text-align:right;">
+0.7747615
+</td>
+<td style="text-align:right;">
+0.7743747
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cvAUC
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+<td style="text-align:right;">
+0.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cvPer.Expl
+</td>
+<td style="text-align:right;">
+58.8725470
+</td>
+<td style="text-align:right;">
+57.3572829
+</td>
+<td style="text-align:right;">
+59.8110653
+</td>
+<td style="text-align:right;">
+58.8350928
+</td>
+<td style="text-align:right;">
+58.7156947
+</td>
+<td style="text-align:right;">
+59.8803291
+</td>
+<td style="text-align:right;">
+59.9244924
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>With these models trained as well, we will save the final set of models.</p>
+<div class="sourceCode" id="cb156"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb156-1" data-line-number="1">models &lt;-<span class="st"> </span><span class="kw">c</span>(disturbance_models, landscape_models)</a>
+<a class="sourceLine" id="cb156-2" data-line-number="2"><span class="kw">saveRDS</span>(models, <span class="dt">file =</span> <span class="st">&quot;data/models/brt_models.RDS&quot;</span>)</a></code></pre></div>
+</div>
+<div id="partial-dependence" class="section level2">
+<h2><span class="header-section-number">8.9</span> Partial dependence</h2>
+<p>Partial dependence plots (PDP) can visualise the modelled marginal effect a feature has on the predicted output of a model. For exploratory purposes, we will create a quick visualisation of the PDPs for the trained model, before we start with a bootstrapping procedure to test the robustness of these results.</p>
+<div class="sourceCode" id="cb157"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb157-1" data-line-number="1">plot_pdp &lt;-<span class="st"> </span><span class="cf">function</span>(model, predictor) {</a>
+<a class="sourceLine" id="cb157-2" data-line-number="2">  p &lt;-<span class="st"> </span><span class="kw">partial</span>(model, <span class="dt">train =</span> model<span class="op">$</span>gbm.call<span class="op">$</span>dataframe, <span class="dt">pred.var =</span> predictor, <span class="dt">type =</span> <span class="st">&quot;regression&quot;</span>, <span class="dt">plot =</span> <span class="ot">TRUE</span>, <span class="dt">plot.engine =</span><span class="st">&quot;ggplot2&quot;</span>,</a>
+<a class="sourceLine" id="cb157-3" data-line-number="3">               <span class="dt">smooth =</span> <span class="ot">TRUE</span>, <span class="dt">rug =</span> <span class="ot">TRUE</span>, <span class="dt">n.trees =</span> model<span class="op">$</span>n.trees)</a>
+<a class="sourceLine" id="cb157-4" data-line-number="4">  p</a>
+<a class="sourceLine" id="cb157-5" data-line-number="5">}</a>
+<a class="sourceLine" id="cb157-6" data-line-number="6">modelnames &lt;-<span class="st"> </span><span class="kw">names</span>(models)</a>
+<a class="sourceLine" id="cb157-7" data-line-number="7">i &lt;-<span class="st"> </span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb157-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb157-9" data-line-number="9"><span class="cf">for</span> (model <span class="cf">in</span> models) {</a>
+<a class="sourceLine" id="cb157-10" data-line-number="10">  relinf &lt;-<span class="st"> </span><span class="kw">ggInfluence</span>(model, <span class="dt">plot =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb157-11" data-line-number="11">  plots &lt;-<span class="st"> </span><span class="kw">lapply</span>(<span class="kw">rownames</span>(relinf), <span class="cf">function</span>(x) {</a>
+<a class="sourceLine" id="cb157-12" data-line-number="12">    <span class="kw">plot_pdp</span>(<span class="dt">model =</span> model, <span class="dt">predictor =</span> x) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb157-13" data-line-number="13"><span class="st">      </span><span class="kw">xlab</span>(<span class="kw">paste</span>(x, <span class="st">&quot; (&quot;</span>, <span class="kw">round</span>(relinf[x, <span class="dv">1</span>]), <span class="st">&quot;%)&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb157-14" data-line-number="14"><span class="st">      </span><span class="kw">ylab</span>(<span class="st">&quot;log(VIR)&quot;</span>)</a>
+<a class="sourceLine" id="cb157-15" data-line-number="15">    })</a>
+<a class="sourceLine" id="cb157-16" data-line-number="16">  <span class="kw">print</span>(<span class="kw">wrap_plots</span>(plots) <span class="op">+</span><span class="st"> </span><span class="kw">plot_annotation</span>(<span class="dt">title =</span> modelnames[i]))</a>
+<a class="sourceLine" id="cb157-17" data-line-number="17">  i &lt;-<span class="st"> </span>i <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb157-18" data-line-number="18">}</a></code></pre></div>
+<p><img src="Fireworks_files/figure-html/visualise_partial_dependencies-1.svg" width="672" /><img src="Fireworks_files/figure-html/visualise_partial_dependencies-2.svg" width="672" /><img src="Fireworks_files/figure-html/visualise_partial_dependencies-3.svg" width="672" /><img src="Fireworks_files/figure-html/visualise_partial_dependencies-4.svg" width="672" /><img src="Fireworks_files/figure-html/visualise_partial_dependencies-5.svg" width="672" /><img src="Fireworks_files/figure-html/visualise_partial_dependencies-6.svg" width="672" /><img src="Fireworks_files/figure-html/visualise_partial_dependencies-7.svg" width="672" /><img src="Fireworks_files/figure-html/visualise_partial_dependencies-8.svg" width="672" /><img src="Fireworks_files/figure-html/visualise_partial_dependencies-9.svg" width="672" /><img src="Fireworks_files/figure-html/visualise_partial_dependencies-10.svg" width="672" /></p>
+
+</div>
+</div>
+<h3> References</h3>
+<div id="refs" class="references">
+<div id="ref-kranstauber2020">
+<p>Kranstauber, Bart, Willem Bouten, Hidde Leijnse, Berend-Christiaan Wijers, Liesbeth Verlinden, Judy Shamoun-Baranes, and Adriaan M Dokter. 2020. “High-Resolution Spatial Distribution of Bird Movements Estimated from a Weather Radar Network.” <em>Remote Sensing</em> 12 (4). Multidisciplinary Digital Publishing Institute: 635. <a href="https://doi.org/10.3390/rs12040635">https://doi.org/10.3390/rs12040635</a>.</p>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="07.Composite-all-PPIs.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="09.Quantifying-model-uncertainty.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="assets/gitbook-2.6.7/js/app.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/lunr.js"></script>
+<script src="assets/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="assets/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": true,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/barthoekstra/fireworks/edit/master/08.Model-fireworks-disturbance.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": "https://github.com/barthoekstra/fireworks/blob/master/08.Model-fireworks-disturbance.Rmd",
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "section",
+"scroll_highlight": true
+},
+"toolbar": {
+"position": "fixed"
+},
+"search": true,
+"info": true
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
