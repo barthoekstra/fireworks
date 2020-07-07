@@ -17,7 +17,7 @@ library(dplyr)
 
 We will loop over all the Herwijnen and Den Helder PPIs we have generated so far, create composite PPIs for these and additionally save these as a bunch of .png files we can use separately or include in the animated GIF below.
 
-```{r generating_composites, fig.width=10, fig.height=10, message=FALSE, warning=FALSE}
+```{r generating_composites, fig.width=10, fig.height=10, message=FALSE, warning=FALSE, eval=full_repro}
 source("R/comp_ppi.R")
 hrw_ppis <- Sys.glob(file.path("data/processed/final-ppis", "*NL62*"))
 dhl_ppis <- Sys.glob(file.path("data/processed/final-ppis", "*NL61*"))

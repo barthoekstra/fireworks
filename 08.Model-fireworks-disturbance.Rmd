@@ -21,7 +21,7 @@ The following parameters we assume are important predictors for measured bird de
 
 Load the required packages.
 
-```{r setup_modelling_environment}
+```{r setup_modelling_environment, warning=FALSE, message=FALSE}
 library(ggstatsplot)
 library(ggplot2)
 library(dplyr)
@@ -89,7 +89,7 @@ corr_radar
 
 As could be expected, the three 'disturbance parameters' (`dist_urban`, `human_pop`, `disturb_pot`) are highly correlated, so we should see which of these is most suitable to include in our model, as it makes no sense to include all. To assess that, we will simply compare the performance of each of the models trained with a single disturbance parameter.
 
-```{r compare_disturbance_proxies, eval=full_repro}
+```{r compare_disturbance_proxies}
 lr <- 0.03
 max_trees <- nrow(data_cleaned) * 0.25
 silence <- FALSE
@@ -97,7 +97,9 @@ silence <- FALSE
 base_model <- c("dist_radar", "total_biomass", "urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies")
 disturbance_proxies <- c("dist_urban", "human_pop", "disturb_pot")
 x_vars <- lapply(disturbance_proxies, function(x) match(c(base_model,x), colnames(data_cleaned)))
+```
 
+```{r train_disturbance_models, eval=full_repro}
 # disturbance_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, learning.rate = lr, silent = silence, max.trees = max_trees, step.size = 50), mc.cores = cpucores)
 disturbance_models <- lapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.75, family = "gaussian", tree.complexity = 2, learning.rate = lr, silent = silence, max.trees = max_trees, step.size = 50, verbose = FALSE))
 names(disturbance_models) <- disturbance_proxies
@@ -133,8 +135,8 @@ corr_radar_df[, c("parameter1", "parameter2")] <- t(apply(corr_radar_df[, c("par
 
 corr_radar_df %>%
   filter(!parameter2 %in% c(disturbance_proxies, "VIR")) %>%
-  group_by(parameter1) %>%
-  rename(parameter = parameter1) %>%
+  dplyr::rename(parameter = parameter1) %>%
+  group_by(parameter) %>%
   summarise(sum_corr = sum(rho^2), .groups = "drop_last") %>%  # Sum of squares to add 'punish' extra for high correlations
   identity() -> sum_corr
 
@@ -148,9 +150,10 @@ So, the 'least correlated' variable is `r least_correlated$parameter` and we wil
 
 To avoid overfitting to noise, we will limit the maximum nr of trees used in the model to 25% of the number of datapoints, which yields a possible `r round(nrow(data_cleaned) * 0.25)` trees to be used. We still want to make sure our model reaches some measure of optimality (in this case a reduction of cross-validated deviance), we have to do a hyperparameter search for a suitable combination of maximum number of trees and learning rate. See Elith et al. for an explanation on the linkage between number of trees and learning rate.
 
-```{r determine_hyperparameter_settings, eval=full_repro}
+```{r determine_learning_rates}
 learning_rates <- c(0.03, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3)  # Lower and higher learning rates increase error or do not converge
-
+```
+```{r train_model_hyperparameters, eval=full_repro}
 # Parallelised hyperparameter search somehow seems to hang occasionally, so unfortunately we switch to serial processing
 # hyperparms <- mclapply(learning_rates, function(x) { gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x_vars[[1]], bag.fraction = 0.5, family = "gaussian",
 #                                                             tree.complexity = 2, learning.rate = x, max.trees = max_trees, step.size = 50) }, 
@@ -225,7 +228,7 @@ saveRDS(model_disturbance_best, file = "data/models/brt_models_disturbance_best.
 We can now also compare the relative influence of the variables used in this model.
 
 ```{r determine_relatieve_influence_of_predictors, results='hold'}
-relinf <- ggInfluence(model_disturbance_best[[1]], show.signif = FALSE, main = "Relative influence of predictor variables on log(VIR)")
+relinf <- ggInfluence(disturbance_models$dist_urban, show.signif = FALSE, main = "Relative influence of predictor variables on log(VIR)")
 relinf
 ```
 

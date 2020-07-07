@@ -3,7 +3,7 @@
 The partial dependence plots generated in the previous chapter visualise the marginal effect of certain predictors on the outcome `log(VIR)`. We use a bootstrapping approach to quantify the model uncertainty.
 
 ## Setting-up the environment
-```{r setup_bootstrap_environment}
+```{r setup_bootstrap_environment, warning=FALSE, message=FALSE}
 library(gbm)
 library(dismo)
 library(ggBRT)
@@ -15,6 +15,7 @@ library(dplyr)
 library(tidyr)
 library(forcats)
 library(patchwork)
+library(mapview)
 ```
 
 
@@ -75,12 +76,12 @@ relinf_uncertainty <- function(bootstrap) {
   bootstrap_long %>%
     pivot_wider(names_from = predictor, values_from = value) %>%
     median_qi(.width = c(0.5), .exclude = "bootstrap_sample") %>%
-    select(-contains(".")) %>%
+    dplyr::select(-contains(".")) %>%
     pivot_longer(cols = everything(), names_to = "predictor", values_to = "bootstrap_median") -> predictor_summaries
   
   predictor_summaries[order(-predictor_summaries$bootstrap_median), ] %>% 
     rowid_to_column(var = "rank") %>% 
-    select(predictor, rank) %>%
+    dplyr::select(predictor, rank) %>%
     mutate(rank = fct_rev(as.factor(rank))) -> predictor_summaries
   
   bootstrap_long %>%
@@ -208,7 +209,7 @@ plot_model_pdp <- function(model, bootstrap, grid, relinf_uncertainty, loess = T
   relinf <- relinf_uncertainty[[1]] %>%
     group_by(predictor) %>%
     mutate(mean_relinf = mean(value)) %>%
-    select(predictor, mean_relinf, rank) %>%
+    dplyr::select(predictor, mean_relinf, rank) %>%
     distinct() %>%
     identity()
   
@@ -226,7 +227,9 @@ plot_model_pdp <- function(model, bootstrap, grid, relinf_uncertainty, loess = T
 
 a <- mapply(function(model, bootstrap, grid, relinf_uncertainty, name) {
   plots <- plot_model_pdp(model, bootstrap, grid, relinf_uncertainty, loess = TRUE, loess.span = 0.4)
-  print(wrap_plots(plots)) + plot_annotation(title = name)
+  # print(name)
+  p <- wrap_plots(plots) + plot_annotation(title = name)
+  print(p)
 }, model = models, bootstrap = bootstraps, grid = grids, relinf_uncertainty = relinf_uncertainties, name = names(models))
 ```
 
@@ -239,7 +242,7 @@ df$resid <- residuals(models[[10]])
 ppi <- readRDS("data/processed/composite-ppis/201712312305.RDS")
 # 
 ppi$data@data %>%
-  left_join(select(df, pixel, preds, resid), by = "pixel") -> ppi$data@data
+  left_join(dplyr::select(df, pixel, preds, resid), by = "pixel") -> ppi$data@data
 ppi$data@data$VIR_log <- log10(ppi$data@data$VIR)
 ppi$data@data$total_biomass_log <- log10(ppi$data@data$total_biomass / 1000)
 
