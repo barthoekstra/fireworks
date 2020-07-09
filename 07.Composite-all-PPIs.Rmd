@@ -44,7 +44,7 @@ for (i in seq_along(hrw_ppis)) {
   methods <- c("mean", "mean", "mean", "mean", "mean", "mean", "min",
                "max", "mean", "mean", "mean", "mean", "mean", "mean", "mean", 
                "factor", "factor", "factor", "factor", "mean", "mean", "mean")
-  cppi <- comp_ppi(list(ppi_hrw, ppi_dhl), param = params, method = methods, res = c(1000, 1000), coverage = "count")
+  cppi <- comp_ppi(list(ppi_hrw, ppi_dhl), param = params, method = methods, res = c(500, 500), coverage = "count")
   
   # Add coordinates
   coords_cppi <- raster::coordinates(cppi$data)
