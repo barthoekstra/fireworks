@@ -38,7 +38,6 @@ for (i in seq_along(hrw_ppis)) {
   ppi_dhl$data$VID[ppi_dhl$data$VIR == 0] <- NA
   ppi_dhl$data$VIR[ppi_dhl$data$VIR == 0] <- NA
   
-  # cppi <- suppressWarnings(composite_ppi(list(ppi_hrw, ppi_dhl), param = "VIR", method = "max", nx = 1000, ny = 1000))
   params <- c("VIR", "VID", "R", "overlap", "eta_sum", "eta_sum_expected", "dist_radar", 
               "urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies", "dist_urban", "human_pop",
               "wb_area_id", "wb_area_nr", "ptt_route", "wb_area_ha", "wb_total_biomass", "ptt_total_biomass", "total_biomass")
