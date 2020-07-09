@@ -64,7 +64,7 @@ data %>%
   filter(coverage > 0,
          datetime >= dt_start & datetime < dt_end,
          total_biomass > 0,
-         dist_radar < 80000,
+         dist_radar < 66000,
          urban < 0.25) %>%
   mutate(VIR = replace_na(VIR, 0.001),
          VIR = log10(VIR),
