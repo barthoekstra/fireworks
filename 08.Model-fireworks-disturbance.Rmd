@@ -113,39 +113,6 @@ disturbance_models <- readRDS("data/models/brt_models_disturbance.RDS")
 ggPerformance("dist_urban" = disturbance_models[[1]], "human_pop" = disturbance_models[[2]], "disturb_pot" = disturbance_models[[3]])
 ```
 
-It turns out performance is more similar than dissimilar across these disturbance proxies, though results may vary due to the non-deterministic behaviour of gradient-boosted machines. So we will stick with the model containing a disturbance proxy that is least correlated with the other predictor variables.
-
-```{r determine_least_correlated_disturbance_proxy}
-corr_radar_df <- ggcorrmat(data_cleaned, output = "dataframe", type = "spearman", col.vars = all_of(predictors))
-corr_radar_df %<>% filter(parameter1 %in% disturbance_proxies | parameter2 %in% disturbance_proxies)
-  
-swap_vars <- function(x, first_col) {
-  if (!x["parameter1"] %in% first_col) {
-    x_param1 <- x["parameter1"]
-    x_param2 <- x["parameter2"]
-    x["parameter1"] <- x_param2
-    x["parameter2"] <- x_param1
-    x
-  } else {
-    x
-  }
-}
-
-corr_radar_df[, c("parameter1", "parameter2")] <- t(apply(corr_radar_df[, c("parameter1", "parameter2")], 1, swap_vars, disturbance_proxies))
-
-corr_radar_df %>%
-  filter(!parameter2 %in% c(disturbance_proxies, "VIR")) %>%
-  dplyr::rename(parameter = parameter1) %>%
-  group_by(parameter) %>%
-  summarise(sum_corr = sum(rho^2), .groups = "drop_last") %>%  # Sum of squares to add 'punish' extra for high correlations
-  identity() -> sum_corr
-
-least_correlated <- sum_corr[which.min(sum_corr$sum_corr), ]
-sum_corr
-```
-
-So, the 'least correlated' variable is `r least_correlated$parameter` and we will therefore continue using the model trained with this proxy for disturbance.
-
 ## Determine best hyperparameter settings for `lr`
 
 To avoid overfitting to noise, we will limit the maximum nr of trees used in the model to 25% of the number of datapoints, which yields a possible `r round(nrow(data_cleaned) * 0.25)` trees to be used. We still want to make sure our model reaches some measure of optimality (in this case a reduction of cross-validated deviance), we have to do a hyperparameter search for a suitable combination of maximum number of trees and learning rate. See Elith et al. for an explanation on the linkage between number of trees and learning rate.
