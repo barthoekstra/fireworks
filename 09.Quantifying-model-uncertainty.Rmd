@@ -194,8 +194,8 @@ bootstrap_uncertainty <- function(predictor, boot, grid, model, confidence.inter
     vals <- data.frame(vals)
     colnames(vals) <- "x"
 
-    p <- p +
-      stat_density(data = vals, aes(x = x, y = ..scaled..), geom = "line")
+    # p <- p +
+    #   stat_density(data = vals, aes(x = x, y = ..scaled..), geom = "line")
 
     p <- p +
       xlab(predictor) +
@@ -231,6 +231,7 @@ a <- mapply(function(model, bootstrap, grid, relinf_uncertainty, name) {
   plots <- plot_model_pdp(model, bootstrap, grid, relinf_uncertainty, loess = TRUE, loess.span = 0.4)
   # print(name)
   p <- wrap_plots(plots) + plot_annotation(title = name)
+  ggsave(filename = paste0("data/plots/partial-effects-new/", name, ".png"), width = 10, height = 10)
   print(p)
 }, model = models, bootstrap = bootstraps, grid = grids, relinf_uncertainty = relinf_uncertainties, name = names(models))
 ```
