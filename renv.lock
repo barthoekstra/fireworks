@@ -783,6 +783,13 @@
       "Repository": "CRAN",
       "Hash": "c013a50b19695daf04853679e1bc105a"
     },
+    "ggridges": {
+      "Package": "ggridges",
+      "Version": "0.5.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "b5c4e55a3856dff3c05595630a40edfc"
+    },
     "ggsci": {
       "Package": "ggsci",
       "Version": "2.9",
@@ -1041,6 +1048,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "3f3f5e5603fc791dfb77279ad84cc711"
+    },
+    "leaflet.opacity": {
+      "Package": "leaflet.opacity",
+      "Version": "0.1.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "c99fa519b340ee9182f0b8020ace4873"
     },
     "leaflet.providers": {
       "Package": "leaflet.providers",
