@@ -91,7 +91,7 @@ relinf_uncertainty <- function(bootstrap) {
   
   relinf_uncertainty %>%
     ggplot(aes(y = rank, x = value)) + 
-    stat_eye(point_interval = median_qi, .width = c(0.5)) +  # Thinnest black bar represents 95%, other 50% and point = median
+    stat_eye(point_interval = median_qi, .width = c(0.95, 0.5)) +  # Thinnest black bar represents 95%, other 50% and point = median
     scale_y_discrete(labels = rev(predictor_summaries$predictor)) + 
     labs(x = "Relative influence (%)",
          y = "Predictor", 
@@ -104,14 +104,6 @@ relinf_uncertainties <- lapply(bootstraps, relinf_uncertainty)
 
 relinf_uncertainties[[1]][[2]]
 relinf_uncertainties[[2]][[2]]
-relinf_uncertainties[[3]][[2]]
-relinf_uncertainties[[4]][[2]]
-relinf_uncertainties[[5]][[2]]
-relinf_uncertainties[[6]][[2]]
-relinf_uncertainties[[7]][[2]]
-relinf_uncertainties[[8]][[2]]
-relinf_uncertainties[[9]][[2]]
-relinf_uncertainties[[10]][[2]]
 ```
 
 The large 'spread' of `agricultural` suggests something strange is going on there. I would imagine this is quite likely to be the result of some retained ground clutter with unusually high reflectivities that affects these outcomes. Additionally, 'agriculture' is the baseline land use class of the dataset, so resampling during bootstrapping is quite likely to sample 
