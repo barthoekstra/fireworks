@@ -20,11 +20,21 @@ library(leafem)
 library(leaflet.opacity)
 ```
 
-
 ## Load the constructed models
 ```{r load_models}
-models <- readRDS("data/models/brt_models.RDS")
-cpucores <- 4
+all_models <- readRDS("data/models/brt_models.RDS")
+cpucores <- 3
+```
+
+We are particularly interested in two models:
+
+1. One containing `agricultural` as predictor
+1. One containing the other land use class proportions as predictors.
+
+So we'll extract these and ignore the rest in the following steps.
+```{r extract_useful_models}
+models <- all_models[c("dist_urban", "agricultural")]
+rm(all_models)
 ```
 
 ## Determine evaluation grid
