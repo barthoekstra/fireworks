@@ -15,7 +15,9 @@ library(dplyr)
 library(tidyr)
 library(forcats)
 library(patchwork)
-library(mapview)
+library(leaflet)
+library(leafem)
+library(leaflet.opacity)
 ```
 
 
@@ -236,19 +238,33 @@ a <- mapply(function(model, bootstrap, grid, relinf_uncertainty, name) {
 ## Show model residuals
 
 ```{r show_model_residuals}
-df <- models[[10]]$gbm.call$dataframe
-df$preds <- predict(models[[10]], n.trees = models[[10]]$n.trees)
-df$resid <- residuals(models[[10]])
-ppi <- readRDS("data/processed/composite-ppis/201712312305.RDS")
-# 
+df <- models[[1]]$gbm.call$dataframe
+df$preds <- predict(models[[1]], n.trees = models[[1]]$n.trees)
+df$resid <- residuals(models[[1]])
+ppi <- readRDS("data/processed/composite-ppis/500m/201712312305.RDS")
+ 
 ppi$data@data %>%
   left_join(dplyr::select(df, pixel, preds, resid), by = "pixel") -> ppi$data@data
 ppi$data@data$VIR_log <- log10(ppi$data@data$VIR)
 ppi$data@data$total_biomass_log <- log10(ppi$data@data$total_biomass / 1000)
+```
 
-# mapview(ppi$data[, , c("VIR_log", "pixel", "preds", "resid")], layer.name = c("VIR", "pixel", "preds", "resid"), at = seq(from = 0, to = 5, length.out = 100), na.color = "transparent")
+## Leaflet alternative
 
-mapview(ppi$data[, , c("resid")], layer.name = c("resid"), col.regions = colorspace::diverging_hcl)
+```{r warning=FALSE}
+pal_resid <- colorspace::diverging_hcl(50, "Blue-Red 3", power = 2)
+z_lims <- c(-3, 3)
+pal <- colorNumeric(pal_resid, domain = z_lims, na.color = NA)
+raster_resid <- as(ppi$data["resid"], "RasterLayer")
+
+leaflet() %>%
+  addTiles() %>%
+  addRasterImage(raster_resid, colors = pal, layerId = "resid") %>%
+  addImageQuery(raster_resid, layerId = "resid") %>%
+  addLegend(pal = pal, values = z_lims) %>%
+  addOpacitySlider(layerId = "resid") %>%
+  addLayersControl(overlayGroups = "resid", position = "topleft") %>%
+  identity()
 ```
 
 Random forests and stochastic gradient boosting for predicting tree canopy cover: comparing tuning processes and model performance
