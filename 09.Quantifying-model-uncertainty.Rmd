@@ -60,7 +60,7 @@ Using the bootstrapping procedure provied in `ggBRT` we can derive uncertainty e
 
 ```{r bootstrap_gbm_models, eval=full_repro}
 source("R/gbm.bootstrap.functions.modified.R")
-bootstraps <- mcmapply(function(m, g) gbm.bootstrap.functions.modified(m, list.predictors = g, n.reps = 100, n.divisions = 1000),
+bootstraps <- mcmapply(function(m, g) gbm.bootstrap.functions.modified(m, list.predictors = g, n.reps = 200, n.divisions = 1000),
                        m = models, g = grids, SIMPLIFY = FALSE, mc.cores = cpucores, mc.preschedule = TRUE)
 saveRDS(bootstraps, file = "data/models/brt_models_bootstrap.RDS")
 ```
