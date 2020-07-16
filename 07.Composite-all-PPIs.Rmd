@@ -22,7 +22,7 @@ source("R/comp_ppi.R")
 hrw_ppis <- Sys.glob(file.path("data/processed/final-ppis", "*NL62*"))
 dhl_ppis <- Sys.glob(file.path("data/processed/final-ppis", "*NL61*"))
 
-generate_composites <- function(hrw_ppis, dhl_ppis, res) {
+generate_composites <- function(hrw_ppis, dhl_ppis, res, maxrange) {
   # Make a new empty PPI to store all composites in
   template_ppi <- readRDS(hrw_ppis[1])
   all <- template_ppi$data@data %>%
@@ -33,6 +33,10 @@ generate_composites <- function(hrw_ppis, dhl_ppis, res) {
   for (i in seq_along(hrw_ppis)) {
     ppi_hrw <- readRDS(hrw_ppis[i])
     ppi_dhl <- readRDS(dhl_ppis[i])
+    
+    # Set all columns to NA if further than maxrange from radar
+    ppi_hrw$data@data[ppi_hrw$data@data$dist_radar > maxrange, ] <- NA
+    ppi_dhl$data@data[ppi_dhl$data@data$dist_radar > maxrange, ] <- NA
     
     ppi_hrw$data$VID[ppi_hrw$data$VIR == 0] <- NA
     ppi_hrw$data$VIR[ppi_hrw$data$VIR == 0] <- NA
@@ -80,7 +84,9 @@ generate_composites <- function(hrw_ppis, dhl_ppis, res) {
   
   saveRDS(all, file = paste("data/processed/all_", res, "m.RDS", sep = ""))
 }
-r <- parallel::mcmapply(function(resolution) generate_composites(hrw_ppis, dhl_ppis, res = resolution), resolution = c(500, 1000, 2000), mc.cores = 3)
+
+r <- parallel::mclapply(c(500, 1000, 2000), function(x) { generate_composites(hrw_ppis, dhl_ppis, res = x, maxrange = 66000)},
+                        mc.cores = 3, mc.preschedule = FALSE)
 ```
 
 ## Visualising the composites
