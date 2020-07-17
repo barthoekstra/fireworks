@@ -16,6 +16,7 @@ preprocess_radar_data <- function(pvol_path, ei_rays, pvol_dynamic_groundclutter
   }
   
   pvol <- suppressWarnings(calculate_dpr(pvol))
+  pvol_dpr <- pvol
   pvol <- remove_precipitation(pvol)
   
   if (!is.null(pvol_dynamic_groundclutter)) {
@@ -41,6 +42,25 @@ preprocess_radar_data <- function(pvol_path, ei_rays, pvol_dynamic_groundclutter
   
   # Apply range-bias correction
   corrected_ppi <- integrate_to_ppi(pvol, vp, res = res, xlim = c(-150000, 150000), ylim = c(-150000, 150000))
+  
+  # Add pixel type classifications
+  pvol_classified <- calculate_param(pvol_dpr, DBZH = BIOLD * 1000)
+  if (!is.null(pvol_dynamic_groundclutter)) {
+    pvol_classified <- remove_groundclutter(pvol_classified, pvol_dynamic_groundclutter)
+  }
+  if (!is.null(pvol_static_groundclutter)) {
+    pvol_classified <- remove_groundclutter(pvol_classified, pvol_dynamic_groundclutter)
+  }
+  corrected_ppi_classified <- integrate_to_ppi(pvol_classified, vp, res = res, xlim = c(-150000, 150000), ylim = c(-150000, 150000))
+  corrected_ppi_classified$data@data %>%
+    mutate(class = case_when(
+      VIR > 40000 ~ 2,
+      VIR <= 40000 & VIR > 0 ~ 1,
+      VIR == 0 ~ 0
+    )) %>%
+    select(class) -> classification
+  corrected_ppi$data$class <- unlist(classification)
+  
   
   # Calculate distance to radar for all PPI pixels
   corrected_ppi <- calculate_distance_to_radar(corrected_ppi)

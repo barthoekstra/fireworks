@@ -21,6 +21,8 @@ library(ggpubr)
 library(mapview)
 library(viridis)
 library(raster)
+library(dplyr)
+library(magrittr)
 ```
 
 ## Removing electromagnetic interference
@@ -339,6 +341,55 @@ p_vir_dhl <- plot(corrected_ppi_dhl, param = "VIR", zlim = c(0, 20000)) + labs(t
 ggarrange(p_vir_hrw, p_vir_dhl, ncol = 2, nrow = 1, common.legend = TRUE, legend = "right")
 ```
 
+## Keep biology/meteorology classification
+
+By default the range-bias correction returns values from 0 upwards, so there is no way for us to distinguish anymore between 'pixels' that did not reflect and those that were filtered out as meteorology. That's why we will additionally add the `class` parameter to the range-bias corrected PPIs. There's a risk of misalignment of PPI pixels, but we can still use RBC if we trick it by replacing `DBZH` with the value of `BIOLD` (despeckled biology), which contains 0s for meteorology and 1s for biology and multiply this by a 1000 to get really high `VIR` values for biology and very low values for meteorology.
+
+```{r warning=FALSE}
+pvol_hrw_classified <- calculate_param(pvol_hrw, DBZH = BIOLD * 1000)
+pvol_dhl_classified <- calculate_param(pvol_dhl, DBZH = BIOLD * 1000)
+
+pvol_hrw_classified <- remove_groundclutter(remove_groundclutter(pvol_hrw_classified, pvol_clutter_dynamic_hrw), pvol_clutter_static_hrw)
+pvol_dhl_classified <- remove_groundclutter(remove_groundclutter(pvol_dhl_classified, pvol_clutter_dynamic_dhl), pvol_clutter_static_dhl)
+
+corrected_ppi_hrw_classified <- integrate_to_ppi(pvol_hrw_classified, vp_hrw, res = 500, xlim = c(-150000, 150000), ylim = c(-150000, 150000))
+corrected_ppi_dhl_classified <- integrate_to_ppi(pvol_dhl_classified, vp_dhl, res = 500, xlim = c(-150000, 150000), ylim = c(-150000, 150000))
+```
+
+```{r}
+p_vir_hrw_classified <- plot(corrected_ppi_hrw_classified, param = "VIR", zlim = c(0, 50000)) + labs(title = "Herwijnen: VIR")
+p_vir_dhl_classified <- plot(corrected_ppi_dhl_classified, param = "VIR", zlim = c(0, 50000)) + labs(title = "Den Helder: VIR")
+ggarrange(p_vir_hrw_classified, p_vir_dhl_classified, ncol = 2, nrow = 1, common.legend = TRUE, legend = "right")
+```
+
+That looks good, so now we add it to the corrected PPIs. We reclassify the `VIR` as follows:
+
+1. Biology gets `class = 2`,
+1. Meteorology gets `class = 1`,
+1. Background gets `class = 0`.
+
+```{r}
+corrected_ppi_hrw_classified$data@data %>%
+  mutate(class = case_when(
+    VIR > 40000 ~ 2,
+    VIR <= 40000 & VIR > 0 ~ 1,
+    VIR == 0 ~ 0
+  )) %>%
+  select(class) -> class_hrw
+
+corrected_ppi_dhl_classified$data@data %>%
+  mutate(class = case_when(
+    VIR > 40000 ~ 2,
+    VIR <= 40000 & VIR > 0 ~ 1,
+    VIR == 0 ~ 0
+  )) %>%
+  select(class) -> class_dhl
+
+
+corrected_ppi_hrw$data$class <- unlist(class_hrw)
+corrected_ppi_dhl$data$class <- unlist(class_dhl)
+```
+
 ## Distance to radar
 
 To assess the quality of the range-bias correction, it is also useful to calculate the distance to the radar from a given PPI pixel. Ideally, the range-bias correction would strongly reduce the effect of distance to the radar for measured densities of birds, but we still have to see if that is the case indeed. By including the distance to the radar in the PPIs, we can also include it in our modelling efforts later on.
@@ -381,18 +432,16 @@ filtered_corrected_ppi_dhl$data@data <- as.data.frame(apply(filtered_corrected_p
 
 ### Range-corrected PPI of Herwijnen radar
 
-```{r map_range_corrected_herwijnen, fig.width=10, warning=FALSE}
-mapview(filtered_corrected_ppi_hrw$data, alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
-        na.color = "#00000000", map.types = c("CartoDB.Positron", "CartoDB.DarkMatter", "Esri.WorldImagery"),
-        layer.name = colnames(filtered_corrected_ppi_hrw$data@data))
+@TODO: Somehow now broken after adding biology classification
+
+```{r map_range_corrected_herwijnen, fig.width=10}
+mapview(corrected_ppi_hrw$data)
 ```
 
 ### Range-corrected PPI of Den Helder radar
 
-```{r map_range_corrected_den_helder, fig.width=10, warning=FALSE}
-mapview(filtered_corrected_ppi_dhl$data, alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
-        na.color = "#00000000", map.types = c("CartoDB.Positron", "CartoDB.DarkMatter", "Esri.WorldImagery"),
-        layer.name = colnames(filtered_corrected_ppi_dhl$data@data))
+```{r map_range_corrected_den_helder, fig.width=10}
+mapview(corrected_ppi_dhl$data)
 ```
 
 ## Preprocess additional scans
