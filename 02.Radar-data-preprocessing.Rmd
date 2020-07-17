@@ -46,7 +46,7 @@ scan <- plot(pvol_hrw$scans[[1]], param = "DBZH", xlim = c(0, 180000)) + theme_d
 ggplotly(scan)
 ```
 
-Right away we can see that rays at two places in the scan are subject to electromagnetic interference. This is probably most problematic in the lowest elevations of the volume scan, but nevertheless each of the `length(pvol_hrw$scans)` scans have be checked manually. Doing so results in the identification of the following rays that contain electromagnetic interference (`ei_rays`), organised in a list with the scan numbers (organised ascendingly per elevation angle) as keys. *Admittedly: there is another ray that seems to contain interference in the first scan, but this is so far away from the radar (150km+) it should not affect our results as no meaningful numbers of birds can be detected at that range anyways. Similarly, there are similar patterns of interference/clutter in higher elevation scans, but these too should not affect our results.*
+Right away we can see that rays at two places in the scan are subject to electromagnetic interference. This is probably most problematic in the lowest elevations of the volume scan, but nevertheless each of the `length(pvol_hrw$scans)` scans have be checked manually. Doing so results in the identification of the following rays that contain electromagnetic interference (`ei_rays`), organised in a list with the scan numbers (organised ascendingly per elevation angle) as keys. *Admittedly: there is another ray that seems to contain interference in the first scan, but this is so far away from the radar (150km+) it should not affect our results as no meaningful numbers of birds can be detected at that range anyways, so there is no need to remove the entire ray. Similarly, there are similar patterns of interference/clutter in higher elevation scans, but these too should not affect our results.*
 
 ```{r identify_rays_with_em_inteference}
 ei_rays_hrw <- list(c(201, 202, 214, 215), # scan 1
@@ -79,13 +79,13 @@ plot(pvol_dhl$scans[[i]], param = "DBZH", xlim = c(0, 180000)) + theme_dark() +
   labs(title = "Den Helder: Cleaned from EM interference", subtitle = paste("Elevation:", round(pvol_dhl$scans[[i]]$attributes$where$elangle, 1)))
 ```
 
-Well, that seems to work nicely. The remaining bits of clutter won't affect the results much as they cover fairly small areas and consistently appear at longer distances away from the radar, where birds are difficult to detect anyways.
+That seems to work nicely. The remaining bits of clutter won't affect the results much as they cover fairly small areas and consistently appear at longer distances away from the radar, where birds are difficult to detect anyways.
 
 ## Filter meteorology using the depolarization ratio
 
 Meteorology can be filtered using the depolarization ratio following Kilambi et al. [-@kilambi_simple_2018]. We calculate the depolarization ratio for the raw `pvol` data after EM interference has been removed and subsequently 'despeckle' the results to improve the classification.
 
-Despeckling works by comparing the classification of the majority of the neighbourhood rangegates with the classification of the center rangegate, and changing the latter to reflect the majority of the neighbourhood classification if there is a difference. We define the 'neighbourhood' as a $3^{\circ}$ by $3 \times rscale$ area centered around a focal rangegate (3 rangegates in azimuth $\times$ 3 rangegates in range) . Selecting the rangegates while taking the sphericity of the radar scan into account (e.g. ray 360 should be directly adjacent to ray 1) is made easier with the `R/window_coords.R` function. The despeckling is implemented in `R/despeckle_scan_logical.R`.
+Despeckling works by comparing the classification of the majority of the neighbourhood rangegates with the classification of the center rangegate, and changing the latter to reflect the majority of the neighbourhood classification if there is a difference. We define the 'neighbourhood' as a $3^{\circ}$ by $3 \times rscale$ area centered around a focal rangegate (3 rangegates in azimuth $\times$ 3 rangegates in range). Selecting the rangegates while taking the sphericity of the radar scan into account (e.g. ray 360 should be directly adjacent to ray 1) is made easier with the `R/window_coords.R` function. The despeckling is implemented in `R/despeckle_scan_logical.R`.
 
 With the despeckling algorithm in place, we can:
 
