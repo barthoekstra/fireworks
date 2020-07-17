@@ -27,7 +27,7 @@ See Appendix [generating-vps-for-den-helder-radar] for a more detailed explanati
 ```{r generate_vps, eval=full_repro}
 fireworks_scans <- Sys.glob(file.path("data/raw/pvol/fireworks-2017-2018", "*_ODIM.h5"))
 cat("Files left to process: ", length(fireworks_scans), "\n")
-i = 1
+i <- 1
 for (scan in fireworks_scans) {
   if (i %% 5 == 0) {
     cat(i, "... ")
@@ -36,11 +36,12 @@ for (scan in fireworks_scans) {
   vpfile_out <- sub("raw/pvol/fireworks-2017-2018", "processed/vp/fireworks-2017-2018", scan)
   if (grepl("RAD_NL61", vpfile_out)) {
     try(calculate_vp(scan, vpfile = vpfile_out, verbose = FALSE, mount = dirname(fireworks_scans[1]),
-                     azim_min = 90, azim_max = 200))
+                     azim_min = 90, azim_max = 200, h_layer = 50, n_layer = 80))
   } else {
-    try(calculate_vp(scan, vpfile = vpfile_out, verbose = FALSE, mount = dirname(fireworks_scans[1])))
+    try(calculate_vp(scan, vpfile = vpfile_out, verbose = FALSE, mount = dirname(fireworks_scans[1]),
+                     h_layer = 50, n_layer = 80))
   }
-  i = i + 1
+  i <- i + 1
 }
 ```
 
@@ -77,7 +78,7 @@ Both plots for Herwijnen and Den Helder show exactly what we would expect: compa
 
 We integrate the time series of vertical profiles, so we can calculate the `vir` derivatives and determine in what volume scan birds really take to the skies for each radar separately.
 
-```{r identify_takeoff}
+```{r identify_takeoff, warning=FALSE}
 integrated_hrw <- integrate_profile(fw_hrw_vpts)
 integrated_dhl <- integrate_profile(fw_dhl_vpts)
 
@@ -95,10 +96,10 @@ integrated_l <- integrated %>%
   filter(datetime >= start & datetime <= end)
 
 max_vir_deriv <- integrated_l %>%
-  group_by(variable, radar) %>%
   filter(variable == "vir_deriv") %>%
-  summarize(max_value = max(value), datetime = datetime[which.max(value)]) %>%
-  arrange(radar)  # Sort so order remains the same
+  drop_na() %>%
+  group_by(radar) %>%
+  summarize(max_value = max(value), datetime = datetime[which.max(value)], .groups = "drop_last")
 
 theme_set(theme_bw())
 ggplot(integrated_l, aes(x = datetime)) +
@@ -118,19 +119,14 @@ ggplot(integrated_l, aes(x = datetime)) +
 
 The plot shows a rapid increase in `VIR` in the first 15 and 20 minutes after midnight (23:00 CET) for the Den Helder and Herwijnen radar respectively. After that period, `VIR` starts to drop, faster for Den Helder than for Herwijnen, possibly as a result of birds dispersing from the North Holland mainland towards the IJsselmeer area, which we have deliberately excluded from the generation of the vertical profiles (by selecting azimuths that are above land).
 
-To reduce the effect of bird dispersal on our analysis, we will thus define the take-off moment as the first 15 minutes after midnight (23:00 CET). We will use the moments of peak growth in `VIR` ($\Delta{VIR}$) to illustrate the data preprocessing with.
-
-```{r identify_takeoff_scans}
-max_vir_deriv[, 2:4]
-```
+To reduce the effect of bird dispersal on our analysis, we will focus only on the first 5 minute-scan during which `VIR` grows rapidly. That is from 23:05 CET until 23:10 CET.
 
 ```{r save_takeoff_scans}
 pvol_folder <- "data/raw/pvol/fireworks-2017-2018/"
-hrw_dt_str <- strftime(max_vir_deriv[[2, 4]], format = "%Y%m%d%H%M")
-dhl_dt_str <- strftime(max_vir_deriv[[1, 4]], format = "%Y%m%d%H%M")
+scan_timestamp <- lubridate::ymd_hm("2017-12-31 23:05")
 
-pvol_hrw_path <- paste(pvol_folder, "RAD_NL62_VOL_NA_", hrw_dt_str, "_ODIM.h5", sep = "")
-pvol_dhl_path <- paste(pvol_folder, "RAD_NL61_VOL_NA_", dhl_dt_str, "_ODIM.h5", sep = "")
+pvol_hrw_path <- paste(pvol_folder, "RAD_NL62_VOL_NA_", format(scan_timestamp, "%Y%m%d%H%M"), "_ODIM.h5", sep = "")
+pvol_dhl_path <- paste(pvol_folder, "RAD_NL61_VOL_NA_", format(scan_timestamp, "%Y%m%d%H%M"), "_ODIM.h5", sep = "")
 
 save(pvol_hrw_path, pvol_dhl_path, file = "data/processed/pvol_selection.RData")
 ```
@@ -142,47 +138,16 @@ So at first we will continue using the following files in this study:
 
 ## Determining maximum range from radar to detect birds
 
-We can assume that the flight altitudes derived from `vol2bird` are representative for flight altitudes throughout the country. Given that most of the disturbance happens at comparatively low altitudes, the radar is likely to 'overshoot' this entirely at substantial distances away from the radar where compensating for range-effects (e.g. using [@kranstauber2020]) will thus have no effect. Therefore we need to calculate the maximum range we could still feasibly measure birds aloft.
+We can assume that the flight altitudes derived from `vol2bird` are representative for flight altitudes throughout the country. Given that most of the disturbance happens at comparatively low altitudes, the radar is likely to 'overshoot' this entirely at substantial distances away from the radar where compensating for range-effects (e.g. using [@kranstauber2020]) will thus have no effect. Therefore we need to determina a maximum range we could still feasibly measure birds aloft. We can do so by reinspecting the `vpts` plots from before, but now focussing on the lowest 1km.
 
-We define the minimum altitude a radar beam must propagate through as the heighest altitude during the fireworks event below which 90% of birds pass through. Assuming uniform distribution of flight altitudes, this would leave 5% of the numbers of birds aloft at range to apply range-bias correction with [@kranstauber2020].
-
-```{r determine_range_of_overshoot, warning=FALSE}
-alt_cutoff <- 0.90
-
-dens_hrw <- get_quantity(fw_hrw_vpts[indexes_hrw], "dens")
-dens_dhl <- get_quantity(fw_dhl_vpts[indexes_dhl], "dens")
-
-apply(dens_hrw, 2, function(x) {min(which(cumsum(x) / sum(x) > alt_cutoff))}) %>%
-  as.data.frame() %>%
-  tibble::rownames_to_column() %>%
-  rename("datetime" = "rowname", "height_bin" = 2) %>%
-  mutate(datetime = as.POSIXct(datetime), radar = "Herwijnen") %>%
-  mutate(height_bin = height_bin * fw_hrw_vpts$attributes$where$interval) -> altitudes_hrw
-
-apply(dens_dhl, 2, function(x) {min(which(cumsum(x) / sum(x) > alt_cutoff))}) %>%
-  as.data.frame() %>%
-  tibble::rownames_to_column() %>%
-  rename("datetime" = "rowname", "height_bin" = 2) %>%
-  mutate(datetime = as.POSIXct(datetime), radar = "Den Helder") %>%
-  mutate(height_bin = height_bin * fw_dhl_vpts$attributes$where$interval) -> altitudes_dhl
-
-bind_rows(altitudes_hrw, altitudes_dhl) %>%
-  filter(is.finite(height_bin)) %>%
-  ggplot() +
-  geom_line(aes(x = datetime, y = height_bin, group = radar, colour = radar)) +
-  scale_x_datetime(breaks = "10 min", date_labels = "%H:%M", expand = c(0, 0)) + 
-  scale_y_continuous(breaks = scales::pretty_breaks(20)) +
-  scale_color_manual(values = c("blue", "red")) +
-  labs(title = paste("Altitude below which ", alt_cutoff * 100, "% of birds fly", sep = ""),
-       subtitle = "NYE 2017-2018",
-       x = "Time (CET)",
-       y = "Altitude",
-       colour = "Radar") +
-  theme(axis.text.x = element_text(angle = -90),
-        panel.grid.minor = element_blank())
+```{r determine_range_of_overshoot}
+plot(fw_hrw_vpts[indexes_hrw], ylim = c(0, 1000))
+plot(fw_dhl_vpts[indexes_dhl], ylim = c(0, 1000))
 ```
 
-We can see in this plot, and the earlier `vpts` of Den Helder that there is substantial noise at higher altitudes causing odd spikes in the altitudes. It seems that an altitude of _800m_ as a cutoff point strikes a good balance for both Herwijnen and Den Helder radars. Now we can calculate the distance at which that height is the height of the lowest elevation (0.3 degrees) and round to the nearest kilometer. 
+We can now see that above `600m` ASL or so the density starts to drop substantially, so we will set this as the altitudinal cutoff to determine the range up to which we will be using the data coming from the range-bias correction [@kranstauber2020]. Although birds are somewhat lower in height overall in Den Helder than Herwijnen, this is an acceptable threshold as Herwijnen anyways covers much more land area within our study domain than Den Helder, and thus a more representative range-bias correction for Herwijnen is more important than Den Helder.
+
+Now we can calculate the distance at which that height is the height of the lowest elevation (0.3 degrees) and round to the nearest kilometer. 
 
 ```{r determine_distance_cutoff}
 altitude_cutoff <- 600
@@ -193,4 +158,4 @@ distance_cutoff <- plyr::round_any(ranges[nearest_index], 1000)
 distance_cutoff
 ```
 
-So at roughly `r distance_cutoff / 1000` kilometers from the radar, the lowest elevation scan pierces the sky at an altitude (`r altitude_cutoff`m) where we could still expect ~`r (1 - alt_cutoff) * 100`% of birds to be above.
+So at roughly `r distance_cutoff / 1000` kilometers from the radar, the lowest elevation scan pierces the sky at an altitude of `r altitude_cutoff`m.
