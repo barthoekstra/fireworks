@@ -24,7 +24,7 @@
 <meta name="author" content="Bart Hoekstra" />
 
 
-<meta name="date" content="2020-07-07" />
+<meta name="date" content="2020-07-24" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -66,31 +66,36 @@
 <script src="assets/leaflet-binding-2.0.3/leaflet.js"></script>
 <script src="assets/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script>
 <script src="assets/leaflet-providers-plugin-2.0.3/leaflet-providers-plugin.js"></script>
-<script src="assets/VIR-1/data_stars_VIR52d8a0.txt"></script>
+<script src="assets/layer.1-1/data_stars_layer136c0a7.txt"></script>
 <script src="assets/joda-0.0.1/joda.js"></script>
 <script src="assets/joda-0.0.1/addImageQuery-bindings.js"></script>
 <script src="assets/clipboard-0.0.1/setClipboardText.js"></script>
 <link href="assets/HomeButton-0.0.1/home-button.css" rel="stylesheet" />
 <script src="assets/HomeButton-0.0.1/home-button.js"></script>
 <script src="assets/HomeButton-0.0.1/easy-button-src.min.js"></script>
-<script src="assets/VID-1/data_stars_VID72b903.txt"></script>
-<script src="assets/R-1/data_stars_Rd4a978.txt"></script>
-<script src="assets/overlap-1/data_stars_overlapf52ad9.txt"></script>
-<script src="assets/eta_sum-1/data_stars_eta_sumb278fa.txt"></script>
-<script src="assets/eta_sum_expected-1/data_stars_eta_sum_expected2a0b13.txt"></script>
-<script src="assets/dist_radar-1/data_stars_dist_radar7dea05.txt"></script>
-<script src="assets/x-1/data_stars_xfb0c68.txt"></script>
-<script src="assets/y-1/data_stars_y70ab56.txt"></script>
-<script src="assets/urban-1/data_stars_urban1a7e42.txt"></script>
-<script src="assets/agricultural-1/data_stars_agriculturalb6a87c.txt"></script>
-<script src="assets/semiopen-1/data_stars_semiopen6132fb.txt"></script>
-<script src="assets/forests-1/data_stars_forests9c32f6.txt"></script>
-<script src="assets/wetlands-1/data_stars_wetlands93214c.txt"></script>
-<script src="assets/waterbodies-1/data_stars_waterbodies98a5b3.txt"></script>
-<script src="assets/dist_urban-1/data_stars_dist_urban6b571c.txt"></script>
-<script src="assets/human_pop-1/data_stars_human_pop06b5ae.txt"></script>
+<script src="assets/layer.2-1/data_stars_layer2386e54.txt"></script>
+<script src="assets/layer.3-1/data_stars_layer33bec70.txt"></script>
+<script src="assets/layer.4-1/data_stars_layer446390d.txt"></script>
+<script src="assets/layer.5-1/data_stars_layer50cabd5.txt"></script>
+<script src="assets/layer.6-1/data_stars_layer6c4e68b.txt"></script>
+<script src="assets/layer.7-1/data_stars_layer70b2de4.txt"></script>
+<script src="assets/layer.8-1/data_stars_layer84a95bd.txt"></script>
+<script src="assets/layer.9-1/data_stars_layer981daf9.txt"></script>
+<script src="assets/layer.10-1/data_stars_layer10b47cda.txt"></script>
+<script src="assets/urban-1/data_stars_urbanf897d6.txt"></script>
+<script src="assets/agricultural-1/data_stars_agriculturald54c39.txt"></script>
+<script src="assets/semiopen-1/data_stars_semiopenfda2b5.txt"></script>
+<script src="assets/forests-1/data_stars_forestsa5c3d2.txt"></script>
+<script src="assets/wetlands-1/data_stars_wetlands53bdf1.txt"></script>
+<script src="assets/waterbodies-1/data_stars_waterbodiese2db56.txt"></script>
+<script src="assets/dist_urban-1/data_stars_dist_urban976de5.txt"></script>
+<script src="assets/human_pop-1/data_stars_human_pop10986f.txt"></script>
 <script src="assets/kePrint-0.0.1/kePrint.js"></script>
-<script src="assets/resid-1/data_stars_resida81fec.txt"></script>
+<script src="assets/resid-1/data_stars_stars7bac80.txt"></script>
+<link href="assets/jquery-ui-1.10.3/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" />
+<script src="assets/jquery-ui-1.10.3/jquery-ui-1.10.3.custom.min.js"></script>
+<link href="assets/opacity-1.0.0/Control.Opacity.css" rel="stylesheet" />
+<script src="assets/opacity-1.0.0/Control.Opacity.js"></script>
 
 
 <style type="text/css">
@@ -187,10 +192,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="2.4" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#remove-classified-precipitation-from-polar-volumes"><i class="fa fa-check"></i><b>2.4</b> Remove classified precipitation from polar volumes</a></li>
 <li class="chapter" data-level="2.5" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#filter-ground-clutter"><i class="fa fa-check"></i><b>2.5</b> Filter ground clutter</a></li>
 <li class="chapter" data-level="2.6" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#range-bias-correction"><i class="fa fa-check"></i><b>2.6</b> Range-bias correction</a></li>
-<li class="chapter" data-level="2.7" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#distance-to-radar"><i class="fa fa-check"></i><b>2.7</b> Distance to radar</a></li>
-<li class="chapter" data-level="2.8" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#spatial-coordinates"><i class="fa fa-check"></i><b>2.8</b> Spatial coordinates</a></li>
-<li class="chapter" data-level="2.9" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#visualising-range-bias-correction"><i class="fa fa-check"></i><b>2.9</b> Visualising range-bias correction</a></li>
-<li class="chapter" data-level="2.10" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#preprocess-additional-scans"><i class="fa fa-check"></i><b>2.10</b> Preprocess additional scans</a></li>
+<li class="chapter" data-level="2.7" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#keep-biologymeteorology-classification"><i class="fa fa-check"></i><b>2.7</b> Keep biology/meteorology classification</a></li>
+<li class="chapter" data-level="2.8" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#distance-to-radar"><i class="fa fa-check"></i><b>2.8</b> Distance to radar</a></li>
+<li class="chapter" data-level="2.9" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#spatial-coordinates"><i class="fa fa-check"></i><b>2.9</b> Spatial coordinates</a></li>
+<li class="chapter" data-level="2.10" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#visualising-range-bias-correction"><i class="fa fa-check"></i><b>2.10</b> Visualising range-bias correction</a></li>
+<li class="chapter" data-level="2.11" data-path="02.Radar-data-preprocessing.html"><a href="02.Radar-data-preprocessing.html#preprocess-additional-scans"><i class="fa fa-check"></i><b>2.11</b> Preprocess additional scans</a></li>
 </ul></li>
 <li class="part"><span><b>II Land use</b></span></li>
 <li class="chapter" data-level="3" data-path="03.Annotate-land-use.html"><a href="03.Annotate-land-use.html"><i class="fa fa-check"></i><b>3</b> Annotating land use</a><ul>
@@ -228,13 +234,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="8" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html"><i class="fa fa-check"></i><b>8</b> Modelling fireworks disturbance</a><ul>
 <li class="chapter" data-level="8.1" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#setting-up-the-environment-2"><i class="fa fa-check"></i><b>8.1</b> Setting-up the environment</a></li>
 <li class="chapter" data-level="8.2" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#preparing-a-dataset-for-modelling"><i class="fa fa-check"></i><b>8.2</b> Preparing a dataset for modelling</a></li>
-<li class="chapter" data-level="8.3" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#check-for-correlations-among-predictors"><i class="fa fa-check"></i><b>8.3</b> Check for correlations among predictors</a></li>
-<li class="chapter" data-level="8.4" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#determine-the-most-suitable-proxy-for-disturbance"><i class="fa fa-check"></i><b>8.4</b> Determine the most suitable proxy for disturbance</a></li>
-<li class="chapter" data-level="8.5" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#determine-best-hyperparameter-settings-for-lr"><i class="fa fa-check"></i><b>8.5</b> Determine best hyperparameter settings for <code>lr</code></a></li>
-<li class="chapter" data-level="8.6" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#retraining-the-disturbance-models-using-optimised-learning-rate-and-maximum-number-of-trees"><i class="fa fa-check"></i><b>8.6</b> Retraining the disturbance models using optimised learning rate and maximum number of trees</a></li>
-<li class="chapter" data-level="8.7" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#relative-influence-of-variables"><i class="fa fa-check"></i><b>8.7</b> Relative influence of variables</a></li>
-<li class="chapter" data-level="8.8" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#models-for-seperate-land-uses"><i class="fa fa-check"></i><b>8.8</b> Models for seperate land uses</a></li>
-<li class="chapter" data-level="8.9" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#partial-dependence"><i class="fa fa-check"></i><b>8.9</b> Partial dependence</a></li>
+<li class="chapter" data-level="8.3" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#determine-model-resolution-based-on-performance-in-simple-total_biomass-model"><i class="fa fa-check"></i><b>8.3</b> Determine model resolution based on performance in simple <code>total_biomass</code> model</a></li>
+<li class="chapter" data-level="8.4" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#check-for-correlations-among-predictors"><i class="fa fa-check"></i><b>8.4</b> Check for correlations among predictors</a></li>
+<li class="chapter" data-level="8.5" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#correlated-land-use-proportions"><i class="fa fa-check"></i><b>8.5</b> Correlated land use proportions</a></li>
+<li class="chapter" data-level="8.6" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#determine-the-most-suitable-proxy-for-disturbance"><i class="fa fa-check"></i><b>8.6</b> Determine the most suitable proxy for disturbance</a></li>
+<li class="chapter" data-level="8.7" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#determine-best-hyperparameter-settings-for-lr"><i class="fa fa-check"></i><b>8.7</b> Determine best hyperparameter settings for <code>lr</code></a></li>
+<li class="chapter" data-level="8.8" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#retraining-the-disturbance-models-using-optimised-learning-rate-and-maximum-number-of-trees"><i class="fa fa-check"></i><b>8.8</b> Retraining the disturbance models using optimised learning rate and maximum number of trees</a></li>
+<li class="chapter" data-level="8.9" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#relative-influence-of-variables"><i class="fa fa-check"></i><b>8.9</b> Relative influence of variables</a></li>
+<li class="chapter" data-level="8.10" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#models-for-seperate-land-uses"><i class="fa fa-check"></i><b>8.10</b> Models for seperate land uses</a></li>
+<li class="chapter" data-level="8.11" data-path="08.Model-fireworks-disturbance.html"><a href="08.Model-fireworks-disturbance.html#partial-dependence"><i class="fa fa-check"></i><b>8.11</b> Partial dependence</a></li>
 </ul></li>
 <li class="chapter" data-level="9" data-path="09.Quantifying-model-uncertainty.html"><a href="09.Quantifying-model-uncertainty.html"><i class="fa fa-check"></i><b>9</b> Quantifying model uncertainty</a><ul>
 <li class="chapter" data-level="9.1" data-path="09.Quantifying-model-uncertainty.html"><a href="09.Quantifying-model-uncertainty.html#setting-up-the-environment-3"><i class="fa fa-check"></i><b>9.1</b> Setting-up the environment</a></li>
@@ -243,6 +251,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="9.4" data-path="09.Quantifying-model-uncertainty.html"><a href="09.Quantifying-model-uncertainty.html#bootstrapped-retraining-of-gbm-models"><i class="fa fa-check"></i><b>9.4</b> Bootstrapped retraining of <code>gbm</code> models</a></li>
 <li class="chapter" data-level="9.5" data-path="09.Quantifying-model-uncertainty.html"><a href="09.Quantifying-model-uncertainty.html#plot-bootstrapped-uncertainties"><i class="fa fa-check"></i><b>9.5</b> Plot bootstrapped uncertainties</a></li>
 <li class="chapter" data-level="9.6" data-path="09.Quantifying-model-uncertainty.html"><a href="09.Quantifying-model-uncertainty.html#show-model-residuals"><i class="fa fa-check"></i><b>9.6</b> Show model residuals</a></li>
+<li class="chapter" data-level="9.7" data-path="09.Quantifying-model-uncertainty.html"><a href="09.Quantifying-model-uncertainty.html#leaflet-alternative"><i class="fa fa-check"></i><b>9.7</b> Leaflet alternative</a></li>
 </ul></li>
 <li class="part"><span><b>V Appendix</b></span></li>
 <li class="chapter" data-level="10" data-path="A1.Generating-VPs-for-Den-Helder-radar.html"><a href="A1.Generating-VPs-for-Den-Helder-radar.html"><i class="fa fa-check"></i><b>10</b> Generating vertical profiles for Den Helder radar</a></li>
