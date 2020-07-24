@@ -34,7 +34,7 @@ library(patchwork)
 library(pdp)
 library(parallel)
 library(ggridges)
-cpucores <- 2
+cpucores <- 6
 ```
 
 In the previous chapter, we have created some datasets encompassing all the data contained within the individual PPIs at different resolutions. We will determine the optimal resolution and then continue using this dataset for further modelling.
@@ -62,11 +62,12 @@ dt_end <- as.POSIXct("2017-12-31 23:10:00", tz = "UTC")
 
 clean_data <- function(data, scan_start, scan_end, max_distance) {
   mdl_variables <- c("VIR", "dist_radar", "datetime", "total_biomass", "urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies", 
-                     "dist_urban", "human_pop", "disturb_pot", "pixel")
+                     "dist_urban", "human_pop", "disturb_pot", "pixel", "coverage", "class")
   log10_variables <- c("dist_urban", "human_pop", "total_biomass", "dist_urban", "disturb_pot")
   
   data %>%
     filter(coverage > 0,
+           class != 1,
            datetime >= scan_start & datetime < scan_end,
            total_biomass > 0,
            dist_radar < max_distance,
@@ -92,9 +93,9 @@ As we want to correct for the influence of `total_biomass` on the measured respo
 
 ```{r}
 x_vars <- match(c("dist_radar", "total_biomass"), colnames(data_cleaned[[1]]))
-resolution_models <- mapply(function(dataset, lr) gbm.step(data = dataset, gbm.y = 1, gbm.x = x_vars, bag.fraction = 0.5, family = "gaussian", 
+resolution_models <- mcmapply(function(dataset, lr) gbm.step(data = dataset, gbm.y = 1, gbm.x = x_vars, bag.fraction = 0.5, family = "gaussian", 
                                                              tree.complexity = 2, learning.rate = lr, silent = TRUE, plot.main = FALSE),
-                            dataset = data_cleaned, lr = c(0.5, 0.1, 0.01), SIMPLIFY = FALSE)
+                              dataset = data_cleaned, lr = c(0.5, 0.1, 0.01), SIMPLIFY = FALSE, mc.preschedule = FALSE, mc.cores = cpucores)
 ```
 
 With these models trained, we can now compare their performance.
@@ -117,8 +118,8 @@ We have to see if variables are strongly correlated and thus unfit for being inc
 
 ```{r check_for_correlations, warning=FALSE, fig.width=10}
 mdl_variables <- c("VIR", "dist_radar", "datetime", "total_biomass", "urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies", 
-                   "dist_urban", "human_pop", "disturb_pot", "pixel")
-predictors <- mdl_variables[!mdl_variables %in% c("VIR", "datetime", "pixel", "x", "y")]
+                   "dist_urban", "human_pop", "disturb_pot", "pixel", "coverage", "class")
+predictors <- mdl_variables[!mdl_variables %in% c("VIR", "datetime", "pixel", "x", "y", "coverage", "class")]
 corr_radar <- ggcorrmat(data_cleaned, output = "plot", type = "spearman", cor.vars = all_of(predictors), colors = c("#2166AC", "#F7F7F7", "#B2182B"))
 corr_radar
 ```
@@ -129,7 +130,7 @@ So obviously there is a strong correlation between the different proxies for dis
 
 Let's see what the distributions of values is for the different land use proportions.
 
-```{r}
+```{r show_correlated_land_use, message=FALSE}
 data_cleaned %>%
   dplyr::select(urban, agricultural, semiopen, forests, wetlands, waterbodies) %>%
   pivot_longer(cols = everything(), names_to = "landuse", values_to = "value") %>%
@@ -159,10 +160,9 @@ names(x_vars) <- disturbance_proxies
 ```
 
 ```{r train_disturbance_models, eval=full_repro}
-# disturbance_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.5, family = "gaussian", tree.complexity = 2, learning.rate = lr, silent = silence, max.trees = max_trees, step.size = 50), mc.cores = cpucores)
-disturbance_models <- lapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.5, family = "gaussian", 
-                                                          tree.complexity = 2, learning.rate = lr, silent = silence, max.trees = max_trees, 
-                                                          step.size = 50, plot.main = FALSE))
+disturbance_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.5, family = "gaussian", 
+                                                            tree.complexity = 2, learning.rate = lr, silent = silence, max.trees = max_trees, 
+                                                            step.size = 50, plot.main = FALSE), mc.cores = cpucores, mc.preschedule = FALSE)
 names(disturbance_models) <- disturbance_proxies
 saveRDS(disturbance_models, file = "data/models/brt_models_disturbance.RDS")
 ```
@@ -177,7 +177,7 @@ disturb_perf
 
 We have a clear winner here: `dist_urban` performs the best, so we'll continue with that proxy for disturbance.
 
-``` {r}
+``` {r set_best_disturbance_proxy}
 best_disturbance_proxy <- names(which.max(disturb_perf["cvPer.Expl", ]))
 ```
 
@@ -189,13 +189,10 @@ To avoid overfitting to noise, we will limit the maximum nr of trees used in the
 learning_rates <- c(0.1, 0.15, 0.2, 0.3, 0.4, 0.5)  # Lower and higher learning rates certainly do not converge quick enough or increase error
 ```
 ```{r train_model_hyperparameters, eval=full_repro}
-# Parallelised hyperparameter search somehow seems to hang occasionally, so unfortunately we switch to serial processing
-# hyperparms <- mclapply(learning_rates, function(x) { gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x_vars[[1]], bag.fraction = 0.5, family = "gaussian",
-#                                                             tree.complexity = 2, learning.rate = x, max.trees = max_trees, step.size = 50) },
-#                        mc.cores = cpucores, mc.preschedule = TRUE)
-hyperparms <- lapply(learning_rates, function(x) { gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x_vars[[best_disturbance_proxy]], bag.fraction = 0.5,
-                                                            family = "gaussian", plot.main = FALSE, tree.complexity = 2, learning.rate = x, 
-                                                            max.trees = max_trees, step.size = 50, silent = TRUE)})
+hyperparms <- mclapply(learning_rates, function(x) { gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x_vars[[best_disturbance_proxy]], bag.fraction = 0.5,
+                                                              family = "gaussian", plot.main = FALSE, tree.complexity = 2, learning.rate = x, 
+                                                              max.trees = max_trees, step.size = 50, silent = TRUE)}, 
+                       mc.preschedule = FALSE, mc.cores = 3)
 saveRDS(hyperparms, file = "data/models/brt_models_hyperparms.RDS")
 ```
 
@@ -220,7 +217,7 @@ hp %>%
   identity() -> hp
 
 ggplot(hp) +
-  geom_line(aes(x = trees, y = holdout_deviance, color = lr))
+  geom_line(aes(x = trees, y = holdout_deviance, color = lr), size = 1)
 ```
 
 It seems a learning rate of 0.3 is a good balance between speedy conversion and model performance. We can now retrain our most performant disturbance model with these new parameters.
@@ -234,14 +231,9 @@ lr <- 0.3
 max_trees <- nrow(data_cleaned) * 0.25
 silence <- TRUE
 
-# base_model <- c("dist_radar", "total_biomass", "urban", "semiopen", "forests", "wetlands", "waterbodies")
-# disturbance_proxies <- c("dist_urban", "human_pop", "disturb_pot")
-# x_vars <- lapply(disturbance_proxies, function(x) match(c(base_model,x), colnames(data_cleaned)))
-
-# disturbance_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.5, family = "gaussian", tree.complexity = 2, learning.rate = lr, silent = silence, max.trees = max_trees, step.size = 50), mc.cores = cpucores)
-disturbance_models <- lapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.5, family = "gaussian", 
+disturbance_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.5, family = "gaussian", 
                                                           tree.complexity = 2, learning.rate = lr, silent = silence, max.trees = max_trees, step.size = 50,
-                                                          plot.main = FALSE, verbose = FALSE))
+                                                          plot.main = FALSE, verbose = FALSE), mc.preschedule = FALSE, mc.cores = cpucores)
 names(disturbance_models) <- disturbance_proxies
 saveRDS(disturbance_models, file = "data/models/brt_models_disturbance.RDS")
 ```
@@ -282,13 +274,10 @@ silence <- TRUE
 base_model <- c("dist_radar", "total_biomass", best_disturbance_proxy)
 landscapes <- c("urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies")
 x_vars <- lapply(landscapes, function(x) match(c(base_model,x), colnames(data_cleaned)))
-# all_x_vars <- unique(unlist(x_vars))
-# x_vars[[length(x_vars) + 1]] <- all_x_vars[!all_x_vars %in% match("agricultural", colnames(data_cleaned))]
 
-# Parallelised model training - again - seems to hang occasionally, so unfortunately we switch to serial processing
-# landscape_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.5, family = "gaussian", tree.complexity = 2, learning.rate = lr, silent = silence), mc.cores = cpucores-1, mc.preschedule = TRUE)
-landscape_models <- lapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.5, family = "gaussian", tree.complexity = 2,
-                                                        learning.rate = lr, silent = silence, max.trees = max_trees, plot.main = FALSE))
+landscape_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.5, family = "gaussian", 
+                                                          tree.complexity = 2, learning.rate = lr, silent = silence, max.trees = max_trees, plot.main = FALSE),
+                             mc.preschedule = FALSE, mc.cores = 3)
 names(landscape_models) <- c(landscapes)
 saveRDS(landscape_models, file = "data/models/brt_models_landscapes.RDS")
 ```
