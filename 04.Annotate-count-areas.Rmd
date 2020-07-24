@@ -177,8 +177,8 @@ ptt_convex_hulls_hrw %>%
 ptt_convex_hulls_dhl %>%
   st_buffer(dist = as.double(ptt_convex_hulls_dhl$avg_interpoint_distance)) -> ptt_convex_hulls_dhl
 
-st_write(ptt_convex_hulls_hrw, "data/processed/sovon/ptt_convex_hulls_hrw.shp")
-st_write(ptt_convex_hulls_dhl, "data/processed/sovon/ptt_convex_hulls_dhl.shp")
+st_write(ptt_convex_hulls_hrw, "data/processed/sovon/ptt_convex_hulls_hrw.shp", delete_dsn = TRUE)
+st_write(ptt_convex_hulls_dhl, "data/processed/sovon/ptt_convex_hulls_dhl.shp", delete_dsn = TRUE)
 
 plot(ptt_convex_hulls_hrw[1], main = "Buffered PTT Routes Herwijnen")
 plot(ptt_convex_hulls_dhl[1], main = "Buffered PTT Routes Den Helder")

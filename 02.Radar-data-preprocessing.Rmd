@@ -345,7 +345,7 @@ ggarrange(p_vir_hrw, p_vir_dhl, ncol = 2, nrow = 1, common.legend = TRUE, legend
 
 By default the range-bias correction returns values from 0 upwards, so there is no way for us to distinguish anymore between 'pixels' that did not reflect and those that were filtered out as meteorology. That's why we will additionally add the `class` parameter to the range-bias corrected PPIs. There's a risk of misalignment of PPI pixels, but we can still use RBC if we trick it by replacing `DBZH` with the value of `BIOLD` (despeckled biology), which contains 0s for meteorology and 1s for biology and multiply this by a 1000 to get really high `VIR` values for biology and very low values for meteorology.
 
-```{r warning=FALSE}
+```{r classification_rangebias_correction, warning=FALSE}
 pvol_hrw_classified <- calculate_param(pvol_hrw, DBZH = BIOLD * 1000)
 pvol_dhl_classified <- calculate_param(pvol_dhl, DBZH = BIOLD * 1000)
 
@@ -356,7 +356,7 @@ corrected_ppi_hrw_classified <- integrate_to_ppi(pvol_hrw_classified, vp_hrw, re
 corrected_ppi_dhl_classified <- integrate_to_ppi(pvol_dhl_classified, vp_dhl, res = 500, xlim = c(-150000, 150000), ylim = c(-150000, 150000))
 ```
 
-```{r}
+```{r plot_classification}
 p_vir_hrw_classified <- plot(corrected_ppi_hrw_classified, param = "VIR", zlim = c(0, 50000)) + labs(title = "Herwijnen: VIR")
 p_vir_dhl_classified <- plot(corrected_ppi_dhl_classified, param = "VIR", zlim = c(0, 50000)) + labs(title = "Den Helder: VIR")
 ggarrange(p_vir_hrw_classified, p_vir_dhl_classified, ncol = 2, nrow = 1, common.legend = TRUE, legend = "right")
@@ -368,14 +368,14 @@ That looks good, so now we add it to the corrected PPIs. We reclassify the `VIR`
 1. Meteorology gets `class = 1`,
 1. Background gets `class = 0`.
 
-```{r}
+```{r reclassify_vir_to_biol_meteo}
 corrected_ppi_hrw_classified$data@data %>%
   mutate(class = case_when(
     VIR > 40000 ~ 2,
     VIR <= 40000 & VIR > 0 ~ 1,
     VIR == 0 ~ 0
   )) %>%
-  select(class) -> class_hrw
+  dplyr::select(class) -> class_hrw
 
 corrected_ppi_dhl_classified$data@data %>%
   mutate(class = case_when(
@@ -383,7 +383,7 @@ corrected_ppi_dhl_classified$data@data %>%
     VIR <= 40000 & VIR > 0 ~ 1,
     VIR == 0 ~ 0
   )) %>%
-  select(class) -> class_dhl
+  dplyr::select(class) -> class_dhl
 
 
 corrected_ppi_hrw$data$class <- unlist(class_hrw)
