@@ -70,7 +70,7 @@ Using the bootstrapping procedure provied in `ggBRT` we can derive uncertainty e
 
 ```{r bootstrap_gbm_models, eval=full_repro}
 source("R/gbm.bootstrap.functions.modified.R")
-bootstraps <- mcmapply(function(m, g) gbm.bootstrap.functions.modified(m, list.predictors = g, n.reps = 200, n.divisions = 1000),
+bootstraps <- parallel::mcmapply(function(m, g) gbm.bootstrap.functions.modified(m, list.predictors = g, n.reps = 200, n.divisions = 1000),
                        m = models, g = grids, SIMPLIFY = FALSE, mc.cores = cpucores, mc.preschedule = TRUE)
 saveRDS(bootstraps, file = "data/models/brt_models_bootstrap.RDS")
 ```
@@ -80,37 +80,51 @@ As we bootstrapped the relative importance of the model predictors, we can visua
 ```{r plot_bootstrapped_relative_influence, results='hold'}
 bootstraps <- readRDS("data/models/brt_models_bootstrap.RDS")
 
-relinf_uncertainty <- function(bootstrap) {
-  as.data.frame(bootstrap$rel.infs) %>% 
-    rownames_to_column(var = "predictor") %>% 
+relinf_uncertainty <- function(bootstrap, modelname) {
+  as.data.frame(bootstrap$rel.infs) %>%
+    rownames_to_column(var = "predictor") %>%
     pivot_longer(-predictor, names_to = "bootstrap_sample") -> bootstrap_long
-  
+
   bootstrap_long %>%
     pivot_wider(names_from = predictor, values_from = value) %>%
     median_qi(.width = c(0.5), .exclude = "bootstrap_sample") %>%
     dplyr::select(-contains(".")) %>%
     pivot_longer(cols = everything(), names_to = "predictor", values_to = "bootstrap_median") -> predictor_summaries
-  
-  predictor_summaries[order(-predictor_summaries$bootstrap_median), ] %>% 
-    rowid_to_column(var = "rank") %>% 
+
+  predictor_summaries[order(-predictor_summaries$bootstrap_median), ] %>%
+    rowid_to_column(var = "rank") %>%
     dplyr::select(predictor, rank) %>%
-    mutate(rank = fct_rev(as.factor(rank))) -> predictor_summaries
-  
+    mutate(rank = fct_rev(as.factor(rank))) %>%
+    mutate(predictor_long = case_when(
+      predictor == "dist_radar" ~ "Distance from radar",
+      predictor == "total_biomass" ~ "Bird biomass",
+      predictor == "dist_urban" ~ "Distance to urban area",
+      predictor == "agricultural" ~ "Prop. agricultural",
+      predictor == "urban" ~ "Prop. urban",
+      predictor == "semiopen" ~ "Prop. semiopen",
+      predictor == "forests" ~ "Prop. forests",
+      predictor == "wetlands" ~ "Prop. wetlands",
+      predictor == "waterbodies" ~ "Prop. waterbodies"
+    )) %>%
+    identity() -> predictor_summaries
+
   bootstrap_long %>%
-    left_join(predictor_summaries, by = "predictor") -> relinf_uncertainty 
-  
+    left_join(predictor_summaries, by = "predictor") -> relinf_uncertainty
+
   relinf_uncertainty %>%
-    ggplot(aes(y = rank, x = value)) + 
+    ggplot(aes(y = rank, x = value)) +
     stat_eye(point_interval = median_qi, .width = c(0.95, 0.5)) +  # Thinnest black bar represents 95%, other 50% and point = median
-    scale_y_discrete(labels = rev(predictor_summaries$predictor)) + 
+    scale_y_discrete(labels = rev(predictor_summaries$predictor_long)) +
     labs(x = "Relative influence (%)",
-         y = "Predictor", 
-         title = "Relative influence of predictors on outcome variable", 
+         y = "Predictor",
+         title = "Relative influence of predictors on outcome variable: log(VIR)",
          subtitle = paste(unique(bootstrap$gbm.call$dataframe$datetime))) -> p
+
+  ggsave(filename = paste0("data/plots/relative-influence/", modelname, ".png"), width = 7, height = 5)
 
   list(relinf_uncertainty, p)
 }
-relinf_uncertainties <- lapply(bootstraps, relinf_uncertainty)
+relinf_uncertainties <- mapply(relinf_uncertainty, bootstraps, names(bootstraps), SIMPLIFY = FALSE)
 
 relinf_uncertainties[[1]][[2]]
 relinf_uncertainties[[2]][[2]]
@@ -122,7 +136,7 @@ The large 'spread' of `agricultural` suggests something strange is going on ther
 
 ```{r plot_bootstrapped_uncertainties}
 bootstrap_uncertainty <- function(predictor, boot, grid, model, confidence.intervals = c(0.95, 0.8), central.measure = mean, plot = FALSE,
-                                  loess = TRUE, loess.span = 0.25, rug = TRUE, rug.limits = c(0, 1), qlim = c(0.05, 0.95), ylab = "Response") {
+                                  loess = TRUE, loess.span = 0.25, rug = TRUE, rug.limits = c(0, 1), qlim = c(0.05, 0.95), ylab = "log(VIR)") {
   k <- match(predictor, boot$gbm.call$predictor.names)
 
   # Gather x values from evaluation grid
@@ -165,25 +179,34 @@ bootstrap_uncertainty <- function(predictor, boot, grid, model, confidence.inter
     p <- ggplot(uncertainty)
 
     i <- 1
-    for (ci in sort(confidence.intervals, decreasing = TRUE)) {
-      colors <- rev(c("#969696", "#cccccc", "#f7f7f7"))
+    sorted_confints <- sort(confidence.intervals, decreasing = TRUE)
+    for (ci in sorted_confints) {
+      colors <- factor(sorted_confints)
       ymax <- as.name(paste("q", ci * 100, sep = ""))
       ymax <- enquo(ymax)
       ymin <- as.name(paste("q", (1 - ci) * 100, sep = ""))
       ymin <- enquo(ymin)
 
       p <- p +
-        geom_ribbon(aes(x = x, ymin = !!ymin, ymax = !!ymax), fill = colors[i], alpha = 1)
+        geom_ribbon(aes(x = x, ymin = !!ymin, ymax = !!ymax, fill = !!colors[i]),  alpha = 1)
 
       i <- i + 1
     }
+    
+    p <- p +
+      scale_fill_manual(name = "CI", values = c("#cccccc", "#f7f7f7", "#969696"))
 
     p <- p +
-      geom_line(aes(x = x, y = central_measure), color = "#252525")
+      geom_line(aes(x = x, y = central_measure, color = "central_measure"))
+      # geom_line(aes(x = x, y = central_measure), color = "#252525")
 
     p <- p +
-      geom_line(data = uncertainty, aes(x = x, y = yhat), colour = "#2b8cbe", size = 2) +
-      geom_hline(yintercept = mean(boot$function.preds[, k, ]))
+      # geom_line(data = uncertainty, aes(x = x, y = yhat), colour = "#2b8cbe", size = 2) +
+      geom_line(data = uncertainty, aes(x = x, y = yhat, color = "yhat"), size = 2) +
+      geom_hline(yintercept = mean(boot$function.preds[, k, ]), linetype = "dashed", color = "darkgrey")
+    
+    p <- p +
+      scale_color_manual("", values = c("central_measure" = "#252525", "yhat" = "#2b8cbe"), labels = c("Median", "Final model"))
 
     rug <- as.data.frame(quantile(model$gbm.call$dataframe[, predictor], seq(from = rug.limits[1], to = rug.limits[2], by = 0.1)))
     colnames(rug) <- "x"
@@ -198,10 +221,23 @@ bootstrap_uncertainty <- function(predictor, boot, grid, model, confidence.inter
 
     # p <- p +
     #   stat_density(data = vals, aes(x = x, y = ..scaled..), geom = "line")
-
+    
+    if (predictor %in% c("agricultural", "urban", "semiopen", "forests", "wetlands", "waterbodies")) {
+      xlabel <- paste("Prop.", predictor)
+    } else {
+      xlabel_lookup <- c("dist_urban" = "Distance to urban area (m)", 
+                         "human_pop" = "Human inhabitants (#)",
+                         "disturb_pot" = "Disturbance potential (-)",
+                         "total_biomass" = "Bird biomass (kg)", 
+                         "dist_radar" = "Distance from radar (m)")
+      xlabel <- xlabel_lookup[predictor]
+    }
     p <- p +
-      xlab(predictor) +
+      xlab(xlabel) +
       ylab(ylab)
+    
+    p <- p +
+      theme(legend.key = element_rect(colour = "black"))
 
     p
   } else {
@@ -232,7 +268,7 @@ plot_model_pdp <- function(model, bootstrap, grid, relinf_uncertainty, loess = T
 a <- mapply(function(model, bootstrap, grid, relinf_uncertainty, name) {
   plots <- plot_model_pdp(model, bootstrap, grid, relinf_uncertainty, loess = TRUE, loess.span = 0.4)
   # print(name)
-  p <- wrap_plots(plots) + plot_annotation(title = name)
+  p <- wrap_plots(plots, guides = "collect") + guide_area() + plot_annotation(title = "Partial dependence plots", subtitle = "The effect of individual predictors while integrating all others,\nwith bootstrapped confidence intervals and median")
   ggsave(filename = paste0("data/plots/partial-effects-new/", name, ".png"), width = 10, height = 10)
   print(p)
 }, model = models, bootstrap = bootstraps, grid = grids, relinf_uncertainty = relinf_uncertainties, name = names(models))
@@ -256,19 +292,64 @@ ppi$data@data$total_biomass_log <- log10(ppi$data@data$total_biomass / 1000)
 
 ```{r warning=FALSE}
 pal_resid <- colorspace::diverging_hcl(50, "Blue-Red 3", power = 2)
-z_lims <- c(-3, 3)
-pal <- colorNumeric(pal_resid, domain = z_lims, na.color = NA)
+# z_lims_resid <- c(-2, 2)
+z_lims_resid <- c(-4, 4)
+palette_resid <- colorNumeric(pal_resid, na.color = NA, domain = z_lims_resid)
 raster_resid <- as(ppi$data["resid"], "RasterLayer")
 
+raster_vir <- as(ppi$data["VIR_log"], "RasterLayer")
+z_lims_vir <- c(0, 6)
+pal_vir <- "viridis"
+palette_vir <- colorNumeric(pal_vir, na.color = NA, domain = z_lims_vir)
+
 leaflet() %>%
-  addTiles() %>%
-  addRasterImage(raster_resid, colors = pal, layerId = "resid") %>%
+  addTiles(group = "OSM (default)") %>%
+  # addProviderTiles(provider = providers$CartoDB.DarkMatter, group = "CartoDB DarkMatter") %>%
+  addRasterImage(raster_resid, colors = palette_resid, layerId = "resid", group = "resid") %>%
   addImageQuery(raster_resid, layerId = "resid") %>%
-  addLegend(pal = pal, values = z_lims) %>%
+  addLegend(pal = palette_resid, values = z_lims_resid) %>%
+  # addRasterImage(raster_vir, colors = palette_vir, layerId = "VIR", group = "VIR") %>%
+  # addLegend(pal = palette_vir, values = z_lims_vir) %>%
   addOpacitySlider(layerId = "resid") %>%
-  addLayersControl(overlayGroups = "resid", position = "topleft") %>%
+  # addLowerOpacity(layerId = "VIR") %>%
+  # addLayersControl(
+  #   baseGroups = c("OSM (default)", "CartoDB DarkMatter"),
+  #   overlayGroups = c("resid", "VIR"), 
+  #   position = "topleft") %>%
   identity()
 ```
 
+```{r}
+pal_resid <- colorspace::diverging_hcl(50, "Blue-Red 3", power = 2)
+z_lims_resid <- c(-2, 2)
+# z_lims_resid <- c(-4, 4)
+palette_resid <- colorBin(pal_resid, na.color = NA, domain = z_lims_resid, bins = 50)
+raster_resid <- as(ppi$data["resid"], "RasterLayer")
+
+raster_vir <- as(ppi$data["VIR_log"], "RasterLayer")
+z_lims_vir <- c(0, 6)
+pal_vir <- "viridis"
+palette_vir <- colorNumeric(pal_vir, na.color = NA, domain = z_lims_vir)
+
+leaflet() %>%
+  addTiles(group = "OSM (default)") %>%
+  # addProviderTiles(provider = providers$CartoDB.DarkMatter, group = "CartoDB DarkMatter") %>%
+  addRasterImage(raster_resid, colors = palette_resid, layerId = "resid", group = "resid") %>%
+  addImageQuery(raster_resid, layerId = "resid") %>%
+  addLegend(pal = palette_resid, values = z_lims_resid) %>%
+  # addRasterImage(raster_vir, colors = palette_vir, layerId = "VIR", group = "VIR") %>%
+  # addLegend(pal = palette_vir, values = z_lims_vir) %>%
+  addOpacitySlider(layerId = "resid") %>%
+  # addLowerOpacity(layerId = "VIR") %>%
+  # addLayersControl(
+  #   baseGroups = c("OSM (default)", "CartoDB DarkMatter"),
+  #   overlayGroups = c("resid", "VIR"), 
+  #   position = "topleft") %>%
+  identity()
+```
+
+
 Random forests and stochastic gradient boosting for predicting tree canopy cover: comparing tuning processes and model performance
 Freeman, Moisen, Coulston & Wilson 2015
+
+Environmental Predictability as a Cause and Consequence of Animal Movement
