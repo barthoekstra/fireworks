@@ -154,7 +154,8 @@ altitude_cutoff <- 600
 ranges <- seq(0, 180000, 100)
 beamheights <- beam_height(ranges, 0.3)
 nearest_index <- which(abs(beamheights - altitude_cutoff) == min(abs(beamheights - altitude_cutoff)))
-distance_cutoff <- plyr::round_any(ranges[nearest_index], 1000)
+slantrange <- ranges[nearest_index]
+distance_cutoff <- plyr::round_any(beam_distance(slantrange, 0.3), 1000)
 distance_cutoff
 ```
 
