@@ -62,7 +62,7 @@ dt_end <- as.POSIXct("2017-12-31 23:10:00", tz = "UTC")
 
 clean_data <- function(data, scan_start, scan_end, max_distance) {
   mdl_variables <- c("VIR", "dist_radar", "datetime", "total_biomass", "urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies", 
-                     "dist_urban", "human_pop", "disturb_pot", "pixel", "coverage", "class")
+                     "dist_urban", "human_pop", "disturb_pot", "pixel", "coverage", "class", "x", "y")
   log10_variables <- c("dist_urban", "human_pop", "total_biomass", "dist_urban", "disturb_pot")
   
   data %>%
@@ -320,4 +320,35 @@ for (model in models) {
   print(wrap_plots(plots) + plot_annotation(title = modelnames[i]))
   i <- i + 1
 }
+```
+
+## Interactions
+
+We can now also see which interactions have been modelled (supported by data).
+
+```{r}
+interactions <- suppressMessages(ggInteract_list(models$dist_urban))
+plots <- mapply(function(x, y) ggInteract_2D(models$dist_urban, x = x, y = y, z.range = c(-6, 6)), 
+                x = as.character(interactions$var1.names), y = as.character(interactions$var2.names), SIMPLIFY = FALSE)
+interactions
+plots
+```
+
+
+## Spatial autocorrelation
+
+Model residuals should not show autocorrelation as then the independency of errors assumption is violated (see for example [this](https://doi.org/10.1186/s41610-019-0118-3)). Additionally, a model with strong autocorrelation in the residuals suggests that it lacks a spatial component within the predictors.
+
+```{r calculate_model_residual_autocorrelation, eval=full_repro}
+df <- models$dist_urban$gbm.call$dataframe
+df$residual <- resid(models$dist_urban)
+
+df %>%
+  slice_sample(prop = 0.33) -> df_sample
+
+correlogram <- correlog(df_sample[, c("x", "y")], df_sample[, "residual"], method = "Moran", nbclass = 20)
+saveRDS(correlogram , file = "data/processed/correlogram.RDS")
+```
+```{r plot_model_residual_autocorrelation}
+plot(correlogram)
 ```
