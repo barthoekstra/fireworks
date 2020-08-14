@@ -95,6 +95,13 @@
       "Repository": "CRAN",
       "Hash": "dae18801c8010d42916d952e93ef4243"
     },
+    "LearnBayes": {
+      "Package": "LearnBayes",
+      "Version": "2.15.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "b2dd5e3f910f1ac390f847f35e8c2396"
+    },
     "MASS": {
       "Package": "MASS",
       "Version": "7.3-51.6",
@@ -533,6 +540,13 @@
       "Repository": "CRAN",
       "Hash": "eb265b52c7e032cc8276f0c96c14466c"
     },
+    "deldir": {
+      "Package": "deldir",
+      "Version": "0.1-28",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "0edc0c2f566b3aa0271f37314e2afe0f"
+    },
     "desc": {
       "Package": "desc",
       "Version": "1.2.0",
@@ -694,6 +708,13 @@
       "Repository": "CRAN",
       "Hash": "235e882b7ab13b8f0d5a60a26c51f6ce"
     },
+    "gdata": {
+      "Package": "gdata",
+      "Version": "2.18.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "465ccb84427f5fe2c54f8620666db131"
+    },
     "gdtools": {
       "Package": "gdtools",
       "Version": "0.2.2",
@@ -824,6 +845,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "f43e0d5e85ccb0a4045670c0607ee504"
+    },
+    "gmodels": {
+      "Package": "gmodels",
+      "Version": "2.18.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "beb8ca96406a2828f25e49ab17001c39"
     },
     "gmp": {
       "Package": "gmp",
@@ -1399,6 +1427,13 @@
       "Repository": "CRAN",
       "Hash": "d1d4609ebe4537ec65a58bc4d0800b25"
     },
+    "pgirmess": {
+      "Package": "pgirmess",
+      "Version": "1.6.9",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "137edde9a1588b7051326b1744113d40"
+    },
     "pillar": {
       "Package": "pillar",
       "Version": "1.4.4",
@@ -1776,6 +1811,13 @@
       "Repository": "CRAN",
       "Hash": "3290eebc34ba4df5e213878d54c1e623"
     },
+    "spData": {
+      "Package": "spData",
+      "Version": "0.3.8",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "be5fc9cc13487505381071422d8346e2"
+    },
     "spam": {
       "Package": "spam",
       "Version": "2.5-1",
@@ -1789,6 +1831,20 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "f4588b2210738a6845e0a1e8e74d7209"
+    },
+    "spdep": {
+      "Package": "spdep",
+      "Version": "1.1-5",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "e220c93e8a62be165fb5b56983ca2339"
+    },
+    "splancs": {
+      "Package": "splancs",
+      "Version": "2.01-40",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "f1d78568a8d523ccab099aca35a27d7c"
     },
     "stars": {
       "Package": "stars",
