@@ -172,6 +172,15 @@ species_lut[species_lut$lookupname == "Roodborsttapuit", "scientificname"] <- "S
 species_lut[species_lut$lookupname == "Strandleeuwerik", "scientificname"] <- "Eremophila alpestris"  # Horned Lark
 ```
 
+## Adding vernacular family names
+
+Fetching vernacular names of scientific families from GBIF is even more convoluted than the name lookup we have done above, so instead we have manually derived a list of vernacular names for families based on the generated species lookup table.
+
+```{r load_vernacular_family_names}
+read_delim("data/raw/sovon/familyvernacular_lut.csv", delim = ";", col_types = cols(lookupname = col_character(), familyvernacular = col_character())) %>%
+  right_join(species_lut, by = "lookupname") -> species_lut
+```
+
 ## Linking life-history traits to species
 
 We use the *Life-history characteristics of European birds*-dataset [@storchova_2018] to calculate the mean mass of all birds in a PPI pixel. This dataset is stored on Dryad and we can [download](https://doi.org/10.5061/dryad.n6k3n) it there. Unfortunately the `rdryad` package is severely out-of-date with the new Dryad API, so we cannot nicely automate this download yet. Anyways, the files should be downloaded manually and added to `data/raw/life-history-characteristics/`.
@@ -190,7 +199,7 @@ read_tsv("data/raw/life-history-characteristics/Life-history characteristics of 
   mutate(species = paste(str_split(species, pattern = " ")[[1]][1:2], collapse = " ")) %>%
   ungroup() %>%
   group_by(species) %>%
-  summarise(mean_weight = mean(mean_weight)) %>%
+  summarise(mean_weight = mean(mean_weight), .groups = "drop_last") %>%
   drop_na() -> lhc
 
 lhc[lhc$species == "Aquila nipalenis", "species"] <- "Aquila nipalensis"  # Small error in dataset -> notified author
@@ -338,5 +347,53 @@ And now we will save these datasets of `total_biomass` as well.
 ```{r save_total_biomass}
 saveRDS(wb_biomass, file = "data/processed/sovon/wb_biomass.RDS")
 saveRDS(ptt_biomass, file = "data/processed/sovon/ptt_biomass.RDS")
+```
+
+## Calculating proportions across bird families
+
+Now that we have identified which families birds belong to, we can calculate the proportion of birds that belong to these families across all the PTT and waterbird counts. This can give an idea of the spatial composition of bird communities to illustrate analysis results with.
+
+```{r calculate_proportions_per_family}
+wb <- wb_data
+ptt <- ptt_data
+families <- unique(species_lut$familyvernacular)
+
+wb %>%
+  mutate(area_nr = as.character(area_nr)) %>%
+  filter(year == wb_year) %>%
+  group_by(area_nr, year) %>%
+  mutate(total_birds = sum(number)) %>%
+  ungroup() %>%
+  group_by(area_nr, year, familyvernacular) %>%
+  mutate(familyprop = sum(number) / total_birds) %>%
+  ungroup() %>%
+  select(area_nr, familyvernacular, familyprop) %>%
+  distinct() %>%
+  arrange(area_nr) %>%
+  pivot_wider(names_from = familyvernacular, values_from = familyprop) %>%
+  replace(is.na(.), 0) %>%
+  identity() -> wb_props
+
+ptt %>%
+  filter(year == ptt_year) %>%
+  group_by(route, year) %>%
+  mutate(total_birds = sum(number)) %>%
+  ungroup() %>%
+  group_by(route, year, familyvernacular) %>%
+  mutate(familyprop = sum(number) / total_birds) %>%
+  ungroup() %>%
+  select(route, familyvernacular, familyprop) %>%
+  distinct() %>%
+  arrange(route) %>%
+  pivot_wider(names_from = familyvernacular, values_from = familyprop) %>%
+  replace(is.na(.), 0) %>%
+  identity() -> ptt_props
+```
+
+And now we will save these datasets of family proportions as well.
+
+```{r save_family_proportions}
+saveRDS(wb_props, file = "data/processed/sovon/wb_props.RDS")
+saveRDS(ptt_props, file = "data/processed/sovon/ptt_props.RDS")
 ```
 
