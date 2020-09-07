@@ -151,6 +151,8 @@ With a sort-of 'raster attribute table' in place, we can now reclassify the deta
 ```{r reclassify_land_use_classes}
 landuse_dhl_reclassified <- ratify(reclassify(landuse_dhl_reprojected, cbind(landuse_classes$landuse_id, landuse_classes$landuse_target_id)), count = TRUE)
 landuse_hrw_reclassified <- ratify(reclassify(landuse_hrw_reprojected, cbind(landuse_classes$landuse_id, landuse_classes$landuse_target_id)), count = TRUE)
+writeRaster(landuse_dhl_reclassified, "data/processed/landuse/landuse_dhl_reclassified.tif", overwrite = TRUE)
+writeRaster(landuse_hrw_reclassified, "data/processed/landuse/landuse_hrw_reclassified.tif", overwrite = TRUE)
 ```
 
 This leaves us with the following count of ~100x100m cells per land use category
