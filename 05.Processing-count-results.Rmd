@@ -67,7 +67,7 @@ read_excel(sovon_data, sheet = 1) %>%
   filter(!any(str_starts(species, "hybride"))) %>%  # Filter out all counts with hybrids
   ungroup() %>%
   rowwise() %>%
-  mutate(species = str_split(species, "\\(")[[1]][1] %>% str_trim()) -> ptt_data  # And remove all subspecies identifications-> ptt_data
+  mutate(species = str_split(species, "\\(")[[1]][1] %>% str_trim()) -> ptt_data  # And remove all subspecies identifications
 
 head(ptt_data, 10) %>%
   kable(format = "html", col.names = colnames(ptt_data)) %>%
