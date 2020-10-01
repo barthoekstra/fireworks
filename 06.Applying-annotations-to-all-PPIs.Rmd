@@ -1,13 +1,15 @@
 # Apply processing to all PPIs
 
-We have so far explained the processing 'pipeline' for the PPIs for Herwijnen and Den Helder radars, but have only applied this to a single moment in time, a single volume scan. Now we will apply the processing to all other available PPIs by simply copying over the annotations.
+We have so far explained the processing 'pipeline' for the PPIs for Herwijnen and Den Helder radars, but have only applied this to a single moment in time, a single volume scan. Now we will apply the processing to all other available PPIs by simply copying over the annotations in case we ever need to repeat the analysis for other scans.
+
+We have so far done the following:
 
 1. Pre-processed the radar data, by removing clutter and applying the range-bias correction [@kranstauber2020].
-2. Annotated the PPIs with land use class proportions, distance to urban areas and human population.
+2. Annotated the PPIs with land use class proportions, distance to inhabited areas and human population.
 3. Annotated the PPIs with corresponding count locations for the Sovon data.
-4. Connected the Sovon count data with life-history characteristics for the species contained within.
+4. Connected the Sovon count data with life-history characteristics for the species contained within and calculated bird biomass.
 
-## Setting-up the environment
+## Processing environment
 
 ```{r setup_apply_processing_to_all_ppis_environment}
 library(dplyr)
@@ -24,6 +26,7 @@ ppi_dhl <- readRDS("data/processed/corrected-ppis-lu-sovon/corrected_ppi_dhl_lu_
 ```
 
 ## Add biomass to reference PPIs
+
 We have previously calculated the `total_biomass` already for all the count areas/routes, but now we will annotate the reference PPIs with these values as well. We correct for the size of an area the count is conducted in by 'spreading' the total biomass over the number of pixels annotated with a certain count area/route. 
 
 ```{r add_biomass_to_ppis}
@@ -63,7 +66,7 @@ ppi_dhl$data@data %<>%
 
 ## Copy annotations from reference PPIs to other PPIs
 
-We select the variables related to land use, distance to urbanized areas and population density, waterbird counts and PTT counts and add these to the PPIs that contain just the variables resulting from the range-bias correction [@kranstauber2020]. While we are at it, we will also create dataframes containing all the information within the PPIs, to use for later modelling exercises.
+We select the variables related to land use, distance to inhabited areas and population density, waterbird counts and PTT counts and add these to the PPIs that contain just the variables resulting from the range-bias correction [@kranstauber2020]. While we are at it, we will also create dataframes containing all the information within the PPIs, to use for possible later modelling exercises.
 
 ```{r copy_annotations_from_reference_ppis_to_other_ppis}
 columns <- c("urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies",
