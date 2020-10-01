@@ -1,18 +1,18 @@
 # Radar Data Preprocessing
 
-Weather radar data of the firework events at the turns of the years usually contain some degree of precipitation clutter. To filter out precipitation advanced algorithms such as MistNet have been developed, but as we are dealing with dual-pol data here, we can use a simpler and yet robust method using the depolarization ratio [@kilambi_simple_2018].
+Weather radar data of the firework events at the turns of the years usually contain some degree of precipitation clutter. To filter out precipitation advanced algorithms such as MistNet have been developed, but as we are dealing with dual-polarization radar data here, we can use a simpler and yet robust method using the depolarization ratio [@kilambi_simple_2018].
 
 To make sure our processed weather radar data does not contain any significant proportions of precipitation or ground clutter anymore, we process the data as follows:
 
-1. We remove electromagnetic interference based on a visual inspection of the scan and throw out all data of affected rays.
+1. We remove electromagnetic interference based on a visual inspection of the scans and throw out all data of affected rays.
 2. We calculate the depolarization ratio [@kilambi_simple_2018] and separate biology from meteorology by classifying all range gates with a depolarization ratio $>-12dB$ as biology. We subsequently ‘despeckle’ this, to remove obvious misclassifications.
 3. We average reflectivity over a number of scans before the time of the fireworks event and throw out the range-gates with highest average reflectivities.
 
-All these steps can be undertaken directly on the polar volume data, so we can subsequently directly plug the cleaned up volume into the range-bias correction.
+All these steps can be undertaken directly on the polar volume data, so we can subsequently plug the cleaned up volume into the range-bias correction.
 
-## Setting-up the pre-processing environment
+## Processing environment
 
-As usual, we use [bioRad](http://adokter.github.io/bioRad) [@dokter_biorad_2019], but this time we include `plotly` for some interactive plotting.
+As usual, most of the processing takes place using [bioRad](http://adokter.github.io/bioRad) [@dokter_biorad_2019].
 ```{r setup-radar-data-preprocessing, warning=FALSE, message=FALSE}
 library(bioRad)
 library(plotly)
@@ -27,7 +27,7 @@ library(magrittr)
 
 ## Removing electromagnetic interference
 
-We have determined in which scans birds are taking off based on the maximum increase in reflectivity in the scan for each of the involved radars. Let's now look at these scans to see how much filtering for electromagnetic interference we need to do. The easiest way to determine which rays are subject to this interference is by plotting the scans in polar coordinates ($(r, \alpha)$), so interference stands out as horizontal lines of more or less constant, or very gradually changing reflectivities. Plotting using `plotly` makes it easier to identify the specific problematic rays as one can zoom in to identify the exact azimuths $\alpha$.
+We have determined in which scans birds are taking off based on the maximum increase in reflectivity in the scan for each of the involved radars. Let's now look at these scans to see how much filtering for electromagnetic interference we need to do. The easiest way to determine which rays are subject to this interference is by plotting the scans in polar coordinates $(r, \alpha)$, so interference stands out as horizontal lines of more or less constant, or very gradually changing reflectivities. Plotting using `plotly` makes it easier to identify the specific problematic rays as one can zoom in to identify the exact azimuths $\alpha$ at which this interference occurs.
 
 ```{r load_paths_of_identified_scans, include=FALSE}
 load(file = "data/processed/pvol_selection.RData")
@@ -38,7 +38,7 @@ The scans we will be using:
 * **Herwijnen**: ``r basename(pvol_hrw_path)``
 * **Den Helder**: ``r basename(pvol_dhl_path)``
 
-For illustrative purposes we will only illustrate removal of EM interference for the Herwijnen, as the procedure for Den Helder is exactly identical, but this scan contains very little of said clutter.
+For illustrative purposes we will only illustrate removal of EM interference for the Herwijnen radar, as the procedure for Den Helder is exactly identical, but this scan contains very little of said clutter.
 
 ```{r load_pvols, warning=FALSE}
 pvol_hrw <- read_pvolfile(pvol_hrw_path, param = "all")
@@ -48,7 +48,7 @@ scan <- plot(pvol_hrw$scans[[1]], param = "DBZH", xlim = c(0, 180000)) + theme_d
 ggplotly(scan)
 ```
 
-Right away we can see that rays at two places in the scan are subject to electromagnetic interference. This is probably most problematic in the lowest elevations of the volume scan, but nevertheless each of the `length(pvol_hrw$scans)` scans have be checked manually. Doing so results in the identification of the following rays that contain electromagnetic interference (`ei_rays`), organised in a list with the scan numbers (organised ascendingly per elevation angle) as keys. *Admittedly: there is another ray that seems to contain interference in the first scan, but this is so far away from the radar (150km+) it should not affect our results as no meaningful numbers of birds can be detected at that range anyways, so there is no need to remove the entire ray. Similarly, there are similar patterns of interference/clutter in higher elevation scans, but these too should not affect our results.*
+Right away we can see that rays at two places in the scan are subject to electromagnetic interference. This is probably most problematic in the lowest elevations of the volume scan, but nevertheless each of the `r length(pvol_hrw$scans)` scans have to be checked manually. Doing so results in the identification of the following rays that contain electromagnetic interference (`ei_rays`), organised in a list with the scan numbers (organised ascendingly per elevation angle) as keys. *Admittedly: there is another ray that seems to contain interference in the first scan, but this is so far away from the radar (150km+) it should not affect our results as no meaningful numbers of birds can be detected at that range anyways and we thus exclude it from our analysis. Similarly, there are similar patterns of interference/clutter in higher elevation scans, but these too should not affect our results.*
 
 ```{r identify_rays_with_em_inteference}
 ei_rays_hrw <- list(c(201, 202, 214, 215), # scan 1
@@ -73,7 +73,7 @@ pvol_dhl <- remove_rays(pvol_dhl, rays = ei_rays_dhl)
 
 If removal is correct, the $(r,\alpha)$ plots should not show clear horizontal structures anymore.
 
-```{r plot_em_filtered_scans, warning=FALSE}
+```{r plot_em_filtered_scans, warning=FALSE, results='hold'}
 i = 1
 plot(pvol_hrw$scans[[i]], param = "DBZH", xlim = c(0, 180000)) + theme_dark() + 
   labs(title = "Herwijnen: Cleaned from EM interference", subtitle = paste("Elevation:", round(pvol_hrw$scans[[i]]$attributes$where$elangle, 1)))
@@ -81,7 +81,7 @@ plot(pvol_dhl$scans[[i]], param = "DBZH", xlim = c(0, 180000)) + theme_dark() +
   labs(title = "Den Helder: Cleaned from EM interference", subtitle = paste("Elevation:", round(pvol_dhl$scans[[i]]$attributes$where$elangle, 1)))
 ```
 
-That seems to work nicely. The remaining bits of clutter won't affect the results much as they cover fairly small areas and consistently appear at longer distances away from the radar, where birds are difficult to detect anyways.
+That seems to work nicely.
 
 ## Filter meteorology using the depolarization ratio
 
@@ -160,7 +160,7 @@ Plotting the same PPIs as before should now show a cleaned-up/precipitation-free
 side_by_side_ppi(pvol_hrw, pvol_dhl, "Herwijnen", "Den Helder", params = c("DBZH", "VRADH"))
 ```
 
-That looks very good for both Herwijnen and Den Helder radars, but for the latter we have a lot of sea clutter that still needs to be removed, but that will come when ground clutter is filtered.
+That looks very good for both Herwijnen and Den Helder radars, but for the latter we have a lot of sea clutter that still needs to be removed, which is next on the list when filtering ground clutter.
 
 ## Filter ground clutter
 
@@ -186,7 +186,7 @@ Combining the clutter removal based on a clear day as well as the `r dynamic_nr_
 
 ### Dynamic clutter
 
-We select `r dynamic_nr_preceding_scans` (`r dynamic_nr_preceding_scans / 12` hours worth of scans) preceding the start of the fireworks (23:00 UTC) and add an additional margin of `r dynamic_time_margin` scans (`r dynamic_time_margin * 5` minutes of scans) as that the `VIR` plots in the previous chapter have shown numbers of birds aloft are very low and stable up to that period.
+We select `r dynamic_nr_preceding_scans` (`r dynamic_nr_preceding_scans / 12` hours worth of scans) preceding the start of the fireworks (23:00 UTC) and add an additional margin of `r dynamic_time_margin` scans (`r dynamic_time_margin * 5` minutes of scans) as the `VIR` plots in the previous chapter have shown numbers of birds aloft are very low and stable up to that period.
 
 ```{r select_dynamic_clutter_scans}
 available_scans_hrw <- Sys.glob(file.path("data/raw/pvol/clutter-removal-20171231", "*NL62*20171231*"))
@@ -292,7 +292,7 @@ pvol_clutter_static_dhl <- readRDS("data/processed/clutter_static_dhl_avg.RDS")
 
 #### Verify static clutter map
 
-Let's see what that looks like on a basemap, using a `DBZH_AVG` threshold of $-10dbZ$, following [@dokter_bird_2011].
+Once again, let's see what that looks like on a basemap, using a `DBZH_AVG` threshold of $-10dbZ$, following [@dokter_bird_2011].
 
 ```{r verify_static_clutter_map, fig.width=10, message=FALSE}
 scan_hrw <- pvol_clutter_static_hrw$scans[[1]]
@@ -319,7 +319,7 @@ saveRDS(pvol_dhl, file = "data/processed/pvol_clean_dhl.RDS")
 
 With all identifiable sources of clutter removed from the raw polar volume, we can apply the range-bias correction [@kranstauber2020]. For this it is necessary to calculate the local vertical profile for each of the radars. Ideally, this would be done using the filtered `pvol` we have now generated, but the `vol2bird` algorithm [@dokter_bird_2011] only takes `pvol` files as input, rather than R objects. As there is no implementation of a converter yet, for now a `vp` of the raw `pvol` files will have to do. As there is no precipitation within the relevant distance to the radars (5-35km), the calculated `vp` based on the raw `pvol` files should not differ wildly from that of the filtered `pvol` R object we have generated in the previous steps.
 
-For the Den Helder radar we calculate the `vp` by setting azimuthal limits to cover the mainland of North Holland, rather than the whole radar domain, as the latter will result in `vp`s that underestimate the true density of birds aloft. See Appendix [generating-vps-for-den-helder-radar] for a more detailed explanation.
+For the Den Helder radar we calculate the `vp` by setting azimuthal limits to cover the mainland of North Holland, rather than the whole radar domain, as the latter will result in `vp`s that underestimate the true density of birds aloft. See [the corresponding appendix][generating-vps-for-den-helder-radar] for a more detailed explanation.
 
 ```{r range_bias_correction, warning=FALSE}
 vp_hrw <- calculate_vp(file = pvol_hrw_path, vpfile = paste("data/processed/vp/", basename(pvol_hrw_path), sep = ""), verbose = FALSE)
@@ -343,7 +343,7 @@ ggarrange(p_vir_hrw, p_vir_dhl, ncol = 2, nrow = 1, common.legend = TRUE, legend
 
 ## Keep biology/meteorology classification
 
-By default the range-bias correction returns values from 0 upwards, so there is no way for us to distinguish anymore between 'pixels' that did not reflect and those that were filtered out as meteorology. That's why we will additionally add the `class` parameter to the range-bias corrected PPIs. There's a risk of misalignment of PPI pixels, but we can still use RBC if we trick it by replacing `DBZH` with the value of `BIOLD` (despeckled biology), which contains 0s for meteorology and 1s for biology and multiply this by a 1000 to get really high `VIR` values for biology and very low values for meteorology.
+By default the range-bias correction returns values from 0 upwards, so there is no way for us to distinguish anymore between 'pixels' that did not reflect and those that were filtered out as meteorology. That's why we will additionally add the `class` parameter to the range-bias corrected PPIs. To avoid misalignment and differences in vertical integration compared with the range-bias correction, we can 'trick' the RBC by replacing the `DBZH` values it expects by the `BIOLD`(despeckled biology) values (either 0 for meteorology or 1 for biology) multiplied by 1000. This would result in very high integrated values of `VIR` where an area is classified as biology and very low values where it is classified as meteorology.
 
 ```{r classification_rangebias_correction, warning=FALSE}
 pvol_hrw_classified <- calculate_param(pvol_hrw, DBZH = BIOLD * 1000)
@@ -392,7 +392,7 @@ corrected_ppi_dhl$data$class <- unlist(class_dhl)
 
 ## Distance to radar
 
-To assess the quality of the range-bias correction, it is also useful to calculate the distance to the radar from a given PPI pixel. Ideally, the range-bias correction would strongly reduce the effect of distance to the radar for measured densities of birds, but we still have to see if that is the case indeed. By including the distance to the radar in the PPIs, we can also include it in our modelling efforts later on.
+To account for remaining range-bias effects, it is also useful to calculate the distance to the radar from a given PPI pixel. We can then include it in our modelling efforts later on.
 
 ```{r calculate_distance_to_radar}
 source("R/calculate_distance_to_radar.R")
@@ -446,7 +446,7 @@ mapview(corrected_ppi_dhl$data)
 
 ## Preprocess additional scans
 
-Now that the processing steps have been explained in detail, we can now process the additional scans in our dataset in a similar fashion. For that we will focus on all scans from 22:00 CET until 01:00 CET, which corresponds with 23:00 until 02:00 in local Amsterdam time, as that should 'cover' most of the fireworks disturbance that occurs (based on the plots in [Selecting firework take-off moment]).
+Now that the processing steps have been explained in detail, we can process the additional scans in our dataset in a similar fashion. For that we will focus on all scans from 22:00 CET until 01:00 CET, which corresponds with 23:00 until 02:00 in local Amsterdam time, as that should 'cover' most of the fireworks disturbance that occurs (based on the plots in [Selecting firework take-off moment]).
 
 ```{r preprocess_additional_scans, eval=full_repro, results='hide'}
 source("R/preprocess_radar_data.R")
