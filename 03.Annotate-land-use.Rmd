@@ -2,11 +2,11 @@
 
 # Annotating land use
 
-In this study we aim to quantify the response to fireworks across different species groups, for which take-off habitat is probably a good indicator. In this notebook we will classify land use, and a variety of factors that can influence the 'intensity' of fireworks disturbance, such as the distance to the nearest urbanised area for each of the PPI 'pixels'.
+In this study we aim to quantify the response to fireworks across different bird communities, for which we use take-off habitat as a proxy. In this notebook we will classify land use, and a variety of factors that can serve as a proxy for the severity of fireworks disturbance, such as the distance to the nearest residential area for each of the PPI 'pixels'.
 
 The land use is based on the [CORINE Land Cover](https://land.copernicus.eu/pan-european/corine-land-cover) dataset and specifically the [2018 version](https://land.copernicus.eu/pan-european/corine-land-cover/clc2018) (`CLC2018`), which should be most relevant for the 2017-2018 fireworks event.
 
-## Setting up the annotation environment
+## Processing environment
 
 ```{r setup-annotating-the-ppis-with-land-use-parameters, warning=FALSE, message=FALSE}
 library(raster)
@@ -22,7 +22,7 @@ library(mapview)
 
 ## Converting the land use map
 
-To start, we need to convert the land use map to the same 1) resolution, and 2) extent of the radar PPIs as we can then simply 'overlay' both rasters on top of each other and do calculations. We load the PPIs and extract the CRS information contained in the `proj4` strings.
+To start, we need to convert the land use map to the same 1) resolution, and 2) extent of the radar PPIs as we can then simply 'overlay' both rasters on top of each other and merge them. We load the PPIs and extract the CRS information contained in the `proj4` strings.
 
 ```{r load_ppis_and_proj4}
 ppi_hrw <- readRDS("data/processed/corrected_ppi_hrw.RDS")
@@ -32,7 +32,7 @@ ppi_proj4_hrw <- ppi_hrw$data@proj4string
 ppi_proj4_dhl <- ppi_dhl$data@proj4string
 ```
 
-And we load and prepare the land use map it's all about. To aid the classification process, we also load the land use classes contained in the entire `CLC2018` dataset, otherwise the classes will remain anonymous numbers.
+And we load and prepare the land use map it's all about. To aid the classification process, we also load the legend of land use classes contained in the entire `CLC2018` dataset, otherwise the classes will remain anonymous numbers.
 
 ```{r load_landuse_map, warning=FALSE}
 landuse <- raster("data/raw/landuse/clc2018_clc2018_v2018_20_raster100m/CLC2018_CLC2018_V2018_20.tif")
@@ -42,7 +42,7 @@ landuse_classes <- read.csv("data/raw/landuse/clc2018_clc2018_v2018_20_raster100
 
 ### Cropping the land use map
 
-As the `CLC2018` dataset is so large it does not fit in memory at all in the steps below, so we have to crop the raster dataset for further processing. Even then, it still requires a beefy computer to process these files. First we calculate a bounding box for the landuse raster based on the bounding boxes of the radar data.
+As the `CLC2018` dataset is so large it does not fit in memory at all in the steps below, so we have to crop the raster dataset for further processing. Even then, it still requires a beefy machine to process these files. First, we calculate a bounding box for the landuse raster based on the bounding boxes of the radar data.
 
 ```{r calculate_bounding_boxes}
 padding <- 25000  # Padding in m to make sure we crop out of the land use map with a wide margin to compensate for edge-effects later
@@ -62,7 +62,7 @@ bbox_dhl %>%
   st_bbox -> bbox_landuse_dhl
 ```
 
-We can now crop and plot the land use maps centered on the radar sites, with a `r padding` meter padding surrounding the extent of the radar data.
+We can now crop and plot the land use maps centered on the radar sites, with a `r print(padding)` meter padding surrounding the extent of the radar data.
 
 ```{r crop_landuse_maps}
 ext_hrw <- extent(c(bbox_landuse_hrw[1], bbox_landuse_hrw[3], bbox_landuse_hrw[2], bbox_landuse_hrw[4]))
@@ -115,7 +115,7 @@ The `CLC2018` dataset contains a total of 44 land use classes. For our purpose, 
 5. Wetlands
 6. Water bodies
 
-The following table is used to convert/reclassify the classes contained within the `CLC2018` dataset, with the original land use classes under `landuse_class` and how they will be reclassified under `landuse_target`. We also indicate whether these areas are inhabited (inhabited = 1), or uninhabited (inhabited = 0).
+The following table is used to convert/reclassify the classes contained within the `CLC2018` dataset, with the original land use classes under `landuse_class` and how they will be reclassified under `landuse_target`. We also indicate whether these areas are inhabited (inhabited = 1), or uninhabited (inhabited = 0). In The Netherlands inhabited areas are classified as "Discontinuous urban fabric" in the `CLC2018` dataset, all other areas we set to uninhabited.
 
 ```{r make_land_use_reclassification_table}
 landuse_classes %<>%
@@ -166,7 +166,7 @@ cellcounts
 
 ### Resampling the land use map to a lower resolution
 
-The cellsize of the PPIs is `r ppi_dhl$data@grid@cellsize`x`r ppi_dhl$data@grid@cellsize` meters, but the land use map is much more finely detailed (~100x100m), so we need to resample the latter to derive a land use map at a `r ppi_dhl$data@grid@cellsize`x`r ppi_dhl$data@grid@cellsize` meter resolution as well.
+The cellsize of the PPIs is `r ppi_dhl$data@grid@cellsize[[1]]`x`r ppi_dhl$data@grid@cellsize[[2]]` meters, but the land use map is much more finely detailed (~100x100m), so we need to resample the latter to derive a land use map at a `r ppi_dhl$data@grid@cellsize[[1]]`x`r ppi_dhl$data@grid@cellsize[[2]]` meter resolution as well.
 
 As the resolution of the PPIs is so much higher than that of the land use map, we need to resample the latter to a lower resolution. Instead of classifying a single pixel in the PPI as belonging to a single land use class, we will do so using land use proportions. We therefore calculate the proportions belonging to each of the land use classes within an area of cells roughly the size of the PPI pixels. Subsequently we resample this to match 1:1 with the PPI pixels and store the land use proportions for each of the land use classes in the PPIs. This is done in the `calculate_land_use_proportion()` function below.
 
@@ -233,7 +233,7 @@ ppi_dhl$data@data <- cbind(ppi_dhl$data@data, values_dhl@data)
 
 ## Calculate distance to nearest urban area
 
-We can use the distance to the nearest inhabited urban area as a proxy for disturbance. To calculate this, we reclassify the raster to cells containing inhabited urban area and everything else. For every cell on the raster that is not a cell we have just classified as inhabited urban area, we will calculate the distance (in meters) to the nearest cell classified as inhabited urban area.
+We can use the distance to the nearest inhabited urban area as a proxy for disturbance. To calculate this, we reclassify the raster to cells containing inhabited urban area and everything else. For every cell on the raster that is not a cell we have just classified as inhabited urban area, we will calculate the distance (in meters) to the nearest cell classified as inhabited urban area. We classify a PPI cell as uninhabited if the proportion of its constituent cells (at a finer resolution) that is inhabited is `> 0.95`.
 
 ```{r calculate_distance_to_urban_areas}
 dhl_inhabited <- ratify(reclassify(landuse_dhl_reprojected, cbind(landuse_classes$landuse_id, landuse_classes$inhabited)), count = TRUE)
@@ -269,7 +269,7 @@ ppi_dhl$data@data$dist_urban <- values_dist_dhl@data$layer
 
 ## Add population density
 
-Another proxy for disturbance is simply the number of humans living in a certain area. The Dutch Central Bureau of Statistics (CBS) annually publishes [a dataset](https://www.cbs.nl/nl-nl/dossier/nederland-regionaal/geografische-data/kaart-van-500-meter-bij-500-meter-met-statistieken) containing the number of inhabitants organized in 500x500m grid cells. We will now add this to the PPIs as well.
+Another proxy for disturbance to explore is simply the number of humans living in a certain area. The Dutch Central Bureau of Statistics (CBS) annually publishes [a dataset](https://www.cbs.nl/nl-nl/dossier/nederland-regionaal/geografische-data/kaart-van-500-meter-bij-500-meter-met-statistieken) containing the number of inhabitants organized in 500x500m grid cells. We will now add this to the PPIs as well.
 
 ```{r add_population_density, message=FALSE}
 cbs_maps <- st_read("data/raw/population-density/2019-CBS_VK500_2018_v1/CBS_VK500_2018_v1.shp")
@@ -337,7 +337,7 @@ saveRDS(ppi_dhl, file = "data/processed/corrected_ppi_dhl_lu.RDS")
 
 ### Plotting human parameters on an interactive map
 
-We have now generated 'human relevant' parameters for later modelling stages. Let's plot them on an interactive map again for reference.
+We have now generated proxies for fireworks 'severity' for later modelling stages. Let's plot them on an interactive map again for reference.
 
 #### Interactive map of Herwijnen
 ```{r interactive_map_herwijnen, warning=FALSE}
