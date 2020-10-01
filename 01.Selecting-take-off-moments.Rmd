@@ -6,7 +6,7 @@ For this study we select the moment of 'en masse' take-off of birds at the turn 
 
 ## Setting up the processing environment
 
-We use `vol2bird` included in the [bioRad package](http://adokter.github.io/bioRad) [@dokter_biorad_2019] to calculate the vertical profiles of reflectivity, from which we determine the exact take off moment of birds. This implies we assume birds take to the skies everywhere simultaneously, but that seems a realistic assumption given that the lighting of fireworks is synchronised by the local time, rather than the time of sunset/sunrise.
+We use `vol2bird` included in the [bioRad package](http://adokter.github.io/bioRad) [@dokter_biorad_2019] to calculate the vertical profiles of reflectivity, from which we determine the exact take off moment of birds. This implies we assume birds take to the skies everywhere simultaneously, but that seems a realistic assumption given that the lighting of fireworks is synchronised by the national time, rather than the local time of sunset/sunrise.
 
 ```{r setup-selecting-firework-take-off-moment, warning=FALSE, message=FALSE}
 library(bioRad)
@@ -18,11 +18,11 @@ Sys.setenv(TZ = "UTC")
 
 ## Calculate the vertical profiles
 
-We calculate vertical profiles for the period between December 31st, 2017 22:00 and 01:00 UTC on January 1st, 2018, which corresponds with 23:00 til 02:00 local Amsterdam time (UTC + 1). It is not necessary to generate so many `vp` files, but it gives a better temporal overview if we add some 'temporal padding' around the fireworks event.
+We calculate vertical profiles for the period between December 31st, 2017 22:00 and 01:00 UTC on January 1st, 2018, which corresponds with 23:00 til 02:00 local Amsterdam time (UTC + 1). It is not necessary to generate so many `vp` files, but it gives a better temporal overview of the event if we add some 'temporal padding' around the fireworks event.
 
-*Beware: to calculate the vertical profiles, a running instance of [Docker](https://www.docker.com) is required. This code chunk will only run in [full-reproduction mode](A1.Full-reproduction-mode.html).*
+*Beware: to calculate the vertical profiles, a running instance of [Docker](https://www.docker.com) is required. This code chunk will only run in full-reproduction mode.*
 
-See Appendix [generating-vps-for-den-helder-radar] for a more detailed explanation why we limit `vp` generation of Den Helder to certain azimuths.
+See the appendix on [generating VPs for Den Helder][generating-vps-for-den-helder-radar] for a more detailed explanation why we limit `vp` generation of Den Helder to certain azimuths.
 
 ```{r generate_vps, eval=full_repro}
 fireworks_scans <- Sys.glob(file.path("data/raw/pvol/fireworks-2017-2018", "*_ODIM.h5"))
@@ -47,9 +47,9 @@ for (scan in fireworks_scans) {
 
 ## Generate time series of vertical profiles
 
-We can now generate a time series of vertical profiles and plot the bird densities to get an idea of what was going on during NYE of 2017-2018.
+We can now generate a time series of vertical profiles (a VPTS) and plot the bird densities to get an idea of what was going on during NYE of 2017-2018.
 
-```{r generate_vp_timeseries}
+```{r generate_vp_timeseries, results='hold'}
 fw_hrw_vpts <- Sys.glob(file.path("data/processed/vp/fireworks-2017-2018", "*NL62*")) %>%
   read_vpfiles() %>%
   bind_into_vpts() %>%
@@ -72,11 +72,11 @@ plot(fw_hrw_vpts[indexes_hrw], main = title_hrw)
 plot(fw_dhl_vpts[indexes_dhl], main = title_dhl)
 ```
 
-Both plots for Herwijnen and Den Helder show exactly what we would expect: comparatively low densities of birds aloft leading up to midnight (23:00 CET), then suddenly a strong increase of birds right after midnight. For Den Helder this peak appears much more pronounced, whereas for Herwijnen the period of disturbance seems to take considerably longer. This is probably due to the vastly different environment around the radar site: Herwijnen is located solidly in the center of the country, whereas Den Helder is located close to the coast on a 'peninsula' with much less land in the surroundings, especially as `vol2bird` only takes into account rangegates within 5-35km of the radar.
+Both plots for Herwijnen and Den Helder show exactly what we would expect: comparatively low densities of birds aloft leading up to midnight (23:00 CET), then suddenly a strong increase of birds right after midnight. For Den Helder this peak appears much more pronounced, whereas for Herwijnen the period of disturbance seems to take considerably longer. This is probably due to the vastly different environment around the radar site: Herwijnen is located solidly in the center of the country, whereas Den Helder is located close to the coast on a 'peninsula' with much less land in the surroundings, pronounced by `vol2bird` only taking the rangegates within 5-35km of the radar into account. 
 
 ## Identifying moment of take-off
 
-We integrate the time series of vertical profiles, so we can calculate the `vir` derivatives and determine in what volume scan birds really take to the skies for each radar separately.
+We integrate the time series of vertical profiles, so we can calculate the `VIR` derivatives and determine in what volume scan birds really take to the skies for each radar separately.
 
 ```{r identify_takeoff, warning=FALSE}
 integrated_hrw <- integrate_profile(fw_hrw_vpts)
@@ -131,14 +131,14 @@ pvol_dhl_path <- paste(pvol_folder, "RAD_NL61_VOL_NA_", format(scan_timestamp, "
 save(pvol_hrw_path, pvol_dhl_path, file = "data/processed/pvol_selection.RData")
 ```
 
-So at first we will continue using the following files in this study:
+So we will mainly focus on working with the following polar volume files:
 
 - **Herwijnen**: ``r basename(pvol_hrw_path)``
 - **Den Helder**: ``r basename(pvol_dhl_path)``
 
 ## Determining maximum range from radar to detect birds
 
-We can assume that the flight altitudes derived from `vol2bird` are representative for flight altitudes throughout the country. Given that most of the disturbance happens at comparatively low altitudes, the radar is likely to 'overshoot' this entirely at substantial distances away from the radar where compensating for range-effects (e.g. using [@kranstauber2020]) will thus have no effect. Therefore we need to determina a maximum range we could still feasibly measure birds aloft. We can do so by reinspecting the `vpts` plots from before, but now focussing on the lowest 1km.
+We can assume that the flight altitudes derived from `vol2bird` are representative for flight altitudes throughout the country. Given that most of the disturbance happens at comparatively low altitudes, the radar is likely to 'overshoot' this entirely at substantial distances away from the radar where compensating for range-effects (e.g. using Kranstauber et al. [-@kranstauber2020]) will thus have undesired consequences. Therefore we need to determina a maximum range at which we could still feasibly measure birds aloft. We can do so by inspecting the `vpts` plots from before, but now focussing on the lowest 1km. *Notice how we are generating VPTSs with 50m height bins vs. the standard 100m height bins, so we can pinpoint more precisely at what altitude densities drop off.*
 
 ```{r determine_range_of_overshoot}
 plot(fw_hrw_vpts[indexes_hrw], ylim = c(0, 1000))
@@ -147,7 +147,7 @@ plot(fw_dhl_vpts[indexes_dhl], ylim = c(0, 1000))
 
 We can now see that above `600m` ASL or so the density starts to drop substantially, so we will set this as the altitudinal cutoff to determine the range up to which we will be using the data coming from the range-bias correction [@kranstauber2020]. Although birds are somewhat lower in height overall in Den Helder than Herwijnen, this is an acceptable threshold as Herwijnen anyways covers much more land area within our study domain than Den Helder, and thus a more representative range-bias correction for Herwijnen is more important than Den Helder.
 
-Now we can calculate the distance at which that height is the height of the lowest elevation (0.3 degrees) and round to the nearest kilometer. 
+Now we can calculate the distance at which that height (`600m`) is the height of the lowest elevation (0.3 degrees) and round to the nearest kilometer. 
 
 ```{r determine_distance_cutoff}
 altitude_cutoff <- 600
