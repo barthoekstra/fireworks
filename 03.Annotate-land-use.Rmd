@@ -246,11 +246,11 @@ names(dhl_inhabited) <- c("uninhabited", "inhabited")
 names(hrw_inhabited) <- c("uninhabited", "inhabited")
 
 dist_dhl <- dhl_inhabited
-dist_dhl[dist_dhl$inhabited < 0.5] <- NA  # Set to NA if probability of inhabited area is < 0.5
+dist_dhl[dist_dhl$uninhabited > 0.95] <- NA
 dist_dhl <- distance(dist_dhl$inhabited)
 
 dist_hrw <- hrw_inhabited
-dist_hrw[dist_hrw$inhabited < 0.5] <- NA
+dist_hrw[dist_hrw$uninhabited > 0.95] <- NA
 dist_hrw <- distance(dist_hrw$inhabited)
 
 writeRaster(dist_hrw, "data/processed/landuse/dist_urban_hrw.tif", overwrite = TRUE)
