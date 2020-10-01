@@ -4,12 +4,12 @@
 
 We have data for the following counts provided by Sovon:
 
-1. Waterbird counts with a shapefile containing the surveyed areas and an `xlsx` file with the count results. Both can be linked using the `GEBIEDID` contained in both datasets.
+1. Waterbird counts with a shapefile containing the surveyed areas and an `xlsx` file with the count results. Both can be linked using the identifiers contained in both datasets.
 2. PTT counts, or point transect counts, contained within an `xlsx` file with the routes and all bird observations at an $(X, Y)$ location.
 
-To make processing efficient, we will 'annotate' the PPIs with the corresponding area codes for the waterbird counts and some identifier for the PTT counts. Doing so, we can later on calculate relevant count-based parameters (e.g. numbers of birds, average mass, etc.) and 'join' these by the corresponding identifiers.
+To make processing efficient, we will 'annotate' the PPIs with the corresponding area codes for the waterbird counts and some identifier for the PTT counts. Doing so, we can later on calculate relevant count-based parameters (e.g. bird biomass, etc.) and 'join' these by the corresponding identifiers.
 
-## Setting up the annotation environment
+## Processing environment
 
 ```{r setup-process-sovon-counts, warning=FALSE, message=FALSE}
 library(bioRad)
@@ -35,7 +35,7 @@ ppi_dhl <- readRDS("data/processed/corrected_ppi_dhl_lu.RDS")
 
 We rename the veriables retained in the shapefile to English and add a numerical `wb_area_id` which we can use to link the information retained in the shapefiles with the rasterized waterbird areas. All shapefiles are transformed to the CRS of the PPIs.
 
-```{r load_waterbird_areas, message=FALSE}
+```{r load_waterbird_areas, message=FALSE, results='hold'}
 wb_areas <- st_read("data/raw/sovon/wavo_telgebieden.shp") %>%
   rename(wb_area_nr = GEBIEDNR, wb_area_ha = OPPHA, xcoor = XCOOR, ycoor = YCOOR)
 wb_areas$wb_area_id <- seq(1, length(wb_areas$wb_area_nr))
@@ -44,7 +44,7 @@ wb_areas_hrw <- st_transform(wb_areas, ppi_hrw$data@proj4string)
 wb_areas_dhl <- st_transform(wb_areas, ppi_dhl$data@proj4string)
 ```
 
-We rasterize specifically the newly created `wb_area_id` (as this is a numerical and not categorical value like `wb_area_nr`) following the 'template' of the existing PPIs.
+We rasterize specifically the newly created `wb_area_id` (as this is already a numerical and not categorical value like `wb_area_nr`) following the 'template' of the existing PPIs.
 
 ```{r rasterize_waterbird_areas}
 tpl_hrw <- st_as_stars(st_bbox(ppi_hrw$data), dx = ppi_hrw$data@grid@cellsize[1], dy = ppi_hrw$data@grid@cellsize[2], values = NA_real_)
@@ -62,7 +62,7 @@ plot(wb_areas_rasterized_hrw, main = "Herwijnen: wb_area_id")
 plot(wb_areas_rasterized_dhl, main = "Den Helder: wb_area_id")
 ```
 
-Visually that seems to have gone well, now let's make sure the rasterized waterbird areas share the same features as the PPI 'rasters'.
+Visually that seems to have gone well, now let's make sure the rasterized waterbird areas share the same grid as the PPI 'rasters'.
 
 ```{r verify_rasterization_of_waterbird_areas, results='hold'}
 compareRaster(as(wb_areas_rasterized_hrw, "Raster"), as(ppi_hrw$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
@@ -97,7 +97,7 @@ This looks very comparable to the plots of the rasterized scans above and `wb_ar
 
 ## Annotate PPIs with point-transect-counts
 
-The PTT point transect counts are organized by routes, which consist of a few points. We can follow the same approach as above with the waterbird counts, by creating coverage shapes (like the shapefile features for the waterbird areas) for each of the routes. Using the convex hull of the points within a route seems like a good starting point to convert these points to areas. However, in that case it would appear as if birds are only counted when looking 'inwards' to this shape. By buffering these convex hulls with a radius of the average distance between successive points, a more representative coverage area can be generated.
+The PTT point transect counts are organized by routes, which consist of a few points along a transect/route. We can follow the same approach as above with the waterbird counts, by first creating coverage shapes (like the shapefile features for the waterbird areas) for each of the routes. Using the convex hull of the points within a route seems like a good starting point to convert these points to areas. However, in that case it would appear as if birds are only counted when looking 'inwards' to this shape. By buffering these convex hulls with a radius of the average distance between successive points, a more representative coverage area can be generated that generalises well across landscapes (e.g. the area covered in a dense forest would tend to be smaller than in open agricultural areas).
 
 ### Loading PTT points
 
@@ -170,7 +170,7 @@ plot(ptt_convex_hulls_dhl[2], main = "PTT Routes Den Helder: Avg interpoint dist
 
 As we have calculated the average distance between the points, we can now buffer the convex hulls by this value to attain more representative sizes of the covered areas. 
 
-```{r buffer_convex_hulls_with_interpoint_distance, fig.show='hold'}
+```{r buffer_convex_hulls_with_interpoint_distance, fig.show='hold', results='hold'}
 ptt_convex_hulls_hrw %>%
   st_buffer(dist = as.double(ptt_convex_hulls_hrw$avg_interpoint_distance)) -> ptt_convex_hulls_hrw
 
@@ -199,8 +199,6 @@ ptt_dhl <- suppressWarnings(stackApply(ptt_dhl, indices = rep(1, length(ptt_dhl)
 plot(ptt_hrw, main = "Rasterized PTT routes Herwijnen")
 plot(ptt_dhl, main = "Rasterized PTT routes Den Helder")
 ```
-
-This approach to solving the issue of overlapping polygons introduces a possible problem here, where it will eventually result in larger numbers of birds (corresponding to a single route) being spread over a smaller area of land (after the overlap is removed from some polygons). However, I don't really see an alternative solution to this problem, except by averaging the numbers of birds over the whole area covered by the PTT counts. This would result in much less flexibility later on when calculating relevant bird parameters, so for now we leave it as is.
 
 With the rasterization done, let's compare the resultant raster and see if it is identical to the PPIs.
 
