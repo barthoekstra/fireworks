@@ -5,11 +5,11 @@ For now, we are interested in calculating the following parameters for the count
 1. The number of birds within every PPI pixel.
 2. The average mass of the birds within every PPI pixel.
 
-We can derive the total numbers of birds comparatively easily from the bird counts by Sovon, but to calculate the average mass of the birds we need to link a database of life-history traits. For the latter we first need to translate the vernacular (modern) names of bird species to the scientific ones, so we can link both.
+We can derive the total numbers of birds comparatively easily from the bird counts by Sovon, but to calculate the average mass of the birds we need to link a database of life-history traits. For the latter we first need to translate the vernacular (modern) names of bird species (used by Sovon) to the scientific ones, so we can link both.
 
-## Setting up the processing environment
+## Processing environment
 
-```{r setup_annotating_count_results, warning=FALSE}
+```{r setup_annotating_count_results, warning=FALSE, message=FALSE}
 library(rgbif)
 library(stringr)
 library(readxl)
@@ -21,7 +21,7 @@ library(kableExtra)
 
 ## Loading the Sovon count data
 
-The count data is spread over a few sheets in an `xlsx` file, which we load here. For clarity, we rename all the columns to English and we filter out all counts (i.e. areas) where birds are not positively identified to species level. Although it would be possible to 'fill' these uncertain counts based on proportions, determining how to do that is not necessary for our purposes. Instead, we will just remove these counts altogether. Finally, subspecies identifiers for these species are removed, as we assume there is no variation between subspecies to negatively affect our results, nor does the database of life-history traits contain parameters for subspecies.
+The count data is spread over a few sheets in an `xlsx` file, which we load here. For clarity, we rename all the columns to English and we filter out all counts (i.e. areas) where birds are not positively identified to species level. Although it would be possible to 'fill' these uncertain counts based on proportions, determining how to do that is not necessary for our purposes. Instead, we will just remove these counts altogether. Finally, subspecies identifiers for these species are removed, as we assume variation is limited and the database of life-history traits does not contain parameters for subspecies separately.
 
 ```{r preparing_wb_counts}
 sovon_data <- "data/raw/sovon/tel_dec_jan_1718.xlsx"
@@ -99,7 +99,7 @@ wb_data %>%
 
 With all these species removed or adjusted, we can create a species lookup table. We fetch the scientific names and corresponding GBIF species IDs from the [Checklist Dutch Species Register](https://doi.org/10.15468/rjdpzy), which is the GBIF dataset with key `4dd32523-a3a3-43b7-84df-4cda02f15cf7`. We furthermore remove all unnecessary information, such as subspecies from the scientific names as well.
 
-```{r create_species_lut}
+```{r create_species_lut, results='hold'}
 unique_species <- unique(c(wb_data$species, ptt_data$species))
 
 build_species_lut <- function(specieslist, datasetKey = NULL, class_name = NULL) {
@@ -183,11 +183,11 @@ read_delim("data/raw/sovon/familyvernacular_lut.csv", delim = ";", col_types = c
 
 ## Linking life-history traits to species
 
-We use the *Life-history characteristics of European birds*-dataset [@storchova_2018] to calculate the mean mass of all birds in a PPI pixel. This dataset is stored on Dryad and we can [download](https://doi.org/10.5061/dryad.n6k3n) it there. Unfortunately the `rdryad` package is severely out-of-date with the new Dryad API, so we cannot nicely automate this download yet. Anyways, the files should be downloaded manually and added to `data/raw/life-history-characteristics/`.
+We use the *Life-history characteristics of European birds*-dataset [@storchova_2018] to calculate the mean mass of all birds in a PPI pixel. This dataset is stored on Dryad and we can [download](https://doi.org/10.5061/dryad.n6k3n) it there. Unfortunately at the time of writing the `rdryad` package is severely out-of-date with the new Dryad API, so we cannot nicely automate this download yet. Anyways, the files should be downloaded manually and added to `data/raw/life-history-characteristics/`.
 
-We calculate the mean of the mass of both sexed and unsexed birds and assume they occur 
+We calculate the mean of the mass of both sexed and unsexed birds and assume that represents the mean mass for a species.
 
-```{r prepare_life_history_characteristics}
+```{r prepare_life_history_characteristics, results='hold'}
 read_tsv("data/raw/life-history-characteristics/Life-history characteristics of European birds.txt", 
          col_types = cols_only('Species' = col_character(), 'WeightU_MEAN' = col_double(), 'WeightM_MEAN' = col_double(), 'WeightF_MEAN' = col_double())) %>%
   rowwise %>%
@@ -223,7 +223,7 @@ head(lhc_species_lut, 10) %>%
   kableExtra::scroll_box(width = "100%", height = "400px")
 ```
 
-With the GBIF IDs/keys in place for both the life-history characteristics, as well as the Sovon counts, we can now link the datasets together. First the waterbirds
+With the GBIF IDs/keys in place for both the life-history characteristics, as well as the Sovon counts, we can now link the datasets together. We start with the waterbirds.
 
 ```{r link_sovon_counts_with_life_history_characteristics_wb_counts}
 lhc %>%
@@ -243,7 +243,7 @@ head(wb_data_lhc, 10) %>%
   kableExtra::scroll_box(width = "100%", height = "400px")
 ```
 
-And then the PTT counts
+And then the PTT counts.
 
 ```{r link_sovon_counts_with_life_history_characteristics_ptt_counts}
 ptt_data %>%
@@ -259,7 +259,7 @@ head(ptt_data_lhc, 10) %>%
   kableExtra::scroll_box(width = "100%", height = "400px")
 ```
 
-Now we can verify if our 1% criteria for species matching is met. We do this by calculating the proportions of birds belonging to a certain species out of the total numbers of birds counted within a count. This should result in an empty dataframe, which will stop the code chunk below from running if that is *not* the case.
+Now we can verify if our *1% criteria* (see above) for species matching is met. We do this by calculating the proportions of birds belonging to a certain species out of the total numbers of birds counted within a count. This should result in an empty dataframe, which will stop the code chunk below from running if that is *not* the case.
 
 ```{r verify_one_percent_criteria_wb_counts}
 wb_data_lhc %>%
@@ -353,7 +353,7 @@ saveRDS(ptt_biomass, file = "data/processed/sovon/ptt_biomass.RDS")
 
 Now that we have identified which families birds belong to, we can calculate the proportion of birds that belong to these families across all the PTT and waterbird counts. This can give an idea of the spatial composition of bird communities to illustrate analysis results with.
 
-```{r calculate_proportions_per_family}
+```{r calculate_proportions_per_family, results='hold'}
 wb <- wb_data
 ptt <- ptt_data
 families <- unique(species_lut$familyvernacular)
