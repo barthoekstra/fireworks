@@ -1,10 +1,10 @@
 # Composite all PPIs
 
-With all the preprocessing done, we can now make composites of the PPIs to 'solve' the overlapping areas of the Den Helder and Herwijnen radars. While we're at it, we will also render out these composites, to visualise the en-masse take-off of birds.
+With all the preprocessing done, we can now make composites of the PPIs to 'solve' the overlapping areas of the Den Helder and Herwijnen radars. While we're at it, we will also render out these composites for `VIR`, to visualise the en-masse take-off of birds.
 
-## Setting-up the environment
+## Processing environment
 
-```{r setup-image-processing-environment}
+```{r setup-image-processing-environment, results='hold'}
 library(bioRad)
 library(ggplot2)
 library(magick)
@@ -103,6 +103,7 @@ generate_composites <- function(hrw_ppis, dhl_ppis, res, maxrange) {
   saveRDS(all, file = paste("data/processed/all_", res, "m.RDS", sep = ""))
 }
 
+# Somehow this often hangs despite ample memory available, in which case better executed serially.
 r <- parallel::mclapply(c(500, 1000, 2000), function(x) { generate_composites(hrw_ppis, dhl_ppis, res = x, maxrange = 66000)},
                         mc.cores = 3, mc.preschedule = FALSE)
 ```
