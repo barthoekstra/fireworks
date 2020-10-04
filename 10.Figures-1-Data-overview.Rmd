@@ -1,0 +1,50 @@
+# (PART) Figures {-}
+
+# Figure 1: Data overview
+
+```{r}
+library(bioRad)
+library(raster)
+source("R/comp_ppi.R")
+source("R/generate_composite.R")
+```
+
+```{r}
+hrw <- readRDS("data/processed/final-ppis/RAD_NL62_VOL_NA_201712312305_ODIM.RDS")
+dhl <- readRDS("data/processed/final-ppis/RAD_NL61_VOL_NA_201712312305_ODIM.RDS")
+```
+
+```{r}
+cppi <- comp_ppi(list(hrw, dhl), param = c("VIR", "total_biomass"), res = 500, method = c("mean", "mean"))
+# cppi$data$VIR[cppi$data$class < 2] <- NA
+cppi$data$VIR <- log10(cppi$data$VIR)
+cppi$data$VIR[is.infinite(cppi$data$VIR)] <- 0
+cppi$data$VIR[cppi$data$VIR == 0] <- NA
+cppi$data$total_biomass[cppi$data$total_biomass == 0] <- NA
+cppi$data$total_biomass <- log10(cppi$data$total_biomass)
+
+# cppi <- generate_composite(hrw_ppi = hrw, dhl_ppi = dhl, res = 500, maxrange = 150000)
+```
+
+
+```{r}
+raster::writeRaster(as(cppi$data["VIR"], "RasterLayer"), filename = "data/plots/paper/VIR.tif", overwrite = TRUE)
+raster::writeRaster(as(cppi$data["total_biomass"], "RasterLayer"), filename = "data/plots/paper/total_biomass.tif", overwrite = TRUE)
+cppi_final <- readRDS("data/processed/composite-ppis/500m/201712312305.RDS")
+raster::writeRaster(as(cppi_final$data["dist_radar"], "RasterLayer"), filename = "data/plots/paper/dist_radar.tif")
+```
+
+```{r}
+p <- plot(cppi)
+```
+
+```{r}
+borders <- read_sf("data/raw/visualisation/Netherlands_Borders.shp")
+borders <- st_transform(borders, crs = st_crs(cppi$data))
+```
+
+```{r}
+plot(cppi, zlim = c(1, 50000)) +
+  scale_fill_continuous(trans = "log10", type = "viridis") +
+  geom_sf(data = borders, alpha = 0)
+```
