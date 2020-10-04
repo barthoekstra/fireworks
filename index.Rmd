@@ -23,4 +23,4 @@ bookdown::render_book(input = "index.Rmd", output_format = "bookdown::gitbook", 
 ```
 
 ### Full-reproduction mode {-#full-repro-mode}
-In the spirit of reproducibility, the entire analysis, which happens to be contained in this book, can be reproduced at the push of a button (almost). To facilitate faster reproduction, some code chunks are only run when `full-reproduction` mode is switched on. This can be done by setting the R variable `full_repro` to `TRUE` in `build_bookdown.R`.
+In the spirit of reproducibility, the entire analysis, which happens to be contained in this book, can theoretically be reproduced at the push of a button. To facilitate faster reproduction, some code chunks are only run when `full-reproduction` mode is switched on. This can be done by setting the R variable `full_repro` to `TRUE` in `build_bookdown.R`.
