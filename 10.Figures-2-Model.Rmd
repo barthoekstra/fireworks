@@ -1,0 +1,402 @@
+# Figure 2: Model output
+
+We have now quantified uncertainty in our model using bootstrapping and can finally visualise the outcome.
+
+```{r setup_visualisation_environment, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(mboost)
+library(dplyr)
+library(tidyr)
+library(magrittr)
+library(patchwork)
+library(ggdist)
+```
+
+```{r load_models_and_functions}
+modelci <- readRDS("data/models/confints/final_modelci.RDS")
+data_cleaned <- readRDS("data/data_cleaned.RDS")
+source("R/mboost_bootstrapped_quantiles.R")
+source("R/plot.mboost_adjusted.R")
+```
+
+## Variable importance
+
+We start by calculating summary statistics of bootstrapped variable importance, as we'll organise the final figure according to descending variable importance.
+
+```{r calculate_bootstrapped_variable_importance, message=FALSE, warning=FALSE}
+bootstrapped_varimp <- function(modelci, exclude = c("dist_radar"), round = 0) {
+  ind_vis <- lapply(modelci$varimp, function(x) {
+    x %>%
+      filter(!variable %in% exclude) %>%
+      mutate(vi = reduction / sum(reduction) * 100)
+  })
+  vis_out <- ind_vis[[1]] %>%
+    select(variable, vi) %>%
+    mutate(variable = as.character(variable))
+  
+  agg_vis <- lapply(ind_vis[2:length(ind_vis)], function(x) {
+    x %>%
+      select(vi)
+  })
+  
+  vis_out[2:length(ind_vis)] <- bind_cols(agg_vis)
+  vis_out
+}
+
+bvi_biol <- bootstrapped_varimp(modelci)
+bvi_all <- bootstrapped_varimp(modelci, exclude = NULL)
+```
+
+And we can plot the distribution of these variable importance measures for each of the predictors, for a model containing all predictors and one containing just biologically-relevant predictors. For the latter we have rescaled variable importance back to 100% after removal of `dist_radar`.
+
+```{r plot_variable_importance_distributions, results='hold'}
+bvi_biol %>%
+  pivot_longer(!variable, names_to = "bootstrap", values_to = "vi") %>%
+  ggplot(aes(x = vi, y = variable)) +
+  stat_eye() +
+  labs(x = "Variable importance (%)", y = "Predictor", title = "Biologically-relevant predictors")
+
+bvi_all %>%
+  pivot_longer(!variable, names_to = "bootstrap", values_to = "vi") %>%
+  ggplot(aes(x = vi, y = variable)) +
+  stat_eye() +
+  labs(x = "Variable importance (%)", y = "Predictor", title = "All model predictors")
+```
+
+We can now also calculate the mean variable importance for each of the predictors to determine the rank in the final figure.
+
+```{r calculate_predictor_rank, results='hold'}
+bvi_biol %>%
+  pivot_longer(!variable, names_to = "bootstrap", values_to = "vi") %>%
+  group_by(variable) %>%
+  summarise(mean_vi = mean(vi), q025 = quantile(vi, probs = 0.025), q975 = quantile(vi, probs = 0.975), .groups = "drop_last") %>%
+  mutate(mean_round = round(mean_vi, 0)) %>%
+  arrange(desc(mean_vi)) -> bvi_biol
+
+bvi_all %>%
+  pivot_longer(!variable, names_to = "bootstrap", values_to = "vi") %>%
+  group_by(variable) %>%
+  summarise(mean_vi = mean(vi), q025 = quantile(vi, probs = 0.025), q975 = quantile(vi, probs = 0.975), .groups = "drop_last") %>%
+  mutate(mean_round = round(mean_vi, 0)) %>%
+  arrange(desc(mean_vi)) -> bvi_all
+
+bvi_biol
+bvi_all
+```
+
+## Visualise marginal effects
+
+Now that we have calculated how the marginal effects should be ordered, we can generate the final plots.
+
+### Biologically-relevant marginal effects
+
+```{r plot_biological_marginal_effects, warning=FALSE, message=FALSE}
+confidence.intervals <- c(0.95, 0.8, 0.5)
+colors <- c("urban" = "#94346E", "agricultural" = "#73AF48", "semiopen" = "#EDAD08", "forests" = "#0F8554", "wetlands" = "#38A6A5", "waterbodies" = "#1D6996",
+            "dist_urban" = "#94346E", "total_biomass" = "#CC503E", "dist_radar" = "#666666")
+x_labels <- c("urban" = "Urban", "agricultural" = "Agricultural", "semiopen" = "Semi-open", "forests" = "Forests", "wetlands" = "Wetlands", "waterbodies" = "Water bodies", "dist_urban" = "Distance to fireworks (m)", "total_biomass" = "Bird biomass (kg)", "dist_radar" = "Distance from radar (m)")
+limit_quantiles <- c("dist_urban", "total_biomass")
+manual_limits <- list("dist_urban" = c(min(data_cleaned$dist_urban), 6500), "total_biomass" = c(0, 4000))
+ylims <- c(-1.8, 1.5)
+
+plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims = ylims, varimp = NULL) {
+  bootstrapped_quantiles <- as.data.frame(t(mboost_bootstrapped_quantiles(modelci, confidence.intervals, which = which)))
+  bootstrapped_quantiles$x <- modelci$data[modelci$model$which(which)][[1]][, 1]
+  bootstrapped_quantiles$y <- plot.mboost_adjusted(modelci$model, which = which, newdata = modelci$data[[modelci$model$which(which)]])[[2]]
+  
+  p <- ggplot(bootstrapped_quantiles)
+  i <- 1
+  sorted_confints <- sort(confints, decreasing = TRUE)
+  
+  # Add variable importance
+  if (is.null(varimp)) {
+    variable_importance <- function(model, which, exclude = c("dist_radar"), round = 0) {
+      vi <- as.data.frame(varimp(model)) %>%
+        filter(!variable %in% exclude)
+      vi$vi <- vi$reduction / sum(vi$reduction) * 100
+      vi %>%
+        filter(variable == which) %>%
+        select(vi) %>%
+        as.numeric() %>%
+        round(round)
+    }
+    vi <- variable_importance(modelci$model, which)
+  } else {
+    vi <- varimp %>%
+      filter(variable == which) %>%
+      select(mean_round)
+  }
+  
+  offset_right <- 0.95
+  offset_top <- 0.4
+  if (which == "dist_urban") {
+    p <- p +
+      annotate("text", x = manual_limits$dist_urban[[2]] * offset_right, y = ylims[2] - offset_top, label = paste0(vi, "%"), hjust = 1, color = colors[which],
+               fontface = "bold", size = 12, alpha = 0.5)
+  } else if(which == "total_biomass") {
+    p <- p +
+      annotate("text", x = manual_limits$total_biomass[[2]] * offset_right, y = ylims[2] - offset_top, label = paste0(vi, "%"), hjust = 1, color = colors[which],
+               fontface = "bold", size = 12, alpha = 0.5)
+  } else {
+    p <- p +
+      annotate("text", x = 1 * offset_right, y = ylims[2] - offset_top, label = paste0(vi, "%"), hjust = 1, color = colors[which], 
+               fontface = "bold", size = 12, alpha = 0.5)
+  }
+  
+  # Add density
+  if (which == "dist_urban") {
+    dens <- density(data[, which], bw = 225, from = manual_limits$dist_urban[[1]], to = manual_limits$dist_urban[[2]])
+  } else if (which == "total_biomass") {
+    dens <- density(data[, which], bw = 100, from = manual_limits$total_biomass[[1]], to = manual_limits$total_biomass[[2]])
+  } else {
+    dens <- density(data[, which], bw = 0.03556, from = 0, to = 1)
+  }
+  scale_lims <- c(ylims[1] + 0.05, ylims[2] - 0.05)
+  dens$y <- scales::rescale(dens$y, to = scale_lims)
+  dens <- as.data.frame(list(as.matrix(dens$x), as.matrix(dens$y)))
+  colnames(dens) <- c("x", "y")
+  p <- p +
+    geom_line(aes(x = x, y = y), data =  dens, color = "grey50", lineend = "round", linetype = 3) +
+    scale_y_continuous(sec.axis = sec_axis(~ ., name = "Predictor frequency", breaks = scale_lims, labels = c("min", "max")))
+  
+  ## Add horizontal line
+  p <- p +
+    geom_hline(yintercept = 0)
+  
+  for (ci in sorted_confints) {
+    alphas <- rev(factor(sorted_confints))
+    ymax <- as.name(paste((1 - (1 - ci) / 2) * 100, "%", sep = ""))
+    ymax <- enquo(ymax)
+    ymin <- as.name(paste(((1 - ci) / 2) * 100, "%", sep = ""))
+    ymin <- enquo(ymin)
+    
+    p <- p +
+      geom_ribbon(aes(x = x, ymin = !!ymin, ymax = !!ymax, alpha = !!alphas[i]), fill = colors[which]) +
+      geom_line(aes(x = x, y = y), color = colors[which], size = 1.5, lineend = "round")
+
+    i <- i + 1
+  }
+  
+  p <- p +
+    scale_alpha_discrete(range = c(0.2, 0.5)) +
+    coord_cartesian(ylim = ylims, expand = FALSE) +
+    guides(alpha = FALSE)
+  
+  if (which == "dist_urban") {
+    xlabel <- x_labels[which]
+    p <- p +
+      coord_cartesian(xlim = manual_limits$dist_urban, ylim = ylims, expand = FALSE)
+      scale_x_continuous(breaks = c(0, 10000, 20000, 30000), labels = c(0, 10, 20, 30))
+  } else if (which == "total_biomass") {
+    xlabel <- x_labels[which]
+    p <- p +
+      coord_cartesian(xlim = manual_limits$total_biomass, ylim = ylims, expand = FALSE)
+  } else {
+    xlabel <- paste("%", x_labels[which])
+    p <- p + 
+      scale_x_continuous(breaks = c(0, 1), labels = c("0%", "100%"))
+  }
+  
+  p <- p +
+    theme_classic(base_size = 10) +
+    labs(x = xlabel, y = expression(paste("Flight response ", log[10], "(VIR)"))) +
+    theme(axis.line.y.left = element_line(color = colors[which], size = 1),
+          axis.line.y.right = element_line(color = "grey"),
+          axis.ticks.y.left = element_line(color = colors[which], size = 1),
+          axis.ticks.y.right = element_line(color = "grey"),
+          axis.title.y = element_text())
+  
+  if (which(varimp$variable == which) %% 2 == 0) {
+    p <- p +
+      theme(axis.title.y.left = element_blank())
+  } else {
+    p <- p +
+      theme(axis.title.y.right = element_blank())
+  }
+
+  if (!which %in% limit_quantiles) {
+    p <- p +
+      theme(axis.title.x = element_text(vjust = 0.5))
+  }
+
+  p
+}
+
+predictors <- bvi_biol$variable
+plots <- mapply(function(predictors) {plot_mboost_pdp(modelci, data_cleaned, which = predictors, confidence.intervals, colors, ylims, bvi_biol)}, 
+                predictors = predictors,
+                SIMPLIFY = FALSE)
+
+# layout <- c(area(1, 1, 1, 2), area(1, 3, 1, 4), area(2, 1, 2, 2), area(2, 3, 2, 4), area(3, 1, 3, 2), area(3, 3, 3, 4), area(4, 2, 4, 3))
+# p <- wrap_plots(plots, design = layout)
+p <- wrap_plots(plots, ncol = 2)
+
+p
+```
+
+And we save it as a PDF so we can tweak the plot manually in Adobe Illustrator.
+
+```{r save_biological_marginal_effects}
+ggsave(filename = "data/plots/paper/fig2_biol.pdf", plot = p, width = 16, height = 20, dpi = 300, units = "cm")
+```
+
+## All marginal effects
+
+```{r plot_all_marginal_effects, warning=FALSE}
+confidence.intervals <- c(0.95, 0.8, 0.5)
+colors <- c("urban" = "#94346E", "agricultural" = "#73AF48", "semiopen" = "#EDAD08", "forests" = "#0F8554", "wetlands" = "#38A6A5", "waterbodies" = "#1D6996",
+            "dist_urban" = "#94346E", "total_biomass" = "#CC503E", "dist_radar" = "#666666")
+x_labels <- c("urban" = "Urban", "agricultural" = "Agricultural", "semiopen" = "Semi-open", "forests" = "Forests", "wetlands" = "Wetlands", "waterbodies" = "Water bodies", "dist_urban" = "Distance to fireworks (m)", "total_biomass" = "Bird biomass (kg)", "dist_radar" = "Distance from radar (km)")
+limit_quantiles <- c("dist_urban", "total_biomass")
+manual_limits <- list("dist_urban" = c(min(data_cleaned$dist_urban), 6500), "total_biomass" = c(0, 4000), "dist_radar" = c(0, 66000))
+ylims <- c(-2.5, 1.5)
+
+plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims = ylims, varimp = NULL) {
+  bootstrapped_quantiles <- as.data.frame(t(mboost_bootstrapped_quantiles(modelci, confidence.intervals, which = which)))
+  bootstrapped_quantiles$x <- modelci$data[modelci$model$which(which)][[1]][, 1]
+  bootstrapped_quantiles$y <- plot.mboost_adjusted(modelci$model, which = which, newdata = modelci$data[[modelci$model$which(which)]])[[2]]
+  
+  p <- ggplot(bootstrapped_quantiles)
+  i <- 1
+  sorted_confints <- sort(confints, decreasing = TRUE)
+  
+  # Add variable importance
+  if (is.null(varimp)) {
+    variable_importance <- function(model, which, exclude = c("dist_radar"), round = 0) {
+      vi <- as.data.frame(varimp(model)) %>%
+        filter(!variable %in% exclude)
+      vi$vi <- vi$reduction / sum(vi$reduction) * 100
+      vi %>%
+        filter(variable == which) %>%
+        select(vi) %>%
+        as.numeric() %>%
+        round(round)
+    }
+    vi <- variable_importance(modelci$model, which)
+  } else {
+    vi <- varimp %>%
+      filter(variable == which) %>%
+      select(mean_round)
+  }
+  
+  offset_right <- 0.95
+  offset_top <- 0.5
+  if (which == "dist_urban") {
+    p <- p +
+      annotate("text", x = manual_limits$dist_urban[[2]] * offset_right, y = ylims[2] - offset_top, label = paste0(vi, "%"), hjust = 1, color = colors[which],
+               fontface = "bold", size = 12, alpha = 0.5)
+  } else if(which == "total_biomass") {
+    p <- p +
+      annotate("text", x = manual_limits$total_biomass[[2]] * offset_right, y = ylims[2] - offset_top, label = paste0(vi, "%"), hjust = 1, color = colors[which],
+               fontface = "bold", size = 12, alpha = 0.5)
+  } else if(which == "dist_radar") {
+    p <- p +
+      annotate("text", x = manual_limits$dist_radar[[2]] * offset_right, y = ylims[2] - offset_top, label = paste0(vi, "%"), hjust = 1, color = colors[which],
+               fontface = "bold", size = 12, alpha = 0.5)
+  } else {
+    p <- p +
+      annotate("text", x = 1 * offset_right, y = ylims[2] - offset_top, label = paste0(vi, "%"), hjust = 1, color = colors[which], 
+               fontface = "bold", size = 12, alpha = 0.5)
+  }
+  
+  # Add density
+  if (which == "dist_urban") {
+    dens <- density(data[, which], bw = 225, from = manual_limits$dist_urban[[1]], to = manual_limits$dist_urban[[2]])
+  } else if (which == "total_biomass") {
+    dens <- density(data[, which], bw = 100, from = manual_limits$total_biomass[[1]], to = manual_limits$total_biomass[[2]])
+  } else if (which == "dist_radar") {
+    dens <- density(data[, which], from = manual_limits$dist_radar[[1]], to = manual_limits$dist_radar[[2]])
+  } else {
+    dens <- density(data[, which], bw = 0.03556, from = 0, to = 1)
+  }
+  scale_lims <- c(ylims[1] + 0.05, ylims[2] - 0.05)
+  dens$y <- scales::rescale(dens$y, to = scale_lims)
+  dens <- as.data.frame(list(as.matrix(dens$x), as.matrix(dens$y)))
+  colnames(dens) <- c("x", "y")
+  p <- p +
+    geom_line(aes(x = x, y = y), data =  dens, color = "grey50", lineend = "round", linetype = 3) +
+    scale_y_continuous(sec.axis = sec_axis(~ ., name = "Predictor frequency", breaks = scale_lims, labels = c("min", "max")))
+  
+  ## Add horizontal line
+  p <- p +
+    geom_hline(yintercept = 0)
+  
+  for (ci in sorted_confints) {
+    alphas <- rev(factor(sorted_confints))
+    ymax <- as.name(paste((1 - (1 - ci) / 2) * 100, "%", sep = ""))
+    ymax <- enquo(ymax)
+    ymin <- as.name(paste(((1 - ci) / 2) * 100, "%", sep = ""))
+    ymin <- enquo(ymin)
+    
+    p <- p +
+      geom_ribbon(aes(x = x, ymin = !!ymin, ymax = !!ymax, alpha = !!alphas[i]), fill = colors[which]) +
+      geom_line(aes(x = x, y = y), color = colors[which], size = 1.5, lineend = "round")
+
+    i <- i + 1
+  }
+  
+  p <- p +
+    scale_alpha_discrete(range = c(0.2, 0.5)) +
+    coord_cartesian(ylim = ylims, expand = FALSE) +
+    guides(alpha = FALSE)
+  
+  if (which == "dist_urban") {
+    xlabel <- x_labels[which]
+    p <- p +
+      coord_cartesian(xlim = manual_limits$dist_urban, ylim = ylims, expand = FALSE)
+      scale_x_continuous(breaks = c(0, 10000, 20000, 30000), labels = c(0, 10, 20, 30))
+  } else if (which == "total_biomass") {
+    xlabel <- x_labels[which]
+    p <- p +
+      coord_cartesian(xlim = manual_limits$total_biomass, ylim = ylims, expand = FALSE)
+  } else if (which == "dist_radar") {
+    xlabel <- x_labels[which]
+    p <- p +
+      coord_cartesian(xlim = manual_limits$dist_radar, ylim = ylims, expand = FALSE) +
+      scale_x_continuous(breaks = c(0, 10000, 20000, 30000, 40000, 50000, 60000), labels = c(0, 10, 20, 30, 40, 50, 60))
+  } else {
+    xlabel <- paste("%", x_labels[which])
+    p <- p + 
+      scale_x_continuous(breaks = c(0, 1), labels = c("0%", "100%"))
+  }
+  
+  p <- p +
+    theme_classic(base_size = 10) +
+    labs(x = xlabel, y = expression(paste("Flight response ", log[10], "(VIR)"))) +
+    theme(axis.line.y.left = element_line(color = colors[which], size = 1),
+          axis.line.y.right = element_line(color = "grey"),
+          axis.ticks.y.left = element_line(color = colors[which], size = 1),
+          axis.ticks.y.right = element_line(color = "grey"),
+          axis.title.y = element_text())
+  
+  if (which(varimp$variable == which) %% 2 == 0) {
+    p <- p +
+      theme(axis.title.y.left = element_blank())
+  } else {
+    p <- p +
+      theme(axis.title.y.right = element_blank())
+  }
+
+  if (!which %in% limit_quantiles) {
+    p <- p +
+      theme(axis.title.x = element_text(vjust = 0.5))
+  }
+
+  p
+}
+
+predictors <- bvi_all$variable
+plots <- mapply(function(predictors) {plot_mboost_pdp(modelci, data_cleaned, which = predictors, confidence.intervals, colors, ylims, bvi_all)}, 
+                predictors = predictors,
+                SIMPLIFY = FALSE)
+
+p <- wrap_plots(plots, ncol = 2)
+
+p
+```
+
+And once again we save the plot to PDF.
+
+```{r save_all_marginal_effects}
+ggsave(filename = "data/plots/paper/fig2_all.pdf", plot = p, width = 16, height = 20, dpi = 300, units = "cm")
+```
