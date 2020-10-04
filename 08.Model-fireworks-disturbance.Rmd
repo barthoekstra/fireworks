@@ -17,9 +17,7 @@ The following parameters we assume are important predictors for measured bird de
 3. The human population in the vicinity of birds.
 4. The distance to the nearest inhabited urban area.
 
-## Setting-up the environment
-
-Load the required packages.
+## Processing environment
 
 ```{r setup_modelling_environment, warning=FALSE, message=FALSE}
 library(ggstatsplot)
@@ -27,15 +25,13 @@ library(ggplot2)
 library(dplyr)
 library(readr)
 library(tidyr)
-library(gbm)
-library(dismo)
-library(ggBRT)
-library(patchwork)
-library(pdp)
 library(parallel)
 library(ggridges)
 library(pgirmess)
-cpucores <- 6
+library(mboost)
+library(leaflet)
+library(leaflet.opacity)
+library(leafem)
 ```
 
 In the previous chapter, we have created some datasets encompassing all the data contained within the individual PPIs at different resolutions. We will determine the optimal resolution and then continue using this dataset for further modelling.
@@ -62,7 +58,7 @@ dt_start <- as.POSIXct("2017-12-31 23:05:00", tz = "UTC")
 dt_end <- as.POSIXct("2017-12-31 23:10:00", tz = "UTC")
 
 clean_data <- function(data, scan_start, scan_end, max_distance) {
-  mdl_variables <- c("VIR", "dist_radar", "datetime", "total_biomass", "urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies", 
+  mdl_variables <- c("VIR", "dist_radar", "datetime", "total_biomass", "agricultural", "semiopen", "forests", "wetlands", "waterbodies", "urban",
                      "dist_urban", "human_pop", "disturb_pot", "pixel", "coverage", "class", "x", "y")
   log10_variables <- c("dist_urban", "human_pop", "total_biomass", "dist_urban", "disturb_pot")
   
@@ -71,9 +67,9 @@ clean_data <- function(data, scan_start, scan_end, max_distance) {
            class != 1,
            datetime >= scan_start & datetime < scan_end,
            total_biomass > 0,
-           dist_radar < max_distance,
-           urban < 0.25) %>%
-    mutate(VIR = replace_na(VIR, 0.001),
+           dist_radar < max_distance, 
+           urban < 0.1) %>%
+    mutate(VIR = replace_na(VIR, 0.1),
            VIR = log10(VIR),
            disturb_pot = human_pop / dist_urban,
            total_biomass = total_biomass / 1000) %>%
@@ -90,50 +86,61 @@ rm(data)
 
 ## Determine model resolution based on performance in simple `total_biomass` model
 
-As we want to correct for the influence of `total_biomass` on the measured response by the radars, we will test the performance of a simple model using just `dist_radar` to correct for range-biased measurement error and `total_biomass` for the resolutions we have generated composte PPIs for so far (500m, 1000m and 2000m). The most performant model is then a logical candidate to continue working with. Learning rates are tweaked roughly to force training of the model without 1) hitting a maximum number of trees limit and 2) avoid overfitting.
+As we want to correct for the influence of `total_biomass` on the measured response by the radars, we will test the performance of a simple model using just `dist_radar` to correct for range-biased measurement error and `total_biomass` for the resolutions we have generated composte PPIs for so far (500m, 1000m and 2000m).
 
-```{r}
-x_vars <- match(c("dist_radar", "total_biomass"), colnames(data_cleaned[[1]]))
-resolution_models <- mcmapply(function(dataset, lr) gbm.step(data = dataset, gbm.y = 1, gbm.x = x_vars, bag.fraction = 0.5, family = "gaussian", 
-                                                             tree.complexity = 2, learning.rate = lr, silent = TRUE, plot.main = FALSE),
-                              dataset = data_cleaned, lr = c(0.5, 0.1, 0.01), SIMPLIFY = FALSE, mc.preschedule = FALSE, mc.cores = cpucores)
+Let's start with a calculation of the RMSE.
+
+```{r determine_model_resolution}
+resolution_models <- mcmapply(function(dataset) mboost(VIR ~ bbs(dist_radar) + bbs(total_biomass), 
+                                                       data = dataset, control = boost_control(mstop = 10000, trace = TRUE)),
+                              dataset = data_cleaned, SIMPLIFY = FALSE)
+RMSE <- function(error) { sqrt(mean(error^2)) }
+sapply(resolution_models, function(x) RMSE(residuals(x)))
 ```
 
-With these models trained, we can now compare their performance.
+We can also use percentage of [deviance explained](https://doi.org/10.1016/S0304-3800(00)00354-9)
 
-```{r}
-resolution_perf <-ggPerformance("500m" = resolution_models[[1]], "1000m" = resolution_models[[2]], "2000m" = resolution_models[[3]])
-rm(resolution_models)
-resolution_perf
+```{r resolution_model_deviance_explained}
+deviance_explained <- function(observed, predicted) {
+  p <- predicted
+  o <- observed
+  i <- rep(mean(observed), length(observed))  # Intercept
+  total.deviance <- sum((o - i) * (o - i)) / length(observed)  # Deviance from an intercept-only model
+  resid.deviance <- sum((o - p) * (o - p)) / length(observed)  # Deviance from the fitted model
+  (total.deviance - resid.deviance) / total.deviance
+}
+
+mapply(function(data, model) { deviance_explained(data$VIR, predict(model))}, data = data_cleaned, model = resolution_models)
 ```
 
-It is clear that as the resolution increases (in other words: the cellsize decreases) the performance of `total_biomass` improves substantially, so it makes sense to continue with the 500m resolution data. Additionally, this suggests that dispersion is not really a problematic factor yet, as in that case the performance of a model based on `total_biomass` should not have been so good using small pixel sizes.
+Turns out most models perform quite similarly. However, to make the link between birds and the habitat they take off from as strong as possible, it makes sense to continue just with the 500m model.
 
-```{r}
-data_cleaned <- data_cleaned[[which.max(resolution_perf["cvPer.Expl", ])]]
+```{r set_final_resolution}
+data_cleaned <- data_cleaned$`500m`
+saveRDS(data_cleaned, file = "data/models/data_cleaned.RDS")
 ```
 
 ## Check for correlations among predictors
 
 We have to see if variables are strongly correlated and thus unfit for being included in the same model, so we calculate Spearman correlation coefficients for all numerical predictors. As this is ecological data, some degree of correlation is of course inevitable for most variables.
 
-```{r check_for_correlations, warning=FALSE, fig.width=10}
-mdl_variables <- c("VIR", "dist_radar", "datetime", "total_biomass", "urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies", 
+```{r check_for_correlations, warning=FALSE, fig.width=12, fig.height=12}
+mdl_variables <- c("VIR", "dist_radar", "datetime", "total_biomass", "agricultural", "semiopen", "forests", "wetlands", "waterbodies", "urban", 
                    "dist_urban", "human_pop", "disturb_pot", "pixel", "coverage", "class")
 predictors <- mdl_variables[!mdl_variables %in% c("VIR", "datetime", "pixel", "x", "y", "coverage", "class")]
 corr_radar <- ggcorrmat(data_cleaned, output = "plot", type = "spearman", cor.vars = all_of(predictors), colors = c("#2166AC", "#F7F7F7", "#B2182B"))
 corr_radar
 ```
 
-So obviously there is a strong correlation between the different proxies for disturbance and between `agricultural` and the other land use proportions. For the disturbance proxies it would make sense to determine which is most performant, but for the land use proportions we have to determine if `agricultural` should be included in the model with these other predictors.
+So obviously there is correlation between the disturbance proxies and between `agricultural` and other land use proportions. For the disturbance proxies it would make sense to determine which is most performant (including all does not make sense), but we can continue using the `agricultural` predictor as boosted models do not suffer from multicollinearity problems like traditional (e.g.) GAMs.
 
 ## Correlated land use proportions
 
-Let's see what the distributions of values is for the different land use proportions.
+While we're at it, let's see what the distributions of values are for the different land use proportions.
 
 ```{r show_correlated_land_use, message=FALSE}
 data_cleaned %>%
-  dplyr::select(urban, agricultural, semiopen, forests, wetlands, waterbodies) %>%
+  dplyr::select(agricultural, semiopen, forests, wetlands, waterbodies) %>%
   pivot_longer(cols = everything(), names_to = "landuse", values_to = "value") %>%
   ggplot(aes(x = value, y = landuse, fill = stat(x))) +
   geom_density_ridges_gradient(scale = 1, rel_min_height = 0.0) +
@@ -143,213 +150,129 @@ data_cleaned %>%
   ylab("Land use class")
 ```
 
-As can be expected in The Netherlands, the dominant land use class is clearly `agricultural` with the most prominent peak at full PPI  pixel coverage (values close to 1) and all other land use classes peaking very strongly at low proportions. This essentially means that when one of the other land use classes increases in proportion, this will almost always come at the cost of the proportion of `agricultural` and vice versa. So, using all these land use proportions in the model will be uninformative, and will blow up our uncertainty estimates after bootstrapping. Therefore, we will not train a model containing *both* `agricultural` and one of the other land use classes.
+As can be expected in The Netherlands, the dominant land use class is clearly `agricultural` with the most prominent peak at full PPI  pixel coverage (values close to 1) and all other land use classes peaking very strongly at low proportions. This essentially means that when one of the other land use classes increases in proportion, this will almost always come at the cost of the proportion of `agricultural` and vice versa.
 
 ## Determine the most suitable proxy for disturbance
 
-As could be expected, the three 'disturbance parameters' (`dist_urban`, `human_pop`, `disturb_pot`) are highly correlated, so we should see which of these is most suitable to include in our model, as it makes no sense to include all. To assess that, we will simply compare the performance of each of the models trained with a single disturbance parameter.
+Now we will compare the disturbance proxies in a similar fashion to how we compared the performance of the model using different PPI resolutions, by calculating deviance explained and RMSE.
 
-```{r compare_disturbance_proxies}
-lr <- 0.05
-max_trees <- nrow(data_cleaned) * 0.25
-silence <- TRUE
+```{r compare_proxies_for_disturbance}
+fm_dist_urban <- VIR ~ bbs(dist_radar) + bbs(total_biomass) + bbs(semiopen) + bbs(forests) + bbs(wetlands) + bbs(waterbodies) + bbs(agricultural) + bbs(dist_urban)
+fm_human_pop <- VIR ~ bbs(dist_radar) + bbs(total_biomass) + bbs(semiopen) + bbs(forests) + bbs(wetlands) + bbs(waterbodies) + bbs(agricultural) + bbs(human_pop)
+fm_disturb_pot <- VIR ~ bbs(dist_radar) + bbs(total_biomass) + bbs(semiopen) + bbs(forests) + bbs(wetlands) + bbs(waterbodies) + bbs(agricultural) + bbs(disturb_pot)
+formulas <- list(fm_dist_urban, fm_human_pop, fm_disturb_pot)
 
-base_model <- c("dist_radar", "total_biomass", "urban", "semiopen", "forests", "wetlands", "waterbodies")
-disturbance_proxies <- c("dist_urban", "human_pop", "disturb_pot")
-x_vars <- lapply(disturbance_proxies, function(x) match(c(base_model,x), colnames(data_cleaned)))
-names(x_vars) <- disturbance_proxies
+disturbance_models <- mcmapply(function(formula) mboost(formula, data = data_cleaned, control = boost_control(mstop = 10000, trace = TRUE)), 
+                               formula = formulas, SIMPLIFY = FALSE)
+names(disturbance_models) <- c("dist_urban", "human_pop", "disturb_pot")
+RMSE <- function(error) { sqrt(mean(error^2)) }
+rmse <- sapply(disturbance_models, function(x) RMSE(residuals(x)))
+d2 <- mapply(function(model) { deviance_explained(data_cleaned$VIR, predict(model))}, model = disturbance_models)
+as.data.frame(list("RMSE" = as.matrix(rmse), "D2" = as.matrix(d2)))
 ```
 
-```{r train_disturbance_models, eval=full_repro}
-disturbance_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.5, family = "gaussian", 
-                                                            tree.complexity = 2, learning.rate = lr, silent = silence, max.trees = max_trees, 
-                                                            step.size = 50, plot.main = FALSE), mc.cores = cpucores, mc.preschedule = FALSE)
-names(disturbance_models) <- disturbance_proxies
-saveRDS(disturbance_models, file = "data/models/brt_models_disturbance.RDS")
+It is clear `dist_urban` performs the best, though just by a slight margin. As it is probably the most interpretable proxy from a policy perspective, we can continue using it without any regrets.
+
+```{r set_final_disturbance_proxy}
+model <- disturbance_models$dist_urban
+saveRDS(model, file = "data/models/model.RDS")
 ```
 
-Let's compare the performance:
+## Determine the optimal number of boosting steps
 
-```{r compare_disturbance_proxies_performance, results='hold'}
-disturbance_models <- readRDS("data/models/brt_models_disturbance.RDS")
-disturb_perf <- ggPerformance("dist_urban" = disturbance_models[[1]], "human_pop" = disturbance_models[[2]], "disturb_pot" = disturbance_models[[3]])
-disturb_perf
+The main hyperparameter to be tuned for the boosted GAMs using `mboost` is the number of boosting iterations/steps. By stopping boosting before model performance (measured using cross-validation) worsens, we can avoid overfitting.
+
+```{r determine_boosting_steps, eval=full_repro}
+cv10f <- cv(model.weights(model), type = "kfold", B = 10)
+cvm <- cvrisk(model, folds = cv10f, papply = lapply)
+saveRDS(cvm, file = "data/models/cvm.RDS")
 ```
 
-We have a clear winner here: `dist_urban` performs the best, so we'll continue with that proxy for disturbance.
-
-``` {r set_best_disturbance_proxy}
-best_disturbance_proxy <- names(which.max(disturb_perf["cvPer.Expl", ]))
+```{r plot_boosting_steps}
+cvm <- readRDS("data/models/cvm.RDS")
+plot(cvm)
 ```
 
-## Determine best hyperparameter settings for `lr`
+We can see that model performance improves very little beyond a few thousand boosting iterations. As we have to quantify model uncertainty using bootstrapping techniques, it makes little computational sense to push much beyond 10000 boosts, as that would just make the bootstrapping procedure last much longer.
 
-To avoid overfitting to noise, we will limit the maximum nr of trees used in the model to 25% of the number of datapoints, which yields a possible `r round(nrow(data_cleaned) * 0.25)` trees to be used. We still want to make sure our model reaches some measure of optimality (in this case a reduction of cross-validated deviance explained), we have to do a hyperparameter search for a suitable combination of maximum number of trees and learning rate. See Elith et al. for an explanation on the linkage between number of trees and learning rate.
+## Variable importance
 
-```{r determine_learning_rates}
-learning_rates <- c(0.1, 0.15, 0.2, 0.3, 0.4, 0.5)  # Lower and higher learning rates certainly do not converge quick enough or increase error
-```
-```{r train_model_hyperparameters, eval=full_repro}
-hyperparms <- mclapply(learning_rates, function(x) { gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x_vars[[best_disturbance_proxy]], bag.fraction = 0.5,
-                                                              family = "gaussian", plot.main = FALSE, tree.complexity = 2, learning.rate = x, 
-                                                              max.trees = max_trees, step.size = 50, silent = TRUE)}, 
-                       mc.preschedule = FALSE, mc.cores = 3)
-saveRDS(hyperparms, file = "data/models/brt_models_hyperparms.RDS")
+We can quantify the importance of variables within our model using the `varimp` function which returns variable importance, a measure of the total improvement to model deviance a variable is responsible for.
+
+```{r variable importance}
+plot(varimp(model))
 ```
 
-```{r compare_hyperparameter_settings}
-hyperparms <- readRDS(file = "data/models/brt_models_hyperparms.RDS")
-max_used_trees <- max(unlist(lapply(hyperparms, function(x) {if (!is.null(x)) { max(x$trees.fitted) }})))
-trees <- data.frame(trees = seq(from = 50, to = max_used_trees * 2, by = 50))
-holdout_deviance <- lapply(hyperparms, function(x) { if (!is.null(x)) { x$cv.values }} )
-missing <- which(unlist(lapply(holdout_deviance, is.null)))
+## Model marginal effects
 
-h <- matrix(data = NA, nrow = dim(trees)[1], ncol = length(holdout_deviance))
-for (i in seq_along(holdout_deviance)) {
-  h[1:length(holdout_deviance[[i]]), i] <- holdout_deviance[[i]]
-}
-h <- as.data.frame(h)
+Let's quickly visualise marginal effects of this model, showing how individual variables influence model outcome with all other variables held constant.
 
-hp <- data.frame(trees, h)
-colnames(hp) <- c(colnames(trees), learning_rates)
-
-hp %>%
-  pivot_longer(cols = c(-trees), names_to = "lr", values_to = "holdout_deviance") %>%
-  identity() -> hp
-
-ggplot(hp) +
-  geom_line(aes(x = trees, y = holdout_deviance, color = lr), size = 1)
+```{r show_marginal_effects}
+par(mfrow = c(2, 4))
+plot(model)
 ```
-
-It seems a learning rate of 0.3 is a good balance between speedy conversion and model performance. We can now retrain our most performant disturbance model with these new parameters.
-
-## Retraining the disturbance models using optimised learning rate and maximum number of trees
-
-We can now retrain the models with the best combination of learning rate and maximum number of trees.
-
-```{r retrain_disturbance_models, eval=full_repro}
-lr <- 0.3
-max_trees <- nrow(data_cleaned) * 0.25
-silence <- TRUE
-
-disturbance_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.5, family = "gaussian", 
-                                                          tree.complexity = 2, learning.rate = lr, silent = silence, max.trees = max_trees, step.size = 50,
-                                                          plot.main = FALSE, verbose = FALSE), mc.preschedule = FALSE, mc.cores = cpucores)
-names(disturbance_models) <- disturbance_proxies
-saveRDS(disturbance_models, file = "data/models/brt_models_disturbance.RDS")
-```
-
-And once again we can compare the performance
-
-```{r compare_performance_retrained_disturbance_models}
-disturbance_models <- readRDS("data/models/brt_models_disturbance.RDS")
-ggPerformance("dist_urban" = disturbance_models[[1]], "human_pop" = disturbance_models[[2]], "disturb_pot" = disturbance_models[[3]])
-```
-
-So the model with the disturbance proxy of ``r best_disturbance_proxy`` continues to perform best and we'll save it for future use.
-
-```{r save_model}
-model_disturbance_best <- disturbance_models[best_disturbance_proxy]
-saveRDS(model_disturbance_best, file = "data/models/brt_models_disturbance_best.RDS")
-```
-
-## Relative influence of variables
-
-We can now also compare the relative influence of the variables used in this model.
-
-```{r determine_relatieve_influence_of_predictors, results='hold'}
-relinf <- ggInfluence(disturbance_models$dist_urban, show.signif = FALSE, main = "Relative influence of predictor variables on log(VIR)")
-relinf
-```
-
-The high relative importance of `total_biomass` (`r round(relinf["total_biomass", ], digits = 1)`%) suggests a clear link between birds counted on the ground (by Sovon's observers) and what is measured aloft, exactly what one would expect if birds are still sufficiently 'tied' to their take-off habitat.
-
-## Models for seperate land uses
-
-As the land use proportions are correlated, and `agricultural` land use is by far the most common in The Netherlands, it may be a worthwhile exercise to model the effects of each land use proportion seperately. This way, we may discover effects that disappear because of the compound effects of correlation among the other predictors.
-
-```{r train_landscape_models, eval=full_repro}
-lr <- 0.3
-silence <- TRUE
-
-base_model <- c("dist_radar", "total_biomass", best_disturbance_proxy)
-landscapes <- c("urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies")
-x_vars <- lapply(landscapes, function(x) match(c(base_model,x), colnames(data_cleaned)))
-
-landscape_models <- mclapply(x_vars, function(x) gbm.step(data = data_cleaned, gbm.y = 1, gbm.x = x, bag.fraction = 0.5, family = "gaussian", 
-                                                          tree.complexity = 2, learning.rate = lr, silent = silence, max.trees = max_trees, plot.main = FALSE),
-                             mc.preschedule = FALSE, mc.cores = 3)
-names(landscape_models) <- c(landscapes)
-saveRDS(landscape_models, file = "data/models/brt_models_landscapes.RDS")
-```
-
-And once again we compare the performance
-
-```{r compare_performance_of_landscape_models}
-landscape_models <- readRDS("data/models/brt_models_landscapes.RDS")
-ggPerformance("urban" = landscape_models[[1]], "agricultural" = landscape_models[[2]], "semiopen" = landscape_models[[3]], "forests" = landscape_models[[4]], 
-              "wetlands" = landscape_models[[5]], "waterbodies" = landscape_models[[6]])
-```
-
-With these models trained as well, we will save the final set of models.
-
-```{r save_all_models}
-models <- c(disturbance_models, landscape_models)
-saveRDS(models, file = "data/models/brt_models.RDS")
-```
-
-## Partial dependence
-
-Partial dependence plots (PDP) can visualise the modelled marginal effect a feature has on the predicted output of a model. For exploratory purposes, we will create a quick visualisation of the PDPs for the trained model, before we start with a bootstrapping procedure to test the robustness of these results.
-
-```{r visualise_partial_dependencies, warning=FALSE, message=FALSE, results='hold'}
-plot_pdp <- function(model, predictor) {
-  p <- partial(model, train = model$gbm.call$dataframe, pred.var = predictor, type = "regression", plot = TRUE, plot.engine ="ggplot2",
-               smooth = TRUE, rug = TRUE, n.trees = model$n.trees)
-  p
-}
-modelnames <- names(models)
-i <- 1
-
-for (model in models) {
-  relinf <- ggInfluence(model, plot = FALSE)
-  plots <- lapply(rownames(relinf), function(x) {
-    plot_pdp(model = model, predictor = x) + 
-      xlab(paste(x, " (", round(relinf[x, 1]), "%)", sep = "")) +
-      ylab("log(VIR)")
-    })
-  print(wrap_plots(plots) + plot_annotation(title = modelnames[i]))
-  i <- i + 1
-}
-```
-
-## Interactions
-
-We can now also see which interactions have been modelled (supported by data).
-
-```{r}
-interactions <- suppressMessages(ggInteract_list(models$dist_urban))
-plots <- mapply(function(x, y) ggInteract_2D(models$dist_urban, x = x, y = y, z.range = c(-6, 6)), 
-                x = as.character(interactions$var1.names), y = as.character(interactions$var2.names), SIMPLIFY = FALSE)
-interactions
-plots
-```
-
 
 ## Spatial autocorrelation
 
-Model residuals should not show autocorrelation as then the independency of errors assumption is violated (see for example [this](https://doi.org/10.1186/s41610-019-0118-3)). Additionally, a model with strong autocorrelation in the residuals suggests that it lacks a spatial component within the predictors.
+Model residuals should not show strong autocorrelation as then the independency of errors assumption is violated (see for example [this](https://doi.org/10.1186/s41610-019-0118-3)). Additionally, a model with strong autocorrelation in the residuals suggests that it lacks a spatial component within the predictors. As it is computationally too difficult to calculate the spatial autocorrelation for the entire dataset at once, we subsample 25% of datapoints for these calculations. Results may thus vary to some degree.
 
 ```{r calculate_model_residual_autocorrelation, eval=full_repro}
-df <- models$dist_urban$gbm.call$dataframe
-df$residual <- resid(models$dist_urban)
+df <- data_cleaned
+df$residual <- resid(model)
 
 df %>%
-  slice_sample(prop = 0.33) -> df_sample
+  filter(dist_radar < 66000) %>%
+  slice_sample(prop = 0.25) -> df_sample
 
-correlogram <- correlog(df_sample[, c("x", "y")], df_sample[, "residual"], method = "Moran", nbclass = 20)
-saveRDS(correlogram , file = "data/processed/correlogram.RDS")
-```
-```{r plot_model_residual_autocorrelation}
+correlogram <- correlog(df_sample[, c("x", "y")], df_sample[, "residual"], method = "Moran", nbclass = NULL)
 plot(correlogram)
+
+saveRDS(correlogram , file = "data/models/correlogram.RDS")
 ```
+
+This shows there's some spatial autocorrelation in residuals remaining. We use a plot of residuals to assess where this occurs and if this indicates our model is missing some important spatial effect, or if there is another explanation.
+
+```{r plot_model_residuals_in_space}
+df$preds <- predict.mboost(model, newdata = data_cleaned)
+ppi <- readRDS("data/processed/composite-ppis/500m/201712312305.RDS")
+ 
+ppi$data@data %>%
+  left_join(dplyr::select(df, pixel, preds, residual), by = "pixel") -> ppi$data@data
+ppi$data@data$VIR_log <- log10(ppi$data@data$VIR)
+ppi$data@data$total_biomass_log <- log10(ppi$data@data$total_biomass / 1000)
+
+pal_resid <- colorspace::diverging_hcl(50, "Blue-Red 3", power = 2)
+z_lims_resid <- c(-3, 3)
+palette_resid <- colorNumeric(pal_resid, na.color = "#00000005", domain = z_lims_resid)
+raster_resid <- as(ppi$data["residual"], "RasterLayer")
+raster_resid[raster_resid <= z_lims_resid[1]] <- z_lims_resid[1]
+raster_resid[raster_resid >= z_lims_resid[2]] <- z_lims_resid[2]
+
+leaflet() %>%
+  addTiles(group = "OSM (default)") %>%
+  addRasterImage(raster_resid, colors = palette_resid, layerId = "resid", group = "resid") %>%
+  addImageQuery(raster_resid, layerId = "resid") %>%
+  addLegend(pal = palette_resid, values = z_lims_resid) %>%
+  addOpacitySlider(layerId = "resid") %>%
+  identity()
+```
+
+The plot shows how residuals become larger as the distance from the radars increases, and this is a more pronounced effect in the domain of the Den Helder radar. This effect is partially a consequence of radar range-bias and using a single `distance to radar` vs. 2 for each radar separately. You can see how this results in mostly 'overprediction' within the Herwijnen radar domain at long distances and 'underprediction' of `VIR` at long distances within the domain of Den Helder.
+
+To illustrate this, we can limit the calculation of residual spatial autocorrelation to datapoints that are substantially closer to the radar. This should then result in Moran's I values substantially closer to 0.
+
+```{r calculate_model_residual_autocorrelation_limited_domain, eval=full_repro}
+df <- data_cleaned
+df$residual <- resid(model)
+
+df %>%
+  filter(dist_radar < 50000) %>%
+  slice_sample(prop = 0.25) -> df_sample
+
+correlogram <- correlog(df_sample[, c("x", "y")], df_sample[, "residual"], method = "Moran", nbclass = NULL)
+plot(correlogram)
+
+saveRDS(correlogram , file = "data/models/correlogram_limited_domain.RDS")
+```
+
+As indeed is the case.
