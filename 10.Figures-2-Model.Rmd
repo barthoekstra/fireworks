@@ -2,6 +2,8 @@
 
 We have now quantified uncertainty in our model using bootstrapping and can finally visualise the outcome.
 
+## Processing environment
+
 ```{r setup_visualisation_environment, message=FALSE, warning=FALSE}
 library(ggplot2)
 library(mboost)
@@ -11,6 +13,8 @@ library(magrittr)
 library(patchwork)
 library(ggdist)
 ```
+
+Once again we have tweaked some of the `mboost` default functionality, in this case to facilitate plotting using `ggplot2`.
 
 ```{r load_models_and_functions}
 modelci <- readRDS("data/models/confints/final_modelci.RDS")
