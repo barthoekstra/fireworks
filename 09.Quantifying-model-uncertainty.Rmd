@@ -1,355 +1,74 @@
 # Quantifying model uncertainty
 
+We use a boostrapping approach to quantify model uncertainty. Luckily, the `mboost` already contains the functions to do so.
 The partial dependence plots generated in the previous chapter visualise the marginal effect of certain predictors on the outcome `log(VIR)`. We use a bootstrapping approach to quantify the model uncertainty.
 
-## Setting-up the environment
+## Processing environment
 ```{r setup_bootstrap_environment, warning=FALSE, message=FALSE}
-library(gbm)
-library(dismo)
-library(ggBRT)
 library(parallel)
-library(ggdist)
-library(pdp)
 library(tibble)
 library(dplyr)
 library(tidyr)
-library(forcats)
 library(patchwork)
-library(leaflet)
-library(leafem)
-library(leaflet.opacity)
 ```
 
-## Load the constructed models
-```{r load_models}
-all_models <- readRDS("data/models/brt_models.RDS")
-cpucores <- 3
+## Load the constructed model
+
+```{r load_model}
+model <- readRDS("data/models/model.RDS")
 ```
 
-We are particularly interested in two models:
+## Bootstrapped uncertainty analysis
 
-1. One containing `agricultural` as predictor
-1. One containing the other land use class proportions as predictors.
+Using the bootstrapping procedure provided in `mboost`, tweaked to our use case, we can derive uncertainty estimates from the trained model.
 
-So we'll extract these and ignore the rest in the following steps.
-```{r extract_useful_models}
-models <- all_models[c("dist_urban", "agricultural")]
-rm(all_models)
+We make a few changes to the default functioning of the `confint.mboost` function.
+
+1. We let bootstrap folds be determined outside of the function call, so they can be stored separately and processing can be parallellised more easily.
+1. We include variable importance as variable to be bootstrapped, so uncertainty estimates around that value can be quantified too.
+1. We calculate model predictions for a finer grid along the variables of interest (1000 values instead of 100).
+
+### Determine bootstrap folds
+
+The folds contain indexes of datapoints that are resampled for each of the 1000 bootstrap iterations.
+
+```{r determine_bootstrap_folds, eval=full_repro}
+folds <- cv(model.weights(model), B = 1000)
+saveRDS(folds, file = "data/models/confints/folds.RDS")
 ```
 
-## Determine evaluation grid
+### Running the bootstrapping procedure
 
-In the previous chapter we have seen that the partial dependence plots are difficult to interpret when the data is not distributed evenly across the entire range. A good example of this is the proportion of an area covered by `forests`: this is always never close to `1` in The Netherlands, as forests are comparatively rare habitats. Instead of bootstrapping estimates for the entire domain of variable values, we will thus limit it by the central 90% of the data. The calculation of the evaluation grid is based off of the `plot.gbm.4list()` function, originally written by Elith & Leathwick (@TODO: Add ref), included in `ggBRT`, so we can directly plug it in the bootstrapping functions provided by the same package.
+It is very computationally intensive to execute the bootstrapping procedure, hence it is best executed manually tweaking settings to the local machine (memory, CPU cores, etc). See the `R/mboost_uncertainty_analysis.R` file for an example of how to do so. In this case I had 2-3 RStudio jobs running the script on a batch of the folds, which can be combined later on as results are stored in `data/models/confints/`. Execution took about 3 days.
 
-```{r determine_evaluation_grid}
-calculate_evaluation_grid <- function(model, qlim = c(0.05, 0.95), continuous.resolution = 100) {
-  variables <- model$var.names
-  grid <- vector("list", length(variables))
-  for (i in seq_along(variables)) {
-    if (typeof(qlim) == "list") {
-      quantiles <- quantile(model$gbm.call$dataframe[, variables[i]], as.numeric(unlist(qlim[variables[i]])))
-    } else {
-      quantiles <- quantile(model$gbm.call$dataframe[, variables[i]], qlim)
-    }
-    grid[[i]] <- expand.grid(seq(from = quantiles[1], to = quantiles[2], length.out = continuous.resolution))
-    colnames(grid[[i]]) <- paste("X", i, sep = "")
-  }
-  grid
-}
-
-qlims <- list("dist_radar" = c(0, 1), "total_biomass" = c(0.05, 0.95), 
-              "dist_urban" = c(0.05, 0.95), "human_pop" = c(0.05, 0.95), "disturb_pot" = c(0.05, 0.95),
-              "agricultural" = c(0, 1), "urban" = c(0, 1), "semiopen" = c(0, 1), "forests" = c(0, 1), "wetlands" = c(0, 1), "waterbodies" = c(0, 1))
-
-grids <- lapply(models, function(x) calculate_evaluation_grid(x, qlim = qlims, continuous.resolution = 1000))
+```{r run_bootstrap_procedure, eval=full_repro, results='hide'}
+source("R/mboost_uncertainty_analysis.R")
 ```
 
-## Bootstrapped retraining of `gbm` models
+## Recombine bootstrapped results
 
-Using the bootstrapping procedure provied in `ggBRT` we can derive uncertainty estimates from the trained models.
+Having adjusted the bootstrapping procedure a bit, we now have to recombine the data so the R object matches the format `mboost` functions expect. Additionally, we will include the variable importance now as well.
 
-```{r bootstrap_gbm_models, eval=full_repro}
-source("R/gbm.bootstrap.functions.modified.R")
-bootstraps <- parallel::mcmapply(function(m, g) gbm.bootstrap.functions.modified(m, list.predictors = g, n.reps = 200, n.divisions = 1000),
-                       m = models, g = grids, SIMPLIFY = FALSE, mc.cores = cpucores, mc.preschedule = TRUE)
-saveRDS(bootstraps, file = "data/models/brt_models_bootstrap.RDS")
+```{r recombine_bootstrap_output}
+cis <- lapply(Sys.glob("data/models/confints/modelci*")[2:1000], readRDS)
+ci_boot_pred <- lapply(cis, function(x) x$boot_pred)
+ci_varimp <- lapply(cis, function(x) x$varimp)
+
+modelci <- readRDS("data/models/confints/modelci_1.RDS")
+modelci$boot_pred[2:1000] <- ci_boot_pred
+modelci$boot_pred[1] <- NULL
+modelci$data <- cis[[1]]$data
+modelci$varimp <- ci_varimp
+
+saveRDS(modelci, file = "data/models/confints/final_modelci.RDS")
 ```
 
-As we bootstrapped the relative importance of the model predictors, we can visualise the distributions of these values as follows:
+Let's confirm it worked by plotting the bootstrapped confidence intervals.
 
-```{r plot_bootstrapped_relative_influence, results='hold'}
-bootstraps <- readRDS("data/models/brt_models_bootstrap.RDS")
-
-relinf_uncertainty <- function(bootstrap, modelname) {
-  as.data.frame(bootstrap$rel.infs) %>%
-    rownames_to_column(var = "predictor") %>%
-    pivot_longer(-predictor, names_to = "bootstrap_sample") -> bootstrap_long
-
-  bootstrap_long %>%
-    pivot_wider(names_from = predictor, values_from = value) %>%
-    median_qi(.width = c(0.5), .exclude = "bootstrap_sample") %>%
-    dplyr::select(-contains(".")) %>%
-    pivot_longer(cols = everything(), names_to = "predictor", values_to = "bootstrap_median") -> predictor_summaries
-
-  predictor_summaries[order(-predictor_summaries$bootstrap_median), ] %>%
-    rowid_to_column(var = "rank") %>%
-    dplyr::select(predictor, rank) %>%
-    mutate(rank = fct_rev(as.factor(rank))) %>%
-    mutate(predictor_long = case_when(
-      predictor == "dist_radar" ~ "Distance from radar",
-      predictor == "total_biomass" ~ "Bird biomass",
-      predictor == "dist_urban" ~ "Distance to urban area",
-      predictor == "agricultural" ~ "Prop. agricultural",
-      predictor == "urban" ~ "Prop. urban",
-      predictor == "semiopen" ~ "Prop. semiopen",
-      predictor == "forests" ~ "Prop. forests",
-      predictor == "wetlands" ~ "Prop. wetlands",
-      predictor == "waterbodies" ~ "Prop. waterbodies"
-    )) %>%
-    identity() -> predictor_summaries
-
-  bootstrap_long %>%
-    left_join(predictor_summaries, by = "predictor") -> relinf_uncertainty
-
-  relinf_uncertainty %>%
-    ggplot(aes(y = rank, x = value)) +
-    stat_eye(point_interval = median_qi, .width = c(0.95, 0.5)) +  # Thinnest black bar represents 95%, other 50% and point = median
-    scale_y_discrete(labels = rev(predictor_summaries$predictor_long)) +
-    labs(x = "Relative influence (%)",
-         y = "Predictor",
-         title = "Relative influence of predictors on outcome variable: log(VIR)",
-         subtitle = paste(unique(bootstrap$gbm.call$dataframe$datetime))) -> p
-
-  ggsave(filename = paste0("data/plots/relative-influence/", modelname, ".png"), width = 7, height = 5)
-
-  list(relinf_uncertainty, p)
-}
-relinf_uncertainties <- mapply(relinf_uncertainty, bootstraps, names(bootstraps), SIMPLIFY = FALSE)
-
-relinf_uncertainties[[1]][[2]]
-relinf_uncertainties[[2]][[2]]
+```{r plot_bootstrapped_confidence_intervals, results='hold'}
+vars <- c("dist_radar", "total_biomass", "semiopen", "forests", "wetlands", "waterbodies", "agricultural", "dist_urban")
+par(mfrow = c(2, 4))
+lapply(vars, function(x) plot(modelci, which = x))
 ```
 
-The large 'spread' of `agricultural` suggests something strange is going on there. I would imagine this is quite likely to be the result of some retained ground clutter with unusually high reflectivities that affects these outcomes. Additionally, 'agriculture' is the baseline land use class of the dataset, so resampling during bootstrapping is quite likely to sample 
-
-## Plot bootstrapped uncertainties
-
-```{r plot_bootstrapped_uncertainties}
-bootstrap_uncertainty <- function(predictor, boot, grid, model, confidence.intervals = c(0.95, 0.8), central.measure = mean, plot = FALSE,
-                                  loess = TRUE, loess.span = 0.25, rug = TRUE, rug.limits = c(0, 1), qlim = c(0.05, 0.95), ylab = "log(VIR)") {
-  k <- match(predictor, boot$gbm.call$predictor.names)
-
-  # Gather x values from evaluation grid
-  x <- as.data.frame(grid[[k]])
-  colnames(x) <- "x"
-
-  # Calculate quantiles
-  probs <- c(sapply(confidence.intervals, function(x) 1 - x), confidence.intervals)
-  quantiles <- t(apply(boot$function.preds[, k, ], 1, quantile, probs))
-  colnames(quantiles) <- paste("q", gsub("%", "", colnames(quantiles)), sep = "")
-  quantiles <- as.data.frame(quantiles)
-
-  # Calculate measure of central tendency
-  central <- as.data.frame(apply(boot$function.preds[, k, ], 1, central.measure))
-  colnames(central) <- "central_measure"
-
-  # Calculate partial dependence
-  grid_df <- as.data.frame(grid)
-  colnames(grid_df) <- model$var.names
-  grid_df <- grid_df[, predictor, drop = FALSE]
-  model_pdp <- partial(model, train = model$gbm.call$dataframe, pred.var = predictor, type = "regression", n.trees = model$n.trees, pred.grid = grid_df)["yhat"]
-
-  # Smooth
-  if (loess) {
-    variables <- c(colnames(quantiles), colnames(central), colnames(model_pdp))
-    unsmoothed <- data.frame(x, quantiles, central, model_pdp)
-
-    loess.smooth <- function(x, span) {
-      predict(loess(formula = paste(x, "x", sep = "~"), data = unsmoothed, span = loess.span))
-    }
-    smoothed <- as.data.frame(lapply(variables, loess.smooth, span = loess.span), col.names = variables)
-
-    uncertainty <- data.frame(x, smoothed)
-
-  } else {
-    uncertainty <- data.frame(x, quantiles, central, model_pdp)
-  }
-
-  if (plot) {
-    p <- ggplot(uncertainty)
-
-    i <- 1
-    sorted_confints <- sort(confidence.intervals, decreasing = TRUE)
-    for (ci in sorted_confints) {
-      colors <- factor(sorted_confints)
-      ymax <- as.name(paste("q", ci * 100, sep = ""))
-      ymax <- enquo(ymax)
-      ymin <- as.name(paste("q", (1 - ci) * 100, sep = ""))
-      ymin <- enquo(ymin)
-
-      p <- p +
-        geom_ribbon(aes(x = x, ymin = !!ymin, ymax = !!ymax, fill = !!colors[i]),  alpha = 1)
-
-      i <- i + 1
-    }
-    
-    p <- p +
-      scale_fill_manual(name = "CI", values = c("#cccccc", "#f7f7f7", "#969696"))
-
-    p <- p +
-      geom_line(aes(x = x, y = central_measure, color = "central_measure"))
-      # geom_line(aes(x = x, y = central_measure), color = "#252525")
-
-    p <- p +
-      # geom_line(data = uncertainty, aes(x = x, y = yhat), colour = "#2b8cbe", size = 2) +
-      geom_line(data = uncertainty, aes(x = x, y = yhat, color = "yhat"), size = 2) +
-      geom_hline(yintercept = mean(boot$function.preds[, k, ]), linetype = "dashed", color = "darkgrey")
-    
-    p <- p +
-      scale_color_manual("", values = c("central_measure" = "#252525", "yhat" = "#2b8cbe"), labels = c("Median", "Final model"))
-
-    rug <- as.data.frame(quantile(model$gbm.call$dataframe[, predictor], seq(from = rug.limits[1], to = rug.limits[2], by = 0.1)))
-    colnames(rug) <- "x"
-
-    p <- p +
-      geom_rug(data = rug, aes(x = x))
-
-    minmax <- quantile(model$gbm.call$dataframe[, predictor], qlim)
-    vals <- model$gbm.call$dataframe[model$gbm.call$dataframe[, predictor] >= minmax[1] & model$gbm.call$dataframe[, predictor] <= minmax[2], predictor]
-    vals <- data.frame(vals)
-    colnames(vals) <- "x"
-
-    # p <- p +
-    #   stat_density(data = vals, aes(x = x, y = ..scaled..), geom = "line")
-    
-    if (predictor %in% c("agricultural", "urban", "semiopen", "forests", "wetlands", "waterbodies")) {
-      xlabel <- paste("Prop.", predictor)
-    } else {
-      xlabel_lookup <- c("dist_urban" = "Distance to urban area (m)", 
-                         "human_pop" = "Human inhabitants (#)",
-                         "disturb_pot" = "Disturbance potential (-)",
-                         "total_biomass" = "Bird biomass (kg)", 
-                         "dist_radar" = "Distance from radar (m)")
-      xlabel <- xlabel_lookup[predictor]
-    }
-    p <- p +
-      xlab(xlabel) +
-      ylab(ylab)
-    
-    p <- p +
-      theme(legend.key = element_rect(colour = "black"))
-
-    p
-  } else {
-    uncertainty
-  }
-}
-
-plot_model_pdp <- function(model, bootstrap, grid, relinf_uncertainty, loess = TRUE, loess.span = 0.4) {
-  relinf <- relinf_uncertainty[[1]] %>%
-    group_by(predictor) %>%
-    mutate(mean_relinf = mean(value)) %>%
-    dplyr::select(predictor, mean_relinf, rank) %>%
-    distinct() %>%
-    identity()
-  
-  p <- lapply(model$var.names, function(x) {
-    if (x %in% c("total_biomass", "dist_urban", "human_pop", "disturb_pot")) {
-      bootstrap_uncertainty(x, bootstrap, grid, model, confidence.intervals = c(0.95, 0.8), plot = TRUE,
-                            central.measure = median, loess.span = loess.span, loess = loess, rug.limits = c(0.05, 0.95))
-    } else {
-      bootstrap_uncertainty(x, bootstrap, grid, model, confidence.intervals = c(0.95, 0.8), plot = TRUE,
-                            central.measure = median, loess.span = loess.span, loess = loess, rug.limits = c(0, 1))
-    }
-  })
-  p
-}
-
-a <- mapply(function(model, bootstrap, grid, relinf_uncertainty, name) {
-  plots <- plot_model_pdp(model, bootstrap, grid, relinf_uncertainty, loess = TRUE, loess.span = 0.4)
-  # print(name)
-  p <- wrap_plots(plots, guides = "collect") + guide_area() + plot_annotation(title = "Partial dependence plots", subtitle = "The effect of individual predictors while integrating all others,\nwith bootstrapped confidence intervals and median")
-  ggsave(filename = paste0("data/plots/partial-effects-new/", name, ".png"), width = 10, height = 10)
-  print(p)
-}, model = models, bootstrap = bootstraps, grid = grids, relinf_uncertainty = relinf_uncertainties, name = names(models))
-```
-
-## Show model residuals
-
-```{r show_model_residuals}
-df <- models[[1]]$gbm.call$dataframe
-df$preds <- predict(models[[1]], n.trees = models[[1]]$n.trees)
-df$resid <- residuals(models[[1]])
-ppi <- readRDS("data/processed/composite-ppis/500m/201712312305.RDS")
- 
-ppi$data@data %>%
-  left_join(dplyr::select(df, pixel, preds, resid), by = "pixel") -> ppi$data@data
-ppi$data@data$VIR_log <- log10(ppi$data@data$VIR)
-ppi$data@data$total_biomass_log <- log10(ppi$data@data$total_biomass / 1000)
-```
-
-## Leaflet alternative
-
-```{r warning=FALSE}
-pal_resid <- colorspace::diverging_hcl(50, "Blue-Red 3", power = 2)
-# z_lims_resid <- c(-2, 2)
-z_lims_resid <- c(-4, 4)
-palette_resid <- colorNumeric(pal_resid, na.color = NA, domain = z_lims_resid)
-raster_resid <- as(ppi$data["resid"], "RasterLayer")
-
-raster_vir <- as(ppi$data["VIR_log"], "RasterLayer")
-z_lims_vir <- c(0, 6)
-pal_vir <- "viridis"
-palette_vir <- colorNumeric(pal_vir, na.color = NA, domain = z_lims_vir)
-
-leaflet() %>%
-  addTiles(group = "OSM (default)") %>%
-  # addProviderTiles(provider = providers$CartoDB.DarkMatter, group = "CartoDB DarkMatter") %>%
-  addRasterImage(raster_resid, colors = palette_resid, layerId = "resid", group = "resid") %>%
-  addImageQuery(raster_resid, layerId = "resid") %>%
-  addLegend(pal = palette_resid, values = z_lims_resid) %>%
-  # addRasterImage(raster_vir, colors = palette_vir, layerId = "VIR", group = "VIR") %>%
-  # addLegend(pal = palette_vir, values = z_lims_vir) %>%
-  addOpacitySlider(layerId = "resid") %>%
-  # addLowerOpacity(layerId = "VIR") %>%
-  # addLayersControl(
-  #   baseGroups = c("OSM (default)", "CartoDB DarkMatter"),
-  #   overlayGroups = c("resid", "VIR"), 
-  #   position = "topleft") %>%
-  identity()
-```
-
-```{r}
-pal_resid <- colorspace::diverging_hcl(50, "Blue-Red 3", power = 2)
-z_lims_resid <- c(-2, 2)
-# z_lims_resid <- c(-4, 4)
-palette_resid <- colorBin(pal_resid, na.color = NA, domain = z_lims_resid, bins = 50)
-raster_resid <- as(ppi$data["resid"], "RasterLayer")
-
-raster_vir <- as(ppi$data["VIR_log"], "RasterLayer")
-z_lims_vir <- c(0, 6)
-pal_vir <- "viridis"
-palette_vir <- colorNumeric(pal_vir, na.color = NA, domain = z_lims_vir)
-
-leaflet() %>%
-  addTiles(group = "OSM (default)") %>%
-  # addProviderTiles(provider = providers$CartoDB.DarkMatter, group = "CartoDB DarkMatter") %>%
-  addRasterImage(raster_resid, colors = palette_resid, layerId = "resid", group = "resid") %>%
-  addImageQuery(raster_resid, layerId = "resid") %>%
-  addLegend(pal = palette_resid, values = z_lims_resid) %>%
-  # addRasterImage(raster_vir, colors = palette_vir, layerId = "VIR", group = "VIR") %>%
-  # addLegend(pal = palette_vir, values = z_lims_vir) %>%
-  addOpacitySlider(layerId = "resid") %>%
-  # addLowerOpacity(layerId = "VIR") %>%
-  # addLayersControl(
-  #   baseGroups = c("OSM (default)", "CartoDB DarkMatter"),
-  #   overlayGroups = c("resid", "VIR"), 
-  #   position = "topleft") %>%
-  identity()
-```
-
-
-Random forests and stochastic gradient boosting for predicting tree canopy cover: comparing tuning processes and model performance
-Freeman, Moisen, Coulston & Wilson 2015
-
-Environmental Predictability as a Cause and Consequence of Animal Movement
+Voilà, that seems to have done the trick.
