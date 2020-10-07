@@ -35,12 +35,12 @@ bootstrapped_varimp <- function(modelci, exclude = c("dist_radar"), round = 0) {
       mutate(vi = reduction / sum(reduction) * 100)
   })
   vis_out <- ind_vis[[1]] %>%
-    select(variable, vi) %>%
+    dplyr::select(variable, vi) %>%
     mutate(variable = as.character(variable))
   
   agg_vis <- lapply(ind_vis[2:length(ind_vis)], function(x) {
     x %>%
-      select(vi)
+      dplyr::select(vi)
   })
   
   vis_out[2:length(ind_vis)] <- bind_cols(agg_vis)
@@ -120,7 +120,7 @@ plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims
       vi$vi <- vi$reduction / sum(vi$reduction) * 100
       vi %>%
         filter(variable == which) %>%
-        select(vi) %>%
+        dplyr::select(vi) %>%
         as.numeric() %>%
         round(round)
     }
@@ -128,7 +128,7 @@ plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims
   } else {
     vi <- varimp %>%
       filter(variable == which) %>%
-      select(mean_round)
+      dplyr::select(mean_round)
   }
   
   offset_right <- 0.95
@@ -272,7 +272,7 @@ plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims
       vi$vi <- vi$reduction / sum(vi$reduction) * 100
       vi %>%
         filter(variable == which) %>%
-        select(vi) %>%
+        dplyr::select(vi) %>%
         as.numeric() %>%
         round(round)
     }
@@ -280,7 +280,7 @@ plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims
   } else {
     vi <- varimp %>%
       filter(variable == which) %>%
-      select(mean_round)
+      dplyr::select(mean_round)
   }
   
   offset_right <- 0.95

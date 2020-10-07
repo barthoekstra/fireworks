@@ -367,7 +367,7 @@ wb %>%
   group_by(area_nr, year, familyvernacular) %>%
   mutate(familyprop = sum(number) / total_birds) %>%
   ungroup() %>%
-  select(area_nr, familyvernacular, familyprop) %>%
+  dplyr::select(area_nr, familyvernacular, familyprop) %>%
   distinct() %>%
   arrange(area_nr) %>%
   pivot_wider(names_from = familyvernacular, values_from = familyprop) %>%
@@ -382,7 +382,7 @@ ptt %>%
   group_by(route, year, familyvernacular) %>%
   mutate(familyprop = sum(number) / total_birds) %>%
   ungroup() %>%
-  select(route, familyvernacular, familyprop) %>%
+  dplyr::select(route, familyvernacular, familyprop) %>%
   distinct() %>%
   arrange(route) %>%
   pivot_wider(names_from = familyvernacular, values_from = familyprop) %>%
