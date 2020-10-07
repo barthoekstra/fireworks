@@ -92,10 +92,14 @@ As we want to correct for the influence of `total_biomass` on the measured respo
 
 Let's start with a calculation of the RMSE.
 
-```{r determine_model_resolution}
+```{r create_resolution_models, eval=full_repro}
 resolution_models <- mcmapply(function(dataset) mboost(VIR ~ bbs(dist_radar) + bbs(total_biomass), 
                                                        data = dataset, control = boost_control(mstop = 10000, trace = TRUE)),
                               dataset = data_cleaned, SIMPLIFY = FALSE)
+saveRDS(resolution_models, file = "data/models/resolution_models.RDS")
+```
+```{r determine_model_resolution}
+resolution_models <- readRDS("data/models/resolution_models.RDS")
 RMSE <- function(error) { sqrt(mean(error^2)) }
 sapply(resolution_models, function(x) RMSE(residuals(x)))
 ```
@@ -120,6 +124,7 @@ Turns out most models perform quite similarly. However, to make the link between
 ```{r set_final_resolution}
 data_cleaned <- data_cleaned$`500m`
 saveRDS(data_cleaned, file = "data/models/data_cleaned.RDS")
+rm(resolution_models)
 ```
 
 ## Check for correlations among predictors
@@ -158,7 +163,7 @@ As can be expected in The Netherlands, the dominant land use class is clearly `a
 
 Now we will compare the disturbance proxies in a similar fashion to how we compared the performance of the model using different PPI resolutions, by calculating deviance explained and RMSE.
 
-```{r compare_proxies_for_disturbance}
+```{r compare_proxies_for_disturbance, eval=full_repro}
 fm_dist_urban <- VIR ~ bbs(dist_radar) + bbs(total_biomass) + bbs(semiopen) + bbs(forests) + bbs(wetlands) + bbs(waterbodies) + bbs(agricultural) + bbs(dist_urban)
 fm_human_pop <- VIR ~ bbs(dist_radar) + bbs(total_biomass) + bbs(semiopen) + bbs(forests) + bbs(wetlands) + bbs(waterbodies) + bbs(agricultural) + bbs(human_pop)
 fm_disturb_pot <- VIR ~ bbs(dist_radar) + bbs(total_biomass) + bbs(semiopen) + bbs(forests) + bbs(wetlands) + bbs(waterbodies) + bbs(agricultural) + bbs(disturb_pot)
@@ -167,6 +172,10 @@ formulas <- list(fm_dist_urban, fm_human_pop, fm_disturb_pot)
 disturbance_models <- mcmapply(function(formula) mboost(formula, data = data_cleaned, control = boost_control(mstop = 10000, trace = TRUE)), 
                                formula = formulas, SIMPLIFY = FALSE)
 names(disturbance_models) <- c("dist_urban", "human_pop", "disturb_pot")
+saveRDS(disturbance_models, file = "data/models/disturbance_models.RDS")
+```
+```{r calculate_disturbance_model_performance}
+disturbance_models <- readRDS("data/models/disturbance_models.RDS")
 RMSE <- function(error) { sqrt(mean(error^2)) }
 rmse <- sapply(disturbance_models, function(x) RMSE(residuals(x)))
 d2 <- mapply(function(model) { deviance_explained(data_cleaned$VIR, predict(model))}, model = disturbance_models)
@@ -178,6 +187,7 @@ It is clear `dist_urban` performs the best, though just by a slight margin. As i
 ```{r set_final_disturbance_proxy}
 model <- disturbance_models$dist_urban
 saveRDS(model, file = "data/models/model.RDS")
+rm(disturbance_models)
 ```
 
 ## Determine the optimal number of boosting steps
@@ -243,6 +253,8 @@ plot(correlogram)
 This shows there's some spatial autocorrelation in residuals remaining. We use a plot of residuals to assess where this occurs and if this indicates our model is missing some important spatial effect, or if there is another explanation.
 
 ```{r plot_model_residuals_in_space}
+df <- data_cleaned
+df$residual <- resid(model)
 df$preds <- predict.mboost(model, newdata = data_cleaned)
 ppi <- readRDS("data/processed/composite-ppis/500m/201712312305.RDS")
  
