@@ -32,6 +32,8 @@ library(mboost)
 library(leaflet)
 library(leaflet.opacity)
 library(leafem)
+library(usdm)
+library(mapview)
 ```
 
 In the previous chapter, we have created some datasets encompassing all the data contained within the individual PPIs at different resolutions. We will determine the optimal resolution and then continue using this dataset for further modelling.
@@ -180,16 +182,22 @@ saveRDS(model, file = "data/models/model.RDS")
 
 ## Determine the optimal number of boosting steps
 
-The main hyperparameter to be tuned for the boosted GAMs using `mboost` is the number of boosting iterations/steps. By stopping boosting before model performance (measured using cross-validation) worsens, we can avoid overfitting.
+The main hyperparameter to be tuned for the boosted GAMs using `mboost` is the number of boosting iterations/steps. By stopping boosting before model performance (measured using cross-validation) worsens, we can avoid overfitting. We limit this test of model performance for a maximum of 50,000 boosts.
+
+```{r train_model_50000_boosts, eval=full_repro}
+model_boosts <- mboost(fm_dist_urban, data = data_cleaned, control = boost_control(mstop = 50000, trace = FALSE))
+saveRDS(model_boosts, file = "data/models/model_boosts.RDS")
+```
 
 ```{r determine_boosting_steps, eval=full_repro}
-cv10f <- cv(model.weights(model), type = "kfold", B = 10)
-cvm <- cvrisk(model, folds = cv10f, papply = lapply)
-saveRDS(cvm, file = "data/models/cvm.RDS")
+model_boosts <- readRDS("data/models/model_boosts.RDS")
+cv10f <- cv(model.weights(model_boosts), type = "kfold", B = 10)
+cvm <- cvrisk(model_boosts, folds = cv10f, papply = lapply)
+saveRDS(cvm, file = "data/models/cvm_boosts.RDS")
 ```
 
 ```{r plot_boosting_steps}
-cvm <- readRDS("data/models/cvm.RDS")
+cvm <- readRDS("data/models/cvm_boosts.RDS")
 plot(cvm)
 ```
 
@@ -225,9 +233,11 @@ df %>%
   slice_sample(prop = 0.25) -> df_sample
 
 correlogram <- correlog(df_sample[, c("x", "y")], df_sample[, "residual"], method = "Moran", nbclass = NULL)
-plot(correlogram)
-
 saveRDS(correlogram , file = "data/models/correlogram.RDS")
+```
+```{r plot_model_residual_autocorrelation}
+correlogram <- readRDS("data/models/correlogram.RDS")
+plot(correlogram)
 ```
 
 This shows there's some spatial autocorrelation in residuals remaining. We use a plot of residuals to assess where this occurs and if this indicates our model is missing some important spatial effect, or if there is another explanation.
@@ -270,9 +280,25 @@ df %>%
   slice_sample(prop = 0.25) -> df_sample
 
 correlogram <- correlog(df_sample[, c("x", "y")], df_sample[, "residual"], method = "Moran", nbclass = NULL)
-plot(correlogram)
-
 saveRDS(correlogram , file = "data/models/correlogram_limited_domain.RDS")
+```
+```{r plot_residual_autocorrelation_limited_domain}
+correlogram <- readRDS("data/models/correlogram_limited_domain.RDS")
+plot(correlogram)
 ```
 
 As indeed is the case.
+
+To illustrate this even better, we can calculate local Moran's I values to see where exactly spatial autocorrelation occurs.
+
+```{r calculate_local_moran_i, eval=full_repro}
+r <- as(ppi$data["residual"], "RasterLayer")
+local_sa <- lisa(x = r, d1 = 0, d2 = 1500, statistic = "I")
+saveRDS(local_sa, file = "data/models/local_sa.RDS")
+```
+```{r plot_local_moran_i}
+local_sa <- readRDS("data/models/local_sa.RDS")
+mapview(local_sa)
+```
+
+We can see - indeed - that spatial autocorrelation in the residuals is strongest at distance from the radar and thankfully does not occur in areas that contain areas of scarce land use types (eg forests). While some degree of spatial autocorrelation in residuals is present, this indicates it does not affect our interpretation of results.
