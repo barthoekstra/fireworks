@@ -4,7 +4,7 @@ With all the preprocessing done, we can now make composites of the PPIs to 'solv
 
 ## Processing environment
 
-```{r setup-image-processing-environment, results='hold'}
+```{r setup-image-processing-environment, results='hold', message=FALSE, warning=FALSE}
 library(bioRad)
 library(ggplot2)
 library(magick)

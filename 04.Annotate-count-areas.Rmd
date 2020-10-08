@@ -170,7 +170,7 @@ plot(ptt_convex_hulls_dhl[2], main = "PTT Routes Den Helder: Avg interpoint dist
 
 As we have calculated the average distance between the points, we can now buffer the convex hulls by this value to attain more representative sizes of the covered areas. 
 
-```{r buffer_convex_hulls_with_interpoint_distance, fig.show='hold', results='hold'}
+```{r buffer_convex_hulls_with_interpoint_distance, fig.show='hold', results='hold', warning=FALSE, message=FALSE}
 ptt_convex_hulls_hrw %>%
   st_buffer(dist = as.double(ptt_convex_hulls_hrw$avg_interpoint_distance)) -> ptt_convex_hulls_hrw
 

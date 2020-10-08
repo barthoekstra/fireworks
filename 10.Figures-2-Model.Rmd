@@ -246,7 +246,7 @@ ggsave(filename = "data/plots/paper/fig2_biol.pdf", plot = p, width = 16, height
 
 ## All marginal effects
 
-```{r plot_all_marginal_effects, warning=FALSE}
+```{r plot_all_marginal_effects, warning=FALSE, message=FALSE}
 confidence.intervals <- c(0.95, 0.8, 0.5)
 colors <- c("urban" = "#94346E", "agricultural" = "#73AF48", "semiopen" = "#EDAD08", "forests" = "#0F8554", "wetlands" = "#38A6A5", "waterbodies" = "#1D6996",
             "dist_urban" = "#94346E", "total_biomass" = "#CC503E", "dist_radar" = "#666666")

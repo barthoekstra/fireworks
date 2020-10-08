@@ -1,6 +1,4 @@
-# (PART) Visualizations {-}
-
-# Visualizing species composition
+# Figure 3: Species composition
 
 ```{r}
 library(bioRad)
