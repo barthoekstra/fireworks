@@ -32,4 +32,4 @@ output:
     url: "https://github.com/barthoekstra/fireworks"
     github-repo: "barthoekstra/fireworks"
     df_print: kable
-    dev: 'svg'
+    dev: 'png'
