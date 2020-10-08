@@ -24,7 +24,7 @@
 <meta name="author" content="Bart Hoekstra" />
 
 
-<meta name="date" content="2020-10-07" />
+<meta name="date" content="2020-10-08" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -66,37 +66,37 @@
 <script src="assets/leaflet-binding-2.0.3/leaflet.js"></script>
 <script src="assets/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script>
 <script src="assets/leaflet-providers-plugin-2.0.3/leaflet-providers-plugin.js"></script>
-<script src="assets/layer.1-1/data_stars_layer125640a.txt"></script>
+<script src="assets/layer.1-1/data_stars_layer16d1478.txt"></script>
 <script src="assets/joda-0.0.1/joda.js"></script>
 <script src="assets/joda-0.0.1/addImageQuery-bindings.js"></script>
 <script src="assets/clipboard-0.0.1/setClipboardText.js"></script>
 <link href="assets/HomeButton-0.0.1/home-button.css" rel="stylesheet" />
 <script src="assets/HomeButton-0.0.1/home-button.js"></script>
 <script src="assets/HomeButton-0.0.1/easy-button-src.min.js"></script>
-<script src="assets/layer.2-1/data_stars_layer21a7d4e.txt"></script>
-<script src="assets/layer.3-1/data_stars_layer3b5a0df.txt"></script>
-<script src="assets/layer.4-1/data_stars_layer438d450.txt"></script>
-<script src="assets/layer.5-1/data_stars_layer5ab306d.txt"></script>
-<script src="assets/layer.6-1/data_stars_layer6ec0916.txt"></script>
-<script src="assets/layer.7-1/data_stars_layer78642b0.txt"></script>
-<script src="assets/layer.8-1/data_stars_layer88a5d63.txt"></script>
-<script src="assets/layer.9-1/data_stars_layer990cb7d.txt"></script>
-<script src="assets/layer.10-1/data_stars_layer101429be.txt"></script>
-<script src="assets/urban-1/data_stars_urban895edc.txt"></script>
-<script src="assets/agricultural-1/data_stars_agricultural06f7d2.txt"></script>
-<script src="assets/semiopen-1/data_stars_semiopen17cadf.txt"></script>
-<script src="assets/forests-1/data_stars_forestsbe2da6.txt"></script>
-<script src="assets/wetlands-1/data_stars_wetlands654edb.txt"></script>
-<script src="assets/waterbodies-1/data_stars_waterbodies3b5e92.txt"></script>
-<script src="assets/dist_urban-1/data_stars_dist_urban60c97b.txt"></script>
-<script src="assets/human_pop-1/data_stars_human_pop8e41b3.txt"></script>
+<script src="assets/layer.2-1/data_stars_layer2eb4a93.txt"></script>
+<script src="assets/layer.3-1/data_stars_layer317d950.txt"></script>
+<script src="assets/layer.4-1/data_stars_layer4caf51d.txt"></script>
+<script src="assets/layer.5-1/data_stars_layer580e295.txt"></script>
+<script src="assets/layer.6-1/data_stars_layer6ef038d.txt"></script>
+<script src="assets/layer.7-1/data_stars_layer7364f1b.txt"></script>
+<script src="assets/layer.8-1/data_stars_layer884e0a1.txt"></script>
+<script src="assets/layer.9-1/data_stars_layer97d5f83.txt"></script>
+<script src="assets/layer.10-1/data_stars_layer10871da5.txt"></script>
+<script src="assets/urban-1/data_stars_urban2bef87.txt"></script>
+<script src="assets/agricultural-1/data_stars_agricultural293ad5.txt"></script>
+<script src="assets/semiopen-1/data_stars_semiopen31d5c6.txt"></script>
+<script src="assets/forests-1/data_stars_forestsdec7f1.txt"></script>
+<script src="assets/wetlands-1/data_stars_wetlands86a0e3.txt"></script>
+<script src="assets/waterbodies-1/data_stars_waterbodiesec61d2.txt"></script>
+<script src="assets/dist_urban-1/data_stars_dist_urban961c43.txt"></script>
+<script src="assets/human_pop-1/data_stars_human_pop6eaf30.txt"></script>
 <script src="assets/kePrint-0.0.1/kePrint.js"></script>
-<script src="assets/resid-1/data_stars_starsdbf1e3.txt"></script>
+<script src="assets/resid-1/data_stars_stars715e20.txt"></script>
 <link href="assets/jquery-ui-1.10.3/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" />
 <script src="assets/jquery-ui-1.10.3/jquery-ui-1.10.3.custom.min.js"></script>
 <link href="assets/opacity-1.0.0/Control.Opacity.css" rel="stylesheet" />
 <script src="assets/opacity-1.0.0/Control.Opacity.js"></script>
-<script src="assets/local_sa-1/data_stars_local_sa8c970f.txt"></script>
+<script src="assets/local_sa-1/data_stars_local_sa6eb47d.txt"></script>
 
 
 <style type="text/css">
@@ -341,7 +341,7 @@ The partial dependence plots generated in the previous chapter visualise the mar
 <div class="sourceCode" id="cb172"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb172-1" data-line-number="1">vars &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;dist_radar&quot;</span>, <span class="st">&quot;total_biomass&quot;</span>, <span class="st">&quot;semiopen&quot;</span>, <span class="st">&quot;forests&quot;</span>, <span class="st">&quot;wetlands&quot;</span>, <span class="st">&quot;waterbodies&quot;</span>, <span class="st">&quot;agricultural&quot;</span>, <span class="st">&quot;dist_urban&quot;</span>)</a>
 <a class="sourceLine" id="cb172-2" data-line-number="2"><span class="kw">par</span>(<span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">4</span>))</a>
 <a class="sourceLine" id="cb172-3" data-line-number="3"><span class="kw">lapply</span>(vars, <span class="cf">function</span>(x) <span class="kw">plot</span>(modelci, <span class="dt">which =</span> x))</a></code></pre></div>
-<p><img src="Fireworks_files/figure-html/plot_bootstrapped_confidence_intervals-1.svg" width="672" /></p>
+<p><img src="Fireworks_files/figure-html/plot_bootstrapped_confidence_intervals-1.png" width="672" /></p>
 <pre><code>## [[1]]
 ## NULL
 ## 
