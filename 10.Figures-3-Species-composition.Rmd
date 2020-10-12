@@ -144,6 +144,19 @@ plot_family_proportions <- function(props, which) {
 
 plots <- mapply(function(landuses) { plot_family_proportions(cf_long, landuses) }, landuses = habitat_mass$landuse,
             SIMPLIFY = FALSE)
+
+characteristic_families$title <- "Mean weight (g)"
+ggplot(characteristic_families) +
+  geom_col(aes(x = mean_weight, y = reorder(family, mean_weight))) +
+  labs(x = "Mean weight (g)", y = "Taxonomic group") +
+    coord_cartesian(expand = FALSE) +
+    scale_x_continuous(breaks = c(0, 1000, 2000, 3000)) +
+    facet_wrap(vars(title), strip.position = "top") +
+    theme_classic(base_size = 12) +
+    theme(legend.position = "none",
+          axis.title.y = element_blank(),
+          strip.background = element_blank(),
+          strip.text.x = element_text(hjust = 0, size = 12, family = "Helvetica", face = "bold")) -> plots[[6]]
 p <- wrap_plots(plots)
 p
 ```
