@@ -18,7 +18,7 @@ Once again we have tweaked some of the `mboost` default functionality, in this c
 
 ```{r load_models_and_functions}
 modelci <- readRDS("data/models/confints/final_modelci.RDS")
-data_cleaned <- readRDS("data/data_cleaned.RDS")
+data_cleaned <- readRDS("data/models/data_cleaned.RDS")
 source("R/mboost_bootstrapped_quantiles.R")
 source("R/plot.mboost_adjusted.R")
 ```
@@ -88,6 +88,20 @@ bvi_biol
 bvi_all
 ```
 
+## Compare groups
+
+There's quite some overlap in the confidence intervals, so let's see which variables actually have different variable importance.
+
+```{r compare_variable_importance, results='hold'}
+bvi_all %>%
+  pivot_longer(!variable, names_to = "bootstrap", values_to = "vi") -> all
+
+summary(aov(vi ~ variable, data = all))
+pairwise.t.test(all$vi, all$variable)
+```
+
+Indeed, mean variable importance for `dist_urban` is not significantly different from `total_biomass` and the same applies to `waterbodies` and `wetlands`.
+
 ## Visualise marginal effects
 
 Now that we have calculated how the marginal effects should be ordered, we can generate the final plots.
@@ -98,9 +112,10 @@ Now that we have calculated how the marginal effects should be ordered, we can g
 confidence.intervals <- c(0.95, 0.8, 0.5)
 colors <- c("urban" = "#94346E", "agricultural" = "#73AF48", "semiopen" = "#EDAD08", "forests" = "#0F8554", "wetlands" = "#38A6A5", "waterbodies" = "#1D6996",
             "dist_urban" = "#94346E", "total_biomass" = "#CC503E", "dist_radar" = "#666666")
-x_labels <- c("urban" = "Urban", "agricultural" = "Agricultural", "semiopen" = "Semi-open", "forests" = "Forests", "wetlands" = "Wetlands", "waterbodies" = "Water bodies", "dist_urban" = "Distance to fireworks (m)", "total_biomass" = "Bird biomass (kg)", "dist_radar" = "Distance from radar (m)")
+x_labels <- c("urban" = "Urban", "agricultural" = "Agricultural", "semiopen" = "Semi-open", "forests" = "Forests", "wetlands" = "Wetlands", "waterbodies" = "Water bodies", "dist_urban" = "Distance to fireworks (m)", "total_biomass" = "Bird biomass (kg/km^2)", "dist_radar" = "Distance from radar (m)")
 limit_quantiles <- c("dist_urban", "total_biomass")
-manual_limits <- list("dist_urban" = c(min(data_cleaned$dist_urban), 6500), "total_biomass" = c(0, 4000))
+manual_limits <- list("dist_urban" = c(min(data_cleaned$dist_urban), quantile(data_cleaned$dist_urban, probs = 0.975)), 
+                      "total_biomass" = c(0, quantile(data_cleaned$total_biomass, probs = 0.975)))
 ylims <- c(-1.8, 1.5)
 
 plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims = ylims, varimp = NULL) {
@@ -190,15 +205,16 @@ plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims
     xlabel <- x_labels[which]
     p <- p +
       coord_cartesian(xlim = manual_limits$dist_urban, ylim = ylims, expand = FALSE)
-      scale_x_continuous(breaks = c(0, 10000, 20000, 30000), labels = c(0, 10, 20, 30))
+      # scale_x_continuous(breaks = c(0, 10000, 20000, 30000), labels = c(0, 10, 20, 30))
   } else if (which == "total_biomass") {
     xlabel <- x_labels[which]
     p <- p +
-      coord_cartesian(xlim = manual_limits$total_biomass, ylim = ylims, expand = FALSE)
+      coord_cartesian(xlim = manual_limits$total_biomass, ylim = ylims, expand = FALSE) +
+      scale_x_continuous(breaks = c(250, 500, 750), labels = c(250*4, 500*4, 750*4))
   } else {
     xlabel <- paste("%", x_labels[which])
     p <- p + 
-      scale_x_continuous(breaks = c(0, 1), labels = c("0%", "100%"))
+      scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1), labels = c("0%", "25%", "50%", "75%", "100%"))
   }
   
   p <- p +
@@ -252,8 +268,8 @@ colors <- c("urban" = "#94346E", "agricultural" = "#73AF48", "semiopen" = "#EDAD
             "dist_urban" = "#94346E", "total_biomass" = "#CC503E", "dist_radar" = "#666666")
 x_labels <- c("urban" = "Urban", "agricultural" = "Agricultural", "semiopen" = "Semi-open", "forests" = "Forests", "wetlands" = "Wetlands", "waterbodies" = "Water bodies", "dist_urban" = "Distance to fireworks (m)", "total_biomass" = "Bird biomass (kg)", "dist_radar" = "Distance from radar (km)")
 limit_quantiles <- c("dist_urban", "total_biomass")
-manual_limits <- list("dist_urban" = c(min(data_cleaned$dist_urban), 6500), "total_biomass" = c(0, 4000), "dist_radar" = c(0, 66000))
-ylims <- c(-2.5, 1.5)
+manual_limits <- list("dist_urban" = c(min(data_cleaned$dist_urban), max(data_cleaned$dist_urban)), "total_biomass" = c(min(data_cleaned$total_biomass), max(data_cleaned$total_biomass)), "dist_radar" = c(0, 66000))
+ylims <- c(-4, 3)
 
 plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims = ylims, varimp = NULL) {
   bootstrapped_quantiles <- as.data.frame(t(mboost_bootstrapped_quantiles(modelci, confidence.intervals, which = which)))
@@ -280,27 +296,28 @@ plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims
   } else {
     vi <- varimp %>%
       filter(variable == which) %>%
-      dplyr::select(mean_round)
+      dplyr::select(mean_round, q025, q975)
   }
   
   offset_right <- 0.95
-  offset_top <- 0.5
+  offset_top <- 0.75
+  vi_string <- paste0(vi$mean_round, "% [", round(vi$q025, digits = 2), ";", round(vi$q975, digits = 2), "]")
   if (which == "dist_urban") {
     p <- p +
-      annotate("text", x = manual_limits$dist_urban[[2]] * offset_right, y = ylims[2] - offset_top, label = paste0(vi, "%"), hjust = 1, color = colors[which],
-               fontface = "bold", size = 12, alpha = 0.5)
+      annotate("text", x = manual_limits$dist_urban[[2]] * offset_right, y = ylims[2] - offset_top, label = vi_string, hjust = 1, color = colors[which],
+               fontface = "bold", size = 5, alpha = 0.5)
   } else if(which == "total_biomass") {
     p <- p +
-      annotate("text", x = manual_limits$total_biomass[[2]] * offset_right, y = ylims[2] - offset_top, label = paste0(vi, "%"), hjust = 1, color = colors[which],
-               fontface = "bold", size = 12, alpha = 0.5)
+      annotate("text", x = manual_limits$total_biomass[[2]] * offset_right, y = ylims[2] - offset_top, label = vi_string, hjust = 1, color = colors[which],
+               fontface = "bold", size = 5, alpha = 0.5)
   } else if(which == "dist_radar") {
     p <- p +
-      annotate("text", x = manual_limits$dist_radar[[2]] * offset_right, y = ylims[2] - offset_top, label = paste0(vi, "%"), hjust = 1, color = colors[which],
-               fontface = "bold", size = 12, alpha = 0.5)
+      annotate("text", x = manual_limits$dist_radar[[2]] * offset_right, y = ylims[2] - offset_top, label = vi_string, hjust = 1, color = colors[which],
+               fontface = "bold", size = 5, alpha = 0.5)
   } else {
     p <- p +
-      annotate("text", x = 1 * offset_right, y = ylims[2] - offset_top, label = paste0(vi, "%"), hjust = 1, color = colors[which], 
-               fontface = "bold", size = 12, alpha = 0.5)
+      annotate("text", x = 1 * offset_right, y = ylims[2] - offset_top, label = vi_string, hjust = 1, color = colors[which], 
+               fontface = "bold", size = 5, alpha = 0.5)
   }
   
   # Add density
@@ -346,9 +363,9 @@ plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims
   
   if (which == "dist_urban") {
     xlabel <- x_labels[which]
-    p <- p +
-      coord_cartesian(xlim = manual_limits$dist_urban, ylim = ylims, expand = FALSE)
-      scale_x_continuous(breaks = c(0, 10000, 20000, 30000), labels = c(0, 10, 20, 30))
+    # p <- p +
+    #   coord_cartesian(xlim = manual_limits$dist_urban, ylim = ylims, expand = FALSE)
+      # scale_x_continuous(breaks = c(0, 10000, 20000, 30000), labels = c(0, 10, 20, 30))
   } else if (which == "total_biomass") {
     xlabel <- x_labels[which]
     p <- p +
@@ -361,7 +378,7 @@ plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims
   } else {
     xlabel <- paste("%", x_labels[which])
     p <- p + 
-      scale_x_continuous(breaks = c(0, 1), labels = c("0%", "100%"))
+      scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1), labels = c("0%", "25%", "50%", "75%", "100%"))
   }
   
   p <- p +
