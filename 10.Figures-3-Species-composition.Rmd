@@ -1,5 +1,14 @@
 # Figure 3: Species composition
 
+To illustrate how species composition changes with habitat types, we make a variety of plots:
+
+1. The top-5 taxonomic families per habitat type.
+1. The proportions of birds that belong to a selection of families that are representative for the entire Dutch landscape.
+
+To quantify the necessary variables we rely mostly on the point-transect counts from Sovon as these cover all species (instead of the waterbird counts).
+
+## Processing environment
+
 ```{r}
 library(bioRad)
 library(ggplot2)
@@ -12,13 +21,14 @@ library(GGally)
 library(tibble)
 ```
 
+We load the study PPI and proportions of taxonomic groups in the counts.
+
 ```{r}
 ppi <- readRDS("data/processed/composite-ppis/500m/201712312305.RDS")
 wb_props <- readRDS("data/processed/sovon/wb_props.RDS")
+ptt <- readRDS("data/processed/sovon/ptt.RDS")
 ptt_props <- readRDS("data/processed/sovon/ptt_props.RDS")
-```
 
-```{r}
 ppi$data@data %>%
   # left_join(wb_props, by = c("wb_area_nr" = "area_nr")) %>%
   left_join(ptt_props, by = c("ptt_route" = "route")) %>%
@@ -27,166 +37,119 @@ ppi$data@data %>%
        total_biomass > 0,
        dist_radar < 66000,
        urban < 0.1) %>%
-  identity() -> a
+  identity() -> data
 ```
+
+We select only those PPI pixels (and their corresponding counts) which are covered for >99% by a single habitat type.
 
 ```{r}
-a %>%
-  dplyr::select(all_of(c(colnames(ptt_props)[2:45], "semiopen", "forests", "wetlands", "waterbodies", "agricultural"))) %>%
-  pivot_longer(cols = all_of(colnames(ptt_props)[2:45]), names_to = "family", values_to = "family_prop") %>%
-  pivot_longer(cols = all_of(c("agricultural", "semiopen", "forests", "wetlands", "waterbodies")), names_to = "landuse", values_to = "landuse_prop") %>%
-  drop_na() %>%
-  filter(landuse_prop >= 0.9) %>%
-  group_by(landuse, family) %>%
-  mutate(weighted_use = family_prop * landuse_prop) %>%
-  summarise(m = mean(weighted_use), .groups = "drop_last") %>%
-  arrange(desc(m), .by_group = TRUE) %>%
-  top_n(10) %>%
-  ungroup() %>%
-  identity() -> d
-d
+landuse_limit <- 0.99
 ```
 
-```{r}
-agricultural_families <- c("Geese", "Ducks", "Gulls", "Starlings", "Waders")
-forests_families <- c("Pigeons", "Crows", "Tits", "Finches", "Thrushes")
-semiopen_families <- c("Geese", "Ducks", "Pigeons", "Tits", "Crows")
-waterbodies_families <- c("Geese", "Ducks", "Waders", "Gulls", "Coots")
-wetlands_families <- c("Ducks", "Geese", "Waders", "Gulls", "Starlings")
-families <- list("agricultural" = agricultural_families, "forests" = forests_families, "semiopen" = semiopen_families, 
-              "waterbodies" = waterbodies_families, "wetlands" = wetlands_families)
-```
+## Characteristic families
 
-So we can select the following characteristic families for each of the landuse classes:
-
-1. *agricultural*: `r agricultural_families`
-1. *forests*: `r forests_families`
-1. *semiopen*: `r semiopen_families`
-1. *waterbodies*: `r waterbodies_families`
-1. *wetlands*: `r wetlands_families`
-
-```{r}
-plot_landuse_family_proportions <- function(landuse_name, families) {
-  # landuse_name <- names(luf)
-  # families <- luf
-  # 
-  # print(luf)
-  
-  a %>%
-    dplyr::select(all_of(c(colnames(ptt_props)[2:45], "semiopen", "forests", "wetlands", "waterbodies", "agricultural"))) %>%
-    pivot_longer(cols = all_of(colnames(ptt_props)[2:45]), names_to = "family", values_to = "family_prop") %>%
-    pivot_longer(cols = all_of(c("agricultural", "semiopen", "forests", "wetlands", "waterbodies")), names_to = "landuse", values_to = "landuse_prop") %>%
-    drop_na() %>%
-    filter(family %in% families, landuse == landuse_name) %>%
-    # group_by(family) %>%
-    # mutate(family_prop = range01(family_prop)) %>%
-    # ungroup() %>%
-    # identity() -> p
-    ggplot(aes(x = landuse_prop, y = family_prop, color = family)) +
-    geom_smooth() +
-    xlab(paste("Proportion", landuse_name)) +
-    ylab(paste("Propotion of birds in counts"))
-}
-
-p <- mapply(plot_landuse_family_proportions, names(families), families, SIMPLIFY = FALSE)
-# p <- lapply(families, plot_landuse_family_proportions)
-
-# plot_landuse_family_proportions("agricultural", agricultural_families)
-```
-```{r}
-wrap_plots(p)
-```
-
-
-```{r}
-a %>%
-  dplyr::select(all_of(c(colnames(ptt_props)[2:45], "semiopen", "forests", "wetlands", "waterbodies", "agricultural"))) %>%
-  pivot_longer(cols = all_of(colnames(ptt_props)[2:45]), names_to = "family", values_to = "family_prop") %>%
-  pivot_longer(cols = all_of(c("agricultural", "semiopen", "forests", "wetlands", "waterbodies")), names_to = "landuse", values_to = "landuse_prop") %>%
-  drop_na() %>%
-  filter(family %in% forests_families, landuse == "forests") %>%
-  # group_by(family, cut = cut_width(landuse_prop, width = 0.01, n = 100, labels = FALSE)) %>%
-  group_by(family) %>%
-  mutate(family_prop = range01(family_prop)) %>%
-  ungroup() %>%
-  # identity() -> p
-  ggplot(aes(x = landuse_prop, y = family_prop, color = family)) +
-  geom_smooth()
-```
+Geese, ducks, pigeons, thrushes, tits, waders, crows and finches represent a substantial part of the Dutch avifauna across a large range of body sizes. We select these to illustrate how the taxonomic proportions change with habitats.
 
 ```{r}
 selected_families <- c("Geese", "Ducks", "Pigeons", "Thrushes", "Tits", "Waders", "Crows", "Finches")
 
-a %>%
+data %>%
   dplyr::select(all_of(c(colnames(ptt_props)[2:45], "semiopen", "forests", "wetlands", "waterbodies", "agricultural"))) %>%
   pivot_longer(cols = all_of(colnames(ptt_props)[2:45]), names_to = "family", values_to = "family_prop") %>%
   pivot_longer(cols = all_of(c("agricultural", "semiopen", "forests", "wetlands", "waterbodies")), names_to = "landuse", values_to = "landuse_prop") %>%
   drop_na() %>%
-  # filter(family %in% selected_families) %>%
   filter(family %in% selected_families,
-         landuse_prop > 0.99) %>%
+         landuse_prop >= landuse_limit) %>%
   group_by(family, landuse) %>%
   summarise(mean_family_prop = mean(family_prop), .groups = "drop_last") %>%
   pivot_wider(names_from = landuse, values_from = mean_family_prop) %>%
-  identity() -> b
-  
+  identity() -> characteristic_families
+characteristic_families
 ```
 
-```{r}
-ptt <- readRDS("data/processed/sovon/ptt.RDS")
+## Mean habitat biomass and weight
 
+We calculate the mean biomass for all areas covered for >99% by a single habitat type and calculate mean bird weight for these areas from the point-transect counts.
+
+```{r}
+data %>%
+  dplyr::select(all_of(c("total_biomass", "ptt_weighted_mean_weight", "semiopen", "forests", "wetlands", "waterbodies", "agricultural"))) %>%
+  pivot_longer(cols = all_of(c("semiopen", "forests", "wetlands", "waterbodies", "agricultural")), names_to = "landuse", values_to = "proportion") %>%
+  filter(proportion >= landuse_limit) %>%
+  mutate(total_biomass = total_biomass / 1000) %>%
+  group_by(landuse) %>%
+  summarise(mean_biomass = mean(total_biomass),
+            mean_weight = mean(ptt_weighted_mean_weight, na.rm = TRUE),
+            .groups = "drop_last") %>%
+  arrange(desc(mean_weight)) %>%
+  identity() -> habitat_mass
+habitat_mass
+```
+
+## Sorting of families by weight
+
+Now we sort families according to weight
+
+```{r}
 ptt %>%
   distinct(species, .keep_all = TRUE) %>%
   group_by(familyvernacular) %>%
   summarise(mean_weight = mean(mean_weight), .groups = "drop_last") %>%
   filter(familyvernacular %in% selected_families) %>%
   arrange(desc(mean_weight)) %>%
-  rowid_to_column()-> d
+  rowid_to_column()-> family_weights
 
-b %>%
-  left_join(d, by = c("family" = "familyvernacular")) %>%
-  arrange(desc(mean_weight)) -> b
+characteristic_families %>%
+  left_join(family_weights, by = c("family" = "familyvernacular")) %>%
+  arrange(desc(mean_weight)) -> characteristic_families
+
+characteristic_families$rank <- factor(characteristic_families$mean_weight, ordered = TRUE, levels = characteristic_families$mean_weight)
 ```
 
+## Prepare plot
+
+And plot a simple barplot figure.
 
 ```{r}
-order_names <- c("agricultural", "waterbodies", "wetlands", "semiopen", "forests")
-order_ids <- match(order_names, colnames(b))
+characteristic_families %>%
+  pivot_longer(cols = !c("family", "rowid", "mean_weight", "rank"), names_to = "landuse", values_to = "family_prop") -> cf_long
 
-b$weights <- round(b$mean_weight)
-b$family_weight <- paste0(b$family, " (", b$weights, "g)")
+colors <- c("urban" = "#94346E", "agricultural" = "#73AF48", "semiopen" = "#EDAD08", "forests" = "#0F8554", "wetlands" = "#38A6A5", "waterbodies" = "#1D6996",
+            "dist_urban" = "#94346E", "total_biomass" = "#CC503E", "dist_radar" = "#666666")
+landuse_names <- c("agricultural" = "Agricultural", "semiopen" = "Semi-open", "forests" = "Forests", "wetlands" = "Wetlands", "waterbodies" = "Water bodies")
 
-b$family_factor <- factor(b$family_weight, ordered = TRUE, levels = b$family_weight)
+plot_family_proportions <- function(props, which) {
+  landuse_labeller <- function(variable, value) {
+    label <- paste0(landuse_names[value], " ", round(habitat_mass[habitat_mass$landuse == which, ]$mean_weight, digits = 0), "g")
+    return(label)
+  }
+  
+  proportion_labeller <- function(value) paste0(value * 100, "%")
+  
+  props %>%
+  filter(landuse == which) %>%
+  ggplot() +
+    geom_col(aes(x = family_prop, y = reorder(family, mean_weight), alpha = family_prop), fill = colors[which]) +
+    labs(x = "Proportion of birds", y = "Taxonomic group") +
+    coord_cartesian(expand = FALSE, xlim = c(0, ceiling(max(cf_long$family_prop) * 100) / 100)) +
+    scale_x_continuous(breaks = c(0, 0.1, 0.2, 0.3), labels = proportion_labeller) +
+    scale_alpha_continuous(range = c(0.3, 1)) +
+    facet_wrap(vars(landuse), strip.position = "top", labeller = landuse_labeller) +
+    theme_classic(base_size = 12) +
+    theme(legend.position = "none",
+          axis.title.y = element_blank(),
+          strip.background = element_blank(),
+          strip.text.x = element_text(hjust = 0, size = 12, family = "Helvetica", face = "bold"))
+}
 
-ggparcoord(b, columns = order_ids, scale = "globalminmax", groupColumn = "family_factor", order = "allClass") +
-  geom_line(size = 1.0) +
-  xlab(paste("Habitat type")) +
-  ylab(paste("Propotion of birds in counts")) +
-  labs(color = "Family (mean weight)")
-
-ggsave("data/plots/family_proportions.png", width = 7, height = 4)
+plots <- mapply(function(landuses) { plot_family_proportions(cf_long, landuses) }, landuses = habitat_mass$landuse,
+            SIMPLIFY = FALSE)
+p <- wrap_plots(plots)
+p
 ```
 
+And we save it as .pdf for editing in Illustrator.
 
-
-```{r warning=FALSE}
-a %>%
-  dplyr::select(all_of(c(colnames(ptt_props)[2:45], "semiopen", "forests", "wetlands", "waterbodies", "agricultural"))) %>%
-  pivot_longer(cols = all_of(colnames(ptt_props)[2:45]), names_to = "family", values_to = "family_prop") %>%
-  pivot_longer(cols = all_of(c("agricultural", "semiopen", "forests", "wetlands", "waterbodies")), names_to = "landuse", values_to = "landuse_prop") %>%
-  drop_na() %>%
-  filter(landuse == "agricultural") %>%
-  group_by(family, cut = cut_width(landuse_prop, width = 0.01, n = 100, labels = FALSE)) %>%
-  summarise(mean_family_prop = mean(family_prop), .groups = "drop_last") %>%
-  ungroup() %>%
-  group_by(family) %>%
-  mutate(cut = (cut - 1)/100,
-         rel_family_prop = range01(mean_family_prop)) %>%
-  ungroup() %>%
-  filter(rel_family_prop > 0) %>%
-  # identity() -> b
-  ggplot(aes(x = cut, y = rel_family_prop)) +
-  # geom_pointdensity() +
-  geom_smooth() +
-  facet_wrap(vars(family))
+```{r}
+ggsave(filename = "data/plots/paper/fig3.pdf", plot = p, width = 20, height = 14, dpi = 300, units = "cm")
 ```
