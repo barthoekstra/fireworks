@@ -325,10 +325,15 @@ wb_data %>%
   mutate(specific_biomass = number * mean_weight) %>%
   ungroup() %>%
   group_by(area_nr, year) %>%
-  summarise(total_biomass = sum(specific_biomass), .groups = "drop_last") %>%
+  summarise(total_biomass = sum(specific_biomass),
+            weighted_mean_weight = weighted.mean(mean_weight, number),
+            .groups = "drop_last") %>%
   ungroup() %>%
   group_by(area_nr) %>%  # Below is only required if year-filter is NOT set, otherwise does nothing
-  summarise(total_biomass = mean(total_biomass), .groups = "drop_last") -> wb_biomass
+  summarise(total_biomass = mean(total_biomass),
+            weighted_mean_weight = mean(weighted_mean_weight),
+            .groups = "drop_last") %>%
+  identity() -> wb_biomass
 
 ptt_data %>%
   filter(year == ptt_year) %>%
@@ -336,10 +341,15 @@ ptt_data %>%
   mutate(specific_biomass = number * mean_weight) %>%
   ungroup() %>%
   group_by(route, year) %>%
-  summarise(total_biomass = sum(specific_biomass), .groups = "drop_last") %>%
+  summarise(total_biomass = sum(specific_biomass),
+            weighted_mean_weight = weighted.mean(mean_weight, number),
+            .groups = "drop_last") %>%
   ungroup() %>%
   group_by(route) %>%  # Below is only required if year-filter is NOT set, otherwise does nothing
-  summarise(total_biomass = mean(total_biomass), .groups = "drop_last") -> ptt_biomass
+  summarise(total_biomass = mean(total_biomass),
+            weighted_mean_weight = mean(weighted_mean_weight),
+            .groups = "drop_last") %>%
+  identity() -> ptt_biomass
 ```
 
 And now we will save these datasets of `total_biomass` as well.

@@ -40,11 +40,13 @@ generate_composites <- function(hrw_ppis, dhl_ppis, res, maxrange) {
     
     params <- c("VIR", "VID", "R", "overlap", "eta_sum", "eta_sum_expected", "dist_radar", "class",
                 "urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies", "dist_urban", "human_pop",
-                "wb_area_id", "wb_area_nr", "ptt_route", "wb_area_ha", "wb_total_biomass", "ptt_total_biomass", "total_biomass")
+                "wb_area_id", "wb_area_nr", "ptt_route", "wb_area_ha", "wb_total_biomass", "ptt_total_biomass", "total_biomass", 
+                "wb_weighted_mean_weight", "ptt_weighted_mean_weight", "weighted_mean_weight")
     # All mean methods except for factors and urban area (set to max), because we want to strictly filter out fireworks
     methods <- c("mean", "mean", "mean", "mean", "mean", "mean", "min", "min",
                  "max", "mean", "mean", "mean", "mean", "mean", "mean", "mean", 
-                 "factor", "factor", "factor", "factor", "mean", "mean", "mean")
+                 "factor", "factor", "factor", "factor", "mean", "mean", "mean",
+                 "mean", "mean", "mean")
     cppi <- comp_ppi(list(ppi_hrw, ppi_dhl), param = params, method = methods, res = c(res, res), coverage = "count")
     
     # Set rain and background pixels to NA
@@ -104,7 +106,9 @@ generate_composites <- function(hrw_ppis, dhl_ppis, res, maxrange) {
 }
 
 # Somehow this often hangs despite ample memory available, in which case better executed serially.
-r <- parallel::mclapply(c(500, 1000, 2000), function(x) { generate_composites(hrw_ppis, dhl_ppis, res = x, maxrange = 66000)},
+# r <- parallel::mclapply(c(500, 1000, 2000), function(x) { generate_composites(hrw_ppis, dhl_ppis, res = x, maxrange = 66000)},
+#                         mc.cores = 3, mc.preschedule = FALSE)
+r <- parallel::mclapply(c(1000, 2000), function(x) { generate_composites(hrw_ppis, dhl_ppis, res = x, maxrange = 66000)},
                         mc.cores = 3, mc.preschedule = FALSE)
 ```
 
