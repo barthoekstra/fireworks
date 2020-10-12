@@ -12,6 +12,7 @@ library(tidyr)
 library(magrittr)
 library(patchwork)
 library(ggdist)
+library(MASS)
 ```
 
 Once again we have tweaked some of the `mboost` default functionality, in this case to facilitate plotting using `ggplot2`.
@@ -97,7 +98,9 @@ bvi_all %>%
   pivot_longer(!variable, names_to = "bootstrap", values_to = "vi") -> all
 
 summary(aov(vi ~ variable, data = all))
-pairwise.t.test(all$vi, all$variable)
+pttest <- pairwise.t.test(all$vi, all$variable)
+write.matrix(pttest$p.value, file = "data/models/varimp.pttest.csv", sep = ",")
+pttest
 ```
 
 Indeed, mean variable importance for `dist_urban` is not significantly different from `total_biomass` and the same applies to `waterbodies` and `wetlands`.
