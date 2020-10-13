@@ -24,7 +24,7 @@
 <meta name="author" content="Bart Hoekstra" />
 
 
-<meta name="date" content="2020-10-12" />
+<meta name="date" content="2020-10-13" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -66,37 +66,37 @@
 <script src="assets/leaflet-binding-2.0.3/leaflet.js"></script>
 <script src="assets/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script>
 <script src="assets/leaflet-providers-plugin-2.0.3/leaflet-providers-plugin.js"></script>
-<script src="assets/layer.1-1/data_stars_layer1a89473.txt"></script>
+<script src="assets/layer.1-1/data_stars_layer11403c5.txt"></script>
 <script src="assets/joda-0.0.1/joda.js"></script>
 <script src="assets/joda-0.0.1/addImageQuery-bindings.js"></script>
 <script src="assets/clipboard-0.0.1/setClipboardText.js"></script>
 <link href="assets/HomeButton-0.0.1/home-button.css" rel="stylesheet" />
 <script src="assets/HomeButton-0.0.1/home-button.js"></script>
 <script src="assets/HomeButton-0.0.1/easy-button-src.min.js"></script>
-<script src="assets/layer.2-1/data_stars_layer24392e0.txt"></script>
-<script src="assets/layer.3-1/data_stars_layer32e8036.txt"></script>
-<script src="assets/layer.4-1/data_stars_layer41320c7.txt"></script>
-<script src="assets/layer.5-1/data_stars_layer5a94820.txt"></script>
-<script src="assets/layer.6-1/data_stars_layer607ab4e.txt"></script>
-<script src="assets/layer.7-1/data_stars_layer7a09ce1.txt"></script>
-<script src="assets/layer.8-1/data_stars_layer8d75bf9.txt"></script>
-<script src="assets/layer.9-1/data_stars_layer9f563d4.txt"></script>
-<script src="assets/layer.10-1/data_stars_layer103f7c1b.txt"></script>
-<script src="assets/urban-1/data_stars_urband65fb7.txt"></script>
-<script src="assets/agricultural-1/data_stars_agricultural784cb2.txt"></script>
-<script src="assets/semiopen-1/data_stars_semiopencf293b.txt"></script>
-<script src="assets/forests-1/data_stars_forests5ab078.txt"></script>
-<script src="assets/wetlands-1/data_stars_wetlands4f82e7.txt"></script>
-<script src="assets/waterbodies-1/data_stars_waterbodies19fea5.txt"></script>
-<script src="assets/dist_urban-1/data_stars_dist_urbanfb70a4.txt"></script>
-<script src="assets/human_pop-1/data_stars_human_pop7b460f.txt"></script>
+<script src="assets/layer.2-1/data_stars_layer2ef1687.txt"></script>
+<script src="assets/layer.3-1/data_stars_layer397ab21.txt"></script>
+<script src="assets/layer.4-1/data_stars_layer4f39627.txt"></script>
+<script src="assets/layer.5-1/data_stars_layer578154e.txt"></script>
+<script src="assets/layer.6-1/data_stars_layer6f23d60.txt"></script>
+<script src="assets/layer.7-1/data_stars_layer73ad4ce.txt"></script>
+<script src="assets/layer.8-1/data_stars_layer85a6ec3.txt"></script>
+<script src="assets/layer.9-1/data_stars_layer9fc9123.txt"></script>
+<script src="assets/layer.10-1/data_stars_layer10e03bdc.txt"></script>
+<script src="assets/urban-1/data_stars_urban1e075b.txt"></script>
+<script src="assets/agricultural-1/data_stars_agriculturald521e8.txt"></script>
+<script src="assets/semiopen-1/data_stars_semiopenf745b0.txt"></script>
+<script src="assets/forests-1/data_stars_forests275461.txt"></script>
+<script src="assets/wetlands-1/data_stars_wetlands62acf3.txt"></script>
+<script src="assets/waterbodies-1/data_stars_waterbodiesca4782.txt"></script>
+<script src="assets/dist_urban-1/data_stars_dist_urban570ad9.txt"></script>
+<script src="assets/human_pop-1/data_stars_human_pop627d50.txt"></script>
 <script src="assets/kePrint-0.0.1/kePrint.js"></script>
-<script src="assets/resid-1/data_stars_stars9ae730.txt"></script>
+<script src="assets/resid-1/data_stars_stars62d918.txt"></script>
 <link href="assets/jquery-ui-1.10.3/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" />
 <script src="assets/jquery-ui-1.10.3/jquery-ui-1.10.3.custom.min.js"></script>
 <link href="assets/opacity-1.0.0/Control.Opacity.css" rel="stylesheet" />
 <script src="assets/opacity-1.0.0/Control.Opacity.js"></script>
-<script src="assets/local_sa-1/data_stars_local_saa3de9b.txt"></script>
+<script src="assets/local_sa-1/data_stars_local_saf48e6d.txt"></script>
 
 
 <style type="text/css">
@@ -692,8 +692,20 @@ forests
 ## Warning: The labeller API has been updated. Labellers taking `variable` and `value` arguments are now deprecated. See labellers documentation.
 
 ## Warning: The labeller API has been updated. Labellers taking `variable` and `value` arguments are now deprecated. See labellers documentation.</code></pre>
-<div class="sourceCode" id="cb191"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb191-1" data-line-number="1">p &lt;-<span class="st"> </span><span class="kw">wrap_plots</span>(plots)</a>
-<a class="sourceLine" id="cb191-2" data-line-number="2">p</a></code></pre></div>
+<div class="sourceCode" id="cb191"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb191-1" data-line-number="1">characteristic_families<span class="op">$</span>title &lt;-<span class="st"> &quot;Mean weight (g)&quot;</span></a>
+<a class="sourceLine" id="cb191-2" data-line-number="2"><span class="kw">ggplot</span>(characteristic_families) <span class="op">+</span></a>
+<a class="sourceLine" id="cb191-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_col</span>(<span class="kw">aes</span>(<span class="dt">x =</span> mean_weight, <span class="dt">y =</span> <span class="kw">reorder</span>(family, mean_weight))) <span class="op">+</span></a>
+<a class="sourceLine" id="cb191-4" data-line-number="4"><span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Mean weight (g)&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Taxonomic group&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb191-5" data-line-number="5"><span class="st">    </span><span class="kw">coord_cartesian</span>(<span class="dt">expand =</span> <span class="ot">FALSE</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb191-6" data-line-number="6"><span class="st">    </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1000</span>, <span class="dv">2000</span>, <span class="dv">3000</span>)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb191-7" data-line-number="7"><span class="st">    </span><span class="kw">facet_wrap</span>(<span class="kw">vars</span>(title), <span class="dt">strip.position =</span> <span class="st">&quot;top&quot;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb191-8" data-line-number="8"><span class="st">    </span><span class="kw">theme_classic</span>(<span class="dt">base_size =</span> <span class="dv">12</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb191-9" data-line-number="9"><span class="st">    </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>,</a>
+<a class="sourceLine" id="cb191-10" data-line-number="10">          <span class="dt">axis.title.y =</span> <span class="kw">element_blank</span>(),</a>
+<a class="sourceLine" id="cb191-11" data-line-number="11">          <span class="dt">strip.background =</span> <span class="kw">element_blank</span>(),</a>
+<a class="sourceLine" id="cb191-12" data-line-number="12">          <span class="dt">strip.text.x =</span> <span class="kw">element_text</span>(<span class="dt">hjust =</span> <span class="dv">0</span>, <span class="dt">size =</span> <span class="dv">12</span>, <span class="dt">family =</span> <span class="st">&quot;Helvetica&quot;</span>, <span class="dt">face =</span> <span class="st">&quot;bold&quot;</span>)) -&gt;<span class="st"> </span>plots[[<span class="dv">6</span>]]</a>
+<a class="sourceLine" id="cb191-13" data-line-number="13">p &lt;-<span class="st"> </span><span class="kw">wrap_plots</span>(plots)</a>
+<a class="sourceLine" id="cb191-14" data-line-number="14">p</a></code></pre></div>
 <p><img src="Fireworks_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
 <p>And we save it as .pdf for editing in Illustrator.</p>
 <div class="sourceCode" id="cb192"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb192-1" data-line-number="1"><span class="kw">ggsave</span>(<span class="dt">filename =</span> <span class="st">&quot;data/plots/paper/fig3.pdf&quot;</span>, <span class="dt">plot =</span> p, <span class="dt">width =</span> <span class="dv">20</span>, <span class="dt">height =</span> <span class="dv">14</span>, <span class="dt">dpi =</span> <span class="dv">300</span>, <span class="dt">units =</span> <span class="st">&quot;cm&quot;</span>)</a></code></pre></div>
