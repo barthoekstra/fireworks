@@ -337,10 +337,10 @@ saveRDS(ppi_dhl, file = "data/processed/corrected_ppi_dhl_lu.RDS")
 
 ### Plotting human parameters on an interactive map
 
-We have now generated proxies for fireworks 'severity' for later modelling stages. Let's plot them on an interactive map again for reference.
+We have now generated proxies for fireworks 'severity' for later modelling stages. Let's plot them on an interactive map again for reference. *Unfortunately, due to [the way `leaflet` stores maps it produces](https://github.com/rstudio/bookdown/issues/15#issuecomment-573776659), we cannot plot them here using K-M knitting to generate this document. Run these chunks interactively and they should work fine.*
 
 #### Interactive map of Herwijnen
-```{r interactive_map_herwijnen, warning=FALSE}
+```{r interactive_map_herwijnen, warning=FALSE, eval=FALSE}
 human_parameters <- c("urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies", "dist_urban", "human_pop")
 
 mapview(ppi_hrw$data[, , human_parameters], alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
@@ -349,7 +349,7 @@ mapview(ppi_hrw$data[, , human_parameters], alpha.regions = 0.6, col.regions = i
 ```
 
 #### Interactive map of Den Helder
-```{r interactive_map_den_helder, warning=FALSE}
+```{r interactive_map_den_helder, warning=FALSE, eval=FALSE}
 mapview(ppi_dhl$data[, , human_parameters], alpha.regions = 0.6, col.regions = inferno, maxpixels=2000000,
         na.color = "#00000000", map.types = c("CartoDB.Positron", "CartoDB.DarkMatter", "Esri.WorldImagery"),
         layer.name = human_parameters)

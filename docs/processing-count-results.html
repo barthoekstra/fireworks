@@ -1,0 +1,2800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>5 Processing count results | Fireworks</title>
+<meta name="author" content="Bart Hoekstra">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.2"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.5.1/jquery-3.5.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.2.4.9002/tabs.js"></script><script src="libs/bs3compat-0.2.4.9002/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><script src="https://cdn.jsdelivr.net/autocomplete.js/0/autocomplete.jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/mark.js@8.11.1/dist/mark.min.js"></script><!-- CSS -->
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Fireworks</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Preface</a></li>
+<li class="book-part">Weather radar data</li>
+<li><a class="" href="selecting-firework-take-off-moment.html"><span class="header-section-number">1</span> Selecting firework take-off moment</a></li>
+<li><a class="" href="radar-data-preprocessing.html"><span class="header-section-number">2</span> Radar Data Preprocessing</a></li>
+<li class="book-part">Land use</li>
+<li><a class="" href="annotating-land-use.html"><span class="header-section-number">3</span> Annotating land use</a></li>
+<li class="book-part">Sovon counts</li>
+<li><a class="" href="annotating-count-areas.html"><span class="header-section-number">4</span> Annotating count areas</a></li>
+<li><a class="active" href="processing-count-results.html"><span class="header-section-number">5</span> Processing count results</a></li>
+<li><a class="" href="apply-processing-to-all-ppis.html"><span class="header-section-number">6</span> Apply processing to all PPIs</a></li>
+<li><a class="" href="composite-all-ppis.html"><span class="header-section-number">7</span> Composite all PPIs</a></li>
+<li class="book-part">Fireworks disturbance</li>
+<li><a class="" href="modelling-fireworks-disturbance.html"><span class="header-section-number">8</span> Modelling fireworks disturbance</a></li>
+<li><a class="" href="quantifying-model-uncertainty.html"><span class="header-section-number">9</span> Quantifying model uncertainty</a></li>
+<li class="book-part">Figures</li>
+<li><a class="" href="figure-1-data-overview.html"><span class="header-section-number">10</span> Figure 1: Data overview</a></li>
+<li><a class="" href="figure-2-model-output.html"><span class="header-section-number">11</span> Figure 2: Model output</a></li>
+<li><a class="" href="figure-3-species-composition.html"><span class="header-section-number">12</span> Figure 3: Species composition</a></li>
+<li class="book-part">Appendix</li>
+<li><a class="" href="generating-vps-for-den-helder-radar.html"><span class="header-section-number">13</span> Generating vertical profiles for Den Helder radar</a></li>
+<li class="book-part">Other</li>
+<li><a class="" href="references.html"><span class="header-section-number">14</span> References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/barthoekstra/fireworks">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="processing-count-results" class="section level1">
+<h1>
+<span class="header-section-number">5</span> Processing count results<a class="anchor" aria-label="anchor" href="#processing-count-results"><i class="fas fa-link"></i></a>
+</h1>
+<p>For now, we are interested in calculating the following parameters for the count results:</p>
+<ol style="list-style-type: decimal">
+<li>The number of birds within every PPI pixel.</li>
+<li>The average mass of the birds within every PPI pixel.</li>
+</ol>
+<p>We can derive the total numbers of birds comparatively easily from the bird counts by Sovon, but to calculate the average mass of the birds we need to link a database of life-history traits. For the latter we first need to translate the vernacular (modern) names of bird species (used by Sovon) to the scientific ones, so we can link both.</p>
+<div id="processing-environment-4" class="section level2">
+<h2>
+<span class="header-section-number">5.1</span> Processing environment<a class="anchor" aria-label="anchor" href="#processing-environment-4"><i class="fas fa-link"></i></a>
+</h2>
+<div class="sourceCode" id="cb100"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/rgbif">rgbif</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://stringr.tidyverse.org">stringr</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://readxl.tidyverse.org">readxl</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org">tidyr</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://readr.tidyverse.org">readr</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://haozhu233.github.io/kableExtra/">kableExtra</a></span><span class="op">)</span></code></pre></div>
+</div>
+<div id="loading-the-sovon-count-data" class="section level2">
+<h2>
+<span class="header-section-number">5.2</span> Loading the Sovon count data<a class="anchor" aria-label="anchor" href="#loading-the-sovon-count-data"><i class="fas fa-link"></i></a>
+</h2>
+<p>The count data is spread over a few sheets in an <code>xlsx</code> file, which we load here. For clarity, we rename all the columns to English and we filter out all counts (i.e. areas) where birds are not positively identified to species level. Although it would be possible to ‘fill’ these uncertain counts based on proportions, determining how to do that is not necessary for our purposes. Instead, we will just remove these counts altogether. Finally, subspecies identifiers for these species are removed, as we assume variation is limited and the database of life-history traits does not contain parameters for subspecies separately.</p>
+<div class="sourceCode" id="cb101"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">sovon_data</span> <span class="op">&lt;-</span> <span class="st">"data/raw/sovon/tel_dec_jan_1718.xlsx"</span>
+
+<span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">sheets</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readxl.tidyverse.org/reference/excel_sheets.html">excel_sheets</a></span><span class="op">(</span><span class="va">sovon_data</span><span class="op">)</span>
+<span class="va">sheets</span> <span class="op">&lt;-</span> <span class="va">sheets</span><span class="op">[</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">5</span><span class="op">)</span><span class="op">]</span>  <span class="co"># Sheet 1 and 5 contain PTT and roost counts respectively, so we ignore these for now, as they have to be processed differently</span>
+
+<span class="co"># Explicit column types to suppress warnings thrown because of lacking euring codes for records with no birds</span>
+<span class="va">coltypes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"numeric"</span>, <span class="st">"text"</span>, <span class="st">"numeric"</span>, <span class="st">"numeric"</span>, <span class="st">"numeric"</span>, <span class="st">"numeric"</span>, <span class="st">"numeric"</span>, <span class="st">"numeric"</span>, <span class="st">"text"</span>, <span class="st">"numeric"</span>, <span class="st">"numeric"</span>, <span class="st">"numeric"</span><span class="op">)</span>
+
+<span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_along</a></span><span class="op">(</span><span class="va">sheets</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+  <span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span><span class="va">data</span>, <span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html">read_excel</a></span><span class="op">(</span><span class="va">sovon_data</span>, sheet <span class="op">=</span> <span class="va">sheets</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, col_types <span class="op">=</span> <span class="va">coltypes</span><span class="op">)</span><span class="op">)</span>
+<span class="op">}</span>
+
+<span class="va">data</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/drop_na.html">drop_na</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>  <span class="co"># A few rows somehow contain no birds or species 'geen vogels'</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>count_id <span class="op">=</span> <span class="va">TELLING_ID</span>, area_nr <span class="op">=</span> <span class="va">GEBIEDSCODE</span>, year <span class="op">=</span> <span class="va">JAAR</span>, month <span class="op">=</span> <span class="va">MAAND</span>, day <span class="op">=</span> <span class="va">DAG</span>, start_time <span class="op">=</span> <span class="va">BEGINTIJD</span>, end_time <span class="op">=</span> <span class="va">EINDTIJD</span>,
+         <span class="st">"euring"</span> <span class="op">=</span> <span class="st">"EURING"</span>, species <span class="op">=</span> <span class="va">SOORT</span>, number <span class="op">=</span> <span class="va">Aantal</span>, xcoor <span class="op">=</span> <span class="va">XCOOR</span>, ycoor <span class="op">=</span> <span class="va">YCOOR</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">area_nr</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/any.html">any</a></span><span class="op">(</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_starts.html">str_ends</a></span><span class="op">(</span><span class="va">species</span>, <span class="st">"spec."</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>  <span class="co"># Filter out all counts with unidentified birds</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/any.html">any</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_subset.html">str_subset</a></span><span class="op">(</span><span class="va">species</span>, <span class="st">" of "</span><span class="op">)</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>  <span class="co"># Filter out all counts with either/or totals</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/any.html">any</a></span><span class="op">(</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_starts.html">str_starts</a></span><span class="op">(</span><span class="va">species</span>, <span class="st">"hybride"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>  <span class="co"># Filter out all counts with hybrids</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rowwise.html">rowwise</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>species <span class="op">=</span> <span class="fu"><a href="https://stringr.tidyverse.org/reference/str_split.html">str_split</a></span><span class="op">(</span><span class="va">species</span>, <span class="st">"\\("</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://stringr.tidyverse.org/reference/str_trim.html">str_trim</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">wb_data</span>  <span class="co"># And remove all subspecies identifications</span>
+
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/headtail.html">head</a></span><span class="op">(</span><span class="va">wb_data</span>, <span class="fl">10</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span>format <span class="op">=</span> <span class="st">"html"</span>, col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">wb_data</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kable_styling.html">kable_styling</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">kableExtra</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/scroll_box.html">scroll_box</a></span><span class="op">(</span>width <span class="op">=</span> <span class="st">"100%"</span>, height <span class="op">=</span> <span class="st">"400px"</span><span class="op">)</span></code></pre></div>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; ">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<thead><tr>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+count_id
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+area_nr
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+year
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+month
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+day
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+start_time
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+end_time
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+euring
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+species
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+number
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+xcoor
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+ycoor
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1060908
+</td>
+<td style="text-align:left;">
+BR1111
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1045
+</td>
+<td style="text-align:right;">
+1108
+</td>
+<td style="text-align:right;">
+1610
+</td>
+<td style="text-align:left;">
+Grauwe Gans
+</td>
+<td style="text-align:right;">
+280
+</td>
+<td style="text-align:right;">
+127723
+</td>
+<td style="text-align:right;">
+426233
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1060908
+</td>
+<td style="text-align:left;">
+BR1111
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1045
+</td>
+<td style="text-align:right;">
+1108
+</td>
+<td style="text-align:right;">
+1700
+</td>
+<td style="text-align:left;">
+Nijlgans
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+127723
+</td>
+<td style="text-align:right;">
+426233
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1060909
+</td>
+<td style="text-align:left;">
+BR1112
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1108
+</td>
+<td style="text-align:right;">
+1126
+</td>
+<td style="text-align:right;">
+1610
+</td>
+<td style="text-align:left;">
+Grauwe Gans
+</td>
+<td style="text-align:right;">
+76
+</td>
+<td style="text-align:right;">
+125082
+</td>
+<td style="text-align:right;">
+426701
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1060909
+</td>
+<td style="text-align:left;">
+BR1112
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1108
+</td>
+<td style="text-align:right;">
+1126
+</td>
+<td style="text-align:right;">
+1661
+</td>
+<td style="text-align:left;">
+Grote Canadese Gans
+</td>
+<td style="text-align:right;">
+50
+</td>
+<td style="text-align:right;">
+125082
+</td>
+<td style="text-align:right;">
+426701
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1060909
+</td>
+<td style="text-align:left;">
+BR1112
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1108
+</td>
+<td style="text-align:right;">
+1126
+</td>
+<td style="text-align:right;">
+1700
+</td>
+<td style="text-align:left;">
+Nijlgans
+</td>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:right;">
+125082
+</td>
+<td style="text-align:right;">
+426701
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1060906
+</td>
+<td style="text-align:left;">
+BR1122
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1020
+</td>
+<td style="text-align:right;">
+1037
+</td>
+<td style="text-align:right;">
+1610
+</td>
+<td style="text-align:left;">
+Grauwe Gans
+</td>
+<td style="text-align:right;">
+250
+</td>
+<td style="text-align:right;">
+125313
+</td>
+<td style="text-align:right;">
+426061
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1060906
+</td>
+<td style="text-align:left;">
+BR1122
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1020
+</td>
+<td style="text-align:right;">
+1037
+</td>
+<td style="text-align:right;">
+1619
+</td>
+<td style="text-align:left;">
+Soepgans
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+125313
+</td>
+<td style="text-align:right;">
+426061
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1060906
+</td>
+<td style="text-align:left;">
+BR1122
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1020
+</td>
+<td style="text-align:right;">
+1037
+</td>
+<td style="text-align:right;">
+1661
+</td>
+<td style="text-align:left;">
+Grote Canadese Gans
+</td>
+<td style="text-align:right;">
+35
+</td>
+<td style="text-align:right;">
+125313
+</td>
+<td style="text-align:right;">
+426061
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1060911
+</td>
+<td style="text-align:left;">
+BR1130
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1145
+</td>
+<td style="text-align:right;">
+1200
+</td>
+<td style="text-align:right;">
+1610
+</td>
+<td style="text-align:left;">
+Grauwe Gans
+</td>
+<td style="text-align:right;">
+200
+</td>
+<td style="text-align:right;">
+121962
+</td>
+<td style="text-align:right;">
+426420
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1060911
+</td>
+<td style="text-align:left;">
+BR1130
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1145
+</td>
+<td style="text-align:right;">
+1200
+</td>
+<td style="text-align:right;">
+1661
+</td>
+<td style="text-align:left;">
+Grote Canadese Gans
+</td>
+<td style="text-align:right;">
+40
+</td>
+<td style="text-align:right;">
+121962
+</td>
+<td style="text-align:right;">
+426420
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>Following this logic, we can process the PTT counts similarly and see which species are contained in those.</p>
+<div class="sourceCode" id="cb102"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html">read_excel</a></span><span class="op">(</span><span class="va">sovon_data</span>, sheet <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>count_id <span class="op">=</span> <span class="va">tellingid</span>, route <span class="op">=</span> <span class="va">route</span>, count_point <span class="op">=</span> <span class="va">telpunt</span>, season <span class="op">=</span> <span class="va">seizoen</span>, year <span class="op">=</span> <span class="va">teljaar</span>, month <span class="op">=</span> <span class="va">maand</span>, 
+         day <span class="op">=</span> <span class="va">dag</span>, euring <span class="op">=</span> <span class="va">euring</span>, species <span class="op">=</span> <span class="va">soort</span>, number <span class="op">=</span> <span class="va">aantal</span>, xcoor <span class="op">=</span> <span class="va">xcoor</span>, ycoor <span class="op">=</span> <span class="va">ycoor</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">route</span>, <span class="va">count_point</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/any.html">any</a></span><span class="op">(</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_starts.html">str_ends</a></span><span class="op">(</span><span class="va">species</span>, <span class="st">"spec."</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>  <span class="co"># Filter out all counts with unidentified birds</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/any.html">any</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_subset.html">str_subset</a></span><span class="op">(</span><span class="va">species</span>, <span class="st">" of "</span><span class="op">)</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>  <span class="co"># Filter out all counts with either/or totals</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/any.html">any</a></span><span class="op">(</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_starts.html">str_starts</a></span><span class="op">(</span><span class="va">species</span>, <span class="st">"hybride"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>  <span class="co"># Filter out all counts with hybrids</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rowwise.html">rowwise</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>species <span class="op">=</span> <span class="fu"><a href="https://stringr.tidyverse.org/reference/str_split.html">str_split</a></span><span class="op">(</span><span class="va">species</span>, <span class="st">"\\("</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://stringr.tidyverse.org/reference/str_trim.html">str_trim</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">ptt_data</span>  <span class="co"># And remove all subspecies identifications</span>
+
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/headtail.html">head</a></span><span class="op">(</span><span class="va">ptt_data</span>, <span class="fl">10</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span>format <span class="op">=</span> <span class="st">"html"</span>, col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">ptt_data</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kable_styling.html">kable_styling</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">kableExtra</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/scroll_box.html">scroll_box</a></span><span class="op">(</span>width <span class="op">=</span> <span class="st">"100%"</span>, height <span class="op">=</span> <span class="st">"400px"</span><span class="op">)</span></code></pre></div>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; ">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<thead><tr>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+count_id
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+route
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+count_point
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+season
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+year
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+month
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+day
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+euring
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+species
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+number
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+xcoor
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+ycoor
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+720
+</td>
+<td style="text-align:left;">
+Aalscholver
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+246342
+</td>
+<td style="text-align:right;">
+520763
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+5920
+</td>
+<td style="text-align:left;">
+Zilvermeeuw
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+246342
+</td>
+<td style="text-align:right;">
+520763
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+6700
+</td>
+<td style="text-align:left;">
+Houtduif
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+246342
+</td>
+<td style="text-align:right;">
+520763
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+11870
+</td>
+<td style="text-align:left;">
+Merel
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+246342
+</td>
+<td style="text-align:right;">
+520763
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+15630
+</td>
+<td style="text-align:left;">
+Roek
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+246342
+</td>
+<td style="text-align:right;">
+520763
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+6700
+</td>
+<td style="text-align:left;">
+Houtduif
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+246357
+</td>
+<td style="text-align:right;">
+522178
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+11870
+</td>
+<td style="text-align:left;">
+Merel
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+246357
+</td>
+<td style="text-align:right;">
+522178
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+15600
+</td>
+<td style="text-align:left;">
+Kauw
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+246357
+</td>
+<td style="text-align:right;">
+522178
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+15630
+</td>
+<td style="text-align:left;">
+Roek
+</td>
+<td style="text-align:right;">
+78
+</td>
+<td style="text-align:right;">
+246357
+</td>
+<td style="text-align:right;">
+522178
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+14620
+</td>
+<td style="text-align:left;">
+Pimpelmees
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+246692
+</td>
+<td style="text-align:right;">
+523139
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div id="filteringpreprocessing-species-names" class="section level2">
+<h2>
+<span class="header-section-number">5.3</span> Filtering/preprocessing species names<a class="anchor" aria-label="anchor" href="#filteringpreprocessing-species-names"><i class="fas fa-link"></i></a>
+</h2>
+<p>The following section is the result of an iterative process aimed at matching species in our count data with species in the database of life-history characteristics. Unfortunately, automatic tools only get us so far, a bit of tweaking has to be done by hand. To reduce manual corrections needed, <em>only species to which &gt;1% of the birds belong in a single count</em> have been corrected manually. In other words: if a species which cannot be matched always accounts for less than 1% of the total number of birds within a count, this species is discarded from the whole dataset.</p>
+<p>Besides the 1% criteria, both the waterbird and PTT counts contain some exotics (e.g. ‘Helmparelhoen’/Helmeted guineafowl) for which our life-history characteristics dataset does not contain any measurements anyways (there are others that we do have measurements of), some species that are very unlikely to ever take flight during NYE (e.g. ‘Kip’/Domesticated chicken) and some mammals for which the same applies. We will remove these from the dataset manually.</p>
+<div class="sourceCode" id="cb103"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">exotics</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Helmparelhoen"</span>, <span class="st">"Kaapse Casarca"</span>, <span class="st">"Manengans"</span>, <span class="st">"Ringtaling"</span>, <span class="st">"Buffelkopeend"</span>, <span class="st">"Kokardezaagbek"</span>, <span class="st">"Chileense Flamingo"</span>,
+             <span class="st">"Kaapse Taling"</span>, <span class="st">"Bahamapijlstaart"</span>, <span class="st">"Muskuseend"</span>, <span class="st">"Zwarte Zwaan"</span>, <span class="st">"Knobbelgans"</span>, <span class="st">"Zwaangans"</span><span class="op">)</span>
+<span class="va">unlikely_flight_candidate</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Kip"</span><span class="op">)</span>
+<span class="va">mammals</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Damhert"</span>, <span class="st">"Haas"</span>, <span class="st">"Ree"</span>, <span class="st">"Bever"</span>, <span class="st">"Bruine Rat"</span>, <span class="st">"Muskusrat"</span>, <span class="st">"Mol"</span>, <span class="st">"Vos"</span>, <span class="st">"Kat"</span>, <span class="st">"Otter"</span>, <span class="st">"Grijze Zeehond"</span>, <span class="st">"Konijn"</span>,
+             <span class="st">"Eekhoorn"</span>, <span class="st">"Edelhert"</span>, <span class="st">"Gewone Zeehond"</span>, <span class="st">"Wild Zwijn"</span>, <span class="st">"Steenmarter"</span>, <span class="st">"Moeflon"</span><span class="op">)</span>
+<span class="va">input_error</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Steltstrandloper"</span><span class="op">)</span>
+<span class="va">remove_species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">exotics</span>, <span class="va">unlikely_flight_candidate</span>, <span class="va">mammals</span>, <span class="va">input_error</span><span class="op">)</span>
+
+<span class="va">ptt_data</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="op">!</span><span class="va">species</span> <span class="op">%in%</span> <span class="va">remove_species</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">ptt_data</span>
+
+<span class="va">wb_data</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="op">!</span><span class="va">species</span> <span class="op">%in%</span> <span class="va">remove_species</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">wb_data</span></code></pre></div>
+<p>With all these species removed or adjusted, we can create a species lookup table. We fetch the scientific names and corresponding GBIF species IDs from the <a href="https://doi.org/10.15468/rjdpzy">Checklist Dutch Species Register</a>, which is the GBIF dataset with key <code>4dd32523-a3a3-43b7-84df-4cda02f15cf7</code>. We furthermore remove all unnecessary information, such as subspecies from the scientific names as well.</p>
+<div class="sourceCode" id="cb104"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">unique_species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">wb_data</span><span class="op">$</span><span class="va">species</span>, <span class="va">ptt_data</span><span class="op">$</span><span class="va">species</span><span class="op">)</span><span class="op">)</span>
+
+<span class="va">build_species_lut</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">specieslist</span>, <span class="va">datasetKey</span> <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">class_name</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span>
+  <span class="co"># As this function can possibly return many different records, we pick the scientific name and GBIF ID (nubKey) that are the most</span>
+  <span class="co"># common in the returned results. This should most often result in an OK result of the name lookup function.</span>
+  <span class="va">Mode</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span>
+    <span class="va">ux</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html">na.omit</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span>
+    <span class="va">ux</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/which.minmax.html">which.max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tabulate.html">tabulate</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/match.html">match</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">ux</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
+  <span class="op">}</span>
+  
+  <span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">specieslist</span><span class="op">)</span>
+  
+  <span class="va">species_lut</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>lookupname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">character</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, 
+                            scientificname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">character</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, 
+                            gbif_key <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">numeric</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
+  
+  <span class="co"># Somehow the higherTaxonKey changes regularly, so we have to query this first</span>
+  <span class="va">higherTaxonKey</span> <span class="op">&lt;-</span> <span class="cn">NULL</span>
+  <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html">is.null</a></span><span class="op">(</span><span class="va">class_name</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+    <span class="va">class_record</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://docs.ropensci.org/rgbif/reference/name_lookup.html">name_lookup</a></span><span class="op">(</span><span class="va">class_name</span>, datasetKey <span class="op">=</span> <span class="va">datasetKey</span><span class="op">)</span>
+    <span class="va">higherTaxonKey</span> <span class="op">&lt;-</span> <span class="va">class_record</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">classKey</span>
+  <span class="op">}</span>
+  
+  <span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_along</a></span><span class="op">(</span><span class="va">specieslist</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+    <span class="va">gbif_data</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/conditions.html">tryCatch</a></span><span class="op">(</span><span class="op">{</span>
+      <span class="va">gbif</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://docs.ropensci.org/rgbif/reference/name_lookup.html">name_lookup</a></span><span class="op">(</span><span class="va">specieslist</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, 
+                          datasetKey <span class="op">=</span> <span class="va">datasetKey</span>, 
+                          higherTaxonKey <span class="op">=</span> <span class="va">higherTaxonKey</span>, 
+                          return <span class="op">=</span> <span class="st">"data"</span><span class="op">)</span>
+      
+      <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_split.html">str_split</a></span><span class="op">(</span><span class="fu">Mode</span><span class="op">(</span><span class="va">gbif</span><span class="op">$</span><span class="va">scientificName</span><span class="op">)</span>, pattern <span class="op">=</span> <span class="st">" "</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>, collapse <span class="op">=</span> <span class="st">" "</span><span class="op">)</span>, <span class="fu">Mode</span><span class="op">(</span><span class="va">gbif</span><span class="op">$</span><span class="va">nubKey</span><span class="op">)</span><span class="op">)</span>
+    <span class="op">}</span>, error <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="op">{</span>
+      <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">""</span>, <span class="cn">NaN</span><span class="op">)</span>
+    <span class="op">}</span><span class="op">)</span>
+    
+    <span class="va">species_lut</span><span class="op">[</span><span class="va">i</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">specieslist</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, <span class="va">gbif_data</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.character.html">as.character</a></span><span class="op">(</span><span class="va">gbif_data</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+  <span class="op">}</span>
+  
+  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">species_lut</span><span class="op">)</span>
+<span class="op">}</span>
+
+<span class="va">species_lut</span> <span class="op">&lt;-</span> <span class="fu">build_species_lut</span><span class="op">(</span><span class="va">unique_species</span>, datasetKey <span class="op">=</span> <span class="st">"4dd32523-a3a3-43b7-84df-4cda02f15cf7"</span>, class_name <span class="op">=</span> <span class="st">"Aves"</span><span class="op">)</span></code></pre></div>
+<pre><code>## Warning: Unknown or uninitialised column: `scientificName`.</code></pre>
+<div class="sourceCode" id="cb106"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/headtail.html">head</a></span><span class="op">(</span><span class="va">species_lut</span>, <span class="fl">10</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span>format <span class="op">=</span> <span class="st">"html"</span>, col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">species_lut</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kable_styling.html">kable_styling</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">kableExtra</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/scroll_box.html">scroll_box</a></span><span class="op">(</span>width <span class="op">=</span> <span class="st">"100%"</span>, height <span class="op">=</span> <span class="st">"400px"</span><span class="op">)</span></code></pre></div>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; ">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<thead><tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+lookupname
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+scientificname
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+gbif_key
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Grauwe Gans
+</td>
+<td style="text-align:left;">
+Anser anser
+</td>
+<td style="text-align:right;">
+2498036
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nijlgans
+</td>
+<td style="text-align:left;">
+Alopochen aegyptiaca
+</td>
+<td style="text-align:right;">
+2498252
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Grote Canadese Gans
+</td>
+<td style="text-align:left;">
+Branta canadensis
+</td>
+<td style="text-align:right;">
+5232437
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Soepgans
+</td>
+<td style="text-align:left;">
+Anser anser
+</td>
+<td style="text-align:right;">
+9384117
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Brandgans
+</td>
+<td style="text-align:left;">
+Branta leucopsis
+</td>
+<td style="text-align:right;">
+5232464
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Knobbelzwaan
+</td>
+<td style="text-align:left;">
+Cygnus olor
+</td>
+<td style="text-align:right;">
+2498343
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kolgans
+</td>
+<td style="text-align:left;">
+Anser albifrons
+</td>
+<td style="text-align:right;">
+7191107
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Canadese Gans
+</td>
+<td style="text-align:left;">
+Branta hutchinsii
+</td>
+<td style="text-align:right;">
+5232458
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Toendrarietgans
+</td>
+<td style="text-align:left;">
+Anser serrirostris
+</td>
+<td style="text-align:right;">
+9455781
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kleine Zwaan
+</td>
+<td style="text-align:left;">
+Cygnus bewickii
+</td>
+<td style="text-align:right;">
+4409105
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>Finally, the lookup table also contains some scientific names which unfortunately will not match with the life-history characteristics dataset, so these too we will adjust manually.</p>
+<div class="sourceCode" id="cb107"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Change to similar species which is in the LHT database</span>
+<span class="va">species_lut</span><span class="op">[</span><span class="va">species_lut</span><span class="op">$</span><span class="va">lookupname</span> <span class="op">==</span> <span class="st">"Toendrarietgans"</span>, <span class="st">"scientificname"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Anser fabalis"</span>  <span class="co"># Taiga Bean Goose</span>
+<span class="va">species_lut</span><span class="op">[</span><span class="va">species_lut</span><span class="op">$</span><span class="va">lookupname</span> <span class="op">==</span> <span class="st">"Kleine Canadese Gans"</span>, <span class="st">"scientificname"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Branta leucopsis"</span>  <span class="co"># Barnacle Goose</span>
+<span class="va">species_lut</span><span class="op">[</span><span class="va">species_lut</span><span class="op">$</span><span class="va">lookupname</span> <span class="op">==</span> <span class="st">"Kleine Barmsijs"</span>, <span class="st">"scientificname"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Acanthis flammea"</span>  <span class="co"># Redpoll</span>
+<span class="va">species_lut</span><span class="op">[</span><span class="va">species_lut</span><span class="op">$</span><span class="va">lookupname</span> <span class="op">==</span> <span class="st">"Pontische Meeuw"</span>, <span class="st">"scientificname"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Larus argentatus"</span>  <span class="co"># Herring Gull</span>
+<span class="va">species_lut</span><span class="op">[</span><span class="va">species_lut</span><span class="op">$</span><span class="va">lookupname</span> <span class="op">==</span> <span class="st">"Indische Gans"</span>, <span class="st">"scientificname"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Anser albifrons"</span>  <span class="co"># Greater White-fronted Goose</span>
+<span class="va">species_lut</span><span class="op">[</span><span class="va">species_lut</span><span class="op">$</span><span class="va">lookupname</span> <span class="op">==</span> <span class="st">"Canadese Gans"</span>, <span class="st">"scientificname"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Branta canadensis"</span>  <span class="co"># Canada Goose</span>
+
+<span class="co"># Change scientific name for same species to match with the LHT database</span>
+<span class="va">species_lut</span><span class="op">[</span><span class="va">species_lut</span><span class="op">$</span><span class="va">lookupname</span> <span class="op">==</span> <span class="st">"Kleine Zwaan"</span>, <span class="st">"scientificname"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Cygnus columbianus"</span>  <span class="co"># Bewick's Swan</span>
+<span class="va">species_lut</span><span class="op">[</span><span class="va">species_lut</span><span class="op">$</span><span class="va">lookupname</span> <span class="op">==</span> <span class="st">"Kokmeeuw"</span>, <span class="st">"scientificname"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Larus ridibundus"</span>  <span class="co"># Black-headed Gull</span>
+<span class="va">species_lut</span><span class="op">[</span><span class="va">species_lut</span><span class="op">$</span><span class="va">lookupname</span> <span class="op">==</span> <span class="st">"Smient"</span>, <span class="st">"scientificname"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Mareca penelope"</span>  <span class="co"># Wigeon</span>
+<span class="va">species_lut</span><span class="op">[</span><span class="va">species_lut</span><span class="op">$</span><span class="va">lookupname</span> <span class="op">==</span> <span class="st">"Krakeend"</span>, <span class="st">"scientificname"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Mareca strepera"</span>  <span class="co"># Gadwall</span>
+<span class="va">species_lut</span><span class="op">[</span><span class="va">species_lut</span><span class="op">$</span><span class="va">lookupname</span> <span class="op">==</span> <span class="st">"Slobeend"</span>, <span class="st">"scientificname"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Spatula clypeata"</span>  <span class="co"># Northern Shoveler</span>
+<span class="va">species_lut</span><span class="op">[</span><span class="va">species_lut</span><span class="op">$</span><span class="va">lookupname</span> <span class="op">==</span> <span class="st">"Winterkoning"</span>, <span class="st">"scientificname"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Troglodytes troglodytes"</span>  <span class="co"># Wren</span>
+<span class="va">species_lut</span><span class="op">[</span><span class="va">species_lut</span><span class="op">$</span><span class="va">lookupname</span> <span class="op">==</span> <span class="st">"Grote Jager"</span>, <span class="st">"scientificname"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Catharacta skua"</span>  <span class="co"># Great Skua</span>
+<span class="va">species_lut</span><span class="op">[</span><span class="va">species_lut</span><span class="op">$</span><span class="va">lookupname</span> <span class="op">==</span> <span class="st">"Roodborsttapuit"</span>, <span class="st">"scientificname"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Saxicola torquatus"</span>  <span class="co"># Stonechat</span>
+<span class="va">species_lut</span><span class="op">[</span><span class="va">species_lut</span><span class="op">$</span><span class="va">lookupname</span> <span class="op">==</span> <span class="st">"Strandleeuwerik"</span>, <span class="st">"scientificname"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Eremophila alpestris"</span>  <span class="co"># Horned Lark</span></code></pre></div>
+</div>
+<div id="adding-vernacular-family-names" class="section level2">
+<h2>
+<span class="header-section-number">5.4</span> Adding vernacular family names<a class="anchor" aria-label="anchor" href="#adding-vernacular-family-names"><i class="fas fa-link"></i></a>
+</h2>
+<p>Fetching vernacular names of scientific families from GBIF is even more convoluted than the name lookup we have done above, so instead we have manually derived a list of vernacular names for families based on the generated species lookup table.</p>
+<div class="sourceCode" id="cb108"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_delim</a></span><span class="op">(</span><span class="st">"data/raw/sovon/familyvernacular_lut.csv"</span>, delim <span class="op">=</span> <span class="st">";"</span>, col_types <span class="op">=</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/cols.html">cols</a></span><span class="op">(</span>lookupname <span class="op">=</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/parse_atomic.html">col_character</a></span><span class="op">(</span><span class="op">)</span>, familyvernacular <span class="op">=</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/parse_atomic.html">col_character</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">right_join</a></span><span class="op">(</span><span class="va">species_lut</span>, by <span class="op">=</span> <span class="st">"lookupname"</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">species_lut</span></code></pre></div>
+</div>
+<div id="linking-life-history-traits-to-species" class="section level2">
+<h2>
+<span class="header-section-number">5.5</span> Linking life-history traits to species<a class="anchor" aria-label="anchor" href="#linking-life-history-traits-to-species"><i class="fas fa-link"></i></a>
+</h2>
+<p>We use the <em>Life-history characteristics of European birds</em>-dataset <span class="citation">(Storchová and Hořák <a href="references.html#ref-storchova_2018" role="doc-biblioref">2018</a>)</span> to calculate the mean mass of all birds in a PPI pixel. This dataset is stored on Dryad and we can <a href="https://doi.org/10.5061/dryad.n6k3n">download</a> it there. Unfortunately at the time of writing the <code>rdryad</code> package is severely out-of-date with the new Dryad API, so we cannot nicely automate this download yet. Anyways, the files should be downloaded manually and added to <code>data/raw/life-history-characteristics/</code>.</p>
+<p>We calculate the mean of the mass of both sexed and unsexed birds and assume that represents the mean mass for a species.</p>
+<div class="sourceCode" id="cb109"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_tsv</a></span><span class="op">(</span><span class="st">"data/raw/life-history-characteristics/Life-history characteristics of European birds.txt"</span>, 
+         col_types <span class="op">=</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/cols.html">cols_only</a></span><span class="op">(</span><span class="st">'Species'</span> <span class="op">=</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/parse_atomic.html">col_character</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">'WeightU_MEAN'</span> <span class="op">=</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/parse_atomic.html">col_double</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">'WeightM_MEAN'</span> <span class="op">=</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/parse_atomic.html">col_double</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">'WeightF_MEAN'</span> <span class="op">=</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/parse_atomic.html">col_double</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="va">rowwise</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>mean_weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">WeightU_MEAN</span>, <span class="va">WeightF_MEAN</span>, <span class="va">WeightM_MEAN</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">Species</span>, <span class="va">mean_weight</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>species <span class="op">=</span> <span class="va">Species</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/any.html">any</a></span><span class="op">(</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_starts.html">str_ends</a></span><span class="op">(</span><span class="va">species</span>, <span class="st">"ssp"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>  <span class="co"># Filter out birds not identified to species</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rowwise.html">rowwise</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_split.html">str_split</a></span><span class="op">(</span><span class="va">species</span>, pattern <span class="op">=</span> <span class="st">" "</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>, collapse <span class="op">=</span> <span class="st">" "</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">species</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>mean_weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">mean_weight</span><span class="op">)</span>, .groups <span class="op">=</span> <span class="st">"drop_last"</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/drop_na.html">drop_na</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">lhc</span>
+
+<span class="va">lhc</span><span class="op">[</span><span class="va">lhc</span><span class="op">$</span><span class="va">species</span> <span class="op">==</span> <span class="st">"Aquila nipalenis"</span>, <span class="st">"species"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Aquila nipalensis"</span>  <span class="co"># Small error in dataset -&gt; notified author</span>
+
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/headtail.html">head</a></span><span class="op">(</span><span class="va">lhc</span>, <span class="fl">10</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span>format <span class="op">=</span> <span class="st">"html"</span>, col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">lhc</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kable_styling.html">kable_styling</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">kableExtra</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/scroll_box.html">scroll_box</a></span><span class="op">(</span>width <span class="op">=</span> <span class="st">"100%"</span>, height <span class="op">=</span> <span class="st">"400px"</span><span class="op">)</span></code></pre></div>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; ">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<thead><tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+species
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+mean_weight
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Acanthis flammea
+</td>
+<td style="text-align:right;">
+13.40
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Accipiter brevipes
+</td>
+<td style="text-align:right;">
+221.50
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Accipiter gentilis
+</td>
+<td style="text-align:right;">
+931.50
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Accipiter nisus
+</td>
+<td style="text-align:right;">
+204.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Acridotheres cristatellus
+</td>
+<td style="text-align:right;">
+124.35
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Acridotheres tristis
+</td>
+<td style="text-align:right;">
+124.35
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Acrocephalus agricola
+</td>
+<td style="text-align:right;">
+10.50
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Acrocephalus arundinaceus
+</td>
+<td style="text-align:right;">
+30.30
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Acrocephalus dumetorum
+</td>
+<td style="text-align:right;">
+12.00
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Acrocephalus melanopogon
+</td>
+<td style="text-align:right;">
+11.70
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>Now we can try to link the names once again with what can be found in GBIF.</p>
+<div class="sourceCode" id="cb110"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">unique_species_lhc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html">unique</a></span><span class="op">(</span><span class="va">lhc</span><span class="op">$</span><span class="va">species</span><span class="op">)</span>
+
+<span class="va">lhc_species_lut</span> <span class="op">&lt;-</span> <span class="fu">build_species_lut</span><span class="op">(</span><span class="va">unique_species_lhc</span>, dataset <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>
+
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/headtail.html">head</a></span><span class="op">(</span><span class="va">lhc_species_lut</span>, <span class="fl">10</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span>format <span class="op">=</span> <span class="st">"html"</span>, col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">lhc_species_lut</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kable_styling.html">kable_styling</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">kableExtra</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/scroll_box.html">scroll_box</a></span><span class="op">(</span>width <span class="op">=</span> <span class="st">"100%"</span>, height <span class="op">=</span> <span class="st">"400px"</span><span class="op">)</span></code></pre></div>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; ">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<thead><tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+lookupname
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+scientificname
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+gbif_key
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Acanthis flammea
+</td>
+<td style="text-align:left;">
+Acanthis flammea
+</td>
+<td style="text-align:right;">
+5231630
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Accipiter brevipes
+</td>
+<td style="text-align:left;">
+Accipiter brevipes
+</td>
+<td style="text-align:right;">
+2480578
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Accipiter gentilis
+</td>
+<td style="text-align:left;">
+Accipiter gentilis
+</td>
+<td style="text-align:right;">
+2480589
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Accipiter nisus
+</td>
+<td style="text-align:left;">
+Accipiter nisus
+</td>
+<td style="text-align:right;">
+2480637
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Acridotheres cristatellus
+</td>
+<td style="text-align:left;">
+Acridotheres cristatellus
+</td>
+<td style="text-align:right;">
+2489010
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Acridotheres tristis
+</td>
+<td style="text-align:left;">
+Acridotheres tristis
+</td>
+<td style="text-align:right;">
+2489005
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Acrocephalus agricola
+</td>
+<td style="text-align:left;">
+Acrocephalus agricola
+</td>
+<td style="text-align:right;">
+2493137
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Acrocephalus arundinaceus
+</td>
+<td style="text-align:left;">
+Acrocephalus arundinaceus
+</td>
+<td style="text-align:right;">
+2493128
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Acrocephalus dumetorum
+</td>
+<td style="text-align:left;">
+Acrocephalus dumetorum
+</td>
+<td style="text-align:right;">
+2493145
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Acrocephalus melanopogon
+</td>
+<td style="text-align:left;">
+Acrocephalus melanopogon
+</td>
+<td style="text-align:right;">
+2493124
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>With the GBIF IDs/keys in place for both the life-history characteristics, as well as the Sovon counts, we can now link the datasets together. We start with the waterbirds.</p>
+<div class="sourceCode" id="cb111"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">lhc</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="va">lhc_species_lut</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"species"</span> <span class="op">=</span> <span class="st">"scientificname"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">species</span>, <span class="va">mean_weight</span>, <span class="va">gbif_key</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">lhc</span>
+
+<span class="va">wb_data</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="va">species_lut</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"species"</span> <span class="op">=</span> <span class="st">"lookupname"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">lhc</span>, <span class="va">mean_weight</span>, <span class="va">gbif_key</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"gbif_key"</span> <span class="op">=</span> <span class="st">"gbif_key"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">lhc</span>, <span class="va">mean_weight</span>, <span class="va">species</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"scientificname"</span> <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">mean_weight.x</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>mean_weight <span class="op">=</span> <span class="va">mean_weight.y</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">wb_data_lhc</span>
+
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/headtail.html">head</a></span><span class="op">(</span><span class="va">wb_data_lhc</span>, <span class="fl">10</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span>format <span class="op">=</span> <span class="st">"html"</span>, col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">wb_data_lhc</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kable_styling.html">kable_styling</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">kableExtra</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/scroll_box.html">scroll_box</a></span><span class="op">(</span>width <span class="op">=</span> <span class="st">"100%"</span>, height <span class="op">=</span> <span class="st">"400px"</span><span class="op">)</span></code></pre></div>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; ">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<thead><tr>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+count_id
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+area_nr
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+year
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+month
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+day
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+start_time
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+end_time
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+euring
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+species
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+number
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+xcoor
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+ycoor
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+familyvernacular
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+scientificname
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+gbif_key
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+mean_weight
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1060908
+</td>
+<td style="text-align:left;">
+BR1111
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1045
+</td>
+<td style="text-align:right;">
+1108
+</td>
+<td style="text-align:right;">
+1610
+</td>
+<td style="text-align:left;">
+Grauwe Gans
+</td>
+<td style="text-align:right;">
+280
+</td>
+<td style="text-align:right;">
+127723
+</td>
+<td style="text-align:right;">
+426233
+</td>
+<td style="text-align:left;">
+Geese
+</td>
+<td style="text-align:left;">
+Anser anser
+</td>
+<td style="text-align:right;">
+2498036
+</td>
+<td style="text-align:right;">
+3347
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1060908
+</td>
+<td style="text-align:left;">
+BR1111
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1045
+</td>
+<td style="text-align:right;">
+1108
+</td>
+<td style="text-align:right;">
+1700
+</td>
+<td style="text-align:left;">
+Nijlgans
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+127723
+</td>
+<td style="text-align:right;">
+426233
+</td>
+<td style="text-align:left;">
+Geese
+</td>
+<td style="text-align:left;">
+Alopochen aegyptiaca
+</td>
+<td style="text-align:right;">
+2498252
+</td>
+<td style="text-align:right;">
+2270
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1060909
+</td>
+<td style="text-align:left;">
+BR1112
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1108
+</td>
+<td style="text-align:right;">
+1126
+</td>
+<td style="text-align:right;">
+1610
+</td>
+<td style="text-align:left;">
+Grauwe Gans
+</td>
+<td style="text-align:right;">
+76
+</td>
+<td style="text-align:right;">
+125082
+</td>
+<td style="text-align:right;">
+426701
+</td>
+<td style="text-align:left;">
+Geese
+</td>
+<td style="text-align:left;">
+Anser anser
+</td>
+<td style="text-align:right;">
+2498036
+</td>
+<td style="text-align:right;">
+3347
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1060909
+</td>
+<td style="text-align:left;">
+BR1112
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1108
+</td>
+<td style="text-align:right;">
+1126
+</td>
+<td style="text-align:right;">
+1661
+</td>
+<td style="text-align:left;">
+Grote Canadese Gans
+</td>
+<td style="text-align:right;">
+50
+</td>
+<td style="text-align:right;">
+125082
+</td>
+<td style="text-align:right;">
+426701
+</td>
+<td style="text-align:left;">
+Geese
+</td>
+<td style="text-align:left;">
+Branta canadensis
+</td>
+<td style="text-align:right;">
+5232437
+</td>
+<td style="text-align:right;">
+4635
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1060909
+</td>
+<td style="text-align:left;">
+BR1112
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1108
+</td>
+<td style="text-align:right;">
+1126
+</td>
+<td style="text-align:right;">
+1700
+</td>
+<td style="text-align:left;">
+Nijlgans
+</td>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:right;">
+125082
+</td>
+<td style="text-align:right;">
+426701
+</td>
+<td style="text-align:left;">
+Geese
+</td>
+<td style="text-align:left;">
+Alopochen aegyptiaca
+</td>
+<td style="text-align:right;">
+2498252
+</td>
+<td style="text-align:right;">
+2270
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1060906
+</td>
+<td style="text-align:left;">
+BR1122
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1020
+</td>
+<td style="text-align:right;">
+1037
+</td>
+<td style="text-align:right;">
+1610
+</td>
+<td style="text-align:left;">
+Grauwe Gans
+</td>
+<td style="text-align:right;">
+250
+</td>
+<td style="text-align:right;">
+125313
+</td>
+<td style="text-align:right;">
+426061
+</td>
+<td style="text-align:left;">
+Geese
+</td>
+<td style="text-align:left;">
+Anser anser
+</td>
+<td style="text-align:right;">
+2498036
+</td>
+<td style="text-align:right;">
+3347
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1060906
+</td>
+<td style="text-align:left;">
+BR1122
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1020
+</td>
+<td style="text-align:right;">
+1037
+</td>
+<td style="text-align:right;">
+1619
+</td>
+<td style="text-align:left;">
+Soepgans
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+125313
+</td>
+<td style="text-align:right;">
+426061
+</td>
+<td style="text-align:left;">
+Geese
+</td>
+<td style="text-align:left;">
+Anser anser
+</td>
+<td style="text-align:right;">
+9384117
+</td>
+<td style="text-align:right;">
+3347
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1060906
+</td>
+<td style="text-align:left;">
+BR1122
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1020
+</td>
+<td style="text-align:right;">
+1037
+</td>
+<td style="text-align:right;">
+1661
+</td>
+<td style="text-align:left;">
+Grote Canadese Gans
+</td>
+<td style="text-align:right;">
+35
+</td>
+<td style="text-align:right;">
+125313
+</td>
+<td style="text-align:right;">
+426061
+</td>
+<td style="text-align:left;">
+Geese
+</td>
+<td style="text-align:left;">
+Branta canadensis
+</td>
+<td style="text-align:right;">
+5232437
+</td>
+<td style="text-align:right;">
+4635
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1060911
+</td>
+<td style="text-align:left;">
+BR1130
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1145
+</td>
+<td style="text-align:right;">
+1200
+</td>
+<td style="text-align:right;">
+1610
+</td>
+<td style="text-align:left;">
+Grauwe Gans
+</td>
+<td style="text-align:right;">
+200
+</td>
+<td style="text-align:right;">
+121962
+</td>
+<td style="text-align:right;">
+426420
+</td>
+<td style="text-align:left;">
+Geese
+</td>
+<td style="text-align:left;">
+Anser anser
+</td>
+<td style="text-align:right;">
+2498036
+</td>
+<td style="text-align:right;">
+3347
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1060911
+</td>
+<td style="text-align:left;">
+BR1130
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+1145
+</td>
+<td style="text-align:right;">
+1200
+</td>
+<td style="text-align:right;">
+1661
+</td>
+<td style="text-align:left;">
+Grote Canadese Gans
+</td>
+<td style="text-align:right;">
+40
+</td>
+<td style="text-align:right;">
+121962
+</td>
+<td style="text-align:right;">
+426420
+</td>
+<td style="text-align:left;">
+Geese
+</td>
+<td style="text-align:left;">
+Branta canadensis
+</td>
+<td style="text-align:right;">
+5232437
+</td>
+<td style="text-align:right;">
+4635
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>And then the PTT counts.</p>
+<div class="sourceCode" id="cb112"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">ptt_data</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="va">species_lut</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"species"</span> <span class="op">=</span> <span class="st">"lookupname"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">lhc</span>, <span class="va">mean_weight</span>, <span class="va">gbif_key</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"gbif_key"</span> <span class="op">=</span> <span class="st">"gbif_key"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">lhc</span>, <span class="va">mean_weight</span>, <span class="va">species</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"scientificname"</span> <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">mean_weight.x</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>mean_weight <span class="op">=</span> <span class="va">mean_weight.y</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">ptt_data_lhc</span>
+
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/headtail.html">head</a></span><span class="op">(</span><span class="va">ptt_data_lhc</span>, <span class="fl">10</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span>format <span class="op">=</span> <span class="st">"html"</span>, col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">ptt_data_lhc</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kable_styling.html">kable_styling</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">kableExtra</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/scroll_box.html">scroll_box</a></span><span class="op">(</span>width <span class="op">=</span> <span class="st">"100%"</span>, height <span class="op">=</span> <span class="st">"400px"</span><span class="op">)</span></code></pre></div>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%; ">
+<div class="inline-table"><table class="table" style="margin-left: auto; margin-right: auto;">
+<thead><tr>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+count_id
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+route
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+count_point
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+season
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+year
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+month
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+day
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+euring
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+species
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+number
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+xcoor
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+ycoor
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+familyvernacular
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+scientificname
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+gbif_key
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+mean_weight
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+720
+</td>
+<td style="text-align:left;">
+Aalscholver
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+246342
+</td>
+<td style="text-align:right;">
+520763
+</td>
+<td style="text-align:left;">
+Cormorants
+</td>
+<td style="text-align:left;">
+Phalacrocorax carbo
+</td>
+<td style="text-align:right;">
+2481890
+</td>
+<td style="text-align:right;">
+2254.0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+5920
+</td>
+<td style="text-align:left;">
+Zilvermeeuw
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+246342
+</td>
+<td style="text-align:right;">
+520763
+</td>
+<td style="text-align:left;">
+Gulls
+</td>
+<td style="text-align:left;">
+Larus argentatus
+</td>
+<td style="text-align:right;">
+2481139
+</td>
+<td style="text-align:right;">
+1054.0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+6700
+</td>
+<td style="text-align:left;">
+Houtduif
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+246342
+</td>
+<td style="text-align:right;">
+520763
+</td>
+<td style="text-align:left;">
+Pigeons
+</td>
+<td style="text-align:left;">
+Columba palumbus
+</td>
+<td style="text-align:right;">
+2495455
+</td>
+<td style="text-align:right;">
+496.5
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+11870
+</td>
+<td style="text-align:left;">
+Merel
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+246342
+</td>
+<td style="text-align:right;">
+520763
+</td>
+<td style="text-align:left;">
+Thrushes
+</td>
+<td style="text-align:left;">
+Turdus merula
+</td>
+<td style="text-align:right;">
+2490719
+</td>
+<td style="text-align:right;">
+97.0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+15630
+</td>
+<td style="text-align:left;">
+Roek
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+246342
+</td>
+<td style="text-align:right;">
+520763
+</td>
+<td style="text-align:left;">
+Crows
+</td>
+<td style="text-align:left;">
+Corvus frugilegus
+</td>
+<td style="text-align:right;">
+2482513
+</td>
+<td style="text-align:right;">
+459.0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+6700
+</td>
+<td style="text-align:left;">
+Houtduif
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+246357
+</td>
+<td style="text-align:right;">
+522178
+</td>
+<td style="text-align:left;">
+Pigeons
+</td>
+<td style="text-align:left;">
+Columba palumbus
+</td>
+<td style="text-align:right;">
+2495455
+</td>
+<td style="text-align:right;">
+496.5
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+11870
+</td>
+<td style="text-align:left;">
+Merel
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+246357
+</td>
+<td style="text-align:right;">
+522178
+</td>
+<td style="text-align:left;">
+Thrushes
+</td>
+<td style="text-align:left;">
+Turdus merula
+</td>
+<td style="text-align:right;">
+2490719
+</td>
+<td style="text-align:right;">
+97.0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+15600
+</td>
+<td style="text-align:left;">
+Kauw
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+246357
+</td>
+<td style="text-align:right;">
+522178
+</td>
+<td style="text-align:left;">
+Crows
+</td>
+<td style="text-align:left;">
+Corvus monedula
+</td>
+<td style="text-align:right;">
+2482473
+</td>
+<td style="text-align:right;">
+236.0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+15630
+</td>
+<td style="text-align:left;">
+Roek
+</td>
+<td style="text-align:right;">
+78
+</td>
+<td style="text-align:right;">
+246357
+</td>
+<td style="text-align:right;">
+522178
+</td>
+<td style="text-align:left;">
+Crows
+</td>
+<td style="text-align:left;">
+Corvus frugilegus
+</td>
+<td style="text-align:right;">
+2482513
+</td>
+<td style="text-align:right;">
+459.0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+80917
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+14620
+</td>
+<td style="text-align:left;">
+Pimpelmees
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+246692
+</td>
+<td style="text-align:right;">
+523139
+</td>
+<td style="text-align:left;">
+Tits
+</td>
+<td style="text-align:left;">
+Cyanistes caeruleus
+</td>
+<td style="text-align:right;">
+2487879
+</td>
+<td style="text-align:right;">
+11.5
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p>Now we can verify if our <em>1% criteria</em> (see above) for species matching is met. We do this by calculating the proportions of birds belonging to a certain species out of the total numbers of birds counted within a count. This should result in an empty dataframe, which will stop the code chunk below from running if that is <em>not</em> the case.</p>
+<div class="sourceCode" id="cb113"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">wb_data_lhc</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">count_id</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>total_birds_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">number</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">count_id</span>, <span class="va">species</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>proportion_species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">number</span><span class="op">)</span> <span class="op">/</span> <span class="va">total_birds_count</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="va">count_id</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">mean_weight</span><span class="op">)</span> <span class="op">&amp;</span> <span class="op">(</span><span class="va">proportion_species</span> <span class="op">&gt;</span> <span class="fl">0.01</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">wb_data_lhc_verify</span>
+
+<span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">nrow</a></span><span class="op">(</span><span class="va">wb_data_lhc_verify</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/rm.html">rm</a></span><span class="op">(</span><span class="va">wb_data_lhc_verify</span><span class="op">)</span></code></pre></div>
+<p>And once again, we can do the same for the PTT counts.</p>
+<div class="sourceCode" id="cb114"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">ptt_data_lhc</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">count_id</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>total_birds_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">number</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">count_id</span>, <span class="va">species</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>proportion_species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">number</span><span class="op">)</span> <span class="op">/</span> <span class="va">total_birds_count</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="va">count_id</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">mean_weight</span><span class="op">)</span> <span class="op">&amp;</span> <span class="op">(</span><span class="va">proportion_species</span> <span class="op">&gt;</span> <span class="fl">0.01</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">ptt_data_lhc_verify</span>
+
+<span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">nrow</a></span><span class="op">(</span><span class="va">ptt_data_lhc_verify</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/rm.html">rm</a></span><span class="op">(</span><span class="va">ptt_data_lhc_verify</span><span class="op">)</span></code></pre></div>
+<p>With that out of the way we can <em>finally</em> remove the remaining empty rows and save the PTT and waterbird counts in their final form.</p>
+<div class="sourceCode" id="cb115"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">ptt_data_lhc</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/drop_na.html">drop_na</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">ptt_data</span>
+
+<span class="va">wb_data_lhc</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/drop_na.html">drop_na</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">wb_data</span></code></pre></div>
+<p>And we save the data for further use.</p>
+<div class="sourceCode" id="cb116"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">ptt_data</span>, file <span class="op">=</span> <span class="st">"data/processed/sovon/ptt.RDS"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">wb_data</span>, file <span class="op">=</span> <span class="st">"data/processed/sovon/wb.RDS"</span><span class="op">)</span></code></pre></div>
+</div>
+<div id="calculating-total-bird-biomass" class="section level2">
+<h2>
+<span class="header-section-number">5.6</span> Calculating total bird biomass<a class="anchor" aria-label="anchor" href="#calculating-total-bird-biomass"><i class="fas fa-link"></i></a>
+</h2>
+<p>While we are at it, we will already calculate the total biomass contained within each of the count areas, so we can then add these values to the PPIs through the IDs of the count areas/routes. We use the waterbird count from January 2018, and the point-transect counts from 2017, as these are the best in terms of coverage.</p>
+<div class="sourceCode" id="cb117"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">wb_year</span> <span class="op">&lt;-</span> <span class="fl">2018</span>
+<span class="va">ptt_year</span> <span class="op">&lt;-</span> <span class="fl">2017</span>
+
+<span class="va">wb_data</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>area_nr <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.character.html">as.character</a></span><span class="op">(</span><span class="va">area_nr</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">year</span> <span class="op">==</span> <span class="va">wb_year</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rowwise.html">rowwise</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>specific_biomass <span class="op">=</span> <span class="va">number</span> <span class="op">*</span> <span class="va">mean_weight</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">area_nr</span>, <span class="va">year</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>total_biomass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">specific_biomass</span><span class="op">)</span>,
+            weighted_mean_weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/weighted.mean.html">weighted.mean</a></span><span class="op">(</span><span class="va">mean_weight</span>, <span class="va">number</span><span class="op">)</span>,
+            .groups <span class="op">=</span> <span class="st">"drop_last"</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">area_nr</span><span class="op">)</span> <span class="op">%&gt;%</span>  <span class="co"># Below is only required if year-filter is NOT set, otherwise does nothing</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>total_biomass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">total_biomass</span><span class="op">)</span>,
+            weighted_mean_weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">weighted_mean_weight</span><span class="op">)</span>,
+            .groups <span class="op">=</span> <span class="st">"drop_last"</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/identity.html">identity</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">wb_biomass</span>
+
+<span class="va">ptt_data</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">year</span> <span class="op">==</span> <span class="va">ptt_year</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rowwise.html">rowwise</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>specific_biomass <span class="op">=</span> <span class="va">number</span> <span class="op">*</span> <span class="va">mean_weight</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">route</span>, <span class="va">year</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>total_biomass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">specific_biomass</span><span class="op">)</span>,
+            weighted_mean_weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/weighted.mean.html">weighted.mean</a></span><span class="op">(</span><span class="va">mean_weight</span>, <span class="va">number</span><span class="op">)</span>,
+            .groups <span class="op">=</span> <span class="st">"drop_last"</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">route</span><span class="op">)</span> <span class="op">%&gt;%</span>  <span class="co"># Below is only required if year-filter is NOT set, otherwise does nothing</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>total_biomass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">total_biomass</span><span class="op">)</span>,
+            weighted_mean_weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">weighted_mean_weight</span><span class="op">)</span>,
+            .groups <span class="op">=</span> <span class="st">"drop_last"</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/identity.html">identity</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">ptt_biomass</span></code></pre></div>
+<p>And now we will save these datasets of <code>total_biomass</code> as well.</p>
+<div class="sourceCode" id="cb118"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">wb_biomass</span>, file <span class="op">=</span> <span class="st">"data/processed/sovon/wb_biomass.RDS"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">ptt_biomass</span>, file <span class="op">=</span> <span class="st">"data/processed/sovon/ptt_biomass.RDS"</span><span class="op">)</span></code></pre></div>
+</div>
+<div id="calculating-proportions-across-bird-families" class="section level2">
+<h2>
+<span class="header-section-number">5.7</span> Calculating proportions across bird families<a class="anchor" aria-label="anchor" href="#calculating-proportions-across-bird-families"><i class="fas fa-link"></i></a>
+</h2>
+<p>Now that we have identified which families birds belong to, we can calculate the proportion of birds that belong to these families across all the PTT and waterbird counts. This can give an idea of the spatial composition of bird communities to illustrate analysis results with.</p>
+<div class="sourceCode" id="cb119"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">wb</span> <span class="op">&lt;-</span> <span class="va">wb_data</span>
+<span class="va">ptt</span> <span class="op">&lt;-</span> <span class="va">ptt_data</span>
+<span class="va">families</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html">unique</a></span><span class="op">(</span><span class="va">species_lut</span><span class="op">$</span><span class="va">familyvernacular</span><span class="op">)</span>
+
+<span class="va">wb</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>area_nr <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.character.html">as.character</a></span><span class="op">(</span><span class="va">area_nr</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">year</span> <span class="op">==</span> <span class="va">wb_year</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">area_nr</span>, <span class="va">year</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>total_birds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">number</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">area_nr</span>, <span class="va">year</span>, <span class="va">familyvernacular</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>familyprop <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">number</span><span class="op">)</span> <span class="op">/</span> <span class="va">total_birds</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">area_nr</span>, <span class="va">familyvernacular</span>, <span class="va">familyprop</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html">distinct</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="va">area_nr</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html">pivot_wider</a></span><span class="op">(</span>names_from <span class="op">=</span> <span class="va">familyvernacular</span>, values_from <span class="op">=</span> <span class="va">familyprop</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/replace.html">replace</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">.</span><span class="op">)</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/identity.html">identity</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">wb_props</span>
+
+<span class="va">ptt</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">year</span> <span class="op">==</span> <span class="va">ptt_year</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">route</span>, <span class="va">year</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>total_birds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">number</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">route</span>, <span class="va">year</span>, <span class="va">familyvernacular</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>familyprop <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">number</span><span class="op">)</span> <span class="op">/</span> <span class="va">total_birds</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">route</span>, <span class="va">familyvernacular</span>, <span class="va">familyprop</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html">distinct</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="va">route</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html">pivot_wider</a></span><span class="op">(</span>names_from <span class="op">=</span> <span class="va">familyvernacular</span>, values_from <span class="op">=</span> <span class="va">familyprop</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/replace.html">replace</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">.</span><span class="op">)</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/identity.html">identity</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">ptt_props</span></code></pre></div>
+<p>And now we will save these datasets of family proportions as well.</p>
+<div class="sourceCode" id="cb120"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">wb_props</span>, file <span class="op">=</span> <span class="st">"data/processed/sovon/wb_props.RDS"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">ptt_props</span>, file <span class="op">=</span> <span class="st">"data/processed/sovon/ptt_props.RDS"</span><span class="op">)</span></code></pre></div>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="annotating-count-areas.html"><span class="header-section-number">4</span> Annotating count areas</a></div>
+<div class="next"><a href="apply-processing-to-all-ppis.html"><span class="header-section-number">6</span> Apply processing to all PPIs</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#processing-count-results"><span class="header-section-number">5</span> Processing count results</a></li>
+<li><a class="nav-link" href="#processing-environment-4"><span class="header-section-number">5.1</span> Processing environment</a></li>
+<li><a class="nav-link" href="#loading-the-sovon-count-data"><span class="header-section-number">5.2</span> Loading the Sovon count data</a></li>
+<li><a class="nav-link" href="#filteringpreprocessing-species-names"><span class="header-section-number">5.3</span> Filtering/preprocessing species names</a></li>
+<li><a class="nav-link" href="#adding-vernacular-family-names"><span class="header-section-number">5.4</span> Adding vernacular family names</a></li>
+<li><a class="nav-link" href="#linking-life-history-traits-to-species"><span class="header-section-number">5.5</span> Linking life-history traits to species</a></li>
+<li><a class="nav-link" href="#calculating-total-bird-biomass"><span class="header-section-number">5.6</span> Calculating total bird biomass</a></li>
+<li><a class="nav-link" href="#calculating-proportions-across-bird-families"><span class="header-section-number">5.7</span> Calculating proportions across bird families</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/barthoekstra/fireworks/blob/master/05.Processing-count-results.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/barthoekstra/fireworks/edit/master/05.Processing-count-results.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Fireworks</strong>" was written by Bart Hoekstra. It was last built on 2021-03-22.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+</html>

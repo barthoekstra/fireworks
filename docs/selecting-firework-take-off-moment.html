@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>1 Selecting firework take-off moment | Fireworks</title>
+<meta name="author" content="Bart Hoekstra">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.2"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.5.1/jquery-3.5.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.2.4.9002/tabs.js"></script><script src="libs/bs3compat-0.2.4.9002/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><script src="https://cdn.jsdelivr.net/autocomplete.js/0/autocomplete.jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/mark.js@8.11.1/dist/mark.min.js"></script><!-- CSS -->
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Fireworks</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Preface</a></li>
+<li class="book-part">Weather radar data</li>
+<li><a class="active" href="selecting-firework-take-off-moment.html"><span class="header-section-number">1</span> Selecting firework take-off moment</a></li>
+<li><a class="" href="radar-data-preprocessing.html"><span class="header-section-number">2</span> Radar Data Preprocessing</a></li>
+<li class="book-part">Land use</li>
+<li><a class="" href="annotating-land-use.html"><span class="header-section-number">3</span> Annotating land use</a></li>
+<li class="book-part">Sovon counts</li>
+<li><a class="" href="annotating-count-areas.html"><span class="header-section-number">4</span> Annotating count areas</a></li>
+<li><a class="" href="processing-count-results.html"><span class="header-section-number">5</span> Processing count results</a></li>
+<li><a class="" href="apply-processing-to-all-ppis.html"><span class="header-section-number">6</span> Apply processing to all PPIs</a></li>
+<li><a class="" href="composite-all-ppis.html"><span class="header-section-number">7</span> Composite all PPIs</a></li>
+<li class="book-part">Fireworks disturbance</li>
+<li><a class="" href="modelling-fireworks-disturbance.html"><span class="header-section-number">8</span> Modelling fireworks disturbance</a></li>
+<li><a class="" href="quantifying-model-uncertainty.html"><span class="header-section-number">9</span> Quantifying model uncertainty</a></li>
+<li class="book-part">Figures</li>
+<li><a class="" href="figure-1-data-overview.html"><span class="header-section-number">10</span> Figure 1: Data overview</a></li>
+<li><a class="" href="figure-2-model-output.html"><span class="header-section-number">11</span> Figure 2: Model output</a></li>
+<li><a class="" href="figure-3-species-composition.html"><span class="header-section-number">12</span> Figure 3: Species composition</a></li>
+<li class="book-part">Appendix</li>
+<li><a class="" href="generating-vps-for-den-helder-radar.html"><span class="header-section-number">13</span> Generating vertical profiles for Den Helder radar</a></li>
+<li class="book-part">Other</li>
+<li><a class="" href="references.html"><span class="header-section-number">14</span> References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/barthoekstra/fireworks">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="selecting-firework-take-off-moment" class="section level1">
+<h1>
+<span class="header-section-number">1</span> Selecting firework take-off moment<a class="anchor" aria-label="anchor" href="#selecting-firework-take-off-moment"><i class="fas fa-link"></i></a>
+</h1>
+<p>For this study we select the moment of ‘en masse’ take-off of birds at the turn of the year. To make sure birds are still fairly ‘close’ to the take-off habitat, we therefore focus on the period where the increase in <code>VIR</code> (Vertically Integrated Reflectivity) is the highest. Based on experience, one would expect this to occur between 00:05 and 00:15 on January 1st, as people tend to light the fireworks right after they have shared New Year’s wishes with each other.</p>
+<div id="processing-environment" class="section level2">
+<h2>
+<span class="header-section-number">1.1</span> Processing environment<a class="anchor" aria-label="anchor" href="#processing-environment"><i class="fas fa-link"></i></a>
+</h2>
+<p>We use <code>vol2bird</code> included in the <a href="http://adokter.github.io/bioRad">bioRad package</a> <span class="citation">(Dokter et al. <a href="references.html#ref-dokter_biorad_2019" role="doc-biblioref">2019</a>)</span> to calculate the vertical profiles of reflectivity, from which we determine the exact take off moment of birds. This implies we assume birds take to the skies everywhere simultaneously, but that seems a realistic assumption given that the lighting of fireworks is synchronised by the national time, rather than the local time of sunset/sunrise.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/adokter/bioRad">bioRad</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org">tidyr</a></span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html">Sys.setenv</a></span><span class="op">(</span>TZ <span class="op">=</span> <span class="st">"UTC"</span><span class="op">)</span></code></pre></div>
+</div>
+<div id="calculate-the-vertical-profiles" class="section level2">
+<h2>
+<span class="header-section-number">1.2</span> Calculate the vertical profiles<a class="anchor" aria-label="anchor" href="#calculate-the-vertical-profiles"><i class="fas fa-link"></i></a>
+</h2>
+<p>We calculate vertical profiles for the period between December 31st, 2017 22:00 and 01:00 UTC on January 1st, 2018, which corresponds with 23:00 til 02:00 local Amsterdam time (UTC + 1). It is not necessary to generate so many <code>vp</code> files, but it gives a better temporal overview of the event if we add some ‘temporal padding’ around the fireworks event.</p>
+<p><em>Beware: to calculate the vertical profiles, a running instance of <a href="https://www.docker.com">Docker</a> is required. This code chunk will only run in full-reproduction mode.</em></p>
+<p>See the appendix on [generating VPs for Den Helder][generating-vps-for-den-helder-radar] for a more detailed explanation why we limit <code>vp</code> generation of Den Helder to certain azimuths.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">fireworks_scans</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.glob.html">Sys.glob</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="st">"data/raw/pvol/fireworks-2017-2018"</span>, <span class="st">"*_ODIM.h5"</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/cat.html">cat</a></span><span class="op">(</span><span class="st">"Files left to process: "</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">fireworks_scans</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span>
+<span class="va">i</span> <span class="op">&lt;-</span> <span class="fl">1</span>
+<span class="kw">for</span> <span class="op">(</span><span class="va">scan</span> <span class="kw">in</span> <span class="va">fireworks_scans</span><span class="op">)</span> <span class="op">{</span>
+  <span class="kw">if</span> <span class="op">(</span><span class="va">i</span> <span class="op">%%</span> <span class="fl">5</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span>
+    <span class="fu"><a href="https://rdrr.io/r/base/cat.html">cat</a></span><span class="op">(</span><span class="va">i</span>, <span class="st">"... "</span><span class="op">)</span>
+  <span class="op">}</span>
+  
+  <span class="va">vpfile_out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html">sub</a></span><span class="op">(</span><span class="st">"raw/pvol/fireworks-2017-2018"</span>, <span class="st">"processed/vp/fireworks-2017-2018"</span>, <span class="va">scan</span><span class="op">)</span>
+  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html">grepl</a></span><span class="op">(</span><span class="st">"RAD_NL61"</span>, <span class="va">vpfile_out</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span>
+    <span class="kw"><a href="https://rdrr.io/r/base/try.html">try</a></span><span class="op">(</span><span class="fu"><a href="https://adokter.github.io/bioRad/reference/calculate_vp.html">calculate_vp</a></span><span class="op">(</span><span class="va">scan</span>, vpfile <span class="op">=</span> <span class="va">vpfile_out</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span>, mount <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/basename.html">dirname</a></span><span class="op">(</span><span class="va">fireworks_scans</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>,
+                     azim_min <span class="op">=</span> <span class="fl">90</span>, azim_max <span class="op">=</span> <span class="fl">200</span>, h_layer <span class="op">=</span> <span class="fl">50</span>, n_layer <span class="op">=</span> <span class="fl">80</span><span class="op">)</span><span class="op">)</span>
+  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span>
+    <span class="kw"><a href="https://rdrr.io/r/base/try.html">try</a></span><span class="op">(</span><span class="fu"><a href="https://adokter.github.io/bioRad/reference/calculate_vp.html">calculate_vp</a></span><span class="op">(</span><span class="va">scan</span>, vpfile <span class="op">=</span> <span class="va">vpfile_out</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span>, mount <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/basename.html">dirname</a></span><span class="op">(</span><span class="va">fireworks_scans</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>,
+                     h_layer <span class="op">=</span> <span class="fl">50</span>, n_layer <span class="op">=</span> <span class="fl">80</span><span class="op">)</span><span class="op">)</span>
+  <span class="op">}</span>
+  <span class="va">i</span> <span class="op">&lt;-</span> <span class="va">i</span> <span class="op">+</span> <span class="fl">1</span>
+<span class="op">}</span></code></pre></div>
+</div>
+<div id="generate-time-series-of-vertical-profiles" class="section level2">
+<h2>
+<span class="header-section-number">1.3</span> Generate time series of vertical profiles<a class="anchor" aria-label="anchor" href="#generate-time-series-of-vertical-profiles"><i class="fas fa-link"></i></a>
+</h2>
+<p>We can now generate a time series of vertical profiles (a VPTS) and plot the bird densities to get an idea of what was going on during NYE of 2017-2018.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">fw_hrw_vpts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.glob.html">Sys.glob</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="st">"data/processed/vp/fireworks-2017-2018"</span>, <span class="st">"*NL62*"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://adokter.github.io/bioRad/reference/read_vpfiles.html">read_vpfiles</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://adokter.github.io/bioRad/reference/bind_into_vpts.html">bind_into_vpts</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://adokter.github.io/bioRad/reference/regularize_vpts.html">regularize_vpts</a></span><span class="op">(</span>interval <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span>
+
+<span class="va">fw_dhl_vpts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.glob.html">Sys.glob</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="st">"data/processed/vp/fireworks-2017-2018"</span>, <span class="st">"*NL61*"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://adokter.github.io/bioRad/reference/read_vpfiles.html">read_vpfiles</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://adokter.github.io/bioRad/reference/bind_into_vpts.html">bind_into_vpts</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://adokter.github.io/bioRad/reference/regularize_vpts.html">regularize_vpts</a></span><span class="op">(</span>interval <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span>
+
+<span class="va">start</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html">as.POSIXct</a></span><span class="op">(</span><span class="st">"2017-12-31 22:00:00"</span><span class="op">)</span>
+<span class="va">end</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html">as.POSIXct</a></span><span class="op">(</span><span class="st">"2018-01-01 01:00:00"</span><span class="op">)</span>
+
+<span class="va">indexes_hrw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">fw_hrw_vpts</span><span class="op">$</span><span class="va">datetime</span> <span class="op">&gt;=</span> <span class="va">start</span> <span class="op">&amp;</span> <span class="va">fw_hrw_vpts</span><span class="op">$</span><span class="va">datetime</span> <span class="op">&lt;=</span> <span class="va">end</span><span class="op">)</span>
+<span class="va">indexes_dhl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">fw_dhl_vpts</span><span class="op">$</span><span class="va">datetime</span> <span class="op">&gt;=</span> <span class="va">start</span> <span class="op">&amp;</span> <span class="va">fw_dhl_vpts</span><span class="op">$</span><span class="va">datetime</span> <span class="op">&lt;=</span> <span class="va">end</span><span class="op">)</span> <span class="co"># Should mostly be identical</span>
+
+<span class="va">title_hrw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html">expression</a></span><span class="op">(</span><span class="st">"Herwijnen: volume density [#/km"</span><span class="op">^</span><span class="fl">3</span> <span class="op">*</span> <span class="st">"]"</span><span class="op">)</span>
+<span class="va">title_dhl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html">expression</a></span><span class="op">(</span><span class="st">"Den Helder: volume density [#/km"</span><span class="op">^</span><span class="fl">3</span> <span class="op">*</span> <span class="st">"]"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="va">fw_hrw_vpts</span><span class="op">[</span><span class="va">indexes_hrw</span><span class="op">]</span>, main <span class="op">=</span> <span class="va">title_hrw</span><span class="op">)</span></code></pre></div>
+<div class="inline-figure"><img src="01.Selecting-take-off-moments_files/figure-html/generate_vp_timeseries-1.png" width="672"></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="va">fw_dhl_vpts</span><span class="op">[</span><span class="va">indexes_dhl</span><span class="op">]</span>, main <span class="op">=</span> <span class="va">title_dhl</span><span class="op">)</span></code></pre></div>
+<div class="inline-figure"><img src="01.Selecting-take-off-moments_files/figure-html/generate_vp_timeseries-2.png" width="672"></div>
+<pre><code>## projecting on 300 seconds interval grid...
+## projecting on 300 seconds interval grid...</code></pre>
+<p>Both plots for Herwijnen and Den Helder show exactly what we would expect: comparatively low densities of birds aloft leading up to midnight (23:00 CET), then suddenly a strong increase of birds right after midnight. For Den Helder this peak appears much more pronounced, whereas for Herwijnen the period of disturbance seems to take considerably longer. This is probably due to the vastly different environment around the radar site: Herwijnen is located solidly in the center of the country, whereas Den Helder is located close to the coast on a ‘peninsula’ with much less land in the surroundings, pronounced by <code>vol2bird</code> only taking the rangegates within 5-35km of the radar into account.</p>
+</div>
+<div id="identifying-moment-of-take-off" class="section level2">
+<h2>
+<span class="header-section-number">1.4</span> Identifying moment of take-off<a class="anchor" aria-label="anchor" href="#identifying-moment-of-take-off"><i class="fas fa-link"></i></a>
+</h2>
+<p>We integrate the time series of vertical profiles, so we can calculate the <code>VIR</code> derivatives and determine in what volume scan birds really take to the skies for each radar separately.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">integrated_hrw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://adokter.github.io/bioRad/reference/integrate_profile.html">integrate_profile</a></span><span class="op">(</span><span class="va">fw_hrw_vpts</span><span class="op">)</span>
+<span class="va">integrated_dhl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://adokter.github.io/bioRad/reference/integrate_profile.html">integrate_profile</a></span><span class="op">(</span><span class="va">fw_dhl_vpts</span><span class="op">)</span>
+
+<span class="va">integrated_hrw</span><span class="op">$</span><span class="va">vir_deriv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fu"><a href="https://rdrr.io/r/base/diff.html">diff</a></span><span class="op">(</span><span class="va">integrated_hrw</span><span class="op">$</span><span class="va">vir</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span>
+<span class="va">integrated_dhl</span><span class="op">$</span><span class="va">vir_deriv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fu"><a href="https://rdrr.io/r/base/diff.html">diff</a></span><span class="op">(</span><span class="va">integrated_dhl</span><span class="op">$</span><span class="va">vir</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span>
+
+<span class="va">integrated_hrw</span><span class="op">$</span><span class="va">radar</span> <span class="op">&lt;-</span> <span class="st">"Herwijnen"</span>
+<span class="va">integrated_dhl</span><span class="op">$</span><span class="va">radar</span> <span class="op">&lt;-</span> <span class="st">"Den Helder"</span>
+
+<span class="va">integrated</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span><span class="va">integrated_hrw</span>, <span class="va">integrated_dhl</span><span class="op">)</span>
+
+<span class="va">integrated_l</span> <span class="op">&lt;-</span> <span class="va">integrated</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html">pivot_longer</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"datetime"</span>, <span class="st">"radar"</span><span class="op">)</span>, names_to <span class="op">=</span> <span class="st">"variable"</span>, values_to <span class="op">=</span> <span class="st">"value"</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">variable</span> <span class="op">==</span> <span class="st">"vir"</span> <span class="op">|</span> <span class="va">variable</span> <span class="op">==</span> <span class="st">"vir_deriv"</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">datetime</span> <span class="op">&gt;=</span> <span class="va">start</span> <span class="op">&amp;</span> <span class="va">datetime</span> <span class="op">&lt;=</span> <span class="va">end</span><span class="op">)</span>
+
+<span class="va">max_vir_deriv</span> <span class="op">&lt;-</span> <span class="va">integrated_l</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">variable</span> <span class="op">==</span> <span class="st">"vir_deriv"</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/drop_na.html">drop_na</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">radar</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarize</a></span><span class="op">(</span>max_value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="va">value</span><span class="op">)</span>, datetime <span class="op">=</span> <span class="va">datetime</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.min.html">which.max</a></span><span class="op">(</span><span class="va">value</span><span class="op">)</span><span class="op">]</span>, .groups <span class="op">=</span> <span class="st">"drop_last"</span><span class="op">)</span>
+
+<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme_get.html">theme_set</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_bw</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">integrated_l</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">datetime</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">value</span>, colour <span class="op">=</span> <span class="va">radar</span>, linetype <span class="op">=</span> <span class="va">variable</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_date.html">scale_x_datetime</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="st">"10 min"</span>, date_labels <span class="op">=</span> <span class="st">"%H:%M"</span>, expand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_color_manual</a></span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"blue"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_linetype.html">scale_linetype_discrete</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Line type"</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"VIR"</span>, <span class="fu"><a href="https://rdrr.io/r/base/expression.html">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">Delta</span>,<span class="st">"VIR/scan"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> 
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Time series of Vertically Integrated Reflectivities (VIR)"</span>,
+       subtitle <span class="op">=</span> <span class="st">"NYE 2017-2018"</span>,
+       x <span class="op">=</span> <span class="st">"Time (CET)"</span>,
+       y <span class="op">=</span> <span class="st">"VIR"</span>,
+       colour <span class="op">=</span> <span class="st">"Radar"</span>,
+       linetype <span class="op">=</span> <span class="st">"Linetype"</span><span class="op">)</span> <span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="op">-</span><span class="fl">90</span><span class="op">)</span>,
+        panel.grid.minor <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<div class="inline-figure"><img src="01.Selecting-take-off-moments_files/figure-html/identify_takeoff-1.png" width="672"></div>
+<p>The plot shows a rapid increase in <code>VIR</code> in the first 15 and 20 minutes after midnight (23:00 CET) for the Den Helder and Herwijnen radar respectively. After that period, <code>VIR</code> starts to drop, faster for Den Helder than for Herwijnen, possibly as a result of birds dispersing from the North Holland mainland towards the IJsselmeer area, which we have deliberately excluded from the generation of the vertical profiles (by selecting azimuths that are above land).</p>
+<p>To reduce the effect of bird dispersal on our analysis, we will focus only on the first 5 minute-scan during which <code>VIR</code> grows rapidly. That is from 23:05 CET until 23:10 CET.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">pvol_folder</span> <span class="op">&lt;-</span> <span class="st">"data/raw/pvol/fireworks-2017-2018/"</span>
+<span class="va">scan_timestamp</span> <span class="op">&lt;-</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="http://lubridate.tidyverse.org/reference/ymd_hms.html">ymd_hm</a></span><span class="op">(</span><span class="st">"2017-12-31 23:05"</span><span class="op">)</span>
+
+<span class="va">pvol_hrw_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">pvol_folder</span>, <span class="st">"RAD_NL62_VOL_NA_"</span>, <span class="fu"><a href="https://rdrr.io/r/base/format.html">format</a></span><span class="op">(</span><span class="va">scan_timestamp</span>, <span class="st">"%Y%m%d%H%M"</span><span class="op">)</span>, <span class="st">"_ODIM.h5"</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span>
+<span class="va">pvol_dhl_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">pvol_folder</span>, <span class="st">"RAD_NL61_VOL_NA_"</span>, <span class="fu"><a href="https://rdrr.io/r/base/format.html">format</a></span><span class="op">(</span><span class="va">scan_timestamp</span>, <span class="st">"%Y%m%d%H%M"</span><span class="op">)</span>, <span class="st">"_ODIM.h5"</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span>
+
+<span class="fu"><a href="https://rdrr.io/r/base/save.html">save</a></span><span class="op">(</span><span class="va">pvol_hrw_path</span>, <span class="va">pvol_dhl_path</span>, file <span class="op">=</span> <span class="st">"data/processed/pvol_selection.RData"</span><span class="op">)</span></code></pre></div>
+<p>So we will mainly focus on working with the following polar volume files:</p>
+<ul>
+<li>
+<strong>Herwijnen</strong>: <code>RAD_NL62_VOL_NA_201712312305_ODIM.h5</code>
+</li>
+<li>
+<strong>Den Helder</strong>: <code>RAD_NL61_VOL_NA_201712312305_ODIM.h5</code>
+</li>
+</ul>
+</div>
+<div id="determining-maximum-range-from-radar-to-detect-birds" class="section level2">
+<h2>
+<span class="header-section-number">1.5</span> Determining maximum range from radar to detect birds<a class="anchor" aria-label="anchor" href="#determining-maximum-range-from-radar-to-detect-birds"><i class="fas fa-link"></i></a>
+</h2>
+<p>We can assume that the flight altitudes derived from <code>vol2bird</code> are representative for flight altitudes throughout the country. Given that most of the disturbance happens at comparatively low altitudes, the radar is likely to ‘overshoot’ this entirely at substantial distances away from the radar where compensating for range-effects (e.g. using Kranstauber et al. <span class="citation">(<a href="references.html#ref-kranstauber2020" role="doc-biblioref">2020</a>)</span>) will thus have undesired consequences. Therefore we need to determina a maximum range at which we could still feasibly measure birds aloft. We can do so by inspecting the <code>vpts</code> plots from before, but now focussing on the lowest 1km. <em>Notice how we are generating VPTSs with 50m height bins vs. the standard 100m height bins, so we can pinpoint more precisely at what altitude densities drop off.</em></p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="va">fw_hrw_vpts</span><span class="op">[</span><span class="va">indexes_hrw</span><span class="op">]</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1000</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<div class="inline-figure"><img src="01.Selecting-take-off-moments_files/figure-html/determine_range_of_overshoot-1.png" width="672"></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html">plot</a></span><span class="op">(</span><span class="va">fw_dhl_vpts</span><span class="op">[</span><span class="va">indexes_dhl</span><span class="op">]</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1000</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<div class="inline-figure"><img src="01.Selecting-take-off-moments_files/figure-html/determine_range_of_overshoot-2.png" width="672"></div>
+<p>We can now see that above <code>600m</code> ASL or so the density starts to drop substantially, so we will set this as the altitudinal cutoff to determine the range up to which we will be using the data coming from the range-bias correction <span class="citation">(Kranstauber et al. <a href="references.html#ref-kranstauber2020" role="doc-biblioref">2020</a>)</span>. Although birds are somewhat lower in height overall in Den Helder than Herwijnen, this is an acceptable threshold as Herwijnen anyways covers much more land area within our study domain than Den Helder, and thus a more representative range-bias correction for Herwijnen is more important than Den Helder.</p>
+<p>Now we can calculate the distance at which that height (<code>600m</code>) is the height of the lowest elevation (0.3 degrees) and round to the nearest kilometer.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">altitude_cutoff</span> <span class="op">&lt;-</span> <span class="fl">600</span>
+<span class="va">ranges</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">180000</span>, <span class="fl">100</span><span class="op">)</span>
+<span class="va">beamheights</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://adokter.github.io/bioRad/reference/beam_height.html">beam_height</a></span><span class="op">(</span><span class="va">ranges</span>, <span class="fl">0.3</span><span class="op">)</span>
+<span class="va">nearest_index</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">beamheights</span> <span class="op">-</span> <span class="va">altitude_cutoff</span><span class="op">)</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">beamheights</span> <span class="op">-</span> <span class="va">altitude_cutoff</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="va">slantrange</span> <span class="op">&lt;-</span> <span class="va">ranges</span><span class="op">[</span><span class="va">nearest_index</span><span class="op">]</span>
+<span class="va">distance_cutoff</span> <span class="op">&lt;-</span> <span class="fu">plyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/plyr/man/round_any.html">round_any</a></span><span class="op">(</span><span class="fu"><a href="https://adokter.github.io/bioRad/reference/beam_distance.html">beam_distance</a></span><span class="op">(</span><span class="va">slantrange</span>, <span class="fl">0.3</span><span class="op">)</span>, <span class="fl">1000</span><span class="op">)</span>
+<span class="va">distance_cutoff</span></code></pre></div>
+<pre><code>## [1] 66000</code></pre>
+<p>So at roughly 66 kilometers from the radar, the lowest elevation scan pierces the sky at an altitude of 600m.</p>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="index.html">Preface</a></div>
+<div class="next"><a href="radar-data-preprocessing.html"><span class="header-section-number">2</span> Radar Data Preprocessing</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#selecting-firework-take-off-moment"><span class="header-section-number">1</span> Selecting firework take-off moment</a></li>
+<li><a class="nav-link" href="#processing-environment"><span class="header-section-number">1.1</span> Processing environment</a></li>
+<li><a class="nav-link" href="#calculate-the-vertical-profiles"><span class="header-section-number">1.2</span> Calculate the vertical profiles</a></li>
+<li><a class="nav-link" href="#generate-time-series-of-vertical-profiles"><span class="header-section-number">1.3</span> Generate time series of vertical profiles</a></li>
+<li><a class="nav-link" href="#identifying-moment-of-take-off"><span class="header-section-number">1.4</span> Identifying moment of take-off</a></li>
+<li><a class="nav-link" href="#determining-maximum-range-from-radar-to-detect-birds"><span class="header-section-number">1.5</span> Determining maximum range from radar to detect birds</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/barthoekstra/fireworks/blob/master/01.Selecting-take-off-moments.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/barthoekstra/fireworks/edit/master/01.Selecting-take-off-moments.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Fireworks</strong>" was written by Bart Hoekstra. It was last built on 2021-03-22.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+</html>

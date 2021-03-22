@@ -1,35 +1,6 @@
-site: bookdown::bookdown_site
-output:
-  bookdown::gitbook:
-    lib_dir: assets
-    split_by: rmd
-    toc_depth: 2
-    config:
-      toc:
-        collapse: section
-        scroll_highlight: yes
-        before: null
-        after: null
-      toolbar:
-        position: fixed
-      edit : null
-      download: null
-      search: yes
-      fontsettings:
-        theme: white
-        family: sans
-        size: 2
-      sharing:
-        facebook: yes
-        github: yes
-        twitter: yes
-        linkedin: no
-        weibo: no
-        instapaper: no
-        vk: no
-        all: ['facebook', 'twitter', 'linkedin', 'weibo', 'instapaper']
-      info: yes
-    url: "https://github.com/barthoekstra/fireworks"
-    github-repo: "barthoekstra/fireworks"
-    df_print: kable
-    dev: 'png'
+bookdown::bs4_book:
+  theme:
+    primary: "#274E82"
+  repo: https://github.com/barthoekstra/fireworks
+  df_print: kable
+  dev: 'png'
