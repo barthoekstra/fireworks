@@ -8,6 +8,8 @@ biblio-style: "apalike"
 link-citations: true
 monofont: "Source Code Pro"
 monofontoptions: "Scale=0.7"
+site: bookdown::bookdown_site
+documentclass: book
 ---
 # Preface {-}
 
