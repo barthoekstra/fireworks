@@ -131,7 +131,7 @@ rm(resolution_models)
 
 We have to see if variables are strongly correlated and thus unfit for being included in the same model, so we calculate Spearman correlation coefficients for all numerical predictors. As this is ecological data, some degree of correlation is of course inevitable for most variables.
 
-```{r check_for_correlations, warning=FALSE, fig.width=12, fig.height=12}
+```{r check_for_correlations, warning=FALSE, out.width='100%'}
 mdl_variables <- c("VIR", "dist_radar", "datetime", "total_biomass", "agricultural", "semiopen", "forests", "wetlands", "waterbodies", "urban", 
                    "dist_urban", "human_pop", "disturb_pot", "pixel", "coverage", "class")
 predictors <- mdl_variables[!mdl_variables %in% c("VIR", "datetime", "pixel", "x", "y", "coverage", "class")]
@@ -252,6 +252,8 @@ plot(correlogram)
 
 This shows there's some spatial autocorrelation in residuals remaining. We use a plot of residuals to assess where this occurs and if this indicates our model is missing some important spatial effect, or if there is another explanation.
 
+*Unfortunately, due to [the way `leaflet` stores maps it produces](https://github.com/rstudio/bookdown/issues/15#issuecomment-573776659), we cannot plot them here using K-M knitting to generate this document. Run these chunks interactively and they should work fine.* So, here we'll have to resort to a static representation of the model residuals.
+
 ```{r plot_model_residuals_in_space}
 df <- data_cleaned
 df$residual <- resid(model)
@@ -269,7 +271,8 @@ palette_resid <- colorNumeric(pal_resid, na.color = "#00000005", domain = z_lims
 raster_resid <- as(ppi$data["residual"], "RasterLayer")
 raster_resid[raster_resid <= z_lims_resid[1]] <- z_lims_resid[1]
 raster_resid[raster_resid >= z_lims_resid[2]] <- z_lims_resid[2]
-
+```
+```{r plot_model_residuals_interactive, eval=FALSE}
 leaflet() %>%
   addTiles(group = "OSM (default)") %>%
   addRasterImage(raster_resid, colors = palette_resid, layerId = "resid", group = "resid") %>%
@@ -277,6 +280,14 @@ leaflet() %>%
   addLegend(pal = palette_resid, values = z_lims_resid) %>%
   addOpacitySlider(layerId = "resid") %>%
   identity()
+```
+```{r plot_model_residuals_static}
+as.data.frame(raster_resid, xy = TRUE) %>%
+  drop_na() %>%
+  ggplot() +
+  geom_raster(aes(x = x, y = y, fill = residual)) +
+  scale_fill_distiller(type = "div", palette = "RdBu") +
+  theme_dark()
 ```
 
 The plot shows how residuals become larger as the distance from the radars increases, and this is a more pronounced effect in the domain of the Den Helder radar. This effect is partially a consequence of radar range-bias and using a single `distance to radar` vs. 2 for each radar separately. You can see how this results in mostly 'overprediction' within the Herwijnen radar domain at long distances and 'underprediction' of `VIR` at long distances within the domain of Den Helder.
@@ -303,14 +314,27 @@ As indeed is the case.
 
 To illustrate this even better, we can calculate local Moran's I values to see where exactly spatial autocorrelation occurs.
 
+
 ```{r calculate_local_moran_i, eval=full_repro}
 r <- as(ppi$data["residual"], "RasterLayer")
 local_sa <- lisa(x = r, d1 = 0, d2 = 1500, statistic = "I")
 saveRDS(local_sa, file = "data/models/local_sa.RDS")
 ```
-```{r plot_local_moran_i}
+
+*Unfortunately, due to [the way `leaflet` stores maps it produces](https://github.com/rstudio/bookdown/issues/15#issuecomment-573776659), we cannot plot them here using K-M knitting to generate this document. Run these chunks interactively and they should work fine.* So, here we'll have to resort to a static representation of the local Moran's I.
+
+```{r plot_local_moran_i_static}
 local_sa <- readRDS("data/models/local_sa.RDS")
-mapview(local_sa)
+d <- as.data.frame(local_sa, xy = TRUE) %>% drop_na() %>% rename(`local_sa`= `layer`)
+ggplot(d) +
+  geom_raster(aes(x = x, y = y, fill = local_sa)) + 
+  scale_fill_viridis_c(limits = c(-20, 30), oob = scales::squish)
 ```
+
+```{r plot_local_moran_i_interactively, eval=FALSE}
+# local_sa <- readRDS("data/models/local_sa.RDS")
+# Only works interactively: mapview(local_sa)
+```
+
 
 We can see - indeed - that spatial autocorrelation in the residuals is strongest at distance from the radar and thankfully does not occur in areas that contain areas of scarce land use types (eg forests). While some degree of spatial autocorrelation in residuals is present, this indicates it does not affect our interpretation of results.

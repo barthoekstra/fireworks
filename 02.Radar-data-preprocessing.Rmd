@@ -27,7 +27,7 @@ library(magrittr)
 
 ## Removing electromagnetic interference
 
-We have determined in which scans birds are taking off based on the maximum increase in reflectivity in the scan for each of the involved radars. Let's now look at these scans to see how much filtering for electromagnetic interference we need to do. The easiest way to determine which rays are subject to this interference is by plotting the scans in polar coordinates $(r, \alpha)$, so interference stands out as horizontal lines of more or less constant, or very gradually changing reflectivities. Plotting using `plotly` makes it easier to identify the specific problematic rays as one can zoom in to identify the exact azimuths $\alpha$ at which this interference occurs.
+We have determined in which scans birds are taking off based on the maximum increase in reflectivity in the scan for each of the involved radars. Let's now look at these scans to see how much filtering for electromagnetic interference we need to do. The easiest way to determine which rays are subject to this interference is by plotting the scans in polar coordinates $(r, \alpha)$, so interference stands out as horizontal lines of more or less constant, or very gradually changing reflectivities. Plotting using `plotly` makes it easier to identify the specific problematic rays as one can zoom in to identify the exact azimuths $\alpha$ at which this interference occurs, but for this web version we stick to the static plots using `bioRad:::plot.scan()`.
 
 ```{r load_paths_of_identified_scans, include=FALSE}
 load(file = "data/processed/pvol_selection.RData")
@@ -45,7 +45,8 @@ pvol_hrw <- read_pvolfile(pvol_hrw_path, param = "all")
 pvol_dhl <- read_pvolfile(pvol_dhl_path, param = "all")
 
 scan <- plot(pvol_hrw$scans[[1]], param = "DBZH", xlim = c(0, 180000)) + theme_dark()
-ggplotly(scan)
+# ggplotly(scan)  # Use when manually filtering EM contaminated beams
+plot(scan)
 ```
 
 Right away we can see that rays at two places in the scan are subject to electromagnetic interference. This is probably most problematic in the lowest elevations of the volume scan, but nevertheless each of the `r length(pvol_hrw$scans)` scans have to be checked manually. Doing so results in the identification of the following rays that contain electromagnetic interference (`ei_rays`), organised in a list with the scan numbers (organised ascendingly per elevation angle) as keys. *Admittedly: there is another ray that seems to contain interference in the first scan, but this is so far away from the radar (150km+) it should not affect our results as no meaningful numbers of birds can be detected at that range anyways and we thus exclude it from our analysis. Similarly, there are similar patterns of interference/clutter in higher elevation scans, but these too should not affect our results.*
@@ -137,7 +138,7 @@ pvol_dhl <- suppressWarnings(calculate_dpr(pvol_dhl))
 
 Now let's plot some PPIs to verify the accuracy of DPR-based classification and the subsequent despeckling, by plotting `DBZH`, `VRADH`, `DPR`, `BIOLR` and `BIOLD`.
 
-```{r verify_dpr_classifications, fig.width=10, warning=FALSE}
+```{r verify_dpr_classifications, out.width='100%', warning=FALSE}
 source("R/side_by_side_ppi.R")
 side_by_side_ppi(pvol_hrw, pvol_dhl, "Herwijnen", "Den Helder", params = c("DBZH", "VRADH", "DPR", "BIOLR", "BIOLD"))
 ```
@@ -156,7 +157,7 @@ pvol_dhl <- remove_precipitation(pvol_dhl)
 
 Plotting the same PPIs as before should now show a cleaned-up/precipitation-free scan next to the classifications.
 
-```{r verify_precipitation_removal, fig.width=10, warning=FALSE}
+```{r verify_precipitation_removal, out.width='100%', warning=FALSE}
 side_by_side_ppi(pvol_hrw, pvol_dhl, "Herwijnen", "Den Helder", params = c("DBZH", "VRADH"))
 ```
 
@@ -239,7 +240,7 @@ pvol_clutter_dynamic_dhl <- readRDS("data/processed/clutter_dynamic_dhl_avg.RDS"
 
 Let's see what that looks like on a basemap, using a `DBZH_AVG` threshold of $-10dbZ$, following [@dokter_bird_2011].
 
-```{r verify_dynamic_clutter_map, fig.width=10, message=FALSE}
+```{r verify_dynamic_clutter_map, out.width='100%', message=FALSE}
 scan_hrw <- pvol_clutter_dynamic_hrw$scans[[1]]
 scan_dhl <- pvol_clutter_dynamic_dhl$scans[[1]]
 
@@ -294,7 +295,7 @@ pvol_clutter_static_dhl <- readRDS("data/processed/clutter_static_dhl_avg.RDS")
 
 Once again, let's see what that looks like on a basemap, using a `DBZH_AVG` threshold of $-10dbZ$, following [@dokter_bird_2011].
 
-```{r verify_static_clutter_map, fig.width=10, message=FALSE}
+```{r verify_static_clutter_map, out.width='100%', message=FALSE}
 scan_hrw <- pvol_clutter_static_hrw$scans[[1]]
 scan_dhl <- pvol_clutter_static_dhl$scans[[1]]
 
@@ -335,7 +336,7 @@ saveRDS(corrected_ppi_dhl, file = "data/processed/corrected_ppi_dhl.RDS")
 
 We can now plot the final range-corrected PPIs.
 
-```{r plot_corrected_vir, fig.width=10}
+```{r plot_corrected_vir, out.width='100%'}
 p_vir_hrw <- plot(corrected_ppi_hrw, param = "VIR", zlim = c(0, 20000)) + labs(title = "Herwijnen: VIR")
 p_vir_dhl <- plot(corrected_ppi_dhl, param = "VIR", zlim = c(0, 20000)) + labs(title = "Den Helder: VIR")
 ggarrange(p_vir_hrw, p_vir_dhl, ncol = 2, nrow = 1, common.legend = TRUE, legend = "right")
@@ -430,17 +431,17 @@ filtered_corrected_ppi_dhl <- corrected_ppi_dhl
 filtered_corrected_ppi_dhl$data@data <- as.data.frame(apply(filtered_corrected_ppi_dhl$data@data, 2, clip, bounds = c(0.05, 0.99)))
 ```
 
+*Unfortunately, due to [the way `leaflet` stores maps it produces](https://github.com/rstudio/bookdown/issues/15#issuecomment-573776659), we cannot plot them here using K-M knitting to generate this document. Run these chunks interactively and they should work fine.*
+
 ### Range-corrected PPI of Herwijnen radar
 
-@TODO: Somehow now broken after adding biology classification
-
-```{r map_range_corrected_herwijnen, fig.width=10}
+```{r map_range_corrected_herwijnen, out.width='100%', eval=FALSE}
 mapview(corrected_ppi_hrw$data)
 ```
 
 ### Range-corrected PPI of Den Helder radar
 
-```{r map_range_corrected_den_helder, fig.width=10}
+```{r map_range_corrected_den_helder, out.width='100%', eval=FALSE}
 mapview(corrected_ppi_dhl$data)
 ```
 
