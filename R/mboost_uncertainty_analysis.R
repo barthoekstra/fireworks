@@ -1,4 +1,5 @@
 library(mboost)
+library(spdep)
 
 confint.mboost_adjusted <- function(object, parm = NULL, level = 0.95,
                            B = 1000, B.mstop = 25, newdata = NULL,
@@ -34,8 +35,17 @@ confint.mboost_adjusted <- function(object, parm = NULL, level = 0.95,
     #for (i in 1:B) {
     cat("\rB =", i)
     ## update model
-    mod <- update(object, weights = outer.folds[, i],
-                  risk = "inbag", trace = FALSE)
+    # mod <- update(object, weights = outer.folds[, i],
+    #               risk = "inbag", trace = FALSE)
+    formula <- VIR ~ bbs(dist_radar) + bbs(total_rcs) + bbs(semiopen) + bbs(forests) + bbs(wetlands) + bbs(waterbodies) +
+      bbs(agricultural) + bbs(dist_urban)
+    mod <- mboost(formula, data = data_cleaned, weights = outer.folds[, i], control = boost_control(mstop = 10000, risk = "inbag", trace = FALSE))
+    acov <- autocov_dist(resid(mod), as.matrix(cbind(data_cleaned$x, data_cleaned$y)), nbs = 1500, zero.policy = TRUE)
+    data_cleaned$acov <- acov
+    formula <- VIR ~ bbs(dist_radar) + bbs(total_rcs) + bbs(semiopen) + bbs(forests) + bbs(wetlands) + bbs(waterbodies) +
+      bbs(agricultural) + bbs(dist_urban) + bbs(acov)
+    mod <- mboost(formula, data = data_cleaned, weights = outer.folds[, i], control = boost_control(mstop = 10000, risk = "inbag", trace = FALSE))
+    
     if (B.mstop > 0) {
       ## <FIXME> are the weights handled correctly?
       cvr <- do.call("cvrisk",
