@@ -12,7 +12,7 @@ With the dataset of annotated PPIs, we can start to explore the relation between
 
 The following parameters we assume are important predictors for measured bird densities aloft:
 
-1. The total biomass of birds on the ground.
+1. The total radar cross-section of birds on the ground.
 2. The take-off habitat of these birds.
 3. The human population in the vicinity of birds.
 4. The distance to the nearest inhabited urban area.
@@ -34,6 +34,7 @@ library(leaflet.opacity)
 library(leafem)
 library(usdm)
 library(mapview)
+library(spdep)
 ```
 
 In the previous chapter, we have created some datasets encompassing all the data contained within the individual PPIs at different resolutions. We will determine the optimal resolution and then continue using this dataset for further modelling.
@@ -50,7 +51,7 @@ As we're mostly interested in the moment of en masse take-off of birds, and we w
 
 Furthermore, we want to make sure that:
 1. the area is 'covered' by at least 1 radar,
-1. we have an estimate of `total_biomass`for these sites,
+1. we have an estimate of `total_rcs` (and thus `total_biomass`) for these sites,
 1. the proportion of urban area (`urban`) in the PPI pixel is less than .25,
 1. `VIR` is > 0 (otherwise log-conversion will return `-Inf`), so we replace 0-values with 1e-3,
 1. the radar beam does not overshoot birds too much based on the `vp`.
@@ -60,7 +61,8 @@ dt_start <- as.POSIXct("2017-12-31 23:05:00", tz = "UTC")
 dt_end <- as.POSIXct("2017-12-31 23:10:00", tz = "UTC")
 
 clean_data <- function(data, scan_start, scan_end, max_distance) {
-  mdl_variables <- c("VIR", "dist_radar", "datetime", "total_biomass", "agricultural", "semiopen", "forests", "wetlands", "waterbodies", "urban",
+  mdl_variables <- c("VIR", "dist_radar", "datetime", "total_biomass", "total_crs",
+                     "agricultural", "semiopen", "forests", "wetlands", "waterbodies", "urban",
                      "dist_urban", "human_pop", "disturb_pot", "pixel", "coverage", "class", "x", "y")
   log10_variables <- c("dist_urban", "human_pop", "total_biomass", "dist_urban", "disturb_pot")
   
@@ -69,14 +71,16 @@ clean_data <- function(data, scan_start, scan_end, max_distance) {
            class != 1,
            datetime >= scan_start & datetime < scan_end,
            total_biomass > 0,
-           dist_radar < max_distance, 
+           dist_radar < max_distance,
            urban < 0.1) %>%
     mutate(VIR = replace_na(VIR, 0.1),
+           VIR = if_else(VIR == 0, 0.1, VIR),
            VIR = log10(VIR),
            disturb_pot = human_pop / dist_urban,
            total_biomass = total_biomass / 1000) %>%
     dplyr::select(all_of(mdl_variables)) %>%
     filter_all(all_vars(is.finite(.))) %>%
+    rename(total_rcs = total_crs) %>%
     identity() -> data_cleaned
   
   data_cleaned
@@ -86,16 +90,15 @@ data_cleaned <- lapply(data, function(x) clean_data(x, dt_start, dt_end, 66000))
 rm(data)
 ```
 
-## Determine model resolution based on performance in simple `total_biomass` model
+## Determine model resolution based on performance in simple `total_crs` model
 
-As we want to correct for the influence of `total_biomass` on the measured response by the radars, we will test the performance of a simple model using just `dist_radar` to correct for range-biased measurement error and `total_biomass` for the resolutions we have generated composte PPIs for so far (500m, 1000m and 2000m).
+As we want to correct for the influence of `total_rcs` on the measured response by the radars, we will test the performance of a simple model using just `dist_radar` to correct for range-biased measurement error and `total_rcs` for the resolutions we have generated composte PPIs for so far (500m, 1000m and 2000m).
 
 Let's start with a calculation of the RMSE.
 
 ```{r create_resolution_models, eval=full_repro}
-resolution_models <- mcmapply(function(dataset) mboost(VIR ~ bbs(dist_radar) + bbs(total_biomass), 
-                                                       data = dataset, control = boost_control(mstop = 10000, trace = TRUE)),
-                              dataset = data_cleaned, SIMPLIFY = FALSE)
+resolution_models <- lapply(data_cleaned, function(x) mboost(VIR ~ bbs(dist_radar) + bbs(total_rcs), 
+                                                             data = x, control = boost_control(mstop = 10000, trace = TRUE)))
 saveRDS(resolution_models, file = "data/models/resolution_models.RDS")
 ```
 ```{r determine_model_resolution}
@@ -132,8 +135,8 @@ rm(resolution_models)
 We have to see if variables are strongly correlated and thus unfit for being included in the same model, so we calculate Spearman correlation coefficients for all numerical predictors. As this is ecological data, some degree of correlation is of course inevitable for most variables.
 
 ```{r check_for_correlations, warning=FALSE, out.width='100%'}
-mdl_variables <- c("VIR", "dist_radar", "datetime", "total_biomass", "agricultural", "semiopen", "forests", "wetlands", "waterbodies", "urban", 
-                   "dist_urban", "human_pop", "disturb_pot", "pixel", "coverage", "class")
+mdl_variables <- c("VIR", "dist_radar", "datetime", "total_biomass", "total_rcs", "agricultural", "semiopen", "forests", "wetlands", "waterbodies",
+                   "urban", "dist_urban", "human_pop", "disturb_pot", "pixel", "coverage", "class")
 predictors <- mdl_variables[!mdl_variables %in% c("VIR", "datetime", "pixel", "x", "y", "coverage", "class")]
 corr_radar <- ggcorrmat(data_cleaned, output = "plot", type = "spearman", cor.vars = all_of(predictors), colors = c("#2166AC", "#F7F7F7", "#B2182B"))
 corr_radar
@@ -164,13 +167,15 @@ As can be expected in The Netherlands, the dominant land use class is clearly `a
 Now we will compare the disturbance proxies in a similar fashion to how we compared the performance of the model using different PPI resolutions, by calculating deviance explained and RMSE.
 
 ```{r compare_proxies_for_disturbance, eval=full_repro}
-fm_dist_urban <- VIR ~ bbs(dist_radar) + bbs(total_biomass) + bbs(semiopen) + bbs(forests) + bbs(wetlands) + bbs(waterbodies) + bbs(agricultural) + bbs(dist_urban)
-fm_human_pop <- VIR ~ bbs(dist_radar) + bbs(total_biomass) + bbs(semiopen) + bbs(forests) + bbs(wetlands) + bbs(waterbodies) + bbs(agricultural) + bbs(human_pop)
-fm_disturb_pot <- VIR ~ bbs(dist_radar) + bbs(total_biomass) + bbs(semiopen) + bbs(forests) + bbs(wetlands) + bbs(waterbodies) + bbs(agricultural) + bbs(disturb_pot)
+fm_dist_urban <- VIR ~ bbs(dist_radar) + bbs(total_rcs) + bbs(semiopen) + bbs(forests) + bbs(wetlands) + bbs(waterbodies) +
+  bbs(agricultural) + bbs(dist_urban)
+fm_human_pop <- VIR ~ bbs(dist_radar) + bbs(total_rcs) + bbs(semiopen) + bbs(forests) + bbs(wetlands) + bbs(waterbodies) + 
+  bbs(agricultural) + bbs(human_pop)
+fm_disturb_pot <- VIR ~ bbs(dist_radar) + bbs(total_rcs) + bbs(semiopen) + bbs(forests) + bbs(wetlands) + bbs(waterbodies) + 
+  bbs(agricultural) + bbs(disturb_pot)
 formulas <- list(fm_dist_urban, fm_human_pop, fm_disturb_pot)
 
-disturbance_models <- mcmapply(function(formula) mboost(formula, data = data_cleaned, control = boost_control(mstop = 10000, trace = TRUE)), 
-                               formula = formulas, SIMPLIFY = FALSE)
+disturbance_models <- lapply(formulas, function(formula) mboost(formula, data = data_cleaned, control = boost_control(mstop = 10000, trace = TRUE)))
 names(disturbance_models) <- c("dist_urban", "human_pop", "disturb_pot")
 saveRDS(disturbance_models, file = "data/models/disturbance_models.RDS")
 ```
@@ -179,10 +184,11 @@ disturbance_models <- readRDS("data/models/disturbance_models.RDS")
 RMSE <- function(error) { sqrt(mean(error^2)) }
 rmse <- sapply(disturbance_models, function(x) RMSE(residuals(x)))
 d2 <- mapply(function(model) { deviance_explained(data_cleaned$VIR, predict(model))}, model = disturbance_models)
-as.data.frame(list("RMSE" = as.matrix(rmse), "D2" = as.matrix(d2)))
+perf_original <- as.data.frame(list("RMSE" = as.matrix(rmse), "Dev.Exp" = as.matrix(d2)))
+perf_original
 ```
 
-It is clear `dist_urban` performs the best, though just by a slight margin. As it is probably the most interpretable proxy from a policy perspective, we can continue using it without any regrets.
+It is clear `dist_urban` performs the best, though just by a slight margin. As it is probably the most interpretable proxy from a policy perspective, we can thus continue using it without any regrets.
 
 ```{r set_final_disturbance_proxy}
 model <- disturbance_models$dist_urban
@@ -195,20 +201,31 @@ rm(disturbance_models)
 The main hyperparameter to be tuned for the boosted GAMs using `mboost` is the number of boosting iterations/steps. By stopping boosting before model performance (measured using cross-validation) worsens, we can avoid overfitting. We limit this test of model performance for a maximum of 50,000 boosts.
 
 ```{r train_model_50000_boosts, eval=full_repro}
-model_boosts <- mboost(fm_dist_urban, data = data_cleaned, control = boost_control(mstop = 50000, trace = FALSE))
+model_boosts <- mboost(fm_dist_urban, data = data_cleaned, control = boost_control(mstop = 1000, trace = FALSE))
 saveRDS(model_boosts, file = "data/models/model_boosts.RDS")
-```
 
-```{r determine_boosting_steps, eval=full_repro}
-model_boosts <- readRDS("data/models/model_boosts.RDS")
-cv10f <- cv(model.weights(model_boosts), type = "kfold", B = 10)
-cvm <- cvrisk(model_boosts, folds = cv10f, papply = lapply)
+grid <- c(1.68^(1:20), 50000)  # Generate a non-linear grid of mstop values to avoid slow convergence
+
+cv10f <- mboost::cv(model.weights(model_boosts), type = "kfold")
+saveRDS(cv10f, file = "data/models/boost_cv10f.RDS")
+
+cvm <- cvrisk(model_boosts, folds = cv10f, grid = grid, papply = lapply)
 saveRDS(cvm, file = "data/models/cvm_boosts.RDS")
 ```
 
-```{r plot_boosting_steps}
+```{r plot_boosting_steps, out.width='100%'}
 cvm <- readRDS("data/models/cvm_boosts.RDS")
-plot(cvm)
+class(cvm) <- NULL
+as.data.frame(cvm) %>%
+  tibble::rownames_to_column(var = "fold") %>%
+  pivot_longer(-c(fold), names_to = "boosts", values_to = "risk") %>%
+  mutate(boosts = as.numeric(boosts),
+         fold = as.factor(fold)) %>%
+  identity() %>%
+  ggplot(aes(x = boosts, y = risk, group = fold, color = fold)) +
+    geom_line() +
+    labs(title = paste0(attr(cvm, "type")), x = "boosts (mstop)", y = attr(cvm, "risk")) +
+  scale_x_continuous(trans = "log10")
 ```
 
 We can see that model performance improves very little beyond a few thousand boosting iterations. As we have to quantify model uncertainty using bootstrapping techniques, it makes little computational sense to push much beyond 10000 boosts, as that would just make the bootstrapping procedure last much longer.
@@ -232,7 +249,7 @@ plot(model)
 
 ## Spatial autocorrelation
 
-Model residuals should not show strong autocorrelation as then the independency of errors assumption is violated (see for example [this](https://doi.org/10.1186/s41610-019-0118-3)). Additionally, a model with strong autocorrelation in the residuals suggests that it lacks a spatial component within the predictors. As it is computationally too difficult to calculate the spatial autocorrelation for the entire dataset at once, we subsample 25% of datapoints for these calculations. Results may thus vary to some degree.
+Model residuals should not show strong autocorrelation as then the independency of errors assumption is violated (see for example [this](https://doi.org/10.1186/s41610-019-0118-3)). Additionally, a model with strong autocorrelation in the residuals suggests that it lacks a spatial component within the predictors. As it is computationally too difficult to calculate the spatial autocorrelation for the entire dataset at once, we subsample 20% of datapoints for these calculations. Results may thus vary to some degree.
 
 ```{r calculate_model_residual_autocorrelation, eval=full_repro}
 df <- data_cleaned
@@ -240,7 +257,7 @@ df$residual <- resid(model)
 
 df %>%
   filter(dist_radar < 66000) %>%
-  slice_sample(prop = 0.25) -> df_sample
+  slice_sample(prop = 0.20) -> df_sample
 
 correlogram <- correlog(df_sample[, c("x", "y")], df_sample[, "residual"], method = "Moran", nbclass = NULL)
 saveRDS(correlogram , file = "data/models/correlogram.RDS")
@@ -281,7 +298,7 @@ leaflet() %>%
   addOpacitySlider(layerId = "resid") %>%
   identity()
 ```
-```{r plot_model_residuals_static}
+```{r plot_model_residuals_static, out.width='100%'}
 as.data.frame(raster_resid, xy = TRUE) %>%
   drop_na() %>%
   ggplot() +
@@ -290,51 +307,104 @@ as.data.frame(raster_resid, xy = TRUE) %>%
   theme_dark()
 ```
 
-The plot shows how residuals become larger as the distance from the radars increases, and this is a more pronounced effect in the domain of the Den Helder radar. This effect is partially a consequence of radar range-bias and using a single `distance to radar` vs. 2 for each radar separately. You can see how this results in mostly 'overprediction' within the Herwijnen radar domain at long distances and 'underprediction' of `VIR` at long distances within the domain of Den Helder.
+### Correct for residual spatial autocorrelation
 
-To illustrate this, we can limit the calculation of residual spatial autocorrelation to datapoints that are substantially closer to the radar. This should then result in Moran's I values substantially closer to 0.
+The correlogram and spatial plots of residuals show clearly that residuals are spatially autocorrelated. We will correct for this effect using Crase et al. [-@crase2012], by calculating an autocovariate (distance weighted mean) of the residuals using a 1500m neighborhood radius. If we look at the correlogram above, we can see that spatial autocorrelation is still visible at distances of 30-50km, but calculating an autocovariate for such neighborhoods would be too computationally intensive. Some points won't have neighborhoods at all, but that is fine.
 
-```{r calculate_model_residual_autocorrelation_limited_domain, eval=full_repro}
+```{r calculate_autocovariate, eval=full_repro}
+nbs <- 1500  # Kilometers if longlat = TRUE
+acov <- autocov_dist(resid(model), as.matrix(cbind(data_cleaned$x, data_cleaned$y)), nbs = nbs, zero.policy = TRUE)
+```
+
+Having calculated the autocovariate, we can include it in our dataset and retrain a model, this time with the inclusion of the `autocov` parameter.
+
+```{r retrain_model_with_autocovariate, eval=full_repro}
+data_cleaned$acov <- acov
+formula <- VIR ~ bbs(dist_radar) + bbs(total_rcs) + bbs(semiopen) + bbs(forests) + bbs(wetlands) + bbs(waterbodies) +
+  bbs(agricultural) + bbs(dist_urban) + bbs(acov)
+model_rac <- mboost(formula, data = data_cleaned, control = boost_control(mstop = 10000, trace = TRUE))
+saveRDS(model_rac, file = "data/models/model_rac.RDS")
+```
+
+Let's plot model variable importance and modelled effects again for this newly trained model.
+
+```{r plot_varimp_model_rac, out.width='100%'}
+model_rac <- readRDS("data/models/model_rac.RDS")
+plot(varimp(model_rac))
+```
+
+```{r plot_model_rac, out.width='100%'}
+par(mfrow = c(3, 4))
+plot(model_rac)
+```
+
+And recalculate Moran's I for the new model residuals.
+
+```{r recalculate_moran_i_rac_model, eval=full_repro}
 df <- data_cleaned
-df$residual <- resid(model)
+df$residual <- resid(model_rac)
 
 df %>%
-  filter(dist_radar < 50000) %>%
-  slice_sample(prop = 0.25) -> df_sample
+  filter(dist_radar < 66000) %>%
+  slice_sample(prop = 0.2) -> df_sample
 
 correlogram <- correlog(df_sample[, c("x", "y")], df_sample[, "residual"], method = "Moran", nbclass = NULL)
-saveRDS(correlogram , file = "data/models/correlogram_limited_domain.RDS")
+saveRDS(correlogram , file = "data/models/correlogram_rac.RDS")
 ```
-```{r plot_residual_autocorrelation_limited_domain}
-correlogram <- readRDS("data/models/correlogram_limited_domain.RDS")
+```{r plot_correlogram_again, out.width='100%'}
+correlogram <- readRDS("data/models/correlogram_rac.RDS")
 plot(correlogram)
 ```
 
-As indeed is the case.
+That looks much better! Residual spatial autocorrelation is still present and significant (red circles in plot above), but has now decreased from ~0.3 to ~0.02. So it is now pretty much negligible.
 
-To illustrate this even better, we can calculate local Moran's I values to see where exactly spatial autocorrelation occurs.
+For completeness, let's make the residuals spatially explicit again
 
+```{r plot_rac_model_residuals}
+df <- data_cleaned
+df$residual <- resid(model_rac)
+df$preds <- predict.mboost(model_rac, newdata = data_cleaned)
+ppi <- readRDS("data/processed/composite-ppis/500m/201712312305.RDS")
+ 
+ppi$data@data %>%
+  left_join(dplyr::select(df, pixel, preds, residual), by = "pixel") -> ppi$data@data
+ppi$data@data$VIR_log <- log10(ppi$data@data$VIR)
+ppi$data@data$total_biomass_log <- log10(ppi$data@data$total_biomass / 1000)
 
-```{r calculate_local_moran_i, eval=full_repro}
-r <- as(ppi$data["residual"], "RasterLayer")
-local_sa <- lisa(x = r, d1 = 0, d2 = 1500, statistic = "I")
-saveRDS(local_sa, file = "data/models/local_sa.RDS")
+pal_resid <- colorspace::diverging_hcl(50, "Blue-Red 3", power = 2)
+z_lims_resid <- c(-3, 3)
+palette_resid <- colorNumeric(pal_resid, na.color = "#00000005", domain = z_lims_resid)
+raster_resid <- as(ppi$data["residual"], "RasterLayer")
+raster_resid[raster_resid <= z_lims_resid[1]] <- z_lims_resid[1]
+raster_resid[raster_resid >= z_lims_resid[2]] <- z_lims_resid[2]
+```
+```{r plot_model_residuals_interactive, eval=FALSE}
+leaflet() %>%
+  addTiles(group = "OSM (default)") %>%
+  addRasterImage(raster_resid, colors = palette_resid, layerId = "resid", group = "resid") %>%
+  addImageQuery(raster_resid, layerId = "resid") %>%
+  addLegend(pal = palette_resid, values = z_lims_resid) %>%
+  addOpacitySlider(layerId = "resid") %>%
+  identity()
+```
+```{r plot_model_residuals_static_rac, out.width='100%'}
+as.data.frame(raster_resid, xy = TRUE) %>%
+  drop_na() %>%
+  ggplot() +
+  geom_raster(aes(x = x, y = y, fill = residual)) +
+  scale_fill_distiller(type = "div", palette = "RdBu") +
+  theme_dark()
 ```
 
-*Unfortunately, due to [the way `leaflet` stores maps it produces](https://github.com/rstudio/bookdown/issues/15#issuecomment-573776659), we cannot plot them here using K-M knitting to generate this document. Run these chunks interactively and they should work fine.* So, here we'll have to resort to a static representation of the local Moran's I.
+And finally we can recalculate the model performance and compare it with the original model.
 
-```{r plot_local_moran_i_static}
-local_sa <- readRDS("data/models/local_sa.RDS")
-d <- as.data.frame(local_sa, xy = TRUE) %>% drop_na() %>% rename(`local_sa`= `layer`)
-ggplot(d) +
-  geom_raster(aes(x = x, y = y, fill = local_sa)) + 
-  scale_fill_viridis_c(limits = c(-20, 30), oob = scales::squish)
+```{r compare_model_performance}
+RMSE <- function(error) { sqrt(mean(error^2)) }
+rmse <- RMSE(residuals(model_rac))
+de <- deviance_explained(data_cleaned$VIR, predict(model_rac))
+perf_rac <- as.data.frame(list("RMSE" = as.matrix(rmse), "Dev.Exp" = as.matrix(de)))
+
+perf <- bind_rows(perf_original["dist_urban", ], perf_rac)
+rownames(perf) <- c("dist_urban_rac", "dist_urban_original")
+perf
 ```
-
-```{r plot_local_moran_i_interactively, eval=FALSE}
-# local_sa <- readRDS("data/models/local_sa.RDS")
-# Only works interactively: mapview(local_sa)
-```
-
-
-We can see - indeed - that spatial autocorrelation in the residuals is strongest at distance from the radar and thankfully does not occur in areas that contain areas of scarce land use types (eg forests). While some degree of spatial autocorrelation in residuals is present, this indicates it does not affect our interpretation of results.
