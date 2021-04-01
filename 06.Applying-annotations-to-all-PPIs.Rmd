@@ -25,7 +25,7 @@ ppi_hrw <- readRDS("data/processed/corrected-ppis-lu-sovon/corrected_ppi_hrw_lu_
 ppi_dhl <- readRDS("data/processed/corrected-ppis-lu-sovon/corrected_ppi_dhl_lu_sovon.RDS")
 ```
 
-## Add biomass to reference PPIs
+## Add biomass and cross-sections to reference PPIs
 
 We have previously calculated the `total_biomass` already for all the count areas/routes, but now we will annotate the reference PPIs with these values as well. We correct for the size of an area the count is conducted in by 'spreading' the total biomass over the number of pixels annotated with a certain count area/route. 
 
@@ -34,39 +34,55 @@ wb <- readRDS("data/processed/sovon/wb_biomass.RDS")
 ptt <- readRDS("data/processed/sovon/ptt_biomass.RDS")
 
 ppi_hrw$data@data %<>%
-  left_join(dplyr::select(wb, area_nr, total_biomass, weighted_mean_weight), by = c("wb_area_nr" = "area_nr")) %>%
+  left_join(dplyr::select(wb, area_nr, total_biomass, weighted_mean_weight, total_crs, weighted_mean_crs), by = c("wb_area_nr" = "area_nr")) %>%
   rename(wb_total_biomass = total_biomass,
-         wb_weighted_mean_weight = weighted_mean_weight) %>%
+         wb_total_crs = total_crs,
+         wb_weighted_mean_weight = weighted_mean_weight,
+         wb_weighted_mean_crs = weighted_mean_crs) %>%
   group_by(wb_area_nr) %>%
-  mutate(wb_total_biomass = wb_total_biomass / n()) %>%  
+  mutate(wb_total_biomass = wb_total_biomass / n(),
+         wb_total_crs = wb_total_crs / n()) %>%  
   ungroup() %>%
-  left_join(dplyr::select(ptt, route, total_biomass, weighted_mean_weight), by = c("ptt_route" = "route")) %>%
+  left_join(dplyr::select(ptt, route, total_biomass, weighted_mean_weight, total_crs, weighted_mean_crs), by = c("ptt_route" = "route")) %>%
   rename(ptt_total_biomass = total_biomass,
-         ptt_weighted_mean_weight = weighted_mean_weight) %>%
+         ptt_total_crs = total_crs,
+         ptt_weighted_mean_weight = weighted_mean_weight,
+         ptt_weighted_mean_crs = weighted_mean_crs) %>%
   group_by(ptt_route) %>%
-  mutate(ptt_total_biomass = ptt_total_biomass / n()) %>% 
+  mutate(ptt_total_biomass = ptt_total_biomass / n(),
+         ptt_total_crs = ptt_total_crs / n()) %>% 
   ungroup() %>%
   rowwise() %>%
   mutate(total_biomass = sum(wb_total_biomass, ptt_total_biomass, na.rm = TRUE),
-         weighted_mean_weight = mean(c(wb_weighted_mean_weight, ptt_weighted_mean_weight), na.rm = TRUE)) %>%
+         total_crs = sum(wb_total_crs, ptt_total_crs, na.rm = TRUE),
+         weighted_mean_weight = mean(c(wb_weighted_mean_weight, ptt_weighted_mean_weight), na.rm = TRUE),
+         weighted_mean_crs = mean(c(wb_weighted_mean_crs, ptt_weighted_mean_crs), na.rm = TRUE)) %>%
   ungroup()
 
 ppi_dhl$data@data %<>%
-  left_join(dplyr::select(wb, area_nr, total_biomass, weighted_mean_weight), by = c("wb_area_nr" = "area_nr")) %>%
+  left_join(dplyr::select(wb, area_nr, total_biomass, weighted_mean_weight, total_crs, weighted_mean_crs), by = c("wb_area_nr" = "area_nr")) %>%
   rename(wb_total_biomass = total_biomass,
-         wb_weighted_mean_weight = weighted_mean_weight) %>%
+         wb_total_crs = total_crs,
+         wb_weighted_mean_weight = weighted_mean_weight,
+         wb_weighted_mean_crs = weighted_mean_crs) %>%
   group_by(wb_area_nr) %>%
-  mutate(wb_total_biomass = wb_total_biomass / n()) %>%
+  mutate(wb_total_biomass = wb_total_biomass / n(),
+         wb_total_crs = wb_total_crs / n()) %>%
   ungroup() %>%
-  left_join(dplyr::select(ptt, route, total_biomass, weighted_mean_weight), by = c("ptt_route" = "route")) %>%
+  left_join(dplyr::select(ptt, route, total_biomass, weighted_mean_weight, total_crs, weighted_mean_crs), by = c("ptt_route" = "route")) %>%
   rename(ptt_total_biomass = total_biomass,
-         ptt_weighted_mean_weight = weighted_mean_weight) %>%
+         ptt_total_crs = total_crs,
+         ptt_weighted_mean_weight = weighted_mean_weight,
+         ptt_weighted_mean_crs = weighted_mean_crs) %>%
   group_by(ptt_route) %>%
-  mutate(ptt_total_biomass = ptt_total_biomass / n()) %>%
+  mutate(ptt_total_biomass = ptt_total_biomass / n(),
+         ptt_total_crs = ptt_total_crs / n()) %>%
   ungroup() %>%
   rowwise() %>%
   mutate(total_biomass = sum(wb_total_biomass, ptt_total_biomass, na.rm = TRUE),
-         weighted_mean_weight = mean(c(wb_weighted_mean_weight, ptt_weighted_mean_weight), na.rm = TRUE)) %>%
+         total_crs = sum(wb_total_crs, ptt_total_crs, na.rm = TRUE),
+         weighted_mean_weight = mean(c(wb_weighted_mean_weight, ptt_weighted_mean_weight), na.rm = TRUE),
+         weighted_mean_crs = mean(c(wb_weighted_mean_crs, ptt_weighted_mean_crs), na.rm = TRUE)) %>%
   ungroup()
 ```
 
@@ -78,7 +94,8 @@ We select the variables related to land use, distance to inhabited areas and pop
 columns <- c("urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies",
              "dist_urban", "human_pop", "wb_area_id", "wb_area_nr", "ptt_route",
              "wb_area_id", "wb_area_nr", "wb_area_ha", "ptt_route", "wb_total_biomass", "ptt_total_biomass", "total_biomass", 
-             "wb_weighted_mean_weight", "ptt_weighted_mean_weight", "weighted_mean_weight")
+             "wb_weighted_mean_weight", "ptt_weighted_mean_weight", "weighted_mean_weight", 
+             "wb_total_crs", "ptt_total_crs", "total_crs", "wb_weighted_mean_crs", "ptt_weighted_mean_crs", "weighted_mean_crs")
 
 hrw <- ppi_hrw$data@data %>%
   dplyr::select(all_of(columns))

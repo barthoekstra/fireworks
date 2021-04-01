@@ -199,7 +199,8 @@ read_tsv("data/raw/life-history-characteristics/Life-history characteristics of 
   mutate(species = paste(str_split(species, pattern = " ")[[1]][1:2], collapse = " ")) %>%
   ungroup() %>%
   group_by(species) %>%
-  summarise(mean_weight = mean(mean_weight), .groups = "drop_last") %>%
+  summarise(mean_weight = mean(mean_weight), .groups = "drop_last",
+            mean_crs = mean_weight ^ (2/3)) %>%
   drop_na() -> lhc
 
 lhc[lhc$species == "Aquila nipalenis", "species"] <- "Aquila nipalensis"  # Small error in dataset -> notified author
@@ -228,14 +229,14 @@ With the GBIF IDs/keys in place for both the life-history characteristics, as we
 ```{r link_sovon_counts_with_life_history_characteristics_wb_counts}
 lhc %>%
   left_join(lhc_species_lut, by = c("species" = "scientificname")) %>%
-  dplyr::select(species, mean_weight, gbif_key) -> lhc
+  dplyr::select(species, mean_weight, mean_crs, gbif_key) -> lhc
 
 wb_data %>%
   left_join(species_lut, by = c("species" = "lookupname")) %>%
-  left_join(dplyr::select(lhc, mean_weight, gbif_key), by = c("gbif_key" = "gbif_key")) %>%
-  left_join(dplyr::select(lhc, mean_weight, species), by = c("scientificname" = "species")) %>%
-  dplyr::select(-c(mean_weight.x)) %>%
-  rename(mean_weight = mean_weight.y) -> wb_data_lhc
+  left_join(dplyr::select(lhc, mean_weight, mean_crs, gbif_key), by = c("gbif_key" = "gbif_key")) %>%
+  left_join(dplyr::select(lhc, mean_weight, mean_crs, species), by = c("scientificname" = "species")) %>%
+  dplyr::select(-c(mean_weight.x, mean_crs.x)) %>%
+  rename(mean_weight = mean_weight.y, mean_crs = mean_crs.y) -> wb_data_lhc
 
 head(wb_data_lhc, 10) %>%
   kable(format = "html", col.names = colnames(wb_data_lhc)) %>%
@@ -248,10 +249,10 @@ And then the PTT counts.
 ```{r link_sovon_counts_with_life_history_characteristics_ptt_counts}
 ptt_data %>%
   left_join(species_lut, by = c("species" = "lookupname")) %>%
-  left_join(dplyr::select(lhc, mean_weight, gbif_key), by = c("gbif_key" = "gbif_key")) %>%
-  left_join(dplyr::select(lhc, mean_weight, species), by = c("scientificname" = "species")) %>%
-  dplyr::select(-c(mean_weight.x)) %>%
-  rename(mean_weight = mean_weight.y) -> ptt_data_lhc
+  left_join(dplyr::select(lhc, mean_weight, mean_crs, gbif_key), by = c("gbif_key" = "gbif_key")) %>%
+  left_join(dplyr::select(lhc, mean_weight, mean_crs, species), by = c("scientificname" = "species")) %>%
+  dplyr::select(-c(mean_weight.x, mean_crs.x)) %>%
+  rename(mean_weight = mean_weight.y, mean_crs = mean_crs.y) -> ptt_data_lhc
 
 head(ptt_data_lhc, 10) %>%
   kable(format = "html", col.names = colnames(ptt_data_lhc)) %>%
@@ -322,32 +323,42 @@ wb_data %>%
   mutate(area_nr = as.character(area_nr)) %>%
   filter(year == wb_year) %>%
   rowwise() %>%
-  mutate(specific_biomass = number * mean_weight) %>%
+  mutate(specific_biomass = number * mean_weight,
+         specific_crs = number * mean_crs) %>%
   ungroup() %>%
   group_by(area_nr, year) %>%
   summarise(total_biomass = sum(specific_biomass),
+            total_crs = sum(specific_crs),
             weighted_mean_weight = weighted.mean(mean_weight, number),
+            weighted_mean_crs = weighted.mean(mean_crs, number),
             .groups = "drop_last") %>%
   ungroup() %>%
   group_by(area_nr) %>%  # Below is only required if year-filter is NOT set, otherwise does nothing
   summarise(total_biomass = mean(total_biomass),
+            total_crs = mean(total_crs),
             weighted_mean_weight = mean(weighted_mean_weight),
+            weighted_mean_crs = mean(weighted_mean_crs),
             .groups = "drop_last") %>%
   identity() -> wb_biomass
 
 ptt_data %>%
   filter(year == ptt_year) %>%
   rowwise() %>%
-  mutate(specific_biomass = number * mean_weight) %>%
+  mutate(specific_biomass = number * mean_weight,
+         specific_crs = number * mean_crs) %>%
   ungroup() %>%
   group_by(route, year) %>%
   summarise(total_biomass = sum(specific_biomass),
+            total_crs = sum(specific_crs),
             weighted_mean_weight = weighted.mean(mean_weight, number),
+            weighted_mean_crs = weighted.mean(mean_crs, number),
             .groups = "drop_last") %>%
   ungroup() %>%
   group_by(route) %>%  # Below is only required if year-filter is NOT set, otherwise does nothing
   summarise(total_biomass = mean(total_biomass),
+            total_crs = mean(total_crs),
             weighted_mean_weight = mean(weighted_mean_weight),
+            weighted_mean_crs = mean(weighted_mean_crs),
             .groups = "drop_last") %>%
   identity() -> ptt_biomass
 ```
