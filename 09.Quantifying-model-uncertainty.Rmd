@@ -12,12 +12,6 @@ library(tidyr)
 library(patchwork)
 ```
 
-## Load the constructed model
-
-```{r load_model}
-model <- readRDS("data/models/model.RDS")
-```
-
 ## Bootstrapped uncertainty analysis
 
 Using the bootstrapping procedure provided in `mboost`, tweaked to our use case, we can derive uncertainty estimates from the trained model.
@@ -33,7 +27,8 @@ We make a few changes to the default functioning of the `confint.mboost` functio
 The folds contain indexes of datapoints that are resampled for each of the 1000 bootstrap iterations.
 
 ```{r determine_bootstrap_folds, eval=full_repro}
-folds <- cv(model.weights(model), B = 1000)
+model <- readRDS("data/models/model_rac.RDS")
+folds <- mboost::cv(model.weights(model), B = 1000)
 saveRDS(folds, file = "data/models/confints/folds.RDS")
 ```
 
@@ -57,7 +52,7 @@ ci_boot_pred <- lapply(cis, function(x) x$boot_pred)
 ci_varimp <- lapply(cis, function(x) x$varimp)
 
 modelci <- readRDS("data/models/confints/modelci_1.RDS")
-modelci$boot_pred[2:1000] <- ci_boot_pred
+modelci$boot_pred[2:n_confint_files-1] <- ci_boot_pred
 modelci$boot_pred[1] <- NULL
 modelci$data <- cis[[1]]$data
 modelci$varimp <- ci_varimp
@@ -68,9 +63,9 @@ saveRDS(modelci, file = "data/models/confints/final_modelci.RDS")
 Let's confirm it worked by plotting the bootstrapped confidence intervals.
 
 ```{r plot_bootstrapped_confidence_intervals, results='hold'}
-vars <- c("dist_radar", "total_biomass", "semiopen", "forests", "wetlands", "waterbodies", "agricultural", "dist_urban")
-par(mfrow = c(2, 4))
-lapply(vars, function(x) plot(modelci, which = x))
+vars <- c("dist_radar", "total_rcs", "semiopen", "forests", "wetlands", "waterbodies", "agricultural", "dist_urban", "acov")
+par(mfrow = c(3, 4))
+lapply(vars, function(x) plot(modelci, which = x, raw = TRUE))
 ```
 
 Voilà, that seems to have done the trick.
