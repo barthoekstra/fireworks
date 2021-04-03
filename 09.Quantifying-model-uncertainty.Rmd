@@ -45,7 +45,7 @@ source("R/mboost_uncertainty_analysis.R")
 Having adjusted the bootstrapping procedure a bit, we now have to recombine the data so the R object matches the format `mboost` functions expect. Additionally, we will include the variable importance now as well.
 
 ```{r recombine_bootstrap_output}
-n_confint_files <- length(Sys.glob("data/models/confints/modelci*"))
+n_confint_files <- length(Sys.glob("data/models/confints3/modelci*"))
 confint_files <- paste0("data/models/confints/modelci_", 2:n_confint_files, ".RDS")
 cis <- lapply(confint_files, readRDS)
 ci_boot_pred <- lapply(cis, function(x) x$boot_pred)
