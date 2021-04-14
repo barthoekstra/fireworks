@@ -34,55 +34,65 @@ wb <- readRDS("data/processed/sovon/wb_biomass.RDS")
 ptt <- readRDS("data/processed/sovon/ptt_biomass.RDS")
 
 ppi_hrw$data@data %<>%
-  left_join(dplyr::select(wb, area_nr, total_biomass, weighted_mean_weight, total_crs, weighted_mean_crs), by = c("wb_area_nr" = "area_nr")) %>%
+  left_join(dplyr::select(wb, area_nr, total_biomass, weighted_mean_weight, total_crs, weighted_mean_crs, total_birds), by = c("wb_area_nr" = "area_nr")) %>%
   rename(wb_total_biomass = total_biomass,
          wb_total_crs = total_crs,
          wb_weighted_mean_weight = weighted_mean_weight,
-         wb_weighted_mean_crs = weighted_mean_crs) %>%
+         wb_weighted_mean_crs = weighted_mean_crs,
+         wb_total_birds = total_birds) %>%
   group_by(wb_area_nr) %>%
   mutate(wb_total_biomass = wb_total_biomass / n(),
-         wb_total_crs = wb_total_crs / n()) %>%  
+         wb_total_crs = wb_total_crs / n(),
+         wb_total_birds = wb_total_birds / n()) %>%  
   ungroup() %>%
-  left_join(dplyr::select(ptt, route, total_biomass, weighted_mean_weight, total_crs, weighted_mean_crs), by = c("ptt_route" = "route")) %>%
+  left_join(dplyr::select(ptt, route, total_biomass, weighted_mean_weight, total_crs, weighted_mean_crs, total_birds), by = c("ptt_route" = "route")) %>%
   rename(ptt_total_biomass = total_biomass,
          ptt_total_crs = total_crs,
          ptt_weighted_mean_weight = weighted_mean_weight,
-         ptt_weighted_mean_crs = weighted_mean_crs) %>%
+         ptt_weighted_mean_crs = weighted_mean_crs,
+         ptt_total_birds = total_birds) %>%
   group_by(ptt_route) %>%
   mutate(ptt_total_biomass = ptt_total_biomass / n(),
-         ptt_total_crs = ptt_total_crs / n()) %>% 
+         ptt_total_crs = ptt_total_crs / n(),
+         ptt_total_birds = ptt_total_birds / n()) %>% 
   ungroup() %>%
   rowwise() %>%
   mutate(total_biomass = sum(wb_total_biomass, ptt_total_biomass, na.rm = TRUE),
          total_crs = sum(wb_total_crs, ptt_total_crs, na.rm = TRUE),
          weighted_mean_weight = mean(c(wb_weighted_mean_weight, ptt_weighted_mean_weight), na.rm = TRUE),
-         weighted_mean_crs = mean(c(wb_weighted_mean_crs, ptt_weighted_mean_crs), na.rm = TRUE)) %>%
+         weighted_mean_crs = mean(c(wb_weighted_mean_crs, ptt_weighted_mean_crs), na.rm = TRUE),
+         total_birds = round(sum(wb_total_birds, ptt_total_birds, na.rm = TRUE))) %>%
   ungroup()
 
 ppi_dhl$data@data %<>%
-  left_join(dplyr::select(wb, area_nr, total_biomass, weighted_mean_weight, total_crs, weighted_mean_crs), by = c("wb_area_nr" = "area_nr")) %>%
+  left_join(dplyr::select(wb, area_nr, total_biomass, weighted_mean_weight, total_crs, weighted_mean_crs, total_birds), by = c("wb_area_nr" = "area_nr")) %>%
   rename(wb_total_biomass = total_biomass,
          wb_total_crs = total_crs,
          wb_weighted_mean_weight = weighted_mean_weight,
-         wb_weighted_mean_crs = weighted_mean_crs) %>%
+         wb_weighted_mean_crs = weighted_mean_crs,
+         wb_total_birds = total_birds) %>%
   group_by(wb_area_nr) %>%
   mutate(wb_total_biomass = wb_total_biomass / n(),
-         wb_total_crs = wb_total_crs / n()) %>%
+         wb_total_crs = wb_total_crs / n(),
+         wb_total_birds = wb_total_birds / n()) %>%
   ungroup() %>%
-  left_join(dplyr::select(ptt, route, total_biomass, weighted_mean_weight, total_crs, weighted_mean_crs), by = c("ptt_route" = "route")) %>%
+  left_join(dplyr::select(ptt, route, total_biomass, weighted_mean_weight, total_crs, weighted_mean_crs, total_birds), by = c("ptt_route" = "route")) %>%
   rename(ptt_total_biomass = total_biomass,
          ptt_total_crs = total_crs,
          ptt_weighted_mean_weight = weighted_mean_weight,
-         ptt_weighted_mean_crs = weighted_mean_crs) %>%
+         ptt_weighted_mean_crs = weighted_mean_crs,
+         ptt_total_birds = total_birds) %>%
   group_by(ptt_route) %>%
   mutate(ptt_total_biomass = ptt_total_biomass / n(),
-         ptt_total_crs = ptt_total_crs / n()) %>%
+         ptt_total_crs = ptt_total_crs / n(),
+         ptt_total_birds = ptt_total_birds / n()) %>%
   ungroup() %>%
   rowwise() %>%
   mutate(total_biomass = sum(wb_total_biomass, ptt_total_biomass, na.rm = TRUE),
          total_crs = sum(wb_total_crs, ptt_total_crs, na.rm = TRUE),
          weighted_mean_weight = mean(c(wb_weighted_mean_weight, ptt_weighted_mean_weight), na.rm = TRUE),
-         weighted_mean_crs = mean(c(wb_weighted_mean_crs, ptt_weighted_mean_crs), na.rm = TRUE)) %>%
+         weighted_mean_crs = mean(c(wb_weighted_mean_crs, ptt_weighted_mean_crs), na.rm = TRUE),
+         total_birds = round(sum(wb_total_birds, ptt_total_birds, na.rm = TRUE))) %>%
   ungroup()
 ```
 
@@ -95,7 +105,8 @@ columns <- c("urban", "agricultural", "semiopen", "forests", "wetlands", "waterb
              "dist_urban", "human_pop", "wb_area_id", "wb_area_nr", "ptt_route",
              "wb_area_id", "wb_area_nr", "wb_area_ha", "ptt_route", "wb_total_biomass", "ptt_total_biomass", "total_biomass", 
              "wb_weighted_mean_weight", "ptt_weighted_mean_weight", "weighted_mean_weight", 
-             "wb_total_crs", "ptt_total_crs", "total_crs", "wb_weighted_mean_crs", "ptt_weighted_mean_crs", "weighted_mean_crs")
+             "wb_total_crs", "ptt_total_crs", "total_crs", "wb_weighted_mean_crs", "ptt_weighted_mean_crs", "weighted_mean_crs",
+             "wb_total_birds", "ptt_total_birds", "total_birds")
 
 hrw <- ppi_hrw$data@data %>%
   dplyr::select(all_of(columns))
@@ -117,10 +128,10 @@ for (ppi_path in hrw_ppis) {
   ppi$data@data <- bind_cols(ppi$data@data, hrw)
   saveRDS(ppi, file = paste("data/processed/final-ppis/", basename(ppi_path), sep = ""))
   
-  ppi$data@data %>%
-    mutate(datetime = as.POSIXct(ppi$datetime),
-           pixel = row_number()) %>%
-    bind_rows(hrw_all) -> hrw_all
+  # ppi$data@data %>%
+  #   mutate(datetime = as.POSIXct(ppi$datetime),
+  #          pixel = row_number()) %>%
+  #   bind_rows(hrw_all) -> hrw_all
 }
 
 for (ppi_path in dhl_ppis) {
@@ -128,14 +139,14 @@ for (ppi_path in dhl_ppis) {
   ppi$data@data <- bind_cols(ppi$data@data, dhl)
   saveRDS(ppi, file = paste("data/processed/final-ppis/", basename(ppi_path), sep = ""))
   
-  ppi$data@data %>%
-    mutate(datetime = as.POSIXct(ppi$datetime),
-           pixel = row_number()) %>%
-    bind_rows(dhl_all) -> dhl_all
+  # ppi$data@data %>%
+  #   mutate(datetime = as.POSIXct(ppi$datetime),
+  #          pixel = row_number()) %>%
+  #   bind_rows(dhl_all) -> dhl_all
 }
 
-saveRDS(hrw_all, file = "data/processed/hrw.RDS")
-saveRDS(dhl_all, file = "data/processed/dhl.RDS")
+# saveRDS(hrw_all, file = "data/processed/hrw.RDS")
+# saveRDS(dhl_all, file = "data/processed/dhl.RDS")
 ```
 
 `data/processed/hrw.RDS` and `data/processed/dhl.RDS` now contain all the PPI rows for each radar respectively.

@@ -331,6 +331,7 @@ wb_data %>%
             total_crs = sum(specific_crs),
             weighted_mean_weight = weighted.mean(mean_weight, number),
             weighted_mean_crs = weighted.mean(mean_crs, number),
+            total_birds = sum(number),
             .groups = "drop_last") %>%
   ungroup() %>%
   group_by(area_nr) %>%  # Below is only required if year-filter is NOT set, otherwise does nothing
@@ -338,6 +339,7 @@ wb_data %>%
             total_crs = mean(total_crs),
             weighted_mean_weight = mean(weighted_mean_weight),
             weighted_mean_crs = mean(weighted_mean_crs),
+            total_birds = mean(total_birds),
             .groups = "drop_last") %>%
   identity() -> wb_biomass
 
@@ -352,6 +354,7 @@ ptt_data %>%
             total_crs = sum(specific_crs),
             weighted_mean_weight = weighted.mean(mean_weight, number),
             weighted_mean_crs = weighted.mean(mean_crs, number),
+            total_birds = sum(number),
             .groups = "drop_last") %>%
   ungroup() %>%
   group_by(route) %>%  # Below is only required if year-filter is NOT set, otherwise does nothing
@@ -359,6 +362,7 @@ ptt_data %>%
             total_crs = mean(total_crs),
             weighted_mean_weight = mean(weighted_mean_weight),
             weighted_mean_crs = mean(weighted_mean_crs),
+            total_birds = mean(total_birds),
             .groups = "drop_last") %>%
   identity() -> ptt_biomass
 ```
@@ -388,7 +392,7 @@ wb %>%
   group_by(area_nr, year, familyvernacular) %>%
   mutate(familyprop = sum(number) / total_birds) %>%
   ungroup() %>%
-  dplyr::select(area_nr, familyvernacular, familyprop) %>%
+  dplyr::select(area_nr, familyvernacular, familyprop, total_birds) %>%
   distinct() %>%
   arrange(area_nr) %>%
   pivot_wider(names_from = familyvernacular, values_from = familyprop) %>%
@@ -403,7 +407,7 @@ ptt %>%
   group_by(route, year, familyvernacular) %>%
   mutate(familyprop = sum(number) / total_birds) %>%
   ungroup() %>%
-  dplyr::select(route, familyvernacular, familyprop) %>%
+  dplyr::select(route, familyvernacular, familyprop, total_birds) %>%
   distinct() %>%
   arrange(route) %>%
   pivot_wider(names_from = familyvernacular, values_from = familyprop) %>%
