@@ -151,7 +151,7 @@ confint.mboost_adjusted <- function(object, parm = NULL, level = 0.95,
 }
 
 data_cleaned <- readRDS("data/models/data_cleaned.RDS")
-model <- readRDS("data/models/model.RDS")
+model <- readRDS("data/models/model_rac.RDS")
 folds <- readRDS("data/models/confints/folds.RDS")
 
 for (i in 1:1000) {
