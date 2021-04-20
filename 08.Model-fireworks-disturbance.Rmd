@@ -403,6 +403,6 @@ de <- deviance_explained(data_cleaned$VIR, predict(model_rac))
 perf_rac <- as.data.frame(list("RMSE" = as.matrix(rmse), "Dev.Exp" = as.matrix(de)))
 
 perf <- bind_rows(perf_original["dist_urban", ], perf_rac)
-rownames(perf) <- c("dist_urban_rac", "dist_urban_original")
+rownames(perf) <- c("dist_urban_original", "dist_urban_rac")
 perf
 ```
