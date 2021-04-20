@@ -20,7 +20,6 @@ The following parameters we assume are important predictors for measured bird de
 ## Processing environment
 
 ```{r setup_modelling_environment, warning=FALSE, message=FALSE}
-library(ggstatsplot)
 library(ggplot2)
 library(dplyr)
 library(readr)
@@ -35,13 +34,16 @@ library(leafem)
 library(usdm)
 library(mapview)
 library(spdep)
+library(stringr)
 ```
 
 In the previous chapter, we have created some datasets encompassing all the data contained within the individual PPIs at different resolutions. We will determine the optimal resolution and then continue using this dataset for further modelling.
 
 ```{r load_data}
-resolutions <- file.path("data/processed", c("all_500m.RDS", "all_1000m.RDS", "all_2000m.RDS"))
-data <- lapply(resolutions, function(x) readRDS(x))
+selected_scan <- load("data/processed/pvol_selection.RData")
+scan_dt <- str_extract(basename(pvol_dhl_path), "[0-9]{12}")
+resolutions <- file.path("data/processed/composite-ppis", c("500m", "1000m", "2000m"), paste0(scan_dt, ".RDS"))
+data <- lapply(resolutions, function(x) readRDS(x)[["data"]]@data)
 names(data) <- c("500m", "1000m", "2000m")
 ```
 
@@ -57,22 +59,18 @@ Furthermore, we want to make sure that:
 1. the radar beam does not overshoot birds too much based on the `vp`.
 
 ```{r prepare_modelling_dataset}
-dt_start <- as.POSIXct("2017-12-31 23:05:00", tz = "UTC")
-dt_end <- as.POSIXct("2017-12-31 23:10:00", tz = "UTC")
-
-clean_data <- function(data, scan_start, scan_end, max_distance) {
-  mdl_variables <- c("VIR", "dist_radar", "datetime", "total_biomass", "total_crs",
+clean_data <- function(data, max_distance) {
+  mdl_variables <- c("VIR", "dist_radar", "total_biomass", "total_crs",
                      "agricultural", "semiopen", "forests", "wetlands", "waterbodies", "urban",
                      "dist_urban", "human_pop", "disturb_pot", "pixel", "coverage", "class", "x", "y")
   log10_variables <- c("dist_urban", "human_pop", "total_biomass", "dist_urban", "disturb_pot")
   
   data %>%
-    filter(coverage > 0,
-           class != 1,
-           datetime >= scan_start & datetime < scan_end,
-           total_biomass > 0,
-           dist_radar < max_distance,
-           urban < 0.1) %>%
+    dplyr::filter(coverage > 0,
+                  class != 1,
+                  total_biomass > 0,
+                  dist_radar < max_distance,
+                  urban < 0.1) %>%
     mutate(VIR = replace_na(VIR, 0.1),
            VIR = if_else(VIR == 0, 0.1, VIR),
            VIR = log10(VIR),
@@ -86,7 +84,7 @@ clean_data <- function(data, scan_start, scan_end, max_distance) {
   data_cleaned
 }
 
-data_cleaned <- lapply(data, function(x) clean_data(x, dt_start, dt_end, 66000))
+data_cleaned <- lapply(data, function(x) clean_data(x, 66000))
 rm(data)
 ```
 
@@ -138,7 +136,7 @@ We have to see if variables are strongly correlated and thus unfit for being inc
 mdl_variables <- c("VIR", "dist_radar", "datetime", "total_biomass", "total_rcs", "agricultural", "semiopen", "forests", "wetlands", "waterbodies",
                    "urban", "dist_urban", "human_pop", "disturb_pot", "pixel", "coverage", "class")
 predictors <- mdl_variables[!mdl_variables %in% c("VIR", "datetime", "pixel", "x", "y", "coverage", "class")]
-corr_radar <- ggcorrmat(data_cleaned, output = "plot", type = "spearman", cor.vars = all_of(predictors), colors = c("#2166AC", "#F7F7F7", "#B2182B"))
+corr_radar <- ggstatsplot::ggcorrmat(data_cleaned, output = "plot", type = "spearman", cor.vars = all_of(predictors), colors = c("#2166AC", "#F7F7F7", "#B2182B"))
 corr_radar
 ```
 
