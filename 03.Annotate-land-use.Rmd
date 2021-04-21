@@ -72,7 +72,7 @@ landuse_crop_hrw <- crop(landuse, ext_hrw)
 landuse_crop_dhl <- crop(landuse, ext_dhl)
 
 sea_id <- match('Sea and ocean', landuse_classes$landuse_class)
-landuse_crop_hrw[is.na(landuse_crop_hrw)] <- landuse_classes[sea_id, "landuse_id"]  # Convert Sea that is set to NaN
+landuse_crop_hrw[is.na(landuse_crop_hrw)] <- landuse_classes[sea_id, "landuse_id"]  # Convert NAs to the land use class of the sea
 landuse_crop_dhl[is.na(landuse_crop_dhl)] <- landuse_classes[sea_id, "landuse_id"]
 ```
 
