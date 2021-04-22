@@ -101,7 +101,7 @@ ppi_dhl$data@data %<>%
 We select the variables related to land use, distance to inhabited areas and population density, waterbird counts and PTT counts and add these to the PPIs that contain just the variables resulting from the range-bias correction [@kranstauber2020]. While we are at it, we will also create dataframes containing all the information within the PPIs, to use for possible later modelling exercises.
 
 ```{r copy_annotations_from_reference_ppis_to_other_ppis}
-columns <- c("urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies",
+columns <- c("urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies", "land",
              "dist_urban", "human_pop", "wb_area_id", "wb_area_nr", "ptt_route",
              "wb_area_id", "wb_area_nr", "wb_area_ha", "ptt_route", "wb_total_biomass", "ptt_total_biomass", "total_biomass", 
              "wb_weighted_mean_weight", "ptt_weighted_mean_weight", "weighted_mean_weight", 
