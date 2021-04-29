@@ -1,0 +1,53 @@
+# Context 1: Number of birds affected
+
+We can use the RCS estimates calculated previously to generate a rough estimate of the number of birds affected by the fireworks disturbance.
+
+## Processing environment
+
+```{r context_number_birds_affected_processing_environment}
+library(bioRad)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(tibble)
+library(stringr)
+```
+
+First we load the PPIs at the timestamp of our selected scan.
+
+```{r load_selected_scans_for_contextualizing_bird_numbers}
+selected_scan <- load("data/processed/pvol_selection.RData")
+scan_dt <- str_extract(basename(pvol_dhl_path), "[0-9]{12}")
+scan_dhl <- file.path("data/processed/final-ppis", paste0("RAD_NL61_VOL_NA_", scan_dt, "_ODIM.RDS"))
+scan_hrw <- file.path("data/processed/final-ppis", paste0("RAD_NL62_VOL_NA_", scan_dt, "_ODIM.RDS"))
+ppis_original <- lapply(list(scan_dhl, scan_hrw), function(x) readRDS(x))
+```
+
+We create a composite PPI and filter out all pixels outside of 66km from the radar.
+
+```{r create_composite_ppi_for_contextualizing_bird_numbers}
+source("R/comp_ppi.R")
+ppis <- ppis_original
+maxrange <- 66000
+# Set all columns to NA if further than maxrange from radar
+ppis[[1]]$data$VIR[ppis[[1]]$data$dist_radar > maxrange] <- NA
+ppis[[1]]$data$land[ppis[[1]]$data$dist_radar > maxrange] <- NA
+ppis[[2]]$data$VIR[ppis[[2]]$data$dist_radar > maxrange] <- NA
+ppis[[2]]$data$land[ppis[[2]]$data$dist_radar > 66000] <- NA
+
+cppi <- comp_ppi(ppis, param = c("VIR", "land"), method = c("max", "min"), res = c(500, 500), )
+cppi$data$VIR[cppi$data$land == 0] <- NA
+plot(cppi)
+```
+
+We can now calculate the total `VIR` within the radar domain and the number of birds that corresponds with given a few RCS values:
+
+```{r output_bird_numbers}
+ptt_biomass <- readRDS("data/processed/sovon/ptt_biomass.RDS")
+paste0("Total VIR: ", format(sum(cppi$data$VIR, na.rm = TRUE), scientific = TRUE))
+paste0("Response assuming mean RCS of ", round(mean(ptt_biomass$weighted_mean_crs)), " cm^2: ", 
+       round(sum(cppi$data$VIR, na.rm = TRUE) / mean(ptt_biomass$weighted_mean_crs)), " birds.")
+paste0("Response assuming median RCS of ", round(median(ptt_biomass$weighted_mean_crs)), " cm^2: ", 
+       round(sum(cppi$data$VIR, na.rm = TRUE) / median(ptt_biomass$weighted_mean_crs)), " birds.")
+paste0("Response assuming mean RCS of 11 cm^2: ", round(sum(cppi$data$VIR, na.rm = TRUE) / 11), " birds.")
+```
