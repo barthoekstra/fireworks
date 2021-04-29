@@ -1,3 +1,5 @@
+# (PART) Composite PPIs {-}
+
 # Apply processing to all PPIs
 
 We have so far explained the processing 'pipeline' for the PPIs for Herwijnen and Den Helder radars, but have only applied this to a single moment in time, a single volume scan. Now we will apply the processing to all other available PPIs by simply copying over the annotations in case we ever need to repeat the analysis for other scans.
