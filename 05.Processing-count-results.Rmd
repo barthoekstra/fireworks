@@ -422,3 +422,14 @@ saveRDS(wb_props, file = "data/processed/sovon/wb_props.RDS")
 saveRDS(ptt_props, file = "data/processed/sovon/ptt_props.RDS")
 ```
 
+## Export lookup table characteristic groups
+
+We store a lookup table of characteristic groups and scientific names as .csv for a WebTable in the paper.
+
+```{r}
+ptt %>%
+  dplyr::select(species, scientificname, familyvernacular) %>%
+  distinct(species, .keep_all = TRUE) %>%
+  write.csv("data/processed/sovon/lut_species_family.csv")
+```
+
