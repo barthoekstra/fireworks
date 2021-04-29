@@ -342,12 +342,12 @@ mcp_hrw <- st_transform(mcp, ppi_hrw$data@proj4string)
 mcp_dhl <- st_transform(mcp, ppi_dhl$data@proj4string)
 
 # Template for the rasterization following the standard 500x500m resolution of the CBS grid
-template_hrw <- st_as_stars(st_bbox(mcp_hrw["rubriek"]), values = NA_real_, dx = 500, dy = 500)
-template_dhl <- st_as_stars(st_bbox(mcp_dhl["rubriek"]), values = NA_real_, dx = 500, dy = 500)
+template_hrw <- st_as_stars(st_bbox(mcp_hrw["gemeentenaam"]), values = NA_real_, dx = 500, dy = 500)
+template_dhl <- st_as_stars(st_bbox(mcp_dhl["gemeentenaam"]), values = NA_real_, dx = 500, dy = 500)
 
 # Now rasterize
-mcp_rasterized_hrw <- as(st_rasterize(mcp_hrw["rubriek"], template = template_hrw), "Raster")
-mcp_rasterized_dhl <- as(st_rasterize(mcp_dhl["rubriek"], template = template_dhl), "Raster")
+mcp_rasterized_hrw <- as(st_rasterize(mcp_hrw["gemeentenaam"], template = template_hrw), "Raster")
+mcp_rasterized_dhl <- as(st_rasterize(mcp_dhl["gemeentenaam"], template = template_dhl), "Raster")
 
 # Set NA to 0, non-NA to 1
 mcp_rasterized_hrw[!is.na(mcp_rasterized_hrw)] <- 1
@@ -366,14 +366,14 @@ mcp_rasterized_dhl[is.na(mcp_rasterized_dhl)] <- 0
 
 Once again, verify if the PPI pixels match up exactly with the gridded land area.
 
-```{r verify_population_density_rasters, results='hold'}
+```{r verify_land_area_rasters, results='hold'}
 compareRaster(mcp_rasterized_hrw, as(ppi_hrw$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
 compareRaster(mcp_rasterized_dhl, as(ppi_dhl$data, "RasterLayer"), extent = TRUE, rowcol = TRUE, crs = TRUE, res = TRUE, orig = TRUE)
 ```
 
 We can now add the land area to the PPIs again.
 
-```{r add_total_population_to_ppis}
+```{r add_land_area_to_ppis}
 values_land_hrw <- rasterToPoints(mcp_rasterized_hrw, spatial = TRUE)
 values_land_dhl <- rasterToPoints(mcp_rasterized_dhl, spatial = TRUE)
 
@@ -383,7 +383,7 @@ ppi_dhl$data@data$land <- values_land_dhl@data$layer
 
 And finally we save these PPIs again.
 
-```{r save_ppis_with_landuse_parameters}
+```{r save_ppis_with_land_area_parameters}
 saveRDS(ppi_hrw, file = "data/processed/corrected_ppi_hrw_lu.RDS")
 saveRDS(ppi_dhl, file = "data/processed/corrected_ppi_dhl_lu.RDS")
 ```

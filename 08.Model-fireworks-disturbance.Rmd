@@ -309,15 +309,15 @@ as.data.frame(raster_resid, xy = TRUE) %>%
 
 The correlogram and spatial plots of residuals show clearly that residuals are spatially autocorrelated. We will correct for this effect using Crase et al. [-@crase2012], by calculating an autocovariate (distance weighted mean) of the residuals using a 1500m neighborhood radius. If we look at the correlogram above, we can see that spatial autocorrelation is still visible at distances of 30-50km, but calculating an autocovariate for such neighborhoods would be too computationally intensive. Some points won't have neighborhoods at all, but that is fine.
 
-```{r calculate_autocovariate, eval=full_repro}
+```{r calculate_autocovariate}
 nbs <- 1500  # Kilometers if longlat = TRUE
 acov <- autocov_dist(resid(model), as.matrix(cbind(data_cleaned$x, data_cleaned$y)), nbs = nbs, zero.policy = TRUE)
+data_cleaned$acov <- acov
 ```
 
-Having calculated the autocovariate, we can include it in our dataset and retrain a model, this time with the inclusion of the `autocov` parameter.
+Having calculated the autocovariate and included it in our dataset, we can retrain a model, this time with the inclusion of the `autocov` parameter.
 
 ```{r retrain_model_with_autocovariate, eval=full_repro}
-data_cleaned$acov <- acov
 formula <- VIR ~ bbs(dist_radar) + bbs(total_rcs) + bbs(semiopen) + bbs(forests) + bbs(wetlands) + bbs(waterbodies) +
   bbs(agricultural) + bbs(dist_urban) + bbs(acov)
 model_rac <- mboost(formula, data = data_cleaned, control = boost_control(mstop = 10000, trace = TRUE))
@@ -376,7 +376,7 @@ raster_resid <- as(ppi$data["residual"], "RasterLayer")
 raster_resid[raster_resid <= z_lims_resid[1]] <- z_lims_resid[1]
 raster_resid[raster_resid >= z_lims_resid[2]] <- z_lims_resid[2]
 ```
-```{r plot_model_residuals_interactive, eval=FALSE}
+```{r plot_model_residuals_interactive_rac, eval=FALSE}
 leaflet() %>%
   addTiles(group = "OSM (default)") %>%
   addRasterImage(raster_resid, colors = palette_resid, layerId = "resid", group = "resid") %>%
@@ -396,7 +396,7 @@ as.data.frame(raster_resid, xy = TRUE) %>%
 
 And finally we can recalculate the model performance and compare it with the original model.
 
-```{r compare_model_performance}
+```{r compare_model_performance_rac}
 RMSE <- function(error) { sqrt(mean(error^2)) }
 rmse <- RMSE(residuals(model_rac))
 de <- deviance_explained(data_cleaned$VIR, predict(model_rac))
