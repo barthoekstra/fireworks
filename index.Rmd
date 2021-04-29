@@ -15,6 +15,8 @@ documentclass: book
 
 ## Abstract {-}
 
+Fireworks are important parts of celebrations and festivals globally. While public health concerns about fireworks are growing, little remains known about its effect on wildlife. The sudden synchronized lighting of fireworks on New Year’s Eve causes a strong flight response in birds. We use weather radar and systematic bird counts to quantify how flight response differs across bird communities and determine the distance-dependence of this relationship. We found the response to fireworks in birds follows disturbance tolerance – body size relationships, with larger birds responding more strongly to sudden disturbance than smaller birds. In the flat and open landscape of the Netherlands, the flight response minimizes around 5km from fireworks. Given this distance-dependence, mitigation of disturbance could be achieved by establishing buffering areas with firework-free zones, either directly or by centralizing fireworks in urban centers. With millions of birds wintering in densely populated areas, conservation action should prioritize the most disturbance-prone bird communities we have identified here.
+
 ## How to use this document {-}
 
 ### Knit it {-}
