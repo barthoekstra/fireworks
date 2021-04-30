@@ -129,8 +129,3 @@ list.files(path = "data/plots/vir-ppis/", pattern = "*.jpeg", full.names = T) %>
   image_animate(fps = 2) %>%
   image_write("data/plots/vir-ppis/NYE-2017-2018.gif")
 ```
-
-```{r composite_ppi_animation, fig.cap='Animation of VIRs during NYE 2017-2018'}
-knitr::include_graphics("data/plots/vir-ppis/NYE-2017-2018.gif")
-```
-

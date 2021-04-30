@@ -13,7 +13,7 @@ We have so far done the following:
 
 ## Processing environment
 
-```{r setup_apply_processing_to_all_ppis_environment}
+```{r setup_apply_processing_to_all_ppis_environment, message=FALSE, warning=FALSE}
 library(dplyr)
 library(tidyr)
 library(kableExtra)
@@ -129,27 +129,12 @@ for (ppi_path in hrw_ppis) {
   ppi <- readRDS(ppi_path)
   ppi$data@data <- bind_cols(ppi$data@data, hrw)
   saveRDS(ppi, file = paste("data/processed/final-ppis/", basename(ppi_path), sep = ""))
-  
-  # ppi$data@data %>%
-  #   mutate(datetime = as.POSIXct(ppi$datetime),
-  #          pixel = row_number()) %>%
-  #   bind_rows(hrw_all) -> hrw_all
 }
 
 for (ppi_path in dhl_ppis) {
   ppi <- readRDS(ppi_path)
   ppi$data@data <- bind_cols(ppi$data@data, dhl)
   saveRDS(ppi, file = paste("data/processed/final-ppis/", basename(ppi_path), sep = ""))
-  
-  # ppi$data@data %>%
-  #   mutate(datetime = as.POSIXct(ppi$datetime),
-  #          pixel = row_number()) %>%
-  #   bind_rows(dhl_all) -> dhl_all
 }
-
-# saveRDS(hrw_all, file = "data/processed/hrw.RDS")
-# saveRDS(dhl_all, file = "data/processed/dhl.RDS")
 ```
-
-`data/processed/hrw.RDS` and `data/processed/dhl.RDS` now contain all the PPI rows for each radar respectively.
 

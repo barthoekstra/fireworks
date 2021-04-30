@@ -516,7 +516,7 @@ And once again we save the plot to PDF.
 ggsave(filename = "data/plots/paper/fig2_all.pdf", plot = p, width = 16, height = 20, dpi = 300, units = "cm")
 ```
 
-# Landscapes side-by-side
+## Landscapes side-by-side
 
 ```{r landscapes_side_by_side, message=FALSE, warning=FALSE}
 confidence.intervals <- c(0.95, 0.8, 0.5)
@@ -696,7 +696,7 @@ p <- wrap_plots(plots, ncol = 1)
 p
 ```
 
-# Pseudo-RCS & Distance to fireworks
+## Pseudo-RCS & Distance to fireworks
 
 ```{r pseudo_rcs_dist_urban, message=FALSE, warning=FALSE}
 confidence.intervals <- c(0.95, 0.8, 0.5)

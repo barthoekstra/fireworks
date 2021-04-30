@@ -4,7 +4,7 @@ We can use the RCS estimates calculated previously to generate a rough estimate 
 
 ## Processing environment
 
-```{r context_number_birds_affected_processing_environment}
+```{r context_number_birds_affected_processing_environment, warning=FALSE, message=FALSE}
 library(bioRad)
 library(ggplot2)
 library(dplyr)
@@ -42,7 +42,7 @@ plot(cppi)
 
 We can now calculate the total `VIR` within the radar domain and the number of birds that corresponds with given a few RCS values:
 
-```{r output_bird_numbers}
+```{r output_bird_numbers, results='hold'}
 ptt_biomass <- readRDS("data/processed/sovon/ptt_biomass.RDS")
 paste0("Total VIR: ", format(sum(cppi$data$VIR, na.rm = TRUE), scientific = TRUE))
 paste0("Response assuming mean RCS of ", round(mean(ptt_biomass$weighted_mean_crs)), " cm^2: ", 

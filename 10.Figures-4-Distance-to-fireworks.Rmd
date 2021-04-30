@@ -4,7 +4,7 @@ Finally, we also want to visualize how far away from fireworks birds are located
 
 ## Processing environment
 
-```{r processing_environment_distance_to_fireworks}
+```{r processing_environment_distance_to_fireworks, warning=FALSE, message=FALSE}
 library(ggplot2)
 library(dplyr)
 library(tidyr)
@@ -14,7 +14,7 @@ library(forcats)
 library(stringr)
 ```
 
-```{r}
+```{r clean_data_distance_to_fireworks}
 selected_scan <- load("data/processed/pvol_selection.RData")
 scan_dt <- str_extract(basename(pvol_dhl_path), "[0-9]{12}")
 data <- readRDS(file.path("data/processed/composite-ppis/500m/", paste0(scan_dt, ".RDS")))$data@data
@@ -73,11 +73,11 @@ data_cleaned %>%
   filter(type != "both",
          dist_urban > 250) %>%
   identity() -> distances
-distances
+head(distances, 10)
 ```
 
 
-```{r}
+```{r create_bird_counts_distances_dataframe}
 ptt %>%
   group_by(route) %>%
   summarise(total_birds_ptt = sum(number), .groups = "drop_last") -> ptt_birds
@@ -94,7 +94,7 @@ distances %>%
   identity() -> birds
 ```
 
-```{r create_distances_donutchart}
+```{r create_distances_donutchart, results='hold'}
 birds %>%
   arrange(dist_urban) %>%
   group_by(dist_urban) %>%

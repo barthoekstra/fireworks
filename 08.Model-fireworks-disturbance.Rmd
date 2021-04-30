@@ -132,7 +132,7 @@ rm(resolution_models)
 
 We have to see if variables are strongly correlated and thus unfit for being included in the same model, so we calculate Spearman correlation coefficients for all numerical predictors. As this is ecological data, some degree of correlation is of course inevitable for most variables.
 
-```{r check_for_correlations, warning=FALSE, out.width='100%'}
+```{r check_for_correlations, warning=FALSE, out.width='100%', message=FALSE}
 mdl_variables <- c("VIR", "dist_radar", "datetime", "total_biomass", "total_rcs", "agricultural", "semiopen", "forests", "wetlands", "waterbodies",
                    "urban", "dist_urban", "human_pop", "disturb_pot", "pixel", "coverage", "class")
 predictors <- mdl_variables[!mdl_variables %in% c("VIR", "datetime", "pixel", "x", "y", "coverage", "class")]
