@@ -23,7 +23,7 @@ Fireworks are important parts of celebrations and festivals globally. While publ
 Use the following line in the console or click `Build Book` in RStudio.
 
 ```{r include=TRUE, eval=FALSE}
-bookdown::render_book(input = "index.Rmd", output_format = "bookdown::gitbook", clean = TRUE)
+bookdown::render_book(input = "index.Rmd", output_format = "bookdown::bs4_book", clean = TRUE)
 ```
 
 ### Full-reproduction mode {-#full-repro-mode}
