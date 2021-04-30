@@ -19,6 +19,8 @@ library(ggpointdensity)
 library(patchwork)
 library(GGally)
 library(tibble)
+library(ggpubr)
+library(forcats)
 ```
 
 We load the study PPI and proportions of taxonomic groups in the counts.
@@ -54,8 +56,8 @@ Geese, ducks, pigeons, thrushes, tits, waders, crows and finches represent a sub
 selected_families <- c("Geese", "Ducks", "Pigeons", "Thrushes", "Tits", "Waders", "Crows", "Finches")
 
 data %>%
-  dplyr::select(all_of(c(colnames(ptt_props)[2:45], "semiopen", "forests", "wetlands", "waterbodies", "agricultural"))) %>%
-  pivot_longer(cols = all_of(colnames(ptt_props)[2:45]), names_to = "family", values_to = "family_prop") %>%
+  dplyr::select(all_of(c(colnames(ptt_props)[3:45], "semiopen", "forests", "wetlands", "waterbodies", "agricultural"))) %>%
+  pivot_longer(cols = all_of(colnames(ptt_props)[3:45]), names_to = "family", values_to = "family_prop") %>%
   pivot_longer(cols = all_of(c("agricultural", "semiopen", "forests", "wetlands", "waterbodies")), names_to = "landuse", values_to = "landuse_prop") %>%
   drop_na() %>%
   filter(family %in% selected_families,
@@ -171,6 +173,8 @@ p <- wrap_plots(plots, ncol = 1)
 p
 ```
 ```{r}
+p_models <- readRDS("data/plots/paper/fig_landscapes.RDS")
+
 p_models[[1]] + p_models[[2]] + p_models[[3]] + p_models[[4]] + p_models[[5]] +
   plots[[1]] + plots[[2]] + plots[[3]] + plots[[4]] + plots[[5]] +
   plot_layout(widths = c(1, 1), nrow = 5, byrow = FALSE) & 
@@ -179,6 +183,7 @@ p_models[[1]] + p_models[[2]] + p_models[[3]] + p_models[[4]] + p_models[[5]] +
         axis.text.y = element_text(size = 10)) -> p_landscape_characterisation
 
 ggsave(filename = "data/plots/paper/fig2_landscape.pdf", plot = p_landscape_characterisation, width = 14, height = 25, dpi = 300, units = "cm")
+p_landscape_characterisation
 ```
 
 ```{r}
@@ -194,143 +199,11 @@ widths <- c(1, 1)
   (p_models[[5]] / plots[[5]] * theme(axis.text.x = element_text(size = 10), axis.title.x = element_text(size = 12), axis.text.y = element_text(size = 10)) +
      plot_layout(widths = widths, ncol = 2)) -> p_landscape_characterisation
 
-ggsave(filename = "data/plots/paper/fig2_landscape.pdf", plot = p_landscape_characterisation, width = 14, height = 25, dpi = 300, units = "cm")
+p_landscape_characterisation
 ```
 
 And we save it as .pdf for editing in Illustrator.
 
 ```{r}
-ggsave(filename = "data/plots/paper/fig3.pdf", plot = p, width = 20, height = 14, dpi = 300, units = "cm")
+ggsave(filename = "data/plots/paper/fig2_landscape.pdf", plot = p_landscape_characterisation, width = 14, height = 25, dpi = 300, units = "cm")
 ```
-
-```{r}
-data <- readRDS("data/processed/all_500m.RDS")
-
-dt_start <- as.POSIXct("2017-12-31 23:05:00", tz = "UTC")
-dt_end <- as.POSIXct("2017-12-31 23:10:00", tz = "UTC")
-
-clean_data <- function(data, scan_start, scan_end, max_distance) {
-  mdl_variables <- c("VIR", "dist_radar", "datetime", "total_biomass", "total_crs",
-                     "agricultural", "semiopen", "forests", "wetlands", "waterbodies", "urban",
-                     "dist_urban", "human_pop", "disturb_pot", "pixel", "coverage", "class", "x", "y")
-  excluded_variables <- c("VID", "R", "overlap", "eta_sum", "eta_sum_expected", "class", "human_pop", "disturb_pot", 
-                          "wb_area_ha", "wb_weighted_mean_weight", "ptt_weighted_mean_weight", "weighted_mean_weight", "datetime")
-  log10_variables <- c("dist_urban", "human_pop", "total_biomass", "dist_urban", "disturb_pot")
-  
-  data %>%
-    filter(coverage > 0,
-           class != 1,
-           datetime >= scan_start & datetime < scan_end,
-           total_biomass > 0,
-           dist_radar < max_distance,
-           urban < 0.1) %>%
-    mutate(VIR = replace_na(VIR, 0.1),
-           VIR = if_else(VIR == 0, 0.1, VIR),
-           VIR = log10(VIR),
-           disturb_pot = human_pop / dist_urban,
-           total_biomass = total_biomass / 1000) %>%
-    # dplyr::select(all_of(mdl_variables)) %>%
-    dplyr::select(-all_of(excluded_variables)) %>%
-    # filter_all(all_vars(is.finite(.))) %>%
-    rename(total_rcs = total_crs) %>%
-    identity() -> data_cleaned
-  
-  data_cleaned
-}
-
-data_cleaned <- clean_data(data, dt_start, dt_end, 66000)
-rm(data)
-
-
-wb_year <- 2018
-ptt_year <- 2017
-ptt <- readRDS("data/processed/sovon/ptt.RDS") %>% filter(year == ptt_year)
-wb <- readRDS("data/processed/sovon/wb.RDS") %>% filter(year == wb_year)
-```
-
-```{r}
-data_cleaned %>%
-  select(dist_urban, wb_area_nr, ptt_route) %>%
-  group_by(wb_area_nr) %>%
-  mutate(mean_dist_urban_wb = mean(dist_urban, na.rm = TRUE)) %>%
-  ungroup() %>%
-  group_by(ptt_route) %>%
-  mutate(mean_dist_urban_ptt = if_else(!is.na(ptt_route), mean(dist_urban, na.rm = TRUE), NA_real_)) %>%
-  ungroup() %>%
-  distinct(wb_area_nr, ptt_route, .keep_all = TRUE) %>%
-  identity() -> distances
-distances
-```
-
-```{r}
-distances %>%
-  mutate(wb = !is.na(wb_area_nr),
-         ptt = !is.na(ptt_route),
-         type = case_when(
-           wb & ptt ~ "both",
-           wb ~ "wb", 
-           ptt ~ "ptt"
-         )) %>%
-  filter(type != "both",
-         dist_urban > 250) -> distances
-```
-
-```{r}
-ptt %>%
-  group_by(route) %>%
-  summarise(total_birds_ptt = sum(number)) -> ptt_birds
-
-wb %>%
-  group_by(area_nr) %>%
-  summarise(total_birds_wb = sum(number)) -> wb_birds
-```
-
-```{r}
-distances %>%
-  left_join(ptt_birds, by = c("ptt_route" = "route")) %>%
-  left_join(wb_birds, by = c("wb_area_nr" = "area_nr")) %>%
-  rowwise() %>%
-  mutate(total_birds = sum(c(total_birds_wb, total_birds_ptt), na.rm = TRUE)) %>%
-  identity() -> birds
-
-birds %>%
-  arrange(dist_urban) %>%
-  group_by(dist_urban) %>%
-  mutate(total_birds = sum(total_birds)) %>%
-  ungroup() %>%
-  distinct(dist_urban, total_birds) %>%
-  mutate(dist_class = case_when(
-    dist_urban <= 500 ~ "<500m",
-    dist_urban > 500 & dist_urban <= 1000 ~ "500-1000m",
-    dist_urban > 1000 & dist_urban <= 2500 ~ "1000-2500m",
-    dist_urban > 2500 & dist_urban <= 5000 ~ "2500-5000m",
-    dist_urban > 5000 ~ ">5000m"
-  )) %>%
-  group_by(dist_class) %>%
-  summarise(total_birds_interval = sum(total_birds), .groups = "drop_last") %>%
-  mutate(dist = case_when(dist_class == "<500m" ~ 1,
-                          dist_class == "500-1000m" ~ 2,
-                          dist_class == "1000-2500m" ~ 3,
-                          dist_class == "2500-5000m" ~ 4,
-                          dist_class == ">5000m" ~ 5),
-    dist_class = fct_reorder(as.factor(dist_class), dist, .desc = TRUE)) %>%
-  ungroup() %>%
-  mutate(total_prop = round((total_birds_interval / sum(total_birds_interval)) * 100),
-         total_prop_str = paste0(total_prop, "%"),
-         ymax = cumsum(total_prop),
-         ymin = c(0, head(ymax, n=-1))) %>%
-  arrange(dist) %>%
-  identity() %>%
-  ggdonutchart(x = "total_prop", label = "total_prop_str", lab.pos = "in", fill = "dist_class", color = "white", lab.adjust = 0,
-             palette = rev(c("#94346e", "#c43d66", "#e85553", "#fd7a37", "#ffa600")))
-
-# colorscale made using https://learnui.design/tools/data-color-picker.html and #94346e as starting point
-
-ggsave("data/plots/distances.pdf", width = 4, height = 4)
-```
-
-```{r}
-ggdonutchart(birds, )
-
-```
-

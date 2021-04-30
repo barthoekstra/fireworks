@@ -20,6 +20,7 @@ rmd_files:
 - "10.Figures-1-Data-overview.Rmd"
 - "10.Figures-2-Model.Rmd"
 - "10.Figures-3-Species-composition.Rmd"
+- "10.Figures-4-Distance-to-fireworks.Rmd"
 - "11.Context-1-Number-of-birds-affected-VIR.Rmd"
 - "A1.Generating-VPs-for-Den-Helder-radar.Rmd"
 - "References.Rmd"
