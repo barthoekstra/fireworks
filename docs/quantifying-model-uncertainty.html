@@ -40,6 +40,7 @@
 <li class="book-part">Sovon counts</li>
 <li><a class="" href="annotating-count-areas.html"><span class="header-section-number">4</span> Annotating count areas</a></li>
 <li><a class="" href="processing-count-results.html"><span class="header-section-number">5</span> Processing count results</a></li>
+<li class="book-part">Composite PPIs</li>
 <li><a class="" href="apply-processing-to-all-ppis.html"><span class="header-section-number">6</span> Apply processing to all PPIs</a></li>
 <li><a class="" href="composite-all-ppis.html"><span class="header-section-number">7</span> Composite all PPIs</a></li>
 <li class="book-part">Fireworks disturbance</li>
@@ -49,10 +50,12 @@
 <li><a class="" href="figure-1-data-overview.html"><span class="header-section-number">10</span> Figure 1: Data overview</a></li>
 <li><a class="" href="figure-2-model-output.html"><span class="header-section-number">11</span> Figure 2: Model output</a></li>
 <li><a class="" href="figure-3-species-composition.html"><span class="header-section-number">12</span> Figure 3: Species composition</a></li>
+<li><a class="" href="figure-4-distance-to-fireworks.html"><span class="header-section-number">13</span> Figure 4: Distance to fireworks</a></li>
+<li><a class="" href="context-1-number-of-birds-affected.html"><span class="header-section-number">14</span> Context 1: Number of birds affected</a></li>
 <li class="book-part">Appendix</li>
-<li><a class="" href="generating-vps-for-den-helder-radar.html"><span class="header-section-number">13</span> Generating vertical profiles for Den Helder radar</a></li>
+<li><a class="" href="generating-vps-for-den-helder-radar.html"><span class="header-section-number">15</span> Generating vertical profiles for Den Helder radar</a></li>
 <li class="book-part">Other</li>
-<li><a class="" href="references.html"><span class="header-section-number">14</span> References</a></li>
+<li><a class="" href="references.html"><span class="header-section-number">16</span> References</a></li>
 </ul>
 
         <div class="book-extra">
@@ -70,23 +73,16 @@ The partial dependence plots generated in the previous chapter visualise the mar
 <h2>
 <span class="header-section-number">9.1</span> Processing environment<a class="anchor" aria-label="anchor" href="#processing-environment-8"><i class="fas fa-link"></i></a>
 </h2>
-<div class="sourceCode" id="cb166"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb173"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">parallel</span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tibble.tidyverse.org/">tibble</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org">tidyr</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span></code></pre></div>
 </div>
-<div id="load-the-constructed-model" class="section level2">
-<h2>
-<span class="header-section-number">9.2</span> Load the constructed model<a class="anchor" aria-label="anchor" href="#load-the-constructed-model"><i class="fas fa-link"></i></a>
-</h2>
-<div class="sourceCode" id="cb167"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/models/model.RDS"</span><span class="op">)</span></code></pre></div>
-</div>
 <div id="bootstrapped-uncertainty-analysis" class="section level2">
 <h2>
-<span class="header-section-number">9.3</span> Bootstrapped uncertainty analysis<a class="anchor" aria-label="anchor" href="#bootstrapped-uncertainty-analysis"><i class="fas fa-link"></i></a>
+<span class="header-section-number">9.2</span> Bootstrapped uncertainty analysis<a class="anchor" aria-label="anchor" href="#bootstrapped-uncertainty-analysis"><i class="fas fa-link"></i></a>
 </h2>
 <p>Using the bootstrapping procedure provided in <code>mboost</code>, tweaked to our use case, we can derive uncertainty estimates from the trained model.</p>
 <p>We make a few changes to the default functioning of the <code>confint.mboost</code> function.</p>
@@ -97,28 +93,29 @@ The partial dependence plots generated in the previous chapter visualise the mar
 </ol>
 <div id="determine-bootstrap-folds" class="section level3">
 <h3>
-<span class="header-section-number">9.3.1</span> Determine bootstrap folds<a class="anchor" aria-label="anchor" href="#determine-bootstrap-folds"><i class="fas fa-link"></i></a>
+<span class="header-section-number">9.2.1</span> Determine bootstrap folds<a class="anchor" aria-label="anchor" href="#determine-bootstrap-folds"><i class="fas fa-link"></i></a>
 </h3>
 <p>The folds contain indexes of datapoints that are resampled for each of the 1000 bootstrap iterations.</p>
-<div class="sourceCode" id="cb168"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">folds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mboost/man/cvrisk.html">cv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/model.extract.html">model.weights</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span>, B <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span>
+<div class="sourceCode" id="cb174"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/models/model_rac.RDS"</span><span class="op">)</span>
+<span class="va">folds</span> <span class="op">&lt;-</span> <span class="fu">mboost</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mboost/man/cvrisk.html">cv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/model.extract.html">model.weights</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span>, B <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">folds</span>, file <span class="op">=</span> <span class="st">"data/models/confints/folds.RDS"</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="running-the-bootstrapping-procedure" class="section level3">
 <h3>
-<span class="header-section-number">9.3.2</span> Running the bootstrapping procedure<a class="anchor" aria-label="anchor" href="#running-the-bootstrapping-procedure"><i class="fas fa-link"></i></a>
+<span class="header-section-number">9.2.2</span> Running the bootstrapping procedure<a class="anchor" aria-label="anchor" href="#running-the-bootstrapping-procedure"><i class="fas fa-link"></i></a>
 </h3>
 <p>It is very computationally intensive to execute the bootstrapping procedure, hence it is best executed manually tweaking settings to the local machine (memory, CPU cores, etc). See the <code>R/mboost_uncertainty_analysis.R</code> file for an example of how to do so. In this case I had 2-3 RStudio jobs running the script on a batch of the folds, which can be combined later on as results are stored in <code>data/models/confints/</code>. Execution took about 3 days.</p>
-<div class="sourceCode" id="cb169"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb175"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/source.html">source</a></span><span class="op">(</span><span class="st">"R/mboost_uncertainty_analysis.R"</span><span class="op">)</span></code></pre></div>
 </div>
 </div>
 <div id="recombine-bootstrapped-results" class="section level2">
 <h2>
-<span class="header-section-number">9.4</span> Recombine bootstrapped results<a class="anchor" aria-label="anchor" href="#recombine-bootstrapped-results"><i class="fas fa-link"></i></a>
+<span class="header-section-number">9.3</span> Recombine bootstrapped results<a class="anchor" aria-label="anchor" href="#recombine-bootstrapped-results"><i class="fas fa-link"></i></a>
 </h2>
 <p>Having adjusted the bootstrapping procedure a bit, we now have to recombine the data so the R object matches the format <code>mboost</code> functions expect. Additionally, we will include the variable importance now as well.</p>
-<div class="sourceCode" id="cb170"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb176"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">n_confint_files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.glob.html">Sys.glob</a></span><span class="op">(</span><span class="st">"data/models/confints/modelci*"</span><span class="op">)</span><span class="op">)</span>
 <span class="va">confint_files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"data/models/confints/modelci_"</span>, <span class="fl">2</span><span class="op">:</span><span class="va">n_confint_files</span>, <span class="st">".RDS"</span><span class="op">)</span>
 <span class="va">cis</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">confint_files</span>, <span class="va">readRDS</span><span class="op">)</span>
@@ -126,17 +123,17 @@ The partial dependence plots generated in the previous chapter visualise the mar
 <span class="va">ci_varimp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">cis</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">$</span><span class="va">varimp</span><span class="op">)</span>
 
 <span class="va">modelci</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/models/confints/modelci_1.RDS"</span><span class="op">)</span>
-<span class="va">modelci</span><span class="op">$</span><span class="va">boot_pred</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">1000</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">ci_boot_pred</span>
+<span class="va">modelci</span><span class="op">$</span><span class="va">boot_pred</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="va">n_confint_files</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">ci_boot_pred</span>
 <span class="va">modelci</span><span class="op">$</span><span class="va">boot_pred</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NULL</span>
 <span class="va">modelci</span><span class="op">$</span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">cis</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">data</span>
 <span class="va">modelci</span><span class="op">$</span><span class="va">varimp</span> <span class="op">&lt;-</span> <span class="va">ci_varimp</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">modelci</span>, file <span class="op">=</span> <span class="st">"data/models/confints/final_modelci.RDS"</span><span class="op">)</span></code></pre></div>
 <p>Let’s confirm it worked by plotting the bootstrapped confidence intervals.</p>
-<div class="sourceCode" id="cb171"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"dist_radar"</span>, <span class="st">"total_biomass"</span>, <span class="st">"semiopen"</span>, <span class="st">"forests"</span>, <span class="st">"wetlands"</span>, <span class="st">"waterbodies"</span>, <span class="st">"agricultural"</span>, <span class="st">"dist_urban"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">vars</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/pkg/mboost/man/plot.html">plot</a></span><span class="op">(</span><span class="va">modelci</span>, which <span class="op">=</span> <span class="va">x</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb177"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"dist_radar"</span>, <span class="st">"total_rcs"</span>, <span class="st">"semiopen"</span>, <span class="st">"forests"</span>, <span class="st">"wetlands"</span>, <span class="st">"waterbodies"</span>, <span class="st">"agricultural"</span>, <span class="st">"dist_urban"</span>, <span class="st">"acov"</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">vars</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/pkg/mboost/man/plot.html">plot</a></span><span class="op">(</span><span class="va">modelci</span>, which <span class="op">=</span> <span class="va">x</span>, raw <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <div class="inline-figure"><img src="09.Quantifying-model-uncertainty_files/figure-html/plot_bootstrapped_confidence_intervals-1.png" width="672"></div>
 <pre><code>## [[1]]
 ## NULL
@@ -160,6 +157,9 @@ The partial dependence plots generated in the previous chapter visualise the mar
 ## NULL
 ## 
 ## [[8]]
+## NULL
+## 
+## [[9]]
 ## NULL</code></pre>
 <p>Voilà, that seems to have done the trick.</p>
 
@@ -176,14 +176,13 @@ The partial dependence plots generated in the previous chapter visualise the mar
       <ul class="nav navbar-nav">
 <li><a class="nav-link" href="#quantifying-model-uncertainty"><span class="header-section-number">9</span> Quantifying model uncertainty</a></li>
 <li><a class="nav-link" href="#processing-environment-8"><span class="header-section-number">9.1</span> Processing environment</a></li>
-<li><a class="nav-link" href="#load-the-constructed-model"><span class="header-section-number">9.2</span> Load the constructed model</a></li>
 <li>
-<a class="nav-link" href="#bootstrapped-uncertainty-analysis"><span class="header-section-number">9.3</span> Bootstrapped uncertainty analysis</a><ul class="nav navbar-nav">
-<li><a class="nav-link" href="#determine-bootstrap-folds"><span class="header-section-number">9.3.1</span> Determine bootstrap folds</a></li>
-<li><a class="nav-link" href="#running-the-bootstrapping-procedure"><span class="header-section-number">9.3.2</span> Running the bootstrapping procedure</a></li>
+<a class="nav-link" href="#bootstrapped-uncertainty-analysis"><span class="header-section-number">9.2</span> Bootstrapped uncertainty analysis</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#determine-bootstrap-folds"><span class="header-section-number">9.2.1</span> Determine bootstrap folds</a></li>
+<li><a class="nav-link" href="#running-the-bootstrapping-procedure"><span class="header-section-number">9.2.2</span> Running the bootstrapping procedure</a></li>
 </ul>
 </li>
-<li><a class="nav-link" href="#recombine-bootstrapped-results"><span class="header-section-number">9.4</span> Recombine bootstrapped results</a></li>
+<li><a class="nav-link" href="#recombine-bootstrapped-results"><span class="header-section-number">9.3</span> Recombine bootstrapped results</a></li>
 </ul>
 
       <div class="book-extra">
@@ -201,7 +200,7 @@ The partial dependence plots generated in the previous chapter visualise the mar
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Fireworks</strong>" was written by Bart Hoekstra. It was last built on 2021-03-22.</p>
+    <p>"<strong>Fireworks</strong>" was written by Bart Hoekstra. It was last built on 2021-04-30.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

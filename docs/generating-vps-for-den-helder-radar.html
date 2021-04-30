@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>13 Generating vertical profiles for Den Helder radar | Fireworks</title>
+<title>15 Generating vertical profiles for Den Helder radar | Fireworks</title>
 <meta name="author" content="Bart Hoekstra">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.2"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.5.1/jquery-3.5.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
@@ -40,6 +40,7 @@
 <li class="book-part">Sovon counts</li>
 <li><a class="" href="annotating-count-areas.html"><span class="header-section-number">4</span> Annotating count areas</a></li>
 <li><a class="" href="processing-count-results.html"><span class="header-section-number">5</span> Processing count results</a></li>
+<li class="book-part">Composite PPIs</li>
 <li><a class="" href="apply-processing-to-all-ppis.html"><span class="header-section-number">6</span> Apply processing to all PPIs</a></li>
 <li><a class="" href="composite-all-ppis.html"><span class="header-section-number">7</span> Composite all PPIs</a></li>
 <li class="book-part">Fireworks disturbance</li>
@@ -49,10 +50,12 @@
 <li><a class="" href="figure-1-data-overview.html"><span class="header-section-number">10</span> Figure 1: Data overview</a></li>
 <li><a class="" href="figure-2-model-output.html"><span class="header-section-number">11</span> Figure 2: Model output</a></li>
 <li><a class="" href="figure-3-species-composition.html"><span class="header-section-number">12</span> Figure 3: Species composition</a></li>
+<li><a class="" href="figure-4-distance-to-fireworks.html"><span class="header-section-number">13</span> Figure 4: Distance to fireworks</a></li>
+<li><a class="" href="context-1-number-of-birds-affected.html"><span class="header-section-number">14</span> Context 1: Number of birds affected</a></li>
 <li class="book-part">Appendix</li>
-<li><a class="active" href="generating-vps-for-den-helder-radar.html"><span class="header-section-number">13</span> Generating vertical profiles for Den Helder radar</a></li>
+<li><a class="active" href="generating-vps-for-den-helder-radar.html"><span class="header-section-number">15</span> Generating vertical profiles for Den Helder radar</a></li>
 <li class="book-part">Other</li>
-<li><a class="" href="references.html"><span class="header-section-number">14</span> References</a></li>
+<li><a class="" href="references.html"><span class="header-section-number">16</span> References</a></li>
 </ul>
 
         <div class="book-extra">
@@ -62,25 +65,25 @@
 </div>
   </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="generating-vps-for-den-helder-radar" class="section level1">
 <h1>
-<span class="header-section-number">13</span> Generating vertical profiles for Den Helder radar<a class="anchor" aria-label="anchor" href="#generating-vps-for-den-helder-radar"><i class="fas fa-link"></i></a>
+<span class="header-section-number">15</span> Generating vertical profiles for Den Helder radar<a class="anchor" aria-label="anchor" href="#generating-vps-for-den-helder-radar"><i class="fas fa-link"></i></a>
 </h1>
 <p>The Den Helder radar is situated very close to the coast, so take-off densities derived from the <code><a href="https://adokter.github.io/bioRad/reference/calculate_vp.html">calculate_vp()</a></code> function in bioRad <span class="citation">(Dokter et al. <a href="references.html#ref-dokter_biorad_2019" role="doc-biblioref">2019</a>)</span> are likely underestimated as large swaths of sea (both North and Wadden Sea) are contained within the volume. To correct for this, we will select a section, defined by minimum and maximum azimuths, to generate the vertical profiles for.</p>
 <p>We load the <code>DBZH</code> from the polar volume containing the peak moment of take-off for the Den Helder radar, which occurs at 23:05 UTC.</p>
-<div class="sourceCode" id="cb209"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb219"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/adokter/bioRad">bioRad</a></span><span class="op">)</span></code></pre></div>
 <pre><code>## Welcome to bioRad version 0.5.2.9391</code></pre>
 <pre><code>## Docker daemon running, Docker functionality enabled (vol2bird version 0.5.0.9167)</code></pre>
-<div class="sourceCode" id="cb212"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb222"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">pvol_path</span> <span class="op">&lt;-</span> <span class="st">"data/raw/pvol/fireworks-2017-2018/RAD_NL61_VOL_NA_201712312305_ODIM.h5"</span>
 
 <span class="va">pvol</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://adokter.github.io/bioRad/reference/read_pvolfile.html">read_pvolfile</a></span><span class="op">(</span><span class="va">pvol_path</span>, param <span class="op">=</span> <span class="st">"DBZH"</span><span class="op">)</span></code></pre></div>
 <p>To illustrate the problem, let’s plot the lowest <code>scan</code> of the <code>pvol</code> we have loaded:</p>
-<div class="sourceCode" id="cb213"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb223"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">scan</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://adokter.github.io/bioRad/reference/get_scan.html">get_scan</a></span><span class="op">(</span><span class="va">pvol</span>, <span class="fl">0.3</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/mboost/man/plot.html">plot</a></span><span class="op">(</span><span class="va">scan</span><span class="op">)</span></code></pre></div>
 <div class="inline-figure"><img src="A1.Generating-VPs-for-Den-Helder-radar_files/figure-html/plot_den_helder_example_scan-1.png" width="672"></div>
 <p>As can be seen, there is a large swath of sea clutter, roughly between azimuths 200 and 325. The Wadden Sea can be seen from azimuths 45 until roughly 90. The area in between is where the majority of birds take off: the mainland of North Holland. We can visualise what a focus on this area would cover by plotting a PPI where all values between azimuths 90 and 200 have been set to a very high value. See below:</p>
-<div class="sourceCode" id="cb214"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb224"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">scan_section</span> <span class="op">&lt;-</span> <span class="va">scan</span>
 <span class="va">scan_section</span><span class="op">$</span><span class="va">params</span><span class="op">$</span><span class="va">DBZH</span><span class="op">[</span>, <span class="fl">90</span><span class="op">:</span><span class="fl">200</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">100</span>
 
@@ -90,18 +93,18 @@
 <span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>pty <span class="op">=</span> <span class="st">"s"</span>, mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/mboost/man/plot.html">plot</a></span><span class="op">(</span><span class="va">ppi</span><span class="op">)</span></code></pre></div>
 <div class="inline-figure"><img src="A1.Generating-VPs-for-Den-Helder-radar_files/figure-html/plot_den_helder_example_section-1.png" width="672"></div>
-<div class="sourceCode" id="cb215"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb225"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/mboost/man/plot.html">plot</a></span><span class="op">(</span><span class="va">ppi_section</span><span class="op">)</span></code></pre></div>
 <div class="inline-figure"><img src="A1.Generating-VPs-for-Den-Helder-radar_files/figure-html/plot_den_helder_example_section-2.png" width="672"></div>
 <p>Now with that in mind we can calculate the <code>vp</code>s for the entire area and compare that with one that is calculated just from the section above (azimuths between 90 and 200).</p>
-<div class="sourceCode" id="cb216"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb226"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">vp_all_azimuths</span> <span class="op">=</span> <span class="fu"><a href="https://adokter.github.io/bioRad/reference/calculate_vp.html">calculate_vp</a></span><span class="op">(</span><span class="va">pvol_path</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="va">vp_land_based_azimuths</span> <span class="op">=</span> <span class="fu"><a href="https://adokter.github.io/bioRad/reference/calculate_vp.html">calculate_vp</a></span><span class="op">(</span><span class="va">pvol_path</span>, azim_min <span class="op">=</span> <span class="fl">90</span>, azim_max <span class="op">=</span> <span class="fl">200</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 <p>And plot the corresponding VPs:</p>
-<div class="sourceCode" id="cb217"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb227"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/mboost/man/plot.html">plot</a></span><span class="op">(</span><span class="va">vp_all_azimuths</span>, main <span class="op">=</span> <span class="st">"VP calculated from the entire Den Helder radar domain"</span><span class="op">)</span></code></pre></div>
 <div class="inline-figure"><img src="A1.Generating-VPs-for-Den-Helder-radar_files/figure-html/visualise_VP_differences-1.png" width="672"></div>
-<div class="sourceCode" id="cb218"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb228"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/mboost/man/plot.html">plot</a></span><span class="op">(</span><span class="va">vp_land_based_azimuths</span>, main <span class="op">=</span> <span class="st">"VP calculated from the main land area covered by Den Helder radar"</span><span class="op">)</span></code></pre></div>
 <div class="inline-figure"><img src="A1.Generating-VPs-for-Den-Helder-radar_files/figure-html/visualise_VP_differences-2.png" width="672"></div>
 <p>We can see there is a substantial difference in density derived from the VPs when focussing on the main land of North Holland vs. when we look at the entire radar domain and include large swaths of the North and Wadden Sea.</p>
@@ -111,11 +114,11 @@
 
 
   <div class="chapter-nav">
-<div class="prev"><a href="figure-3-species-composition.html"><span class="header-section-number">12</span> Figure 3: Species composition</a></div>
-<div class="next"><a href="references.html"><span class="header-section-number">14</span> References</a></div>
+<div class="prev"><a href="context-1-number-of-birds-affected.html"><span class="header-section-number">14</span> Context 1: Number of birds affected</a></div>
+<div class="next"><a href="references.html"><span class="header-section-number">16</span> References</a></div>
 </div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
     <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
-      <ul class="nav navbar-nav"><li><a class="nav-link" href="#generating-vps-for-den-helder-radar"><span class="header-section-number">13</span> Generating vertical profiles for Den Helder radar</a></li></ul>
+      <ul class="nav navbar-nav"><li><a class="nav-link" href="#generating-vps-for-den-helder-radar"><span class="header-section-number">15</span> Generating vertical profiles for Den Helder radar</a></li></ul>
 
       <div class="book-extra">
         <ul class="list-unstyled">
@@ -132,7 +135,7 @@
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Fireworks</strong>" was written by Bart Hoekstra. It was last built on 2021-03-22.</p>
+    <p>"<strong>Fireworks</strong>" was written by Bart Hoekstra. It was last built on 2021-04-30.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

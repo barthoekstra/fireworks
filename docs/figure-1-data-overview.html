@@ -40,6 +40,7 @@
 <li class="book-part">Sovon counts</li>
 <li><a class="" href="annotating-count-areas.html"><span class="header-section-number">4</span> Annotating count areas</a></li>
 <li><a class="" href="processing-count-results.html"><span class="header-section-number">5</span> Processing count results</a></li>
+<li class="book-part">Composite PPIs</li>
 <li><a class="" href="apply-processing-to-all-ppis.html"><span class="header-section-number">6</span> Apply processing to all PPIs</a></li>
 <li><a class="" href="composite-all-ppis.html"><span class="header-section-number">7</span> Composite all PPIs</a></li>
 <li class="book-part">Fireworks disturbance</li>
@@ -49,10 +50,12 @@
 <li><a class="active" href="figure-1-data-overview.html"><span class="header-section-number">10</span> Figure 1: Data overview</a></li>
 <li><a class="" href="figure-2-model-output.html"><span class="header-section-number">11</span> Figure 2: Model output</a></li>
 <li><a class="" href="figure-3-species-composition.html"><span class="header-section-number">12</span> Figure 3: Species composition</a></li>
+<li><a class="" href="figure-4-distance-to-fireworks.html"><span class="header-section-number">13</span> Figure 4: Distance to fireworks</a></li>
+<li><a class="" href="context-1-number-of-birds-affected.html"><span class="header-section-number">14</span> Context 1: Number of birds affected</a></li>
 <li class="book-part">Appendix</li>
-<li><a class="" href="generating-vps-for-den-helder-radar.html"><span class="header-section-number">13</span> Generating vertical profiles for Den Helder radar</a></li>
+<li><a class="" href="generating-vps-for-den-helder-radar.html"><span class="header-section-number">15</span> Generating vertical profiles for Den Helder radar</a></li>
 <li class="book-part">Other</li>
-<li><a class="" href="references.html"><span class="header-section-number">14</span> References</a></li>
+<li><a class="" href="references.html"><span class="header-section-number">16</span> References</a></li>
 </ul>
 
         <div class="book-extra">
@@ -69,7 +72,7 @@
 <h2>
 <span class="header-section-number">10.1</span> Processing environment<a class="anchor" aria-label="anchor" href="#processing-environment-9"><i class="fas fa-link"></i></a>
 </h2>
-<div class="sourceCode" id="cb173"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb179"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/adokter/bioRad">bioRad</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://rspatial.org/raster">raster</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://magrittr.tidyverse.org">magrittr</a></span><span class="op">)</span>
@@ -80,25 +83,25 @@
 <span class="header-section-number">10.2</span> Workflow<a class="anchor" aria-label="anchor" href="#workflow"><i class="fas fa-link"></i></a>
 </h2>
 <p>We load the radar PPIs.</p>
-<div class="sourceCode" id="cb174"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb180"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">hrw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/processed/final-ppis/RAD_NL62_VOL_NA_201712312305_ODIM.RDS"</span><span class="op">)</span>
 <span class="va">dhl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/processed/final-ppis/RAD_NL61_VOL_NA_201712312305_ODIM.RDS"</span><span class="op">)</span></code></pre></div>
 <p>Composite the PPIs and log-transform <code>VIR</code> and <code>total_biomass</code> for improved visualisation.</p>
-<div class="sourceCode" id="cb175"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">cppi</span> <span class="op">&lt;-</span> <span class="fu">comp_ppi</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">hrw</span>, <span class="va">dhl</span><span class="op">)</span>, param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"VIR"</span>, <span class="st">"total_biomass"</span><span class="op">)</span>, res <span class="op">=</span> <span class="fl">500</span>, method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"mean"</span><span class="op">)</span><span class="op">)</span>
+<div class="sourceCode" id="cb181"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">cppi</span> <span class="op">&lt;-</span> <span class="fu">comp_ppi</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">hrw</span>, <span class="va">dhl</span><span class="op">)</span>, param <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"VIR"</span>, <span class="st">"total_crs"</span><span class="op">)</span>, res <span class="op">=</span> <span class="fl">500</span>, method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"mean"</span><span class="op">)</span><span class="op">)</span>
 <span class="va">cppi</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">VIR</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log10</a></span><span class="op">(</span><span class="va">cppi</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">VIR</span><span class="op">)</span>
 <span class="va">cppi</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">VIR</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/is.finite.html">is.infinite</a></span><span class="op">(</span><span class="va">cppi</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">VIR</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0</span>
 <span class="va">cppi</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">VIR</span><span class="op">[</span><span class="va">cppi</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">VIR</span> <span class="op">==</span> <span class="fl">0</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span>
-<span class="va">cppi</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">total_biomass</span><span class="op">[</span><span class="va">cppi</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">total_biomass</span> <span class="op">==</span> <span class="fl">0</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span>
-<span class="va">cppi</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">total_biomass</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log10</a></span><span class="op">(</span><span class="va">cppi</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">total_biomass</span><span class="op">)</span></code></pre></div>
+<span class="va">cppi</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">total_crs</span><span class="op">[</span><span class="va">cppi</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">total_crs</span> <span class="op">==</span> <span class="fl">0</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="cn">NA</span>
+<span class="va">cppi</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">total_crs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log10</a></span><span class="op">(</span><span class="va">cppi</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">total_crs</span><span class="op">)</span></code></pre></div>
 <p>Make plots to confirm the composite and transformation works as intended.</p>
-<div class="sourceCode" id="cb176"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb182"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">cppi</span>, param <span class="op">=</span> <span class="st">"VIR"</span>, zlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">cppi</span>, param <span class="op">=</span> <span class="st">"total_biomass"</span>, zlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">7</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/plot.html">plot</a></span><span class="op">(</span><span class="va">cppi</span>, param <span class="op">=</span> <span class="st">"total_crs"</span>, zlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">6</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>And now we write out raster files containing these parameters, which we can then stitch together in QGIS and Adobe Illustrator.</p>
-<div class="sourceCode" id="cb177"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb183"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/writeRaster.html">writeRaster</a></span><span class="op">(</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/coerce-methods.html">as</a></span><span class="op">(</span><span class="va">cppi</span><span class="op">$</span><span class="va">data</span><span class="op">[</span><span class="st">"VIR"</span><span class="op">]</span>, <span class="st">"RasterLayer"</span><span class="op">)</span>, filename <span class="op">=</span> <span class="st">"data/plots/paper/fig1_VIR.tif"</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/writeRaster.html">writeRaster</a></span><span class="op">(</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/coerce-methods.html">as</a></span><span class="op">(</span><span class="va">cppi</span><span class="op">$</span><span class="va">data</span><span class="op">[</span><span class="st">"total_biomass"</span><span class="op">]</span>, <span class="st">"RasterLayer"</span><span class="op">)</span>, filename <span class="op">=</span> <span class="st">"data/plots/paper/fig1_total_biomass.tif"</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<span class="fu">raster</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/writeRaster.html">writeRaster</a></span><span class="op">(</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/coerce-methods.html">as</a></span><span class="op">(</span><span class="va">cppi</span><span class="op">$</span><span class="va">data</span><span class="op">[</span><span class="st">"total_crs"</span><span class="op">]</span>, <span class="st">"RasterLayer"</span><span class="op">)</span>, filename <span class="op">=</span> <span class="st">"data/plots/paper/fig1_total_crs.tif"</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 
 </div>
 </div>
@@ -128,7 +131,7 @@
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Fireworks</strong>" was written by Bart Hoekstra. It was last built on 2021-03-22.</p>
+    <p>"<strong>Fireworks</strong>" was written by Bart Hoekstra. It was last built on 2021-04-30.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

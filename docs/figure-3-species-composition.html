@@ -40,6 +40,7 @@
 <li class="book-part">Sovon counts</li>
 <li><a class="" href="annotating-count-areas.html"><span class="header-section-number">4</span> Annotating count areas</a></li>
 <li><a class="" href="processing-count-results.html"><span class="header-section-number">5</span> Processing count results</a></li>
+<li class="book-part">Composite PPIs</li>
 <li><a class="" href="apply-processing-to-all-ppis.html"><span class="header-section-number">6</span> Apply processing to all PPIs</a></li>
 <li><a class="" href="composite-all-ppis.html"><span class="header-section-number">7</span> Composite all PPIs</a></li>
 <li class="book-part">Fireworks disturbance</li>
@@ -49,10 +50,12 @@
 <li><a class="" href="figure-1-data-overview.html"><span class="header-section-number">10</span> Figure 1: Data overview</a></li>
 <li><a class="" href="figure-2-model-output.html"><span class="header-section-number">11</span> Figure 2: Model output</a></li>
 <li><a class="active" href="figure-3-species-composition.html"><span class="header-section-number">12</span> Figure 3: Species composition</a></li>
+<li><a class="" href="figure-4-distance-to-fireworks.html"><span class="header-section-number">13</span> Figure 4: Distance to fireworks</a></li>
+<li><a class="" href="context-1-number-of-birds-affected.html"><span class="header-section-number">14</span> Context 1: Number of birds affected</a></li>
 <li class="book-part">Appendix</li>
-<li><a class="" href="generating-vps-for-den-helder-radar.html"><span class="header-section-number">13</span> Generating vertical profiles for Den Helder radar</a></li>
+<li><a class="" href="generating-vps-for-den-helder-radar.html"><span class="header-section-number">15</span> Generating vertical profiles for Den Helder radar</a></li>
 <li class="book-part">Other</li>
-<li><a class="" href="references.html"><span class="header-section-number">14</span> References</a></li>
+<li><a class="" href="references.html"><span class="header-section-number">16</span> References</a></li>
 </ul>
 
         <div class="book-extra">
@@ -74,34 +77,20 @@
 <h2>
 <span class="header-section-number">12.1</span> Processing environment<a class="anchor" aria-label="anchor" href="#processing-environment-11"><i class="fas fa-link"></i></a>
 </h2>
-<div class="sourceCode" id="cb190"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/adokter/bioRad">bioRad</a></span><span class="op">)</span></code></pre></div>
-<pre><code>## Welcome to bioRad version 0.5.2.9391</code></pre>
-<pre><code>## Docker daemon running, Docker functionality enabled (vol2bird version 0.5.0.9167)</code></pre>
-<div class="sourceCode" id="cb193"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span></code></pre></div>
-<pre><code>## 
-## Attaching package: 'dplyr'</code></pre>
-<pre><code>## The following objects are masked from 'package:stats':
-## 
-##     filter, lag</code></pre>
-<pre><code>## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<div class="sourceCode" id="cb197"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org">tidyr</a></span><span class="op">)</span>
+<div class="sourceCode" id="cb198"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/adokter/bioRad">bioRad</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org">tidyr</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://stringr.tidyverse.org">stringr</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/LKremer/ggpointdensity">ggpointdensity</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com">patchwork</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggobi.github.io/ggally/">GGally</a></span><span class="op">)</span></code></pre></div>
-<pre><code>## Registered S3 method overwritten by 'GGally':
-##   method from   
-##   +.gg   ggplot2</code></pre>
-<div class="sourceCode" id="cb199"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tibble.tidyverse.org/">tibble</a></span><span class="op">)</span></code></pre></div>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggobi.github.io/ggally/">GGally</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tibble.tidyverse.org/">tibble</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://rpkgs.datanovia.com/ggpubr/">ggpubr</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://forcats.tidyverse.org">forcats</a></span><span class="op">)</span></code></pre></div>
 <p>We load the study PPI and proportions of taxonomic groups in the counts.</p>
-<div class="sourceCode" id="cb200"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb199"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ppi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/processed/composite-ppis/500m/201712312305.RDS"</span><span class="op">)</span>
 <span class="va">wb_props</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/processed/sovon/wb_props.RDS"</span><span class="op">)</span>
 <span class="va">ptt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/processed/sovon/ptt.RDS"</span><span class="op">)</span>
@@ -117,7 +106,7 @@
        <span class="va">urban</span> <span class="op">&lt;</span> <span class="fl">0.1</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://rdrr.io/r/base/identity.html">identity</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">data</span></code></pre></div>
 <p>We select only those PPI pixels (and their corresponding counts) which are covered for &gt;99% by a single habitat type.</p>
-<div class="sourceCode" id="cb201"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb200"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">landuse_limit</span> <span class="op">&lt;-</span> <span class="fl">0.99</span></code></pre></div>
 </div>
 <div id="characteristic-families" class="section level2">
@@ -125,12 +114,12 @@
 <span class="header-section-number">12.2</span> Characteristic families<a class="anchor" aria-label="anchor" href="#characteristic-families"><i class="fas fa-link"></i></a>
 </h2>
 <p>Geese, ducks, pigeons, thrushes, tits, waders, crows and finches represent a substantial part of the Dutch avifauna across a large range of body sizes. We select these to illustrate how the taxonomic proportions change with habitats.</p>
-<div class="sourceCode" id="cb202"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb201"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">selected_families</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Geese"</span>, <span class="st">"Ducks"</span>, <span class="st">"Pigeons"</span>, <span class="st">"Thrushes"</span>, <span class="st">"Tits"</span>, <span class="st">"Waders"</span>, <span class="st">"Crows"</span>, <span class="st">"Finches"</span><span class="op">)</span>
 
 <span class="va">data</span> <span class="op">%&gt;%</span>
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html">all_of</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">ptt_props</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">45</span><span class="op">]</span>, <span class="st">"semiopen"</span>, <span class="st">"forests"</span>, <span class="st">"wetlands"</span>, <span class="st">"waterbodies"</span>, <span class="st">"agricultural"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html">pivot_longer</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html">all_of</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">ptt_props</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">45</span><span class="op">]</span><span class="op">)</span>, names_to <span class="op">=</span> <span class="st">"family"</span>, values_to <span class="op">=</span> <span class="st">"family_prop"</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html">all_of</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">ptt_props</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">:</span><span class="fl">45</span><span class="op">]</span>, <span class="st">"semiopen"</span>, <span class="st">"forests"</span>, <span class="st">"wetlands"</span>, <span class="st">"waterbodies"</span>, <span class="st">"agricultural"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html">pivot_longer</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html">all_of</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">ptt_props</span><span class="op">)</span><span class="op">[</span><span class="fl">3</span><span class="op">:</span><span class="fl">45</span><span class="op">]</span><span class="op">)</span>, names_to <span class="op">=</span> <span class="st">"family"</span>, values_to <span class="op">=</span> <span class="st">"family_prop"</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html">pivot_longer</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html">all_of</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"agricultural"</span>, <span class="st">"semiopen"</span>, <span class="st">"forests"</span>, <span class="st">"wetlands"</span>, <span class="st">"waterbodies"</span><span class="op">)</span><span class="op">)</span>, names_to <span class="op">=</span> <span class="st">"landuse"</span>, values_to <span class="op">=</span> <span class="st">"landuse_prop"</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://tidyr.tidyverse.org/reference/drop_na.html">drop_na</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">family</span> <span class="op">%in%</span> <span class="va">selected_families</span>,
@@ -138,6 +127,14 @@
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">family</span>, <span class="va">landuse</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>mean_family_prop <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">family_prop</span><span class="op">)</span>, .groups <span class="op">=</span> <span class="st">"drop_last"</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html">pivot_wider</a></span><span class="op">(</span>names_from <span class="op">=</span> <span class="va">landuse</span>, values_from <span class="op">=</span> <span class="va">mean_family_prop</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>family_sc <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html">case_when</a></span><span class="op">(</span><span class="va">family</span> <span class="op">==</span> <span class="st">"Geese"</span> <span class="op">~</span> <span class="st">"Anatidae"</span>,
+                               <span class="va">family</span> <span class="op">==</span> <span class="st">"Ducks"</span> <span class="op">~</span> <span class="st">"Anatinae"</span>,
+                               <span class="va">family</span> <span class="op">==</span> <span class="st">"Pigeons"</span> <span class="op">~</span> <span class="st">"Columbidae"</span>, 
+                               <span class="va">family</span> <span class="op">==</span> <span class="st">"Thrushes"</span> <span class="op">~</span> <span class="st">"Turdidae"</span>,
+                               <span class="va">family</span> <span class="op">==</span> <span class="st">"Tits"</span> <span class="op">~</span> <span class="st">"Paridae"</span>,
+                               <span class="va">family</span> <span class="op">==</span> <span class="st">"Waders"</span> <span class="op">~</span> <span class="st">"Charadrii"</span>,
+                               <span class="va">family</span> <span class="op">==</span> <span class="st">"Crows"</span> <span class="op">~</span> <span class="st">"Corvidae"</span>,
+                               <span class="va">family</span> <span class="op">==</span> <span class="st">"Finches"</span> <span class="op">~</span> <span class="st">"Fringillidae"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://rdrr.io/r/base/identity.html">identity</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">characteristic_families</span>
 <span class="va">characteristic_families</span></code></pre></div>
 <div class="kable-table">
@@ -149,6 +146,7 @@
 <th align="right">semiopen</th>
 <th align="right">waterbodies</th>
 <th align="right">wetlands</th>
+<th align="left">family_sc</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -158,6 +156,7 @@
 <td align="right">0.0740222</td>
 <td align="right">0.0182881</td>
 <td align="right">0.0407936</td>
+<td align="left">Corvidae</td>
 </tr>
 <tr class="even">
 <td align="left">Ducks</td>
@@ -166,6 +165,7 @@
 <td align="right">0.0726795</td>
 <td align="right">0.3419478</td>
 <td align="right">0.2416624</td>
+<td align="left">Anatinae</td>
 </tr>
 <tr class="odd">
 <td align="left">Finches</td>
@@ -174,6 +174,7 @@
 <td align="right">0.0628657</td>
 <td align="right">0.0062778</td>
 <td align="right">0.0102175</td>
+<td align="left">Fringillidae</td>
 </tr>
 <tr class="even">
 <td align="left">Geese</td>
@@ -182,6 +183,7 @@
 <td align="right">0.0384954</td>
 <td align="right">0.3065711</td>
 <td align="right">0.0666727</td>
+<td align="left">Anatidae</td>
 </tr>
 <tr class="odd">
 <td align="left">Pigeons</td>
@@ -190,6 +192,7 @@
 <td align="right">0.0921633</td>
 <td align="right">0.0077864</td>
 <td align="right">0.0028696</td>
+<td align="left">Columbidae</td>
 </tr>
 <tr class="even">
 <td align="left">Thrushes</td>
@@ -198,6 +201,7 @@
 <td align="right">0.0658859</td>
 <td align="right">0.0068034</td>
 <td align="right">0.0121501</td>
+<td align="left">Turdidae</td>
 </tr>
 <tr class="odd">
 <td align="left">Tits</td>
@@ -206,6 +210,7 @@
 <td align="right">0.0778224</td>
 <td align="right">0.0051277</td>
 <td align="right">0.1186220</td>
+<td align="left">Paridae</td>
 </tr>
 <tr class="even">
 <td align="left">Waders</td>
@@ -214,6 +219,7 @@
 <td align="right">0.0310129</td>
 <td align="right">0.0873656</td>
 <td align="right">0.2058158</td>
+<td align="left">Charadrii</td>
 </tr>
 </tbody>
 </table></div>
@@ -224,7 +230,7 @@
 <span class="header-section-number">12.3</span> Mean habitat biomass and weight<a class="anchor" aria-label="anchor" href="#mean-habitat-biomass-and-weight"><i class="fas fa-link"></i></a>
 </h2>
 <p>We calculate the mean biomass for all areas covered for &gt;99% by a single habitat type and calculate mean bird weight for these areas from the point-transect counts.</p>
-<div class="sourceCode" id="cb203"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb202"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">data</span> <span class="op">%&gt;%</span>
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html">all_of</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"total_biomass"</span>, <span class="st">"ptt_weighted_mean_weight"</span>, <span class="st">"semiopen"</span>, <span class="st">"forests"</span>, <span class="st">"wetlands"</span>, <span class="st">"waterbodies"</span>, <span class="st">"agricultural"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html">pivot_longer</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html">all_of</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"semiopen"</span>, <span class="st">"forests"</span>, <span class="st">"wetlands"</span>, <span class="st">"waterbodies"</span>, <span class="st">"agricultural"</span><span class="op">)</span><span class="op">)</span>, names_to <span class="op">=</span> <span class="st">"landuse"</span>, values_to <span class="op">=</span> <span class="st">"proportion"</span><span class="op">)</span> <span class="op">%&gt;%</span>
@@ -247,22 +253,22 @@
 <tbody>
 <tr class="odd">
 <td align="left">waterbodies</td>
-<td align="right">96.527428</td>
+<td align="right">100.098362</td>
 <td align="right">1367.6172</td>
 </tr>
 <tr class="even">
 <td align="left">agricultural</td>
-<td align="right">132.997045</td>
+<td align="right">133.003369</td>
 <td align="right">1256.0901</td>
 </tr>
 <tr class="odd">
 <td align="left">wetlands</td>
-<td align="right">197.144370</td>
+<td align="right">213.892151</td>
 <td align="right">866.0075</td>
 </tr>
 <tr class="even">
 <td align="left">semiopen</td>
-<td align="right">31.288826</td>
+<td align="right">31.895918</td>
 <td align="right">742.2743</td>
 </tr>
 <tr class="odd">
@@ -279,7 +285,7 @@
 <span class="header-section-number">12.4</span> Sorting of families by weight<a class="anchor" aria-label="anchor" href="#sorting-of-families-by-weight"><i class="fas fa-link"></i></a>
 </h2>
 <p>Now we sort families according to weight</p>
-<div class="sourceCode" id="cb204"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb203"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ptt</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html">distinct</a></span><span class="op">(</span><span class="va">species</span>, .keep_all <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">familyvernacular</span><span class="op">)</span> <span class="op">%&gt;%</span>
@@ -299,9 +305,9 @@
 <span class="header-section-number">12.5</span> Prepare plot<a class="anchor" aria-label="anchor" href="#prepare-plot"><i class="fas fa-link"></i></a>
 </h2>
 <p>And plot a simple barplot figure.</p>
-<div class="sourceCode" id="cb205"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb204"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">characteristic_families</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html">pivot_longer</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"family"</span>, <span class="st">"rowid"</span>, <span class="st">"mean_weight"</span>, <span class="st">"rank"</span><span class="op">)</span>, names_to <span class="op">=</span> <span class="st">"landuse"</span>, values_to <span class="op">=</span> <span class="st">"family_prop"</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">cf_long</span>
+  <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html">pivot_longer</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"family"</span>, <span class="st">"rowid"</span>, <span class="st">"mean_weight"</span>, <span class="st">"rank"</span>, <span class="st">"family_sc"</span><span class="op">)</span>, names_to <span class="op">=</span> <span class="st">"landuse"</span>, values_to <span class="op">=</span> <span class="st">"family_prop"</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">cf_long</span>
 
 <span class="va">colors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"urban"</span> <span class="op">=</span> <span class="st">"#94346E"</span>, <span class="st">"agricultural"</span> <span class="op">=</span> <span class="st">"#73AF48"</span>, <span class="st">"semiopen"</span> <span class="op">=</span> <span class="st">"#EDAD08"</span>, <span class="st">"forests"</span> <span class="op">=</span> <span class="st">"#0F8554"</span>, <span class="st">"wetlands"</span> <span class="op">=</span> <span class="st">"#38A6A5"</span>, <span class="st">"waterbodies"</span> <span class="op">=</span> <span class="st">"#1D6996"</span>,
             <span class="st">"dist_urban"</span> <span class="op">=</span> <span class="st">"#94346E"</span>, <span class="st">"total_biomass"</span> <span class="op">=</span> <span class="st">"#CC503E"</span>, <span class="st">"dist_radar"</span> <span class="op">=</span> <span class="st">"#666666"</span><span class="op">)</span>
@@ -322,59 +328,72 @@
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Proportion of birds"</span>, y <span class="op">=</span> <span class="st">"Taxonomic group"</span><span class="op">)</span> <span class="op">+</span>
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html">coord_cartesian</a></span><span class="op">(</span>expand <span class="op">=</span> <span class="cn">FALSE</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html">ceiling</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="va">cf_long</span><span class="op">$</span><span class="va">family_prop</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span><span class="op">)</span> <span class="op">/</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.1</span>, <span class="fl">0.2</span>, <span class="fl">0.3</span><span class="op">)</span>, labels <span class="op">=</span> <span class="va">proportion_labeller</span><span class="op">)</span> <span class="op">+</span>
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_alpha.html">scale_alpha_continuous</a></span><span class="op">(</span>range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/vars.html">vars</a></span><span class="op">(</span><span class="va">landuse</span><span class="op">)</span>, strip.position <span class="op">=</span> <span class="st">"top"</span>, labeller <span class="op">=</span> <span class="va">landuse_labeller</span><span class="op">)</span> <span class="op">+</span>
+    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_alpha.html">scale_alpha_continuous</a></span><span class="op">(</span>range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/vars.html">vars</a></span><span class="op">(</span><span class="va">landuse</span><span class="op">)</span>, strip.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span> <span class="op">+</span>
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span> <span class="op">+</span>
     <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span>,
           axis.title.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span>,
           strip.background <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span>,
-          strip.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0</span>, size <span class="op">=</span> <span class="fl">12</span>, family <span class="op">=</span> <span class="st">"Helvetica"</span>, face <span class="op">=</span> <span class="st">"bold"</span><span class="op">)</span><span class="op">)</span>
+          strip.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
 <span class="op">}</span>
 
-<span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mapply.html">mapply</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">landuses</span><span class="op">)</span> <span class="op">{</span> <span class="fu">plot_family_proportions</span><span class="op">(</span><span class="va">cf_long</span>, <span class="va">landuses</span><span class="op">)</span> <span class="op">}</span>, landuses <span class="op">=</span> <span class="va">habitat_mass</span><span class="op">$</span><span class="va">landuse</span>,
-            SIMPLIFY <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
-<pre><code>## Warning: The labeller API has been updated. Labellers taking `variable` and
-## `value` arguments are now deprecated. See labellers documentation.
+<span class="va">landuses</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"agricultural"</span>, <span class="st">"semiopen"</span>, <span class="st">"forests"</span>, <span class="st">"wetlands"</span>, <span class="st">"waterbodies"</span><span class="op">)</span>  <span class="co"># Same order as model outputs</span>
 
-## Warning: The labeller API has been updated. Labellers taking `variable` and
-## `value` arguments are now deprecated. See labellers documentation.
+<span class="va">plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mapply.html">mapply</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">landuses</span><span class="op">)</span> <span class="op">{</span> <span class="fu">plot_family_proportions</span><span class="op">(</span><span class="va">cf_long</span>, <span class="va">landuses</span><span class="op">)</span> <span class="op">}</span>, landuses <span class="op">=</span> <span class="va">landuses</span>,
+            SIMPLIFY <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 
-## Warning: The labeller API has been updated. Labellers taking `variable` and
-## `value` arguments are now deprecated. See labellers documentation.
-
-## Warning: The labeller API has been updated. Labellers taking `variable` and
-## `value` arguments are now deprecated. See labellers documentation.
-
-## Warning: The labeller API has been updated. Labellers taking `variable` and
-## `value` arguments are now deprecated. See labellers documentation.</code></pre>
-<div class="sourceCode" id="cb207"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">characteristic_families</span><span class="op">$</span><span class="va">title</span> <span class="op">&lt;-</span> <span class="st">"Mean weight (g)"</span>
-<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">characteristic_families</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html">geom_col</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">mean_weight</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/reorder.factor.html">reorder</a></span><span class="op">(</span><span class="va">family</span>, <span class="va">mean_weight</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Mean weight (g)"</span>, y <span class="op">=</span> <span class="st">"Taxonomic group"</span><span class="op">)</span> <span class="op">+</span>
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html">coord_cartesian</a></span><span class="op">(</span>expand <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span>
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_continuous</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1000</span>, <span class="fl">2000</span>, <span class="fl">3000</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/vars.html">vars</a></span><span class="op">(</span><span class="va">title</span><span class="op">)</span>, strip.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span> <span class="op">+</span>
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span> <span class="op">+</span>
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"none"</span>,
-          axis.title.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span>,
-          strip.background <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span>,
-          strip.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0</span>, size <span class="op">=</span> <span class="fl">12</span>, family <span class="op">=</span> <span class="st">"Helvetica"</span>, face <span class="op">=</span> <span class="st">"bold"</span><span class="op">)</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">plots</span><span class="op">[[</span><span class="fl">6</span><span class="op">]</span><span class="op">]</span>
-<span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/wrap_plots.html">wrap_plots</a></span><span class="op">(</span><span class="va">plots</span><span class="op">)</span>
+<span class="co"># characteristic_families$title &lt;- "Mean weight (g)"</span>
+<span class="co"># ggplot(characteristic_families) +</span>
+<span class="co">#   geom_col(aes(x = mean_weight, y = reorder(family, mean_weight))) +</span>
+<span class="co">#   labs(x = "Mean weight (g)", y = "Taxonomic group") +</span>
+<span class="co">#     coord_cartesian(expand = FALSE) +</span>
+<span class="co">#     scale_x_continuous(breaks = c(0, 1000, 2000, 3000)) +</span>
+<span class="co">#     facet_wrap(vars(title), strip.position = "top") +</span>
+<span class="co">#     theme_classic(base_size = 12) +</span>
+<span class="co">#     theme(legend.position = "none",</span>
+<span class="co">#           axis.title.y = element_blank(),</span>
+<span class="co">#           strip.background = element_blank(),</span>
+<span class="co">#           strip.text.x = element_text(hjust = 0, size = 12, family = "Helvetica", face = "bold")) -&gt; plots[[6]]</span>
+<span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/wrap_plots.html">wrap_plots</a></span><span class="op">(</span><span class="va">plots</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>
 <span class="va">p</span></code></pre></div>
+<div class="inline-figure"><img src="10.Figures-3-Species-composition_files/figure-html/unnamed-chunk-6-1.png" width="672"></div>
+<div class="sourceCode" id="cb205"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">p_models</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/plots/paper/fig_landscapes.RDS"</span><span class="op">)</span>
+
+<span class="va">p_models</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> <span class="va">p_models</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> <span class="va">p_models</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> <span class="va">p_models</span><span class="op">[[</span><span class="fl">4</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> <span class="va">p_models</span><span class="op">[[</span><span class="fl">5</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span>
+  <span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> <span class="va">plots</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> <span class="va">plots</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> <span class="va">plots</span><span class="op">[[</span><span class="fl">4</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> <span class="va">plots</span><span class="op">[[</span><span class="fl">5</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span>
+  <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html">plot_layout</a></span><span class="op">(</span>widths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">5</span>, byrow <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">&amp;</span> 
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>,
+        axis.title.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span>,
+        axis.text.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">p_landscape_characterisation</span>
+
+<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsave.html">ggsave</a></span><span class="op">(</span>filename <span class="op">=</span> <span class="st">"data/plots/paper/fig2_landscape.pdf"</span>, plot <span class="op">=</span> <span class="va">p_landscape_characterisation</span>, width <span class="op">=</span> <span class="fl">14</span>, height <span class="op">=</span> <span class="fl">25</span>, dpi <span class="op">=</span> <span class="fl">300</span>, units <span class="op">=</span> <span class="st">"cm"</span><span class="op">)</span>
+<span class="va">p_landscape_characterisation</span></code></pre></div>
 <div class="inline-figure"><img src="10.Figures-3-Species-composition_files/figure-html/unnamed-chunk-7-1.png" width="672"></div>
+<div class="sourceCode" id="cb206"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">widths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>
+<span class="op">(</span><span class="va">p_models</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">/</span> <span class="va">plots</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">*</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span>, axis.title.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span>, axis.text.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+   <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html">plot_layout</a></span><span class="op">(</span>widths <span class="op">=</span> <span class="va">widths</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span>
+  <span class="op">(</span><span class="va">p_models</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span> <span class="op">/</span> <span class="va">plots</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span> <span class="op">*</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span>, axis.title.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span>, axis.text.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+     <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html">plot_layout</a></span><span class="op">(</span>widths <span class="op">=</span> <span class="va">widths</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span>
+  <span class="op">(</span><span class="va">p_models</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span> <span class="op">/</span> <span class="va">plots</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span> <span class="op">*</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span>, axis.title.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span>, axis.text.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+     <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html">plot_layout</a></span><span class="op">(</span>widths <span class="op">=</span> <span class="va">widths</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span>
+  <span class="op">(</span><span class="va">p_models</span><span class="op">[[</span><span class="fl">4</span><span class="op">]</span><span class="op">]</span> <span class="op">/</span> <span class="va">plots</span><span class="op">[[</span><span class="fl">4</span><span class="op">]</span><span class="op">]</span> <span class="op">*</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span>, axis.title.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span>, axis.text.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+     <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html">plot_layout</a></span><span class="op">(</span>widths <span class="op">=</span> <span class="va">widths</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> 
+  <span class="op">(</span><span class="va">p_models</span><span class="op">[[</span><span class="fl">5</span><span class="op">]</span><span class="op">]</span> <span class="op">/</span> <span class="va">plots</span><span class="op">[[</span><span class="fl">5</span><span class="op">]</span><span class="op">]</span> <span class="op">*</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>, axis.title.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">12</span><span class="op">)</span>, axis.text.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span>
+     <span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html">plot_layout</a></span><span class="op">(</span>widths <span class="op">=</span> <span class="va">widths</span>, ncol <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">p_landscape_characterisation</span>
+
+<span class="va">p_landscape_characterisation</span></code></pre></div>
+<div class="inline-figure"><img src="10.Figures-3-Species-composition_files/figure-html/unnamed-chunk-8-1.png" width="672"></div>
 <p>And we save it as .pdf for editing in Illustrator.</p>
-<div class="sourceCode" id="cb208"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsave.html">ggsave</a></span><span class="op">(</span>filename <span class="op">=</span> <span class="st">"data/plots/paper/fig3.pdf"</span>, plot <span class="op">=</span> <span class="va">p</span>, width <span class="op">=</span> <span class="fl">20</span>, height <span class="op">=</span> <span class="fl">14</span>, dpi <span class="op">=</span> <span class="fl">300</span>, units <span class="op">=</span> <span class="st">"cm"</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb207"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsave.html">ggsave</a></span><span class="op">(</span>filename <span class="op">=</span> <span class="st">"data/plots/paper/fig2_landscape.pdf"</span>, plot <span class="op">=</span> <span class="va">p_landscape_characterisation</span>, width <span class="op">=</span> <span class="fl">14</span>, height <span class="op">=</span> <span class="fl">25</span>, dpi <span class="op">=</span> <span class="fl">300</span>, units <span class="op">=</span> <span class="st">"cm"</span><span class="op">)</span></code></pre></div>
 
 </div>
 </div>
-
-
-
   <div class="chapter-nav">
 <div class="prev"><a href="figure-2-model-output.html"><span class="header-section-number">11</span> Figure 2: Model output</a></div>
-<div class="next"><a href="generating-vps-for-den-helder-radar.html"><span class="header-section-number">13</span> Generating vertical profiles for Den Helder radar</a></div>
+<div class="next"><a href="figure-4-distance-to-fireworks.html"><span class="header-section-number">13</span> Figure 4: Distance to fireworks</a></div>
 </div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
     <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
       <ul class="nav navbar-nav">
@@ -401,7 +420,7 @@
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Fireworks</strong>" was written by Bart Hoekstra. It was last built on 2021-03-22.</p>
+    <p>"<strong>Fireworks</strong>" was written by Bart Hoekstra. It was last built on 2021-04-30.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

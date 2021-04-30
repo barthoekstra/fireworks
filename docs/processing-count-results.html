@@ -40,6 +40,7 @@
 <li class="book-part">Sovon counts</li>
 <li><a class="" href="annotating-count-areas.html"><span class="header-section-number">4</span> Annotating count areas</a></li>
 <li><a class="active" href="processing-count-results.html"><span class="header-section-number">5</span> Processing count results</a></li>
+<li class="book-part">Composite PPIs</li>
 <li><a class="" href="apply-processing-to-all-ppis.html"><span class="header-section-number">6</span> Apply processing to all PPIs</a></li>
 <li><a class="" href="composite-all-ppis.html"><span class="header-section-number">7</span> Composite all PPIs</a></li>
 <li class="book-part">Fireworks disturbance</li>
@@ -49,10 +50,12 @@
 <li><a class="" href="figure-1-data-overview.html"><span class="header-section-number">10</span> Figure 1: Data overview</a></li>
 <li><a class="" href="figure-2-model-output.html"><span class="header-section-number">11</span> Figure 2: Model output</a></li>
 <li><a class="" href="figure-3-species-composition.html"><span class="header-section-number">12</span> Figure 3: Species composition</a></li>
+<li><a class="" href="figure-4-distance-to-fireworks.html"><span class="header-section-number">13</span> Figure 4: Distance to fireworks</a></li>
+<li><a class="" href="context-1-number-of-birds-affected.html"><span class="header-section-number">14</span> Context 1: Number of birds affected</a></li>
 <li class="book-part">Appendix</li>
-<li><a class="" href="generating-vps-for-den-helder-radar.html"><span class="header-section-number">13</span> Generating vertical profiles for Den Helder radar</a></li>
+<li><a class="" href="generating-vps-for-den-helder-radar.html"><span class="header-section-number">15</span> Generating vertical profiles for Den Helder radar</a></li>
 <li class="book-part">Other</li>
-<li><a class="" href="references.html"><span class="header-section-number">14</span> References</a></li>
+<li><a class="" href="references.html"><span class="header-section-number">16</span> References</a></li>
 </ul>
 
         <div class="book-extra">
@@ -74,7 +77,7 @@
 <h2>
 <span class="header-section-number">5.1</span> Processing environment<a class="anchor" aria-label="anchor" href="#processing-environment-4"><i class="fas fa-link"></i></a>
 </h2>
-<div class="sourceCode" id="cb100"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb106"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/rgbif">rgbif</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://stringr.tidyverse.org">stringr</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://readxl.tidyverse.org">readxl</a></span><span class="op">)</span>
@@ -88,7 +91,7 @@
 <span class="header-section-number">5.2</span> Loading the Sovon count data<a class="anchor" aria-label="anchor" href="#loading-the-sovon-count-data"><i class="fas fa-link"></i></a>
 </h2>
 <p>The count data is spread over a few sheets in an <code>xlsx</code> file, which we load here. For clarity, we rename all the columns to English and we filter out all counts (i.e. areas) where birds are not positively identified to species level. Although it would be possible to ‘fill’ these uncertain counts based on proportions, determining how to do that is not necessary for our purposes. Instead, we will just remove these counts altogether. Finally, subspecies identifiers for these species are removed, as we assume variation is limited and the database of life-history traits does not contain parameters for subspecies separately.</p>
-<div class="sourceCode" id="cb101"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb107"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sovon_data</span> <span class="op">&lt;-</span> <span class="st">"data/raw/sovon/tel_dec_jan_1718.xlsx"</span>
 
 <span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="op">)</span>
@@ -543,7 +546,7 @@ Grote Canadese Gans
 </table></div>
 </div>
 <p>Following this logic, we can process the PTT counts similarly and see which species are contained in those.</p>
-<div class="sourceCode" id="cb102"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb108"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://readxl.tidyverse.org/reference/read_excel.html">read_excel</a></span><span class="op">(</span><span class="va">sovon_data</span>, sheet <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>count_id <span class="op">=</span> <span class="va">tellingid</span>, route <span class="op">=</span> <span class="va">route</span>, count_point <span class="op">=</span> <span class="va">telpunt</span>, season <span class="op">=</span> <span class="va">seizoen</span>, year <span class="op">=</span> <span class="va">teljaar</span>, month <span class="op">=</span> <span class="va">maand</span>, 
          day <span class="op">=</span> <span class="va">dag</span>, euring <span class="op">=</span> <span class="va">euring</span>, species <span class="op">=</span> <span class="va">soort</span>, number <span class="op">=</span> <span class="va">aantal</span>, xcoor <span class="op">=</span> <span class="va">xcoor</span>, ycoor <span class="op">=</span> <span class="va">ycoor</span><span class="op">)</span> <span class="op">%&gt;%</span>
@@ -990,7 +993,7 @@ Pimpelmees
 </h2>
 <p>The following section is the result of an iterative process aimed at matching species in our count data with species in the database of life-history characteristics. Unfortunately, automatic tools only get us so far, a bit of tweaking has to be done by hand. To reduce manual corrections needed, <em>only species to which &gt;1% of the birds belong in a single count</em> have been corrected manually. In other words: if a species which cannot be matched always accounts for less than 1% of the total number of birds within a count, this species is discarded from the whole dataset.</p>
 <p>Besides the 1% criteria, both the waterbird and PTT counts contain some exotics (e.g. ‘Helmparelhoen’/Helmeted guineafowl) for which our life-history characteristics dataset does not contain any measurements anyways (there are others that we do have measurements of), some species that are very unlikely to ever take flight during NYE (e.g. ‘Kip’/Domesticated chicken) and some mammals for which the same applies. We will remove these from the dataset manually.</p>
-<div class="sourceCode" id="cb103"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb109"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">exotics</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Helmparelhoen"</span>, <span class="st">"Kaapse Casarca"</span>, <span class="st">"Manengans"</span>, <span class="st">"Ringtaling"</span>, <span class="st">"Buffelkopeend"</span>, <span class="st">"Kokardezaagbek"</span>, <span class="st">"Chileense Flamingo"</span>,
              <span class="st">"Kaapse Taling"</span>, <span class="st">"Bahamapijlstaart"</span>, <span class="st">"Muskuseend"</span>, <span class="st">"Zwarte Zwaan"</span>, <span class="st">"Knobbelgans"</span>, <span class="st">"Zwaangans"</span><span class="op">)</span>
 <span class="va">unlikely_flight_candidate</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Kip"</span><span class="op">)</span>
@@ -1005,7 +1008,7 @@ Pimpelmees
 <span class="va">wb_data</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="op">!</span><span class="va">species</span> <span class="op">%in%</span> <span class="va">remove_species</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">wb_data</span></code></pre></div>
 <p>With all these species removed or adjusted, we can create a species lookup table. We fetch the scientific names and corresponding GBIF species IDs from the <a href="https://doi.org/10.15468/rjdpzy">Checklist Dutch Species Register</a>, which is the GBIF dataset with key <code>4dd32523-a3a3-43b7-84df-4cda02f15cf7</code>. We furthermore remove all unnecessary information, such as subspecies from the scientific names as well.</p>
-<div class="sourceCode" id="cb104"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb110"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">unique_species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html">unique</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">wb_data</span><span class="op">$</span><span class="va">species</span>, <span class="va">ptt_data</span><span class="op">$</span><span class="va">species</span><span class="op">)</span><span class="op">)</span>
 
 <span class="va">build_species_lut</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">specieslist</span>, <span class="va">datasetKey</span> <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">class_name</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span>
@@ -1049,7 +1052,7 @@ Pimpelmees
 
 <span class="va">species_lut</span> <span class="op">&lt;-</span> <span class="fu">build_species_lut</span><span class="op">(</span><span class="va">unique_species</span>, datasetKey <span class="op">=</span> <span class="st">"4dd32523-a3a3-43b7-84df-4cda02f15cf7"</span>, class_name <span class="op">=</span> <span class="st">"Aves"</span><span class="op">)</span></code></pre></div>
 <pre><code>## Warning: Unknown or uninitialised column: `scientificName`.</code></pre>
-<div class="sourceCode" id="cb106"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb112"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/raster/man/headtail.html">head</a></span><span class="op">(</span><span class="va">species_lut</span>, <span class="fl">10</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span>format <span class="op">=</span> <span class="st">"html"</span>, col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">species_lut</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://rdrr.io/pkg/kableExtra/man/kable_styling.html">kable_styling</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
@@ -1182,7 +1185,7 @@ Cygnus bewickii
 </table></div>
 </div>
 <p>Finally, the lookup table also contains some scientific names which unfortunately will not match with the life-history characteristics dataset, so these too we will adjust manually.</p>
-<div class="sourceCode" id="cb107"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb113"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Change to similar species which is in the LHT database</span>
 <span class="va">species_lut</span><span class="op">[</span><span class="va">species_lut</span><span class="op">$</span><span class="va">lookupname</span> <span class="op">==</span> <span class="st">"Toendrarietgans"</span>, <span class="st">"scientificname"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Anser fabalis"</span>  <span class="co"># Taiga Bean Goose</span>
 <span class="va">species_lut</span><span class="op">[</span><span class="va">species_lut</span><span class="op">$</span><span class="va">lookupname</span> <span class="op">==</span> <span class="st">"Kleine Canadese Gans"</span>, <span class="st">"scientificname"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Branta leucopsis"</span>  <span class="co"># Barnacle Goose</span>
@@ -1207,7 +1210,7 @@ Cygnus bewickii
 <span class="header-section-number">5.4</span> Adding vernacular family names<a class="anchor" aria-label="anchor" href="#adding-vernacular-family-names"><i class="fas fa-link"></i></a>
 </h2>
 <p>Fetching vernacular names of scientific families from GBIF is even more convoluted than the name lookup we have done above, so instead we have manually derived a list of vernacular names for families based on the generated species lookup table.</p>
-<div class="sourceCode" id="cb108"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb114"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_delim</a></span><span class="op">(</span><span class="st">"data/raw/sovon/familyvernacular_lut.csv"</span>, delim <span class="op">=</span> <span class="st">";"</span>, col_types <span class="op">=</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/cols.html">cols</a></span><span class="op">(</span>lookupname <span class="op">=</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/parse_atomic.html">col_character</a></span><span class="op">(</span><span class="op">)</span>, familyvernacular <span class="op">=</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/parse_atomic.html">col_character</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">right_join</a></span><span class="op">(</span><span class="va">species_lut</span>, by <span class="op">=</span> <span class="st">"lookupname"</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">species_lut</span></code></pre></div>
 </div>
@@ -1217,7 +1220,7 @@ Cygnus bewickii
 </h2>
 <p>We use the <em>Life-history characteristics of European birds</em>-dataset <span class="citation">(Storchová and Hořák <a href="references.html#ref-storchova_2018" role="doc-biblioref">2018</a>)</span> to calculate the mean mass of all birds in a PPI pixel. This dataset is stored on Dryad and we can <a href="https://doi.org/10.5061/dryad.n6k3n">download</a> it there. Unfortunately at the time of writing the <code>rdryad</code> package is severely out-of-date with the new Dryad API, so we cannot nicely automate this download yet. Anyways, the files should be downloaded manually and added to <code>data/raw/life-history-characteristics/</code>.</p>
 <p>We calculate the mean of the mass of both sexed and unsexed birds and assume that represents the mean mass for a species.</p>
-<div class="sourceCode" id="cb109"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb115"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_tsv</a></span><span class="op">(</span><span class="st">"data/raw/life-history-characteristics/Life-history characteristics of European birds.txt"</span>, 
          col_types <span class="op">=</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/cols.html">cols_only</a></span><span class="op">(</span><span class="st">'Species'</span> <span class="op">=</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/parse_atomic.html">col_character</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">'WeightU_MEAN'</span> <span class="op">=</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/parse_atomic.html">col_double</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">'WeightM_MEAN'</span> <span class="op">=</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/parse_atomic.html">col_double</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">'WeightF_MEAN'</span> <span class="op">=</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/parse_atomic.html">col_double</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="va">rowwise</span> <span class="op">%&gt;%</span>
@@ -1229,7 +1232,8 @@ Cygnus bewickii
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_split.html">str_split</a></span><span class="op">(</span><span class="va">species</span>, pattern <span class="op">=</span> <span class="st">" "</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>, collapse <span class="op">=</span> <span class="st">" "</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">species</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>mean_weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">mean_weight</span><span class="op">)</span>, .groups <span class="op">=</span> <span class="st">"drop_last"</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>mean_weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">mean_weight</span><span class="op">)</span>, .groups <span class="op">=</span> <span class="st">"drop_last"</span>,
+            mean_crs <span class="op">=</span> <span class="va">mean_weight</span> <span class="op">^</span> <span class="op">(</span><span class="fl">2</span><span class="op">/</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://tidyr.tidyverse.org/reference/drop_na.html">drop_na</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">lhc</span>
 
 <span class="va">lhc</span><span class="op">[</span><span class="va">lhc</span><span class="op">$</span><span class="va">species</span> <span class="op">==</span> <span class="st">"Aquila nipalenis"</span>, <span class="st">"species"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"Aquila nipalensis"</span>  <span class="co"># Small error in dataset -&gt; notified author</span>
@@ -1247,6 +1251,9 @@ species
 <th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
 mean_weight
 </th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+mean_crs
+</th>
 </tr></thead>
 <tbody>
 <tr>
@@ -1256,6 +1263,9 @@ Acanthis flammea
 <td style="text-align:right;">
 13.40
 </td>
+<td style="text-align:right;">
+5.641612
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
@@ -1263,6 +1273,9 @@ Accipiter brevipes
 </td>
 <td style="text-align:right;">
 221.50
+</td>
+<td style="text-align:right;">
+36.608547
 </td>
 </tr>
 <tr>
@@ -1272,6 +1285,9 @@ Accipiter gentilis
 <td style="text-align:right;">
 931.50
 </td>
+<td style="text-align:right;">
+95.379543
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
@@ -1279,6 +1295,9 @@ Accipiter nisus
 </td>
 <td style="text-align:right;">
 204.00
+</td>
+<td style="text-align:right;">
+34.654006
 </td>
 </tr>
 <tr>
@@ -1288,6 +1307,9 @@ Acridotheres cristatellus
 <td style="text-align:right;">
 124.35
 </td>
+<td style="text-align:right;">
+24.913258
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
@@ -1295,6 +1317,9 @@ Acridotheres tristis
 </td>
 <td style="text-align:right;">
 124.35
+</td>
+<td style="text-align:right;">
+24.913258
 </td>
 </tr>
 <tr>
@@ -1304,6 +1329,9 @@ Acrocephalus agricola
 <td style="text-align:right;">
 10.50
 </td>
+<td style="text-align:right;">
+4.795047
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
@@ -1311,6 +1339,9 @@ Acrocephalus arundinaceus
 </td>
 <td style="text-align:right;">
 30.30
+</td>
+<td style="text-align:right;">
+9.719153
 </td>
 </tr>
 <tr>
@@ -1320,6 +1351,9 @@ Acrocephalus dumetorum
 <td style="text-align:right;">
 12.00
 </td>
+<td style="text-align:right;">
+5.241483
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
@@ -1328,12 +1362,15 @@ Acrocephalus melanopogon
 <td style="text-align:right;">
 11.70
 </td>
+<td style="text-align:right;">
+5.153757
+</td>
 </tr>
 </tbody>
 </table></div>
 </div>
 <p>Now we can try to link the names once again with what can be found in GBIF.</p>
-<div class="sourceCode" id="cb110"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb116"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">unique_species_lhc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html">unique</a></span><span class="op">(</span><span class="va">lhc</span><span class="op">$</span><span class="va">species</span><span class="op">)</span>
 
 <span class="va">lhc_species_lut</span> <span class="op">&lt;-</span> <span class="fu">build_species_lut</span><span class="op">(</span><span class="va">unique_species_lhc</span>, dataset <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>
@@ -1470,17 +1507,17 @@ Acrocephalus melanopogon
 </table></div>
 </div>
 <p>With the GBIF IDs/keys in place for both the life-history characteristics, as well as the Sovon counts, we can now link the datasets together. We start with the waterbirds.</p>
-<div class="sourceCode" id="cb111"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb117"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">lhc</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="va">lhc_species_lut</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"species"</span> <span class="op">=</span> <span class="st">"scientificname"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">species</span>, <span class="va">mean_weight</span>, <span class="va">gbif_key</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">lhc</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">species</span>, <span class="va">mean_weight</span>, <span class="va">mean_crs</span>, <span class="va">gbif_key</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">lhc</span>
 
 <span class="va">wb_data</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="va">species_lut</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"species"</span> <span class="op">=</span> <span class="st">"lookupname"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">lhc</span>, <span class="va">mean_weight</span>, <span class="va">gbif_key</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"gbif_key"</span> <span class="op">=</span> <span class="st">"gbif_key"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">lhc</span>, <span class="va">mean_weight</span>, <span class="va">species</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"scientificname"</span> <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">mean_weight.x</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>mean_weight <span class="op">=</span> <span class="va">mean_weight.y</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">wb_data_lhc</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">lhc</span>, <span class="va">mean_weight</span>, <span class="va">mean_crs</span>, <span class="va">gbif_key</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"gbif_key"</span> <span class="op">=</span> <span class="st">"gbif_key"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">lhc</span>, <span class="va">mean_weight</span>, <span class="va">mean_crs</span>, <span class="va">species</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"scientificname"</span> <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">mean_weight.x</span>, <span class="va">mean_crs.x</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>mean_weight <span class="op">=</span> <span class="va">mean_weight.y</span>, mean_crs <span class="op">=</span> <span class="va">mean_crs.y</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">wb_data_lhc</span>
 
 <span class="fu"><a href="https://rdrr.io/pkg/raster/man/headtail.html">head</a></span><span class="op">(</span><span class="va">wb_data_lhc</span>, <span class="fl">10</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span>format <span class="op">=</span> <span class="st">"html"</span>, col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">wb_data_lhc</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
@@ -1537,6 +1574,9 @@ gbif_key
 <th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
 mean_weight
 </th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+mean_crs
+</th>
 </tr></thead>
 <tbody>
 <tr>
@@ -1588,6 +1628,9 @@ Anser anser
 <td style="text-align:right;">
 3347
 </td>
+<td style="text-align:right;">
+223.7538
+</td>
 </tr>
 <tr>
 <td style="text-align:right;">
@@ -1637,6 +1680,9 @@ Alopochen aegyptiaca
 </td>
 <td style="text-align:right;">
 2270
+</td>
+<td style="text-align:right;">
+172.7232
 </td>
 </tr>
 <tr>
@@ -1688,6 +1734,9 @@ Anser anser
 <td style="text-align:right;">
 3347
 </td>
+<td style="text-align:right;">
+223.7538
+</td>
 </tr>
 <tr>
 <td style="text-align:right;">
@@ -1737,6 +1786,9 @@ Branta canadensis
 </td>
 <td style="text-align:right;">
 4635
+</td>
+<td style="text-align:right;">
+277.9926
 </td>
 </tr>
 <tr>
@@ -1788,6 +1840,9 @@ Alopochen aegyptiaca
 <td style="text-align:right;">
 2270
 </td>
+<td style="text-align:right;">
+172.7232
+</td>
 </tr>
 <tr>
 <td style="text-align:right;">
@@ -1837,6 +1892,9 @@ Anser anser
 </td>
 <td style="text-align:right;">
 3347
+</td>
+<td style="text-align:right;">
+223.7538
 </td>
 </tr>
 <tr>
@@ -1888,6 +1946,9 @@ Anser anser
 <td style="text-align:right;">
 3347
 </td>
+<td style="text-align:right;">
+223.7538
+</td>
 </tr>
 <tr>
 <td style="text-align:right;">
@@ -1937,6 +1998,9 @@ Branta canadensis
 </td>
 <td style="text-align:right;">
 4635
+</td>
+<td style="text-align:right;">
+277.9926
 </td>
 </tr>
 <tr>
@@ -1988,6 +2052,9 @@ Anser anser
 <td style="text-align:right;">
 3347
 </td>
+<td style="text-align:right;">
+223.7538
+</td>
 </tr>
 <tr>
 <td style="text-align:right;">
@@ -2038,18 +2105,21 @@ Branta canadensis
 <td style="text-align:right;">
 4635
 </td>
+<td style="text-align:right;">
+277.9926
+</td>
 </tr>
 </tbody>
 </table></div>
 </div>
 <p>And then the PTT counts.</p>
-<div class="sourceCode" id="cb112"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb118"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ptt_data</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="va">species_lut</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"species"</span> <span class="op">=</span> <span class="st">"lookupname"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">lhc</span>, <span class="va">mean_weight</span>, <span class="va">gbif_key</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"gbif_key"</span> <span class="op">=</span> <span class="st">"gbif_key"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">lhc</span>, <span class="va">mean_weight</span>, <span class="va">species</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"scientificname"</span> <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">mean_weight.x</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>mean_weight <span class="op">=</span> <span class="va">mean_weight.y</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">ptt_data_lhc</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">lhc</span>, <span class="va">mean_weight</span>, <span class="va">mean_crs</span>, <span class="va">gbif_key</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"gbif_key"</span> <span class="op">=</span> <span class="st">"gbif_key"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">lhc</span>, <span class="va">mean_weight</span>, <span class="va">mean_crs</span>, <span class="va">species</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"scientificname"</span> <span class="op">=</span> <span class="st">"species"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">mean_weight.x</span>, <span class="va">mean_crs.x</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>mean_weight <span class="op">=</span> <span class="va">mean_weight.y</span>, mean_crs <span class="op">=</span> <span class="va">mean_crs.y</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">ptt_data_lhc</span>
 
 <span class="fu"><a href="https://rdrr.io/pkg/raster/man/headtail.html">head</a></span><span class="op">(</span><span class="va">ptt_data_lhc</span>, <span class="fl">10</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span>format <span class="op">=</span> <span class="st">"html"</span>, col.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">ptt_data_lhc</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
@@ -2106,6 +2176,9 @@ gbif_key
 <th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
 mean_weight
 </th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+mean_crs
+</th>
 </tr></thead>
 <tbody>
 <tr>
@@ -2157,6 +2230,9 @@ Phalacrocorax carbo
 <td style="text-align:right;">
 2254.0
 </td>
+<td style="text-align:right;">
+171.910581
+</td>
 </tr>
 <tr>
 <td style="text-align:right;">
@@ -2206,6 +2282,9 @@ Larus argentatus
 </td>
 <td style="text-align:right;">
 1054.0
+</td>
+<td style="text-align:right;">
+103.568354
 </td>
 </tr>
 <tr>
@@ -2257,6 +2336,9 @@ Columba palumbus
 <td style="text-align:right;">
 496.5
 </td>
+<td style="text-align:right;">
+62.701727
+</td>
 </tr>
 <tr>
 <td style="text-align:right;">
@@ -2306,6 +2388,9 @@ Turdus merula
 </td>
 <td style="text-align:right;">
 97.0
+</td>
+<td style="text-align:right;">
+21.111276
 </td>
 </tr>
 <tr>
@@ -2357,6 +2442,9 @@ Corvus frugilegus
 <td style="text-align:right;">
 459.0
 </td>
+<td style="text-align:right;">
+59.503401
+</td>
 </tr>
 <tr>
 <td style="text-align:right;">
@@ -2406,6 +2494,9 @@ Columba palumbus
 </td>
 <td style="text-align:right;">
 496.5
+</td>
+<td style="text-align:right;">
+62.701727
 </td>
 </tr>
 <tr>
@@ -2457,6 +2548,9 @@ Turdus merula
 <td style="text-align:right;">
 97.0
 </td>
+<td style="text-align:right;">
+21.111276
+</td>
 </tr>
 <tr>
 <td style="text-align:right;">
@@ -2506,6 +2600,9 @@ Corvus monedula
 </td>
 <td style="text-align:right;">
 236.0
+</td>
+<td style="text-align:right;">
+38.189268
 </td>
 </tr>
 <tr>
@@ -2557,6 +2654,9 @@ Corvus frugilegus
 <td style="text-align:right;">
 459.0
 </td>
+<td style="text-align:right;">
+59.503401
+</td>
 </tr>
 <tr>
 <td style="text-align:right;">
@@ -2607,12 +2707,15 @@ Cyanistes caeruleus
 <td style="text-align:right;">
 11.5
 </td>
+<td style="text-align:right;">
+5.094856
+</td>
 </tr>
 </tbody>
 </table></div>
 </div>
 <p>Now we can verify if our <em>1% criteria</em> (see above) for species matching is met. We do this by calculating the proportions of birds belonging to a certain species out of the total numbers of birds counted within a count. This should result in an empty dataframe, which will stop the code chunk below from running if that is <em>not</em> the case.</p>
-<div class="sourceCode" id="cb113"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb119"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">wb_data_lhc</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">count_id</span><span class="op">)</span> <span class="op">%&gt;%</span>
@@ -2626,7 +2729,7 @@ Cyanistes caeruleus
 <span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">nrow</a></span><span class="op">(</span><span class="va">wb_data_lhc_verify</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/rm.html">rm</a></span><span class="op">(</span><span class="va">wb_data_lhc_verify</span><span class="op">)</span></code></pre></div>
 <p>And once again, we can do the same for the PTT counts.</p>
-<div class="sourceCode" id="cb114"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb120"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ptt_data_lhc</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">count_id</span><span class="op">)</span> <span class="op">%&gt;%</span>
@@ -2640,14 +2743,14 @@ Cyanistes caeruleus
 <span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/ncell.html">nrow</a></span><span class="op">(</span><span class="va">ptt_data_lhc_verify</span><span class="op">)</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/rm.html">rm</a></span><span class="op">(</span><span class="va">ptt_data_lhc_verify</span><span class="op">)</span></code></pre></div>
 <p>With that out of the way we can <em>finally</em> remove the remaining empty rows and save the PTT and waterbird counts in their final form.</p>
-<div class="sourceCode" id="cb115"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb121"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ptt_data_lhc</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://tidyr.tidyverse.org/reference/drop_na.html">drop_na</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">ptt_data</span>
 
 <span class="va">wb_data_lhc</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://tidyr.tidyverse.org/reference/drop_na.html">drop_na</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">wb_data</span></code></pre></div>
 <p>And we save the data for further use.</p>
-<div class="sourceCode" id="cb116"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb122"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">ptt_data</span>, file <span class="op">=</span> <span class="st">"data/processed/sovon/ptt.RDS"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">wb_data</span>, file <span class="op">=</span> <span class="st">"data/processed/sovon/wb.RDS"</span><span class="op">)</span></code></pre></div>
 </div>
@@ -2656,7 +2759,7 @@ Cyanistes caeruleus
 <span class="header-section-number">5.6</span> Calculating total bird biomass<a class="anchor" aria-label="anchor" href="#calculating-total-bird-biomass"><i class="fas fa-link"></i></a>
 </h2>
 <p>While we are at it, we will already calculate the total biomass contained within each of the count areas, so we can then add these values to the PPIs through the IDs of the count areas/routes. We use the waterbird count from January 2018, and the point-transect counts from 2017, as these are the best in terms of coverage.</p>
-<div class="sourceCode" id="cb117"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb123"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">wb_year</span> <span class="op">&lt;-</span> <span class="fl">2018</span>
 <span class="va">ptt_year</span> <span class="op">&lt;-</span> <span class="fl">2017</span>
 
@@ -2664,36 +2767,50 @@ Cyanistes caeruleus
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>area_nr <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/as.character.html">as.character</a></span><span class="op">(</span><span class="va">area_nr</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">year</span> <span class="op">==</span> <span class="va">wb_year</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rowwise.html">rowwise</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>specific_biomass <span class="op">=</span> <span class="va">number</span> <span class="op">*</span> <span class="va">mean_weight</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>specific_biomass <span class="op">=</span> <span class="va">number</span> <span class="op">*</span> <span class="va">mean_weight</span>,
+         specific_crs <span class="op">=</span> <span class="va">number</span> <span class="op">*</span> <span class="va">mean_crs</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">area_nr</span>, <span class="va">year</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>total_biomass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">specific_biomass</span><span class="op">)</span>,
+            total_crs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">specific_crs</span><span class="op">)</span>,
             weighted_mean_weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/weighted.mean.html">weighted.mean</a></span><span class="op">(</span><span class="va">mean_weight</span>, <span class="va">number</span><span class="op">)</span>,
+            weighted_mean_crs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/weighted.mean.html">weighted.mean</a></span><span class="op">(</span><span class="va">mean_crs</span>, <span class="va">number</span><span class="op">)</span>,
+            total_birds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">number</span><span class="op">)</span>,
             .groups <span class="op">=</span> <span class="st">"drop_last"</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">area_nr</span><span class="op">)</span> <span class="op">%&gt;%</span>  <span class="co"># Below is only required if year-filter is NOT set, otherwise does nothing</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>total_biomass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">total_biomass</span><span class="op">)</span>,
+            total_crs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">total_crs</span><span class="op">)</span>,
             weighted_mean_weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">weighted_mean_weight</span><span class="op">)</span>,
+            weighted_mean_crs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">weighted_mean_crs</span><span class="op">)</span>,
+            total_birds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">total_birds</span><span class="op">)</span>,
             .groups <span class="op">=</span> <span class="st">"drop_last"</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://rdrr.io/r/base/identity.html">identity</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">wb_biomass</span>
 
 <span class="va">ptt_data</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">year</span> <span class="op">==</span> <span class="va">ptt_year</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rowwise.html">rowwise</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>specific_biomass <span class="op">=</span> <span class="va">number</span> <span class="op">*</span> <span class="va">mean_weight</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>specific_biomass <span class="op">=</span> <span class="va">number</span> <span class="op">*</span> <span class="va">mean_weight</span>,
+         specific_crs <span class="op">=</span> <span class="va">number</span> <span class="op">*</span> <span class="va">mean_crs</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">route</span>, <span class="va">year</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>total_biomass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">specific_biomass</span><span class="op">)</span>,
+            total_crs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">specific_crs</span><span class="op">)</span>,
             weighted_mean_weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/weighted.mean.html">weighted.mean</a></span><span class="op">(</span><span class="va">mean_weight</span>, <span class="va">number</span><span class="op">)</span>,
+            weighted_mean_crs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/weighted.mean.html">weighted.mean</a></span><span class="op">(</span><span class="va">mean_crs</span>, <span class="va">number</span><span class="op">)</span>,
+            total_birds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">number</span><span class="op">)</span>,
             .groups <span class="op">=</span> <span class="st">"drop_last"</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">route</span><span class="op">)</span> <span class="op">%&gt;%</span>  <span class="co"># Below is only required if year-filter is NOT set, otherwise does nothing</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>total_biomass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">total_biomass</span><span class="op">)</span>,
+            total_crs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">total_crs</span><span class="op">)</span>,
             weighted_mean_weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">weighted_mean_weight</span><span class="op">)</span>,
+            weighted_mean_crs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">weighted_mean_crs</span><span class="op">)</span>,
+            total_birds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">total_birds</span><span class="op">)</span>,
             .groups <span class="op">=</span> <span class="st">"drop_last"</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://rdrr.io/r/base/identity.html">identity</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">ptt_biomass</span></code></pre></div>
 <p>And now we will save these datasets of <code>total_biomass</code> as well.</p>
-<div class="sourceCode" id="cb118"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb124"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">wb_biomass</span>, file <span class="op">=</span> <span class="st">"data/processed/sovon/wb_biomass.RDS"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">ptt_biomass</span>, file <span class="op">=</span> <span class="st">"data/processed/sovon/ptt_biomass.RDS"</span><span class="op">)</span></code></pre></div>
 </div>
@@ -2702,7 +2819,7 @@ Cyanistes caeruleus
 <span class="header-section-number">5.7</span> Calculating proportions across bird families<a class="anchor" aria-label="anchor" href="#calculating-proportions-across-bird-families"><i class="fas fa-link"></i></a>
 </h2>
 <p>Now that we have identified which families birds belong to, we can calculate the proportion of birds that belong to these families across all the PTT and waterbird counts. This can give an idea of the spatial composition of bird communities to illustrate analysis results with.</p>
-<div class="sourceCode" id="cb119"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb125"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">wb</span> <span class="op">&lt;-</span> <span class="va">wb_data</span>
 <span class="va">ptt</span> <span class="op">&lt;-</span> <span class="va">ptt_data</span>
 <span class="va">families</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/raster/man/unique.html">unique</a></span><span class="op">(</span><span class="va">species_lut</span><span class="op">$</span><span class="va">familyvernacular</span><span class="op">)</span>
@@ -2716,7 +2833,7 @@ Cyanistes caeruleus
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">area_nr</span>, <span class="va">year</span>, <span class="va">familyvernacular</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>familyprop <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">number</span><span class="op">)</span> <span class="op">/</span> <span class="va">total_birds</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">area_nr</span>, <span class="va">familyvernacular</span>, <span class="va">familyprop</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">area_nr</span>, <span class="va">familyvernacular</span>, <span class="va">familyprop</span>, <span class="va">total_birds</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html">distinct</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="va">area_nr</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html">pivot_wider</a></span><span class="op">(</span>names_from <span class="op">=</span> <span class="va">familyvernacular</span>, values_from <span class="op">=</span> <span class="va">familyprop</span><span class="op">)</span> <span class="op">%&gt;%</span>
@@ -2731,19 +2848,33 @@ Cyanistes caeruleus
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">route</span>, <span class="va">year</span>, <span class="va">familyvernacular</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>familyprop <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">number</span><span class="op">)</span> <span class="op">/</span> <span class="va">total_birds</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">route</span>, <span class="va">familyvernacular</span>, <span class="va">familyprop</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">route</span>, <span class="va">familyvernacular</span>, <span class="va">familyprop</span>, <span class="va">total_birds</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html">distinct</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="va">route</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html">pivot_wider</a></span><span class="op">(</span>names_from <span class="op">=</span> <span class="va">familyvernacular</span>, values_from <span class="op">=</span> <span class="va">familyprop</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://rdrr.io/r/base/replace.html">replace</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">.</span><span class="op">)</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://rdrr.io/r/base/identity.html">identity</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">ptt_props</span></code></pre></div>
 <p>And now we will save these datasets of family proportions as well.</p>
-<div class="sourceCode" id="cb120"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb126"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">wb_props</span>, file <span class="op">=</span> <span class="st">"data/processed/sovon/wb_props.RDS"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">ptt_props</span>, file <span class="op">=</span> <span class="st">"data/processed/sovon/ptt_props.RDS"</span><span class="op">)</span></code></pre></div>
+</div>
+<div id="export-lookup-table-characteristic-groups" class="section level2">
+<h2>
+<span class="header-section-number">5.8</span> Export lookup table characteristic groups<a class="anchor" aria-label="anchor" href="#export-lookup-table-characteristic-groups"><i class="fas fa-link"></i></a>
+</h2>
+<p>We store a lookup table of characteristic groups and scientific names as .csv for a WebTable in the paper.</p>
+<div class="sourceCode" id="cb127"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">ptt</span> <span class="op">%&gt;%</span>
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">species</span>, <span class="va">scientificname</span>, <span class="va">familyvernacular</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html">distinct</a></span><span class="op">(</span><span class="va">species</span>, .keep_all <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/r/utils/write.table.html">write.csv</a></span><span class="op">(</span><span class="st">"data/processed/sovon/lut_species_family.csv"</span><span class="op">)</span></code></pre></div>
 
 </div>
 </div>
+
+
+
   <div class="chapter-nav">
 <div class="prev"><a href="annotating-count-areas.html"><span class="header-section-number">4</span> Annotating count areas</a></div>
 <div class="next"><a href="apply-processing-to-all-ppis.html"><span class="header-section-number">6</span> Apply processing to all PPIs</a></div>
@@ -2758,6 +2889,7 @@ Cyanistes caeruleus
 <li><a class="nav-link" href="#linking-life-history-traits-to-species"><span class="header-section-number">5.5</span> Linking life-history traits to species</a></li>
 <li><a class="nav-link" href="#calculating-total-bird-biomass"><span class="header-section-number">5.6</span> Calculating total bird biomass</a></li>
 <li><a class="nav-link" href="#calculating-proportions-across-bird-families"><span class="header-section-number">5.7</span> Calculating proportions across bird families</a></li>
+<li><a class="nav-link" href="#export-lookup-table-characteristic-groups"><span class="header-section-number">5.8</span> Export lookup table characteristic groups</a></li>
 </ul>
 
       <div class="book-extra">
@@ -2775,7 +2907,7 @@ Cyanistes caeruleus
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Fireworks</strong>" was written by Bart Hoekstra. It was last built on 2021-03-22.</p>
+    <p>"<strong>Fireworks</strong>" was written by Bart Hoekstra. It was last built on 2021-04-30.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

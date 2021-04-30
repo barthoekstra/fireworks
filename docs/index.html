@@ -40,6 +40,7 @@
 <li class="book-part">Sovon counts</li>
 <li><a class="" href="annotating-count-areas.html"><span class="header-section-number">4</span> Annotating count areas</a></li>
 <li><a class="" href="processing-count-results.html"><span class="header-section-number">5</span> Processing count results</a></li>
+<li class="book-part">Composite PPIs</li>
 <li><a class="" href="apply-processing-to-all-ppis.html"><span class="header-section-number">6</span> Apply processing to all PPIs</a></li>
 <li><a class="" href="composite-all-ppis.html"><span class="header-section-number">7</span> Composite all PPIs</a></li>
 <li class="book-part">Fireworks disturbance</li>
@@ -49,10 +50,12 @@
 <li><a class="" href="figure-1-data-overview.html"><span class="header-section-number">10</span> Figure 1: Data overview</a></li>
 <li><a class="" href="figure-2-model-output.html"><span class="header-section-number">11</span> Figure 2: Model output</a></li>
 <li><a class="" href="figure-3-species-composition.html"><span class="header-section-number">12</span> Figure 3: Species composition</a></li>
+<li><a class="" href="figure-4-distance-to-fireworks.html"><span class="header-section-number">13</span> Figure 4: Distance to fireworks</a></li>
+<li><a class="" href="context-1-number-of-birds-affected.html"><span class="header-section-number">14</span> Context 1: Number of birds affected</a></li>
 <li class="book-part">Appendix</li>
-<li><a class="" href="generating-vps-for-den-helder-radar.html"><span class="header-section-number">13</span> Generating vertical profiles for Den Helder radar</a></li>
+<li><a class="" href="generating-vps-for-den-helder-radar.html"><span class="header-section-number">15</span> Generating vertical profiles for Den Helder radar</a></li>
 <li class="book-part">Other</li>
-<li><a class="" href="references.html"><span class="header-section-number">14</span> References</a></li>
+<li><a class="" href="references.html"><span class="header-section-number">16</span> References</a></li>
 </ul>
 
         <div class="book-extra">
@@ -66,6 +69,7 @@
 <div id="abstract" class="section level2 unnumbered">
 <h2>Abstract<a class="anchor" aria-label="anchor" href="#abstract"><i class="fas fa-link"></i></a>
 </h2>
+<p>Fireworks are important parts of celebrations and festivals globally. While public health concerns about fireworks are growing, little remains known about its effect on wildlife. The sudden synchronized lighting of fireworks on New Year’s Eve causes a strong flight response in birds. We use weather radar and systematic bird counts to quantify how flight response differs across bird communities and determine the distance-dependence of this relationship. We found the response to fireworks in birds follows disturbance tolerance – body size relationships, with larger birds responding more strongly to sudden disturbance than smaller birds. In the flat and open landscape of the Netherlands, the flight response minimizes around 5km from fireworks. Given this distance-dependence, mitigation of disturbance could be achieved by establishing buffering areas with firework-free zones, either directly or by centralizing fireworks in urban centers. With millions of birds wintering in densely populated areas, conservation action should prioritize the most disturbance-prone bird communities we have identified here.</p>
 </div>
 <div id="how-to-use-this-document" class="section level2 unnumbered">
 <h2>How to use this document<a class="anchor" aria-label="anchor" href="#how-to-use-this-document"><i class="fas fa-link"></i></a>
@@ -75,7 +79,7 @@
 </h3>
 <p>Use the following line in the console or click <code>Build Book</code> in RStudio.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu">bookdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgs.rstudio.com/bookdown/reference/render_book.html">render_book</a></span><span class="op">(</span>input <span class="op">=</span> <span class="st">"index.Rmd"</span>, output_format <span class="op">=</span> <span class="st">"bookdown::gitbook"</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu">bookdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgs.rstudio.com/bookdown/reference/render_book.html">render_book</a></span><span class="op">(</span>input <span class="op">=</span> <span class="st">"index.Rmd"</span>, output_format <span class="op">=</span> <span class="st">"bookdown::bs4_book"</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="full-repro-mode" class="section level3 unnumbered">
 <h3>Full-reproduction mode<a class="anchor" aria-label="anchor" href="#full-repro-mode"><i class="fas fa-link"></i></a>
@@ -119,7 +123,7 @@
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Fireworks</strong>" was written by Bart Hoekstra. It was last built on 2021-03-22.</p>
+    <p>"<strong>Fireworks</strong>" was written by Bart Hoekstra. It was last built on 2021-04-30.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

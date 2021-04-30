@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>13 Figure 4: Distance to fireworks | Fireworks</title>
+<meta name="author" content="Bart Hoekstra">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.2"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.5.1/jquery-3.5.1.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.2.4.9002/tabs.js"></script><script src="libs/bs3compat-0.2.4.9002/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><script src="https://cdn.jsdelivr.net/autocomplete.js/0/autocomplete.jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/mark.js@8.11.1/dist/mark.min.js"></script><!-- CSS -->
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Fireworks</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Preface</a></li>
+<li class="book-part">Weather radar data</li>
+<li><a class="" href="selecting-firework-take-off-moment.html"><span class="header-section-number">1</span> Selecting firework take-off moment</a></li>
+<li><a class="" href="radar-data-preprocessing.html"><span class="header-section-number">2</span> Radar Data Preprocessing</a></li>
+<li class="book-part">Land use</li>
+<li><a class="" href="annotating-land-use.html"><span class="header-section-number">3</span> Annotating land use</a></li>
+<li class="book-part">Sovon counts</li>
+<li><a class="" href="annotating-count-areas.html"><span class="header-section-number">4</span> Annotating count areas</a></li>
+<li><a class="" href="processing-count-results.html"><span class="header-section-number">5</span> Processing count results</a></li>
+<li class="book-part">Composite PPIs</li>
+<li><a class="" href="apply-processing-to-all-ppis.html"><span class="header-section-number">6</span> Apply processing to all PPIs</a></li>
+<li><a class="" href="composite-all-ppis.html"><span class="header-section-number">7</span> Composite all PPIs</a></li>
+<li class="book-part">Fireworks disturbance</li>
+<li><a class="" href="modelling-fireworks-disturbance.html"><span class="header-section-number">8</span> Modelling fireworks disturbance</a></li>
+<li><a class="" href="quantifying-model-uncertainty.html"><span class="header-section-number">9</span> Quantifying model uncertainty</a></li>
+<li class="book-part">Figures</li>
+<li><a class="" href="figure-1-data-overview.html"><span class="header-section-number">10</span> Figure 1: Data overview</a></li>
+<li><a class="" href="figure-2-model-output.html"><span class="header-section-number">11</span> Figure 2: Model output</a></li>
+<li><a class="" href="figure-3-species-composition.html"><span class="header-section-number">12</span> Figure 3: Species composition</a></li>
+<li><a class="active" href="figure-4-distance-to-fireworks.html"><span class="header-section-number">13</span> Figure 4: Distance to fireworks</a></li>
+<li><a class="" href="context-1-number-of-birds-affected.html"><span class="header-section-number">14</span> Context 1: Number of birds affected</a></li>
+<li class="book-part">Appendix</li>
+<li><a class="" href="generating-vps-for-den-helder-radar.html"><span class="header-section-number">15</span> Generating vertical profiles for Den Helder radar</a></li>
+<li class="book-part">Other</li>
+<li><a class="" href="references.html"><span class="header-section-number">16</span> References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/barthoekstra/fireworks">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="figure-4-distance-to-fireworks" class="section level1">
+<h1>
+<span class="header-section-number">13</span> Figure 4: Distance to fireworks<a class="anchor" aria-label="anchor" href="#figure-4-distance-to-fireworks"><i class="fas fa-link"></i></a>
+</h1>
+<p>Finally, we also want to visualize how far away from fireworks birds are located. As we calculate them from a raster, when birds are close to fireworks, distances are increasing in discrete steps, whereas when they’re further away it becomes more continuous (more possible distances with more grid points). As this makes for an ugly plot, we stick to a good ol’ donutchart to visualize the changing distributions of birds relative to fireworks.</p>
+<div id="processing-environment-12" class="section level2">
+<h2>
+<span class="header-section-number">13.1</span> Processing environment<a class="anchor" aria-label="anchor" href="#processing-environment-12"><i class="fas fa-link"></i></a>
+</h2>
+<div class="sourceCode" id="cb208"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org">tidyr</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tibble.tidyverse.org/">tibble</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://rpkgs.datanovia.com/ggpubr/">ggpubr</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://forcats.tidyverse.org">forcats</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://stringr.tidyverse.org">stringr</a></span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb209"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">selected_scan</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/load.html">load</a></span><span class="op">(</span><span class="st">"data/processed/pvol_selection.RData"</span><span class="op">)</span>
+<span class="va">scan_dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://stringr.tidyverse.org/reference/str_extract.html">str_extract</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/basename.html">basename</a></span><span class="op">(</span><span class="va">pvol_dhl_path</span><span class="op">)</span>, <span class="st">"[0-9]{12}"</span><span class="op">)</span>
+<span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="st">"data/processed/composite-ppis/500m/"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="va">scan_dt</span>, <span class="st">".RDS"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">data</span><span class="op">@</span><span class="va">data</span>
+
+<span class="va">clean_data</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">max_distance</span><span class="op">)</span> <span class="op">{</span>
+  <span class="va">mdl_variables</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"VIR"</span>, <span class="st">"dist_radar"</span>, <span class="st">"total_biomass"</span>, <span class="st">"total_crs"</span>,
+                     <span class="st">"agricultural"</span>, <span class="st">"semiopen"</span>, <span class="st">"forests"</span>, <span class="st">"wetlands"</span>, <span class="st">"waterbodies"</span>, <span class="st">"urban"</span>,
+                     <span class="st">"dist_urban"</span>, <span class="st">"human_pop"</span>, <span class="st">"disturb_pot"</span>, <span class="st">"pixel"</span>, <span class="st">"coverage"</span>, <span class="st">"class"</span>, <span class="st">"x"</span>, <span class="st">"y"</span>,
+                     <span class="st">"wb_area_nr"</span>, <span class="st">"ptt_route"</span><span class="op">)</span>
+  <span class="va">log10_variables</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"dist_urban"</span>, <span class="st">"human_pop"</span>, <span class="st">"total_biomass"</span>, <span class="st">"dist_urban"</span>, <span class="st">"disturb_pot"</span><span class="op">)</span>
+  
+  <span class="va">data</span> <span class="op">%&gt;%</span>
+    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">coverage</span> <span class="op">&gt;</span> <span class="fl">0</span>,
+                  <span class="va">class</span> <span class="op">!=</span> <span class="fl">1</span>,
+                  <span class="va">total_biomass</span> <span class="op">&gt;</span> <span class="fl">0</span>,
+                  <span class="va">dist_radar</span> <span class="op">&lt;</span> <span class="va">max_distance</span>,
+                  <span class="va">urban</span> <span class="op">&lt;</span> <span class="fl">0.1</span><span class="op">)</span> <span class="op">%&gt;%</span>
+    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>VIR <span class="op">=</span> <span class="fu"><a href="https://tidyr.tidyverse.org/reference/replace_na.html">replace_na</a></span><span class="op">(</span><span class="va">VIR</span>, <span class="fl">0.1</span><span class="op">)</span>,
+           VIR <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html">if_else</a></span><span class="op">(</span><span class="va">VIR</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fl">0.1</span>, <span class="va">VIR</span><span class="op">)</span>,
+           VIR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log10</a></span><span class="op">(</span><span class="va">VIR</span><span class="op">)</span>,
+           disturb_pot <span class="op">=</span> <span class="va">human_pop</span> <span class="op">/</span> <span class="va">dist_urban</span>,
+           total_biomass <span class="op">=</span> <span class="va">total_biomass</span> <span class="op">/</span> <span class="fl">1000</span><span class="op">)</span> <span class="op">%&gt;%</span>
+    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html">all_of</a></span><span class="op">(</span><span class="va">mdl_variables</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+    <span class="co"># filter_all(all_vars(is.finite(.))) %&gt;%</span>
+    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>total_rcs <span class="op">=</span> <span class="va">total_crs</span><span class="op">)</span> <span class="op">%&gt;%</span>
+    <span class="fu"><a href="https://rdrr.io/r/base/identity.html">identity</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">data_cleaned</span>
+  
+  <span class="va">data_cleaned</span>
+<span class="op">}</span>
+
+<span class="va">data_cleaned</span> <span class="op">&lt;-</span> <span class="fu">clean_data</span><span class="op">(</span><span class="va">data</span>, <span class="fl">66000</span><span class="op">)</span>
+
+<span class="va">wb_year</span> <span class="op">&lt;-</span> <span class="fl">2018</span>
+<span class="va">ptt_year</span> <span class="op">&lt;-</span> <span class="fl">2017</span>
+<span class="va">ptt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/processed/sovon/ptt.RDS"</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">year</span> <span class="op">==</span> <span class="va">ptt_year</span><span class="op">)</span>
+<span class="va">wb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/processed/sovon/wb.RDS"</span><span class="op">)</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">year</span> <span class="op">==</span> <span class="va">wb_year</span><span class="op">)</span></code></pre></div>
+<div class="sourceCode" id="cb210"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">data_cleaned</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">dist_urban</span>, <span class="va">wb_area_nr</span>, <span class="va">ptt_route</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">wb_area_nr</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>mean_dist_urban_wb <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">dist_urban</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">ptt_route</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>mean_dist_urban_ptt <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html">if_else</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">ptt_route</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">dist_urban</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="cn">NA_real_</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html">distinct</a></span><span class="op">(</span><span class="va">wb_area_nr</span>, <span class="va">ptt_route</span>, .keep_all <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>wb <span class="op">=</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">wb_area_nr</span><span class="op">)</span>,
+         ptt <span class="op">=</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">ptt_route</span><span class="op">)</span>,
+         type <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html">case_when</a></span><span class="op">(</span>
+           <span class="va">wb</span> <span class="op">&amp;</span> <span class="va">ptt</span> <span class="op">~</span> <span class="st">"both"</span>,
+           <span class="va">wb</span> <span class="op">~</span> <span class="st">"wb"</span>, 
+           <span class="va">ptt</span> <span class="op">~</span> <span class="st">"ptt"</span>
+         <span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">type</span> <span class="op">!=</span> <span class="st">"both"</span>,
+         <span class="va">dist_urban</span> <span class="op">&gt;</span> <span class="fl">250</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/identity.html">identity</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">distances</span>
+<span class="fu"><a href="https://rdrr.io/pkg/raster/man/headtail.html">head</a></span><span class="op">(</span><span class="va">distances</span>, <span class="fl">10</span><span class="op">)</span></code></pre></div>
+<div class="kable-table">
+<div class="inline-table"><table class="table table-sm">
+<colgroup>
+<col width="12%">
+<col width="12%">
+<col width="11%">
+<col width="21%">
+<col width="22%">
+<col width="5%">
+<col width="6%">
+<col width="5%">
+</colgroup>
+<thead><tr class="header">
+<th align="right">dist_urban</th>
+<th align="left">wb_area_nr</th>
+<th align="right">ptt_route</th>
+<th align="right">mean_dist_urban_wb</th>
+<th align="right">mean_dist_urban_ptt</th>
+<th align="left">wb</th>
+<th align="left">ptt</th>
+<th align="left">type</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">7433.034</td>
+<td align="left">NZ3332</td>
+<td align="right">NA</td>
+<td align="right">5949.3698</td>
+<td align="right">NA</td>
+<td align="left">TRUE</td>
+<td align="left">FALSE</td>
+<td align="left">wb</td>
+</tr>
+<tr class="even">
+<td align="right">5700.877</td>
+<td align="left">WG2173</td>
+<td align="right">NA</td>
+<td align="right">6518.8415</td>
+<td align="right">NA</td>
+<td align="left">TRUE</td>
+<td align="left">FALSE</td>
+<td align="left">wb</td>
+</tr>
+<tr class="odd">
+<td align="right">3905.125</td>
+<td align="left">WG2175</td>
+<td align="right">NA</td>
+<td align="right">3207.1152</td>
+<td align="right">NA</td>
+<td align="left">TRUE</td>
+<td align="left">FALSE</td>
+<td align="left">wb</td>
+</tr>
+<tr class="even">
+<td align="right">2549.510</td>
+<td align="left">WG2172</td>
+<td align="right">NA</td>
+<td align="right">1993.4263</td>
+<td align="right">NA</td>
+<td align="left">TRUE</td>
+<td align="left">FALSE</td>
+<td align="left">wb</td>
+</tr>
+<tr class="odd">
+<td align="right">4924.429</td>
+<td align="left">WG2142</td>
+<td align="right">NA</td>
+<td align="right">4223.8355</td>
+<td align="right">NA</td>
+<td align="left">TRUE</td>
+<td align="left">FALSE</td>
+<td align="left">wb</td>
+</tr>
+<tr class="even">
+<td align="right">5700.877</td>
+<td align="left">WG2151</td>
+<td align="right">NA</td>
+<td align="right">6586.6381</td>
+<td align="right">NA</td>
+<td align="left">TRUE</td>
+<td align="left">FALSE</td>
+<td align="left">wb</td>
+</tr>
+<tr class="odd">
+<td align="right">7648.529</td>
+<td align="left">WG2152</td>
+<td align="right">NA</td>
+<td align="right">8637.4431</td>
+<td align="right">NA</td>
+<td align="left">TRUE</td>
+<td align="left">FALSE</td>
+<td align="left">wb</td>
+</tr>
+<tr class="even">
+<td align="right">1118.034</td>
+<td align="left">WG2130</td>
+<td align="right">NA</td>
+<td align="right">823.6068</td>
+<td align="right">NA</td>
+<td align="left">TRUE</td>
+<td align="left">FALSE</td>
+<td align="left">wb</td>
+</tr>
+<tr class="odd">
+<td align="right">2061.553</td>
+<td align="left">WG2141</td>
+<td align="right">NA</td>
+<td align="right">1974.4428</td>
+<td align="right">NA</td>
+<td align="left">TRUE</td>
+<td align="left">FALSE</td>
+<td align="left">wb</td>
+</tr>
+<tr class="even">
+<td align="right">2236.068</td>
+<td align="left">WG2112</td>
+<td align="right">NA</td>
+<td align="right">1353.6900</td>
+<td align="right">NA</td>
+<td align="left">TRUE</td>
+<td align="left">FALSE</td>
+<td align="left">wb</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div class="sourceCode" id="cb211"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">ptt</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">route</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>total_birds_ptt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">number</span><span class="op">)</span>, .groups <span class="op">=</span> <span class="st">"drop_last"</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">ptt_birds</span>
+
+<span class="va">wb</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">area_nr</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>total_birds_wb <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">number</span><span class="op">)</span>, .groups <span class="op">=</span> <span class="st">"drop_last"</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">wb_birds</span>
+
+<span class="va">distances</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="va">ptt_birds</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ptt_route"</span> <span class="op">=</span> <span class="st">"route"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="va">wb_birds</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"wb_area_nr"</span> <span class="op">=</span> <span class="st">"area_nr"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rowwise.html">rowwise</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>total_birds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">total_birds_wb</span>, <span class="va">total_birds_ptt</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/identity.html">identity</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">birds</span></code></pre></div>
+<div class="sourceCode" id="cb212"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">birds</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="va">dist_urban</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">dist_urban</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>total_birds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">total_birds</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html">distinct</a></span><span class="op">(</span><span class="va">dist_urban</span>, <span class="va">total_birds</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>dist_class <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html">case_when</a></span><span class="op">(</span>
+    <span class="va">dist_urban</span> <span class="op">&lt;=</span> <span class="fl">500</span> <span class="op">~</span> <span class="st">"&lt;500m"</span>,
+    <span class="va">dist_urban</span> <span class="op">&gt;</span> <span class="fl">500</span> <span class="op">&amp;</span> <span class="va">dist_urban</span> <span class="op">&lt;=</span> <span class="fl">1000</span> <span class="op">~</span> <span class="st">"500-1000m"</span>,
+    <span class="va">dist_urban</span> <span class="op">&gt;</span> <span class="fl">1000</span> <span class="op">&amp;</span> <span class="va">dist_urban</span> <span class="op">&lt;=</span> <span class="fl">2500</span> <span class="op">~</span> <span class="st">"1000-2500m"</span>,
+    <span class="va">dist_urban</span> <span class="op">&gt;</span> <span class="fl">2500</span> <span class="op">&amp;</span> <span class="va">dist_urban</span> <span class="op">&lt;=</span> <span class="fl">5000</span> <span class="op">~</span> <span class="st">"2500-5000m"</span>,
+    <span class="va">dist_urban</span> <span class="op">&gt;</span> <span class="fl">5000</span> <span class="op">~</span> <span class="st">"&gt;5000m"</span>
+  <span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">dist_class</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>total_birds_interval <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">total_birds</span><span class="op">)</span>, .groups <span class="op">=</span> <span class="st">"drop_last"</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>dist <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html">case_when</a></span><span class="op">(</span><span class="va">dist_class</span> <span class="op">==</span> <span class="st">"&lt;500m"</span> <span class="op">~</span> <span class="fl">1</span>,
+                          <span class="va">dist_class</span> <span class="op">==</span> <span class="st">"500-1000m"</span> <span class="op">~</span> <span class="fl">2</span>,
+                          <span class="va">dist_class</span> <span class="op">==</span> <span class="st">"1000-2500m"</span> <span class="op">~</span> <span class="fl">3</span>,
+                          <span class="va">dist_class</span> <span class="op">==</span> <span class="st">"2500-5000m"</span> <span class="op">~</span> <span class="fl">4</span>,
+                          <span class="va">dist_class</span> <span class="op">==</span> <span class="st">"&gt;5000m"</span> <span class="op">~</span> <span class="fl">5</span><span class="op">)</span>,
+    dist_class <span class="op">=</span> <span class="fu"><a href="https://forcats.tidyverse.org/reference/fct_reorder.html">fct_reorder</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/raster/man/factor.html">as.factor</a></span><span class="op">(</span><span class="va">dist_class</span><span class="op">)</span>, <span class="va">dist</span>, .desc <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>total_prop <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="op">(</span><span class="va">total_birds_interval</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">total_birds_interval</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="fl">100</span><span class="op">)</span>,
+         total_prop_str <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="va">total_prop</span>, <span class="st">"%"</span><span class="op">)</span>,
+         ymax <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cumsum.html">cumsum</a></span><span class="op">(</span><span class="va">total_prop</span><span class="op">)</span>,
+         ymin <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/pkg/raster/man/headtail.html">head</a></span><span class="op">(</span><span class="va">ymax</span>, n<span class="op">=</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="va">dist</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/identity.html">identity</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggdonutchart.html">ggdonutchart</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"total_prop"</span>, label <span class="op">=</span> <span class="st">"total_prop_str"</span>, lab.pos <span class="op">=</span> <span class="st">"in"</span>, fill <span class="op">=</span> <span class="st">"dist_class"</span>, color <span class="op">=</span> <span class="st">"white"</span>, lab.adjust <span class="op">=</span> <span class="fl">0</span>,
+             palette <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html">rev</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"#94346e"</span>, <span class="st">"#c43d66"</span>, <span class="st">"#e85553"</span>, <span class="st">"#fd7a37"</span>, <span class="st">"#ffa600"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<div class="inline-figure"><img src="10.Figures-4-Distance-to-fireworks_files/figure-html/create_distances_donutchart-1.png" width="672"></div>
+<div class="sourceCode" id="cb213"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># colorscale made using https://learnui.design/tools/data-color-picker.html and #94346e as starting point</span>
+
+<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsave.html">ggsave</a></span><span class="op">(</span><span class="st">"data/plots/distances.pdf"</span>, width <span class="op">=</span> <span class="fl">4</span>, height <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></code></pre></div>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="figure-3-species-composition.html"><span class="header-section-number">12</span> Figure 3: Species composition</a></div>
+<div class="next"><a href="context-1-number-of-birds-affected.html"><span class="header-section-number">14</span> Context 1: Number of birds affected</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#figure-4-distance-to-fireworks"><span class="header-section-number">13</span> Figure 4: Distance to fireworks</a></li>
+<li><a class="nav-link" href="#processing-environment-12"><span class="header-section-number">13.1</span> Processing environment</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/barthoekstra/fireworks/blob/master/10.Figures-4-Distance-to-fireworks.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/barthoekstra/fireworks/edit/master/10.Figures-4-Distance-to-fireworks.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Fireworks</strong>" was written by Bart Hoekstra. It was last built on 2021-04-30.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+</html>

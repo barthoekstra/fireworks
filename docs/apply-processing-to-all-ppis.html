@@ -40,6 +40,7 @@
 <li class="book-part">Sovon counts</li>
 <li><a class="" href="annotating-count-areas.html"><span class="header-section-number">4</span> Annotating count areas</a></li>
 <li><a class="" href="processing-count-results.html"><span class="header-section-number">5</span> Processing count results</a></li>
+<li class="book-part">Composite PPIs</li>
 <li><a class="active" href="apply-processing-to-all-ppis.html"><span class="header-section-number">6</span> Apply processing to all PPIs</a></li>
 <li><a class="" href="composite-all-ppis.html"><span class="header-section-number">7</span> Composite all PPIs</a></li>
 <li class="book-part">Fireworks disturbance</li>
@@ -49,10 +50,12 @@
 <li><a class="" href="figure-1-data-overview.html"><span class="header-section-number">10</span> Figure 1: Data overview</a></li>
 <li><a class="" href="figure-2-model-output.html"><span class="header-section-number">11</span> Figure 2: Model output</a></li>
 <li><a class="" href="figure-3-species-composition.html"><span class="header-section-number">12</span> Figure 3: Species composition</a></li>
+<li><a class="" href="figure-4-distance-to-fireworks.html"><span class="header-section-number">13</span> Figure 4: Distance to fireworks</a></li>
+<li><a class="" href="context-1-number-of-birds-affected.html"><span class="header-section-number">14</span> Context 1: Number of birds affected</a></li>
 <li class="book-part">Appendix</li>
-<li><a class="" href="generating-vps-for-den-helder-radar.html"><span class="header-section-number">13</span> Generating vertical profiles for Den Helder radar</a></li>
+<li><a class="" href="generating-vps-for-den-helder-radar.html"><span class="header-section-number">15</span> Generating vertical profiles for Den Helder radar</a></li>
 <li class="book-part">Other</li>
-<li><a class="" href="references.html"><span class="header-section-number">14</span> References</a></li>
+<li><a class="" href="references.html"><span class="header-section-number">16</span> References</a></li>
 </ul>
 
         <div class="book-extra">
@@ -76,78 +79,90 @@
 <h2>
 <span class="header-section-number">6.1</span> Processing environment<a class="anchor" aria-label="anchor" href="#processing-environment-5"><i class="fas fa-link"></i></a>
 </h2>
-<div class="sourceCode" id="cb121"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span></code></pre></div>
-<pre><code>## 
-## Attaching package: 'dplyr'</code></pre>
-<pre><code>## The following objects are masked from 'package:stats':
-## 
-##     filter, lag</code></pre>
-<pre><code>## The following objects are masked from 'package:base':
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<div class="sourceCode" id="cb125"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org">tidyr</a></span><span class="op">)</span>
+<div class="sourceCode" id="cb128"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org">tidyr</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://haozhu233.github.io/kableExtra/">kableExtra</a></span><span class="op">)</span></code></pre></div>
-<pre><code>## 
-## Attaching package: 'kableExtra'</code></pre>
-<pre><code>## The following object is masked from 'package:dplyr':
-## 
-##     group_rows</code></pre>
 </div>
 <div id="load-the-reference-ppis" class="section level2">
 <h2>
 <span class="header-section-number">6.2</span> Load the reference PPIs<a class="anchor" aria-label="anchor" href="#load-the-reference-ppis"><i class="fas fa-link"></i></a>
 </h2>
 <p>Two PPIs have been processed all the way and those will be our ‘reference’ PPIs from which we copy the data over to the other PPIs which have not had the same treatment.</p>
-<div class="sourceCode" id="cb128"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb129"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ppi_hrw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/processed/corrected-ppis-lu-sovon/corrected_ppi_hrw_lu_sovon.RDS"</span><span class="op">)</span>
 <span class="va">ppi_dhl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/processed/corrected-ppis-lu-sovon/corrected_ppi_dhl_lu_sovon.RDS"</span><span class="op">)</span></code></pre></div>
 </div>
-<div id="add-biomass-to-reference-ppis" class="section level2">
+<div id="add-biomass-and-cross-sections-to-reference-ppis" class="section level2">
 <h2>
-<span class="header-section-number">6.3</span> Add biomass to reference PPIs<a class="anchor" aria-label="anchor" href="#add-biomass-to-reference-ppis"><i class="fas fa-link"></i></a>
+<span class="header-section-number">6.3</span> Add biomass and cross-sections to reference PPIs<a class="anchor" aria-label="anchor" href="#add-biomass-and-cross-sections-to-reference-ppis"><i class="fas fa-link"></i></a>
 </h2>
 <p>We have previously calculated the <code>total_biomass</code> already for all the count areas/routes, but now we will annotate the reference PPIs with these values as well. We correct for the size of an area the count is conducted in by ‘spreading’ the total biomass over the number of pixels annotated with a certain count area/route.</p>
-<div class="sourceCode" id="cb129"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb130"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">wb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/processed/sovon/wb_biomass.RDS"</span><span class="op">)</span>
 <span class="va">ptt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/processed/sovon/ptt_biomass.RDS"</span><span class="op">)</span>
 
 <span class="va">ppi_hrw</span><span class="op">$</span><span class="va">data</span><span class="op">@</span><span class="va">data</span> <span class="op">%&lt;&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">wb</span>, <span class="va">area_nr</span>, <span class="va">total_biomass</span>, <span class="va">weighted_mean_weight</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"wb_area_nr"</span> <span class="op">=</span> <span class="st">"area_nr"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">wb</span>, <span class="va">area_nr</span>, <span class="va">total_biomass</span>, <span class="va">weighted_mean_weight</span>, <span class="va">total_crs</span>, <span class="va">weighted_mean_crs</span>, <span class="va">total_birds</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"wb_area_nr"</span> <span class="op">=</span> <span class="st">"area_nr"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>wb_total_biomass <span class="op">=</span> <span class="va">total_biomass</span>,
-         wb_weighted_mean_weight <span class="op">=</span> <span class="va">weighted_mean_weight</span><span class="op">)</span> <span class="op">%&gt;%</span>
+         wb_total_crs <span class="op">=</span> <span class="va">total_crs</span>,
+         wb_weighted_mean_weight <span class="op">=</span> <span class="va">weighted_mean_weight</span>,
+         wb_weighted_mean_crs <span class="op">=</span> <span class="va">weighted_mean_crs</span>,
+         wb_total_birds <span class="op">=</span> <span class="va">total_birds</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">wb_area_nr</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>wb_total_biomass <span class="op">=</span> <span class="va">wb_total_biomass</span> <span class="op">/</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>  
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>wb_total_biomass <span class="op">=</span> <span class="va">wb_total_biomass</span> <span class="op">/</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span>,
+         wb_total_crs <span class="op">=</span> <span class="va">wb_total_crs</span> <span class="op">/</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span>,
+         wb_total_birds <span class="op">=</span> <span class="va">wb_total_birds</span> <span class="op">/</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>  
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">ptt</span>, <span class="va">route</span>, <span class="va">total_biomass</span>, <span class="va">weighted_mean_weight</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ptt_route"</span> <span class="op">=</span> <span class="st">"route"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">ptt</span>, <span class="va">route</span>, <span class="va">total_biomass</span>, <span class="va">weighted_mean_weight</span>, <span class="va">total_crs</span>, <span class="va">weighted_mean_crs</span>, <span class="va">total_birds</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ptt_route"</span> <span class="op">=</span> <span class="st">"route"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>ptt_total_biomass <span class="op">=</span> <span class="va">total_biomass</span>,
-         ptt_weighted_mean_weight <span class="op">=</span> <span class="va">weighted_mean_weight</span><span class="op">)</span> <span class="op">%&gt;%</span>
+         ptt_total_crs <span class="op">=</span> <span class="va">total_crs</span>,
+         ptt_weighted_mean_weight <span class="op">=</span> <span class="va">weighted_mean_weight</span>,
+         ptt_weighted_mean_crs <span class="op">=</span> <span class="va">weighted_mean_crs</span>,
+         ptt_total_birds <span class="op">=</span> <span class="va">total_birds</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">ptt_route</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>ptt_total_biomass <span class="op">=</span> <span class="va">ptt_total_biomass</span> <span class="op">/</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> 
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>ptt_total_biomass <span class="op">=</span> <span class="va">ptt_total_biomass</span> <span class="op">/</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span>,
+         ptt_total_crs <span class="op">=</span> <span class="va">ptt_total_crs</span> <span class="op">/</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span>,
+         ptt_total_birds <span class="op">=</span> <span class="va">ptt_total_birds</span> <span class="op">/</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span> 
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rowwise.html">rowwise</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>total_biomass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">wb_total_biomass</span>, <span class="va">ptt_total_biomass</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,
-         weighted_mean_weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">wb_weighted_mean_weight</span>, <span class="va">ptt_weighted_mean_weight</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+         total_crs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">wb_total_crs</span>, <span class="va">ptt_total_crs</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,
+         weighted_mean_weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">wb_weighted_mean_weight</span>, <span class="va">ptt_weighted_mean_weight</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,
+         weighted_mean_crs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">wb_weighted_mean_crs</span>, <span class="va">ptt_weighted_mean_crs</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,
+         total_birds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">wb_total_birds</span>, <span class="va">ptt_total_birds</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <pre><code>## Loading required package: sp</code></pre>
-<div class="sourceCode" id="cb131"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb132"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">ppi_dhl</span><span class="op">$</span><span class="va">data</span><span class="op">@</span><span class="va">data</span> <span class="op">%&lt;&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">wb</span>, <span class="va">area_nr</span>, <span class="va">total_biomass</span>, <span class="va">weighted_mean_weight</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"wb_area_nr"</span> <span class="op">=</span> <span class="st">"area_nr"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">wb</span>, <span class="va">area_nr</span>, <span class="va">total_biomass</span>, <span class="va">weighted_mean_weight</span>, <span class="va">total_crs</span>, <span class="va">weighted_mean_crs</span>, <span class="va">total_birds</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"wb_area_nr"</span> <span class="op">=</span> <span class="st">"area_nr"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>wb_total_biomass <span class="op">=</span> <span class="va">total_biomass</span>,
-         wb_weighted_mean_weight <span class="op">=</span> <span class="va">weighted_mean_weight</span><span class="op">)</span> <span class="op">%&gt;%</span>
+         wb_total_crs <span class="op">=</span> <span class="va">total_crs</span>,
+         wb_weighted_mean_weight <span class="op">=</span> <span class="va">weighted_mean_weight</span>,
+         wb_weighted_mean_crs <span class="op">=</span> <span class="va">weighted_mean_crs</span>,
+         wb_total_birds <span class="op">=</span> <span class="va">total_birds</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">wb_area_nr</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>wb_total_biomass <span class="op">=</span> <span class="va">wb_total_biomass</span> <span class="op">/</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>wb_total_biomass <span class="op">=</span> <span class="va">wb_total_biomass</span> <span class="op">/</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span>,
+         wb_total_crs <span class="op">=</span> <span class="va">wb_total_crs</span> <span class="op">/</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span>,
+         wb_total_birds <span class="op">=</span> <span class="va">wb_total_birds</span> <span class="op">/</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">ptt</span>, <span class="va">route</span>, <span class="va">total_biomass</span>, <span class="va">weighted_mean_weight</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ptt_route"</span> <span class="op">=</span> <span class="st">"route"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">ptt</span>, <span class="va">route</span>, <span class="va">total_biomass</span>, <span class="va">weighted_mean_weight</span>, <span class="va">total_crs</span>, <span class="va">weighted_mean_crs</span>, <span class="va">total_birds</span><span class="op">)</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ptt_route"</span> <span class="op">=</span> <span class="st">"route"</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>ptt_total_biomass <span class="op">=</span> <span class="va">total_biomass</span>,
-         ptt_weighted_mean_weight <span class="op">=</span> <span class="va">weighted_mean_weight</span><span class="op">)</span> <span class="op">%&gt;%</span>
+         ptt_total_crs <span class="op">=</span> <span class="va">total_crs</span>,
+         ptt_weighted_mean_weight <span class="op">=</span> <span class="va">weighted_mean_weight</span>,
+         ptt_weighted_mean_crs <span class="op">=</span> <span class="va">weighted_mean_crs</span>,
+         ptt_total_birds <span class="op">=</span> <span class="va">total_birds</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">ptt_route</span><span class="op">)</span> <span class="op">%&gt;%</span>
-  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>ptt_total_biomass <span class="op">=</span> <span class="va">ptt_total_biomass</span> <span class="op">/</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>ptt_total_biomass <span class="op">=</span> <span class="va">ptt_total_biomass</span> <span class="op">/</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span>,
+         ptt_total_crs <span class="op">=</span> <span class="va">ptt_total_crs</span> <span class="op">/</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span>,
+         ptt_total_birds <span class="op">=</span> <span class="va">ptt_total_birds</span> <span class="op">/</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/context.html">n</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rowwise.html">rowwise</a></span><span class="op">(</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>total_biomass <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">wb_total_biomass</span>, <span class="va">ptt_total_biomass</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,
-         weighted_mean_weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">wb_weighted_mean_weight</span>, <span class="va">ptt_weighted_mean_weight</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
+         total_crs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">wb_total_crs</span>, <span class="va">ptt_total_crs</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,
+         weighted_mean_weight <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">wb_weighted_mean_weight</span>, <span class="va">ptt_weighted_mean_weight</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,
+         weighted_mean_crs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">wb_weighted_mean_crs</span>, <span class="va">ptt_weighted_mean_crs</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,
+         total_birds <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">wb_total_birds</span>, <span class="va">ptt_total_birds</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
   <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="copy-annotations-from-reference-ppis-to-other-ppis" class="section level2">
@@ -155,11 +170,13 @@
 <span class="header-section-number">6.4</span> Copy annotations from reference PPIs to other PPIs<a class="anchor" aria-label="anchor" href="#copy-annotations-from-reference-ppis-to-other-ppis"><i class="fas fa-link"></i></a>
 </h2>
 <p>We select the variables related to land use, distance to inhabited areas and population density, waterbird counts and PTT counts and add these to the PPIs that contain just the variables resulting from the range-bias correction <span class="citation">(Kranstauber et al. <a href="references.html#ref-kranstauber2020" role="doc-biblioref">2020</a>)</span>. While we are at it, we will also create dataframes containing all the information within the PPIs, to use for possible later modelling exercises.</p>
-<div class="sourceCode" id="cb132"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">columns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"urban"</span>, <span class="st">"agricultural"</span>, <span class="st">"semiopen"</span>, <span class="st">"forests"</span>, <span class="st">"wetlands"</span>, <span class="st">"waterbodies"</span>,
+<div class="sourceCode" id="cb133"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">columns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"urban"</span>, <span class="st">"agricultural"</span>, <span class="st">"semiopen"</span>, <span class="st">"forests"</span>, <span class="st">"wetlands"</span>, <span class="st">"waterbodies"</span>, <span class="st">"land"</span>,
              <span class="st">"dist_urban"</span>, <span class="st">"human_pop"</span>, <span class="st">"wb_area_id"</span>, <span class="st">"wb_area_nr"</span>, <span class="st">"ptt_route"</span>,
              <span class="st">"wb_area_id"</span>, <span class="st">"wb_area_nr"</span>, <span class="st">"wb_area_ha"</span>, <span class="st">"ptt_route"</span>, <span class="st">"wb_total_biomass"</span>, <span class="st">"ptt_total_biomass"</span>, <span class="st">"total_biomass"</span>, 
-             <span class="st">"wb_weighted_mean_weight"</span>, <span class="st">"ptt_weighted_mean_weight"</span>, <span class="st">"weighted_mean_weight"</span><span class="op">)</span>
+             <span class="st">"wb_weighted_mean_weight"</span>, <span class="st">"ptt_weighted_mean_weight"</span>, <span class="st">"weighted_mean_weight"</span>, 
+             <span class="st">"wb_total_crs"</span>, <span class="st">"ptt_total_crs"</span>, <span class="st">"total_crs"</span>, <span class="st">"wb_weighted_mean_crs"</span>, <span class="st">"ptt_weighted_mean_crs"</span>, <span class="st">"weighted_mean_crs"</span>,
+             <span class="st">"wb_total_birds"</span>, <span class="st">"ptt_total_birds"</span>, <span class="st">"total_birds"</span><span class="op">)</span>
 
 <span class="va">hrw</span> <span class="op">&lt;-</span> <span class="va">ppi_hrw</span><span class="op">$</span><span class="va">data</span><span class="op">@</span><span class="va">data</span> <span class="op">%&gt;%</span>
   <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html">all_of</a></span><span class="op">(</span><span class="va">columns</span><span class="op">)</span><span class="op">)</span>
@@ -180,27 +197,13 @@
   <span class="va">ppi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="va">ppi_path</span><span class="op">)</span>
   <span class="va">ppi</span><span class="op">$</span><span class="va">data</span><span class="op">@</span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind.html">bind_cols</a></span><span class="op">(</span><span class="va">ppi</span><span class="op">$</span><span class="va">data</span><span class="op">@</span><span class="va">data</span>, <span class="va">hrw</span><span class="op">)</span>
   <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">ppi</span>, file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="st">"data/processed/final-ppis/"</span>, <span class="fu"><a href="https://rdrr.io/r/base/basename.html">basename</a></span><span class="op">(</span><span class="va">ppi_path</span><span class="op">)</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span><span class="op">)</span>
-  
-  <span class="va">ppi</span><span class="op">$</span><span class="va">data</span><span class="op">@</span><span class="va">data</span> <span class="op">%&gt;%</span>
-    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>datetime <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html">as.POSIXct</a></span><span class="op">(</span><span class="va">ppi</span><span class="op">$</span><span class="va">datetime</span><span class="op">)</span>,
-           pixel <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/ranking.html">row_number</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
-    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind.html">bind_rows</a></span><span class="op">(</span><span class="va">hrw_all</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">hrw_all</span>
 <span class="op">}</span>
 
 <span class="kw">for</span> <span class="op">(</span><span class="va">ppi_path</span> <span class="kw">in</span> <span class="va">dhl_ppis</span><span class="op">)</span> <span class="op">{</span>
   <span class="va">ppi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="va">ppi_path</span><span class="op">)</span>
   <span class="va">ppi</span><span class="op">$</span><span class="va">data</span><span class="op">@</span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind.html">bind_cols</a></span><span class="op">(</span><span class="va">ppi</span><span class="op">$</span><span class="va">data</span><span class="op">@</span><span class="va">data</span>, <span class="va">dhl</span><span class="op">)</span>
   <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">ppi</span>, file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="st">"data/processed/final-ppis/"</span>, <span class="fu"><a href="https://rdrr.io/r/base/basename.html">basename</a></span><span class="op">(</span><span class="va">ppi_path</span><span class="op">)</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span><span class="op">)</span>
-  
-  <span class="va">ppi</span><span class="op">$</span><span class="va">data</span><span class="op">@</span><span class="va">data</span> <span class="op">%&gt;%</span>
-    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>datetime <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html">as.POSIXct</a></span><span class="op">(</span><span class="va">ppi</span><span class="op">$</span><span class="va">datetime</span><span class="op">)</span>,
-           pixel <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/ranking.html">row_number</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">%&gt;%</span>
-    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind.html">bind_rows</a></span><span class="op">(</span><span class="va">dhl_all</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">dhl_all</span>
-<span class="op">}</span>
-
-<span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">hrw_all</span>, file <span class="op">=</span> <span class="st">"data/processed/hrw.RDS"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">dhl_all</span>, file <span class="op">=</span> <span class="st">"data/processed/dhl.RDS"</span><span class="op">)</span></code></pre></div>
-<p><code>data/processed/hrw.RDS</code> and <code>data/processed/dhl.RDS</code> now contain all the PPI rows for each radar respectively.</p>
+<span class="op">}</span></code></pre></div>
 
 </div>
 </div>
@@ -213,7 +216,7 @@
 <li><a class="nav-link" href="#apply-processing-to-all-ppis"><span class="header-section-number">6</span> Apply processing to all PPIs</a></li>
 <li><a class="nav-link" href="#processing-environment-5"><span class="header-section-number">6.1</span> Processing environment</a></li>
 <li><a class="nav-link" href="#load-the-reference-ppis"><span class="header-section-number">6.2</span> Load the reference PPIs</a></li>
-<li><a class="nav-link" href="#add-biomass-to-reference-ppis"><span class="header-section-number">6.3</span> Add biomass to reference PPIs</a></li>
+<li><a class="nav-link" href="#add-biomass-and-cross-sections-to-reference-ppis"><span class="header-section-number">6.3</span> Add biomass and cross-sections to reference PPIs</a></li>
 <li><a class="nav-link" href="#copy-annotations-from-reference-ppis-to-other-ppis"><span class="header-section-number">6.4</span> Copy annotations from reference PPIs to other PPIs</a></li>
 </ul>
 
@@ -232,7 +235,7 @@
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Fireworks</strong>" was written by Bart Hoekstra. It was last built on 2021-03-22.</p>
+    <p>"<strong>Fireworks</strong>" was written by Bart Hoekstra. It was last built on 2021-04-30.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
