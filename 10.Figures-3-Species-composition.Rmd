@@ -9,7 +9,7 @@ To quantify the necessary variables we rely mostly on the point-transect counts 
 
 ## Processing environment
 
-```{r}
+```{r processing_environment_species_composition, warning=FALSE, message=FALSE}
 library(bioRad)
 library(ggplot2)
 library(dplyr)
