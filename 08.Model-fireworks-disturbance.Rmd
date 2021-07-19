@@ -52,9 +52,10 @@ names(data) <- c("500m", "1000m", "2000m")
 As we're mostly interested in the moment of en masse take-off of birds, and we want to limit the effects of dispersal, we will limit our analysis to the first 5 minutes after 00:05 on January 1st, 2018 (or 23:05 on December 31st, 2017 in UTC), as both radar sites (Den Helder and Herwijnen) show a low `VIR` prior to and a rapid increase in `VIR` for that period (see [Identifying moment of take-off]). Making sure birds are thus still sufficiently 'linked' to the take-off sites requires that we limit our analysis to only this one scan.
 
 Furthermore, we want to make sure that:
+
 1. the area is 'covered' by at least 1 radar,
 1. we have an estimate of `total_rcs` (and thus `total_biomass`) for these sites,
-1. the proportion of urban area (`urban`) in the PPI pixel is less than .25,
+1. the proportion of urban area (`urban`) in the PPI pixel is less than .1,
 1. `VIR` is > 0 (otherwise log-conversion will return `-Inf`), so we replace 0-values with 1e-3,
 1. the radar beam does not overshoot birds too much based on the `vp`.
 
