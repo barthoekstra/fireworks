@@ -129,8 +129,7 @@ build_species_lut <- function(specieslist, datasetKey = NULL, class_name = NULL)
                           datasetKey = datasetKey, 
                           higherTaxonKey = higherTaxonKey, 
                           return = "data")
-      
-      list(paste(str_split(Mode(gbif$scientificName), pattern = " ")[[1]][1:2], collapse = " "), Mode(gbif$nubKey))
+      list(paste(str_split(Mode(gbif$data$scientificName), pattern = " ")[[1]][1:2], collapse = " "), Mode(gbif$data$nubKey))
     }, error = function(e) {
       list("", NaN)
     })
