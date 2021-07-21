@@ -11,6 +11,7 @@ library(magick)
 library(purrr)
 library(viridis)
 library(dplyr)
+library(stringr)
 ```
 
 ## Generating the composite PPIs
@@ -22,13 +23,14 @@ source("R/comp_ppi.R")
 hrw_ppis <- Sys.glob(file.path("data/processed/final-ppis", "*NL62*"))
 dhl_ppis <- Sys.glob(file.path("data/processed/final-ppis", "*NL61*"))
 
-generate_composites <- function(hrw_ppis, dhl_ppis, res, maxrange) {
+generate_composites <- function(hrw_ppis, dhl_ppis, res, maxrange, output_dir_ppi, output_dir_vis) {
   basemap <- NULL
   
   for (i in seq_along(hrw_ppis)) {
     ppi_hrw <- readRDS(hrw_ppis[i])
     print(hrw_ppis[i])
     ppi_dhl <- readRDS(dhl_ppis[i])
+    print(dhl_ppis[i])
     
     # Set all columns to NA if further than maxrange from radar
     ppi_hrw$data@data[ppi_hrw$data@data$dist_radar > maxrange, ] <- NA
@@ -83,7 +85,7 @@ generate_composites <- function(hrw_ppis, dhl_ppis, res, maxrange) {
       cppi$data@data[params[j]] <- apply(cppi$data@data[params[j]], 1, solve_factors)
     }
     
-    saveRDS(cppi, file = paste("data/processed/composite-ppis/", res, "m/", strftime(ppi_hrw$datetime, format = "%Y%m%d%H%M"), ".RDS", sep = ""))
+    saveRDS(cppi, file = paste(output_dir_ppi, res, "m/", strftime(ppi_hrw$datetime, format = "%Y%m%d%H%M"), ".RDS", sep = ""))
     
     if (i == 1) {
       basemap <- download_basemap(cppi, alpha = 0.3)
@@ -97,12 +99,36 @@ generate_composites <- function(hrw_ppis, dhl_ppis, res, maxrange) {
       labs(title = "Fireworks NYE 2017-2018",
            subtitle = paste(ppi_hrw$datetime, ' UTC', sep = ""))
 
-    ggsave(paste("data/plots/vir-ppis/", res, "m/", strftime(ppi_hrw$datetime, format = "%Y%m%d%H%M"), ".png", sep = ""))
+    ggsave(paste(output_dir_vis, res, "m/", strftime(ppi_hrw$datetime, format = "%Y%m%d%H%M"), ".png", sep = ""))
   }
 }
 
-r <- lapply(c(500, 1000, 2000), function(x) { generate_composites(hrw_ppis, dhl_ppis, res = x, maxrange = 66000)})
+r <- lapply(c(500, 1000, 2000), function(x) { generate_composites(hrw_ppis, dhl_ppis, res = x, maxrange = 66000,
+                                                                  output_dir_ppi = "data/processed/composite-ppis/",
+                                                                  output_dir_vis = "data/plots/vir-ppis/")})
 ```
+
+We should also generate the composite PPIs for the baseline PPIs using the same procedure.
+
+```{r}
+hrw_ppis <- Sys.glob(file.path("data/processed/final-ppis-baseline", "NLHRW*"))
+dhl_ppis <- Sys.glob(file.path("data/processed/final-ppis-baseline", "NLDHL*"))
+
+extract_dt <- function(filepath) {
+  file <- basename(filepath)
+  str_split(basename(file), "_")[[1]][3]
+}
+hrw_dts <- unlist(lapply(hrw_ppis, extract_dt))
+dhl_dts <- unlist(lapply(dhl_ppis, extract_dt))
+
+hrw_selection <- sort(hrw_ppis[hrw_dts %in% dhl_dts])
+dhl_selection <- sort(dhl_ppis[dhl_dts %in% hrw_dts])
+
+r <- lapply(c(500, 1000, 2000), function(x) { generate_composites(hrw_ppis, dhl_ppis, res = x, maxrange = 66000,
+                                                                  output_dir_ppi = "data/processed/composite-ppis-baseline/",
+                                                                  output_dir_vis = "data/plots/vir-ppis-baseline/")})
+```
+
 
 ## Visualising the composites
 

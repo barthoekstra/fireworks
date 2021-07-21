@@ -100,7 +100,7 @@ ppi_dhl$data@data %<>%
 
 ## Copy annotations from reference PPIs to other PPIs
 
-We select the variables related to land use, distance to inhabited areas and population density, waterbird counts and PTT counts and add these to the PPIs that contain just the variables resulting from the range-bias correction [@kranstauber2020]. While we are at it, we will also create dataframes containing all the information within the PPIs, to use for possible later modelling exercises.
+We select the variables related to land use, distance to inhabited areas and population density, waterbird counts and PTT counts and add these to the PPIs that contain just the variables resulting from the range-bias correction [@kranstauber2020].
 
 ```{r copy_annotations_from_reference_ppis_to_other_ppis}
 columns <- c("urban", "agricultural", "semiopen", "forests", "wetlands", "waterbodies", "land",
@@ -135,6 +135,21 @@ for (ppi_path in dhl_ppis) {
   ppi <- readRDS(ppi_path)
   ppi$data@data <- bind_cols(ppi$data@data, dhl)
   saveRDS(ppi, file = paste("data/processed/final-ppis/", basename(ppi_path), sep = ""))
+}
+
+hrw_ppis <- Sys.glob(file.path("data/processed/baseline-ppis", "NLHRW*"))
+dhl_ppis <- Sys.glob(file.path("data/processed/baseline-ppis", "NLDHL*"))
+
+for (ppi_path in hrw_ppis) {
+  ppi <- readRDS(ppi_path)
+  ppi$data@data <- bind_cols(ppi$data@data, hrw)
+  saveRDS(ppi, file = paste("data/processed/final-ppis-baseline/", basename(ppi_path), sep = ""))
+}
+
+for (ppi_path in dhl_ppis) {
+  ppi <- readRDS(ppi_path)
+  ppi$data@data <- bind_cols(ppi$data@data, dhl)
+  saveRDS(ppi, file = paste("data/processed/final-ppis-baseline/", basename(ppi_path), sep = ""))
 }
 ```
 

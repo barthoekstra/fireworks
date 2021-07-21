@@ -466,6 +466,7 @@ for (pvol in hrw_pvols) {
                         ei_rays = ei_rays_hrw, 
                         pvol_dynamic_groundclutter = dynamic_groundclutter_hrw,
                         pvol_static_groundclutter = static_groundclutter_hrw,
+                        dir_out = "data/processed/corrected-ppis/",
                         res = 500)
 }
 
@@ -473,8 +474,44 @@ for (pvol in dhl_pvols) {
   preprocess_radar_data(pvol_path = pvol,
                         ei_rays = ei_rays_dhl,
                         pvol_dynamic_groundclutter = dynamic_groundclutter_dhl,
-                        pvol_static_groundclutter = static_groundclutter_dhl, 
+                        pvol_static_groundclutter = static_groundclutter_dhl,
+                        dir_out = "data/processed/corrected-ppis/",
                         azim_limits = c(90, 200),
                         res = 500)
 }
 ```
+
+## Preprocess baseline disturbance scans
+
+As we want to be able to compare the disturbance to the baseline level of reflectivity on other nights at the same time, we have downloaded about 20 days of polar volumes surrounding, but not directly adjacent to the nights near NYE. In particular, we've downloaded polar volumes from December 15th til 25th and January 5th til 15th. To compare all these polar volumes, we have to treat them all the same, so here we will process the files for the disturbance baseline as well.
+
+```{r preprocess_disturbance_baseline_scans, eval=full_repro, results='hide'}
+hrw_pvols <- Sys.glob(file.path("data/raw/pvol/disturbance-baseline", "NLHRW*"))
+dhl_pvols <- Sys.glob(file.path("data/raw/pvol/disturbance-baseline", "NLDHL*"))
+
+dynamic_groundclutter_hrw <- readRDS("data/processed/clutter_dynamic_hrw_avg.RDS")
+static_groundclutter_hrw <- readRDS("data/processed/clutter_static_hrw_avg.RDS")
+
+dynamic_groundclutter_dhl <- readRDS("data/processed/clutter_dynamic_dhl_avg.RDS")
+static_groundclutter_dhl <- readRDS("data/processed/clutter_static_dhl_avg.RDS")
+
+for (pvol in hrw_pvols) {
+  preprocess_radar_data(pvol_path = pvol, 
+                        ei_rays = ei_rays_hrw, 
+                        pvol_dynamic_groundclutter = dynamic_groundclutter_hrw,
+                        pvol_static_groundclutter = static_groundclutter_hrw,
+                        dir_out = "data/processed/baseline-ppis/",
+                        res = 500)
+}
+
+for (pvol in dhl_pvols) {
+  preprocess_radar_data(pvol_path = pvol,
+                        ei_rays = ei_rays_dhl,
+                        pvol_dynamic_groundclutter = dynamic_groundclutter_dhl,
+                        pvol_static_groundclutter = static_groundclutter_dhl,
+                        dir_out = "data/processed/baseline-ppis/",
+                        azim_limits = c(90, 200),
+                        res = 500)
+}
+```
+
