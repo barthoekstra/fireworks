@@ -124,9 +124,10 @@ dhl_dts <- unlist(lapply(dhl_ppis, extract_dt))
 hrw_selection <- sort(hrw_ppis[hrw_dts %in% dhl_dts])
 dhl_selection <- sort(dhl_ppis[dhl_dts %in% hrw_dts])
 
-r <- lapply(c(500, 1000, 2000), function(x) { generate_composites(hrw_ppis, dhl_ppis, res = x, maxrange = 66000,
-                                                                  output_dir_ppi = "data/processed/composite-ppis-baseline/",
-                                                                  output_dir_vis = "data/plots/vir-ppis-baseline/")})
+r <- lapply(c(500, 1000, 2000), function(x) { generate_composites(
+  hrw_selection, dhl_selection, res = x, maxrange = 66000,
+  output_dir_ppi = "data/processed/composite-ppis-baseline/",
+  output_dir_vis = "data/plots/vir-ppis-baseline/")})
 ```
 
 
