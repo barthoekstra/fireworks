@@ -1,0 +1,52 @@
+# Determine baseline disturbance
+
+```{r setup_disturbance_baseline_environment, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(tidyr)
+```
+
+```{r plot_baseline_ppis_scatter_class}
+files <- Sys.glob(file.path("data/processed/composite-ppis-baseline/500m", "*"))
+lapply(files, function(x) {
+  ppi <- readRDS(x)
+  plot(ppi, param = "class", zlim = c(0, 2)) + ggtitle(basename(x))
+})
+```
+
+```{r}
+files_selected <- files[c(2, 4, 6, 7, 8)]
+```
+
+```{r}
+data_disturbance <- readRDS("data/models/data_cleaned.RDS")
+
+data_baseline <- lapply(files_selected, function(x) readRDS(x)[["data"]]@data)
+
+clean_data <- function(data, max_distance, pixels) {
+  mdl_variables <- c("VIR", "dist_radar", "total_biomass", "total_crs",
+                     "agricultural", "semiopen", "forests", "wetlands", "waterbodies", "urban",
+                     "dist_urban", "human_pop", "pixel", "coverage", "class", "x", "y")
+  log10_variables <- c("dist_urban", "human_pop", "total_biomass", "dist_urban")
+  
+  data %>%
+    dplyr::filter(pixel %in% pixels) %>%
+    mutate(VIR = replace_na(VIR, 0.1),
+           VIR = if_else(VIR == 0, 0.1, VIR),
+           VIR = log10(VIR)) %>%
+    dplyr::select(all_of(mdl_variables)) %>%
+    filter_all(all_vars(is.finite(.))) %>%
+    rename(total_rcs = total_crs) %>%
+    identity() -> data_cleaned
+  
+  data_cleaned
+}
+
+baseline_ppis <- lapply(data_baseline, function(x) clean_data(x, 66000, data_disturbance$pixel))
+```
+
+```{r}
+baseline_response <- unlist(lapply(baseline_ppis, function(x) mean(x$VIR)))
+mean(baseline_response)
+```
