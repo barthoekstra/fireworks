@@ -48,5 +48,7 @@ baseline_ppis <- lapply(data_baseline, function(x) clean_data(x, 66000, data_dis
 
 ```{r}
 baseline_response <- unlist(lapply(baseline_ppis, function(x) mean(x$VIR)))
-mean(baseline_response)
+br <- mean(baseline_response)
+saveRDS(br, file = "data/processed/disturbance_baseline.RDS")
+br
 ```
