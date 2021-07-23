@@ -20,6 +20,7 @@ Once again we have tweaked some of the `mboost` default functionality, in this c
 ```{r load_models_and_functions}
 modelci <- readRDS("data/models/confints/final_modelci.RDS")
 data_cleaned <- readRDS("data/models/data_cleaned.RDS")
+baseline <- readRDS("data/processed/disturbance_baseline.RDS")
 source("R/mboost_bootstrapped_quantiles.R")
 source("R/plot.mboost_adjusted.R")
 ```
