@@ -12,7 +12,263 @@ library(tibble)
 library(ggpubr)
 library(forcats)
 library(stringr)
+library(broom)
+library(patchwork)
+library(ggridges)
+library(ggpointdensity)
 ```
+
+```{r}
+data_cleaned <- readRDS("data/models/data_cleaned.RDS")
+baseline_ppis <- readRDS("~/fireworks/data/processed/baseline_ppis.RDS")
+baseline_all <- bind_rows(baseline_ppis)
+
+data_all <- readRDS("data/processed/composite-ppis/500m/201712312305.RDS")$data@data %>%
+  dplyr::select("pixel", "wb_area_nr", "ptt_route", "wb_total_birds", "ptt_total_birds", "total_birds", "weighted_mean_crs") %>%
+  rename(mean_rcs = weighted_mean_crs)
+
+data_cleaned %>%
+  left_join(data_all, by = "pixel") -> data_cleaned
+
+wb_props <- readRDS("data/processed/sovon/wb_props.RDS") %>%
+  dplyr::select("area_nr", "Geese", "Ducks", "Crows", "Pigeons", "Waders", "Thrushes", "Finches", "Tits")
+
+ptt_props <- readRDS("data/processed/sovon/ptt_props.RDS") %>%
+  dplyr::select("route", "Geese", "Ducks", "Crows", "Pigeons", "Waders", "Thrushes", "Finches", "Tits")
+
+data_cleaned %>%
+  left_join(wb_props, by = c("wb_area_nr" = "area_nr")) %>%
+  left_join(ptt_props, by = c("ptt_route" = "route")) %>%
+  rowwise() %>%
+  mutate(Geese = mean(c(Geese.x, Geese.y), na.rm = TRUE),
+         Ducks = mean(c(Ducks.x, Ducks.y), na.rm = TRUE),
+         Crows = mean(c(Crows.x, Crows.y), na.rm = TRUE),
+         Pigeons = mean(c(Pigeons.x, Pigeons.y), na.rm = TRUE),
+         Waders = mean(c(Waders.x, Waders.y), na.rm = TRUE),
+         Thrushes = mean(c(Thrushes.x, Thrushes.y), na.rm = TRUE),
+         Finches = mean(c(Finches.x, Finches.y), na.rm = TRUE),
+         Tits = mean(c(Tits.x, Tits.y), na.rm = TRUE)) %>%
+  ungroup() %>%
+  dplyr::select(-c("Geese.x", "Geese.y", "Ducks.x", "Ducks.y", "Crows.x", "Crows.y", "Pigeons.x", "Pigeons.y",
+                   "Waders.x", "Waders.y", "Thrushes.x", "Thrushes.y", "Finches.x", "Finches.y", "Tits.x", "Tits.y")) -> data_cleaned
+
+prop_classes <- c("Geese", "Ducks", "Crows", "Pigeons", "Waders", "Thrushes", "Finches", "Tits")
+data_cleaned["domprop"] <- names(data_cleaned)[which(names(data_cleaned) %in% prop_classes)][max.col(data_cleaned[prop_classes], "first")]
+
+landuse_classes <- c("agricultural", "semiopen", "forests", "wetlands", "waterbodies")
+data_cleaned["domclass"] <- names(data_cleaned)[which(names(data_cleaned) %in% landuse_classes)][max.col(data_cleaned[landuse_classes], "first")]
+
+data_cleaned$VIR[data_cleaned$VIR < -1] <- -1
+
+baseline_all %>%
+  mutate(VIR = 10^VIR,
+         prop_flight = VIR / total_rcs,
+         VIR = log10(VIR)) %>%
+  identity() -> baseline_all
+```
+
+```{r}
+wb <- readRDS("data/processed/sovon/wb_props.RDS") %>%
+  dplyr::select(total_birds, area_nr, Geese, Ducks, Crows, Pigeons, Waders, Thrushes, Finches, Tits) %>%
+  pivot_longer(cols = Geese:Tits, names_to = "family", values_to = "prop_family") %>%
+  mutate(birds = round(total_birds * prop_family),
+         family = fct_relevel(as.factor(family), rev(prop_classes))) %>%
+  filter(birds > 0) %>%
+  left_join(dplyr::select(data_cleaned, wb_area_nr, dist_urban), by = c("area_nr" = "wb_area_nr")) %>%
+  drop_na() %>%
+  distinct(area_nr, family, dist_urban, .keep_all = TRUE) %>%
+  uncount(birds) %>%
+  slice_sample(n = 1000000) %>%
+  dplyr::select(family, dist_urban) %>%
+  identity()
+
+ptt <- readRDS("data/processed/sovon/ptt_props.RDS") %>%
+  dplyr::select(total_birds, route, Geese, Ducks, Crows, Pigeons, Waders, Thrushes, Finches, Tits) %>%
+  pivot_longer(cols = Geese:Tits, names_to = "family", values_to = "prop_family") %>%
+  mutate(birds = round(total_birds * prop_family),
+         # family = as.factor(family),
+         family = fct_relevel(as.factor(family), rev(prop_classes))) %>%
+  filter(birds > 0) %>%
+  left_join(dplyr::select(data_cleaned, ptt_route, dist_urban), by = c("route" = "ptt_route")) %>%
+  drop_na() %>%
+  distinct(route, family, dist_urban, .keep_all = TRUE) %>%
+  uncount(birds) %>%
+  slice_sample(n = 1000000) %>%
+  dplyr::select(family, dist_urban) %>%
+  identity()
+
+wb %>%
+  bind_rows(ptt) %>%
+  ggplot() +
+  geom_density_ridges(aes(x = dist_urban, y = family, fill = family), scale = 2.5, bandwidth = 275, rel_min_height = 0.005, color = "#ffffff") +
+  scale_x_continuous(limits = c(0, max(data_cleaned$dist_urban)), breaks = c(0, 5000, 10000, 15000)) +
+  scale_y_discrete(position = "left") +
+  coord_cartesian(expand = FALSE) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  labs(x = "Distance to residential area (m)", y = "Rel. occurrence.") %>%
+  identity() -> p_bird_families
+
+p_bird_families
+```
+
+```{r}
+data_cleaned %>%
+  dplyr::select(agricultural:urban, domclass, dist_urban) %>%
+  pivot_longer(cols = -c(domclass, dist_urban)) %>%
+  filter(domclass == name) %>%
+  ggplot(aes(x = dist_urban, y = fct_reorder(domclass, dist_urban, .fun = median, .desc = TRUE),
+             fill = domclass)) +
+  geom_density_ridges(scale = 4, rel_min_height = .005, color = "#ffffff") +
+  scale_fill_manual(values = c("#73AF48", "#0F8554", "#EDAD08", "#1D6996", "#38A6A5")) +
+  scale_color_manual(values = c("#73AF48", "#0F8554", "#EDAD08", "#1D6996", "#38A6A5")) +
+  scale_x_continuous(limits = c(0, max(data_cleaned$dist_urban)), breaks = c(0, 5000, 10000, 15000)) +
+  scale_y_discrete(position = "left") +
+  coord_cartesian(expand = FALSE) +
+  theme_bw() +
+  theme(legend.position = "none") + 
+  labs(x = "Distance to residential area (m)", y = "Rel. Occurrence") -> p_landuse
+
+p_landuse
+```
+
+
+```{r}
+alpha_baseline <- 0.5
+alpha_ribbon <- 0.3
+
+data_cleaned %>%
+  identity() %>%
+  ggplot(aes(x = dist_urban, y = VIR, size = total_rcs, alpha = after_stat(density))) +
+  # Scatterplot
+  geom_pointdensity()
+
+  # # geom_pointdensity(aes(x = dist_urban, y = VIR, size = total_rcs), alpha = 0.05) +
+  # # Horizontal lines
+  # geom_hline(yintercept = mean(baseline_all$VIR), color = "blue", linetype = "dashed") +
+  # geom_hline(yintercept = mean(data_cleaned$VIR), color = "red", linetype = "dashed") +
+  # # Smooths Undisturbed
+  # geom_ribbon(aes(x = dist_urban, y = VIR, group = dt), data = baseline_all, method = "gam", stat = "smooth", formula = y ~ s(x, bs = "cs"),
+  #             fill = "lightblue", alpha = alpha_ribbon) +
+  # geom_line(aes(x = dist_urban, y = VIR, group = dt), data = baseline_all, method = "gam", stat = "smooth", formula = y ~ s(x, bs = "cs"),
+  #           color = "blue", alpha = alpha_baseline) +
+  # # Smooths disturbed
+  # geom_ribbon(aes(x = dist_urban, y = VIR), method = "gam", stat = "smooth", fill = "red", alpha = 0.2, formula = y ~ s(x, bs = "cs")) +
+  # geom_line(aes(x = dist_urban, y = VIR), method = "gam", stat = "smooth", color = "red", alpha = 1, formula = y ~ s(x, bs = "cs")) +
+  # # Annotations
+  # annotate("text", x = 15500, y = mean(baseline_all$VIR) - 0.25, label = "Normal nights", hjust = 1, color = "blue", fontface = "bold") +
+  # annotate("text", x = 15500, y = mean(data_cleaned$VIR) + 0.25, label = "NYE", hjust = 1, color = "red", fontface = "bold") +
+  # # Theme & Styling
+  # scale_color_viridis_c(option = "inferno") +
+  # scale_y_continuous(labels = function(x) {10^x}, breaks = c(-1, 0, 1, 2, 3, 4, 5, 6)) +
+  # scale_x_continuous(breaks = c(0, 5000, 10000, 15000)) +
+  # theme_bw() +
+  # labs(x = "Distance to residential area (m)", y = "VIR") +
+  # guides(color = guide_colorbar("Density"),
+  #        size = guide_legend("Total RCS (cm2)")) +
+  # coord_cartesian(expand = FALSE, ylim = c(-1, 6)) -> p_response
+
+# data_cleaned %>%
+#   identity() %>%
+#   ggplot() +
+#   # Scatterplot
+#   stat_pointdensity(aes(x = dist_urban, y = VIR, size = total_rcs, alpha = after_stat(density))) +
+#   # geom_pointdensity(aes(x = dist_urban, y = VIR, size = total_rcs), alpha = 0.05) +
+#   # Horizontal lines
+#   geom_hline(yintercept = mean(baseline_all$VIR), color = "blue", linetype = "dashed") +
+#   geom_hline(yintercept = mean(data_cleaned$VIR), color = "red", linetype = "dashed") +
+#   # Smooths Undisturbed
+#   geom_ribbon(aes(x = dist_urban, y = VIR, group = dt), data = baseline_all, method = "gam", stat = "smooth", formula = y ~ s(x, bs = "cs"),
+#               fill = "lightblue", alpha = alpha_ribbon) +
+#   geom_line(aes(x = dist_urban, y = VIR, group = dt), data = baseline_all, method = "gam", stat = "smooth", formula = y ~ s(x, bs = "cs"),
+#             color = "blue", alpha = alpha_baseline) +
+#   # Smooths disturbed
+#   geom_ribbon(aes(x = dist_urban, y = VIR), method = "gam", stat = "smooth", fill = "red", alpha = 0.2, formula = y ~ s(x, bs = "cs")) +
+#   geom_line(aes(x = dist_urban, y = VIR), method = "gam", stat = "smooth", color = "red", alpha = 1, formula = y ~ s(x, bs = "cs")) +
+#   # Annotations
+#   annotate("text", x = 15500, y = mean(baseline_all$VIR) - 0.25, label = "Normal nights", hjust = 1, color = "blue", fontface = "bold") +
+#   annotate("text", x = 15500, y = mean(data_cleaned$VIR) + 0.25, label = "NYE", hjust = 1, color = "red", fontface = "bold") +
+#   # Theme & Styling
+#   scale_color_viridis_c(option = "inferno") +
+#   scale_y_continuous(labels = function(x) {10^x}, breaks = c(-1, 0, 1, 2, 3, 4, 5, 6)) +
+#   scale_x_continuous(breaks = c(0, 5000, 10000, 15000)) +
+#   theme_bw() +
+#   labs(x = "Distance to residential area (m)", y = "VIR") +
+#   guides(color = guide_colorbar("Density"),
+#          size = guide_legend("Total RCS (cm2)")) +
+#   coord_cartesian(expand = FALSE, ylim = c(-1, 6)) -> p_response
+
+# p_response
+```
+
+
+```{r}
+alpha_baseline <- 0.5
+alpha_ribbon <- 0.3
+
+baseline_all %>%
+  mutate(prop_flight = log10(prop_flight)) %>%
+  filter(is.finite(prop_flight)) %>%
+  identity() -> baseline
+
+data_cleaned %>%
+  mutate(VIR = 10^VIR,
+         prop_flight = VIR / total_rcs,
+         prop_flight = log10(prop_flight),
+         VIR = log10(VIR)) %>%
+  filter(is.finite(prop_flight)) %>%
+  identity() -> data_cleaned
+
+data_cleaned %>%
+  ggplot() +
+  # Scatterplot
+  geom_pointdensity(aes(x = dist_urban, y = prop_flight, size = total_rcs), alpha = 0.05) +
+  # Horizontal lines
+  geom_hline(yintercept = mean(baseline$prop_flight), color = "blue", linetype = "dashed") +
+  geom_hline(yintercept = mean(data_cleaned$prop_flight), color = "red", linetype = "dashed") +
+  # Smooths Undisturbed
+  geom_ribbon(aes(x = dist_urban, y = prop_flight, group = dt), data = baseline, method = "gam", stat = "smooth", 
+              formula = y ~ s(x, bs = "cs"), fill = "lightblue", alpha = alpha_ribbon) +
+  geom_line(aes(x = dist_urban, y = prop_flight, group = dt), data = baseline, method = "gam", stat = "smooth", 
+            formula = y ~ s(x, bs = "cs"), color = "blue", alpha = alpha_baseline) +
+  # Smooths disturbed
+  geom_ribbon(aes(x = dist_urban, y = prop_flight), method = "gam", stat = "smooth", fill = "red", alpha = 0.2, formula = y ~ s(x, bs = "cs")) +
+  geom_line(aes(x = dist_urban, y = prop_flight), method = "gam", stat = "smooth", color = "red", alpha = 1, formula = y ~ s(x, bs = "cs")) +
+  # Annotations
+  annotate("text", x = 15500, y = mean(baseline$prop_flight) - 0.25, label = "Normal nights", hjust = 1, color = "blue", fontface = "bold") +
+  annotate("text", x = 15500, y = mean(data_cleaned$prop_flight) + 0.25, label = "NYE", hjust = 1, color = "red", fontface = "bold") +
+  # Theme & Styling
+  scale_color_viridis_c(option = "inferno") +
+  scale_y_continuous(labels = function(x) 10^x, breaks = c(-5, -4, -3, -2, -1, 0, 1, 2), limits = c(-5, 2)) +
+  scale_x_continuous(breaks = c(0, 5000, 10000, 15000)) +
+  theme_bw() +
+  labs(x = "Distance to residential area (m)", y = "Measured / Potential VIR (Total RCS)") +
+  guides(color = guide_colorbar("Density"),
+         size = guide_legend("Total RCS (cm2)")) +
+  coord_cartesian(expand = FALSE) -> p_response_relative
+
+p_response_relative
+```
+
+```{r}
+(p_landuse / p_response / p_bird_families +
+  plot_layout(heights = c(1.5, 2.5, 1.5), guides = "collect"))
+
+ggsave("data/plots/distance_effect_absolute.pdf", width = 7, height = 7)
+```
+
+```{r}
+(p_landuse / p_response_relative / p_bird_families +
+  plot_layout(heights = c(1.5, 2.5, 1.5), guides = "collect"))
+
+ggsave("data/plots/distance_effect_relative.pdf", width = 7, height = 7)
+```
+
+
+
+
+
+## Old
 
 ```{r clean_data_distance_to_fireworks}
 selected_scan <- load("data/processed/pvol_selection.RData")
