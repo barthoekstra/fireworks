@@ -432,3 +432,20 @@ ptt %>%
   write.csv("data/processed/sovon/lut_species_family.csv")
 ```
 
+## Summary statistics for WebPanel
+
+Number of PTT counts included
+```{r}
+ptt %>%
+  distinct(count_id) %>%
+  nrow()
+```
+
+Number of waterbird counts included
+```{r}
+wb %>%
+  distinct(area_nr) %>%
+  nrow()
+```
+
+
