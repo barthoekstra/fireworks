@@ -91,7 +91,7 @@ rm(data)
 
 ## Determine model resolution based on performance in simple `total_crs` model
 
-As we want to correct for the influence of `total_rcs` on the measured response by the radars, we will test the performance of a simple model using just `dist_radar` to correct for range-biased measurement error and `total_rcs` for the resolutions we have generated composte PPIs for so far (500m, 1000m and 2000m).
+As we want to account for the influence of `total_rcs` on the measured response by the radars, we will test the performance of a simple model using just `dist_radar` to correct for range-biased measurement error and `total_rcs` for the resolutions we have generated composte PPIs for so far (500m, 1000m and 2000m).
 
 Let's start with a calculation of the RMSE.
 
