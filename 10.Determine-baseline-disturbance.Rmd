@@ -41,7 +41,7 @@ clean_data_baseline <- function(data, max_distance, pixels) {
            VIR = if_else(VIR == 0, 0.1, VIR),
            VIR = log10(VIR),
            VIDc = (10^VIR) / weighted_mean_crs,
-           VIDc = if_else(VIDc > 10000000, 0, VIDc),
+           VIDc = if_else(VIDc > 10000000, 1e-6, VIDc, 1e-6),
            dt = as.factor(dt)) %>%
     dplyr::select(all_of(mdl_variables)) %>%
     filter_all(all_vars(is.finite(.))) %>%
