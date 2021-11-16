@@ -5,6 +5,7 @@ library(ggplot2)
 library(dplyr)
 library(readr)
 library(tidyr)
+library(bioRad)
 ```
 
 ```{r plot_baseline_ppis_scatter_class}
@@ -48,7 +49,7 @@ clean_data_baseline <- function(data, max_distance, pixels) {
   data_cleaned
 }
 
-baseline_ppis <- lapply(data_baseline, function(x) clean_data(x, 66000, data_disturbance$pixel))
+baseline_ppis <- lapply(data_baseline, function(x) clean_data_baseline(x, 66000, data_disturbance$pixel))
 saveRDS(baseline_ppis, "data/processed/baseline_ppis.RDS")
 ```
 
