@@ -246,6 +246,223 @@ par(mfrow = c(2, 4))
 plot(model)
 ```
 
+
+```{r}
+# data_cleaned %>% 
+#   slice_sample(n = 1000) %>% 
+#   ggplot(aes(x = dist_urban, y = VIR, size = semiopen), alpha = 0.5) +
+#   geom_pointdensity() +
+#   scale_color_viridis_c(trans = "log10")
+# data_cleaned$pred <- predict(model, type = "response")
+landuse_classes <- c("agricultural", "semiopen", "forests", "wetlands", "waterbodies")
+
+data_cleaned["domclass"] <- names(data_cleaned)[which(names(data_cleaned) %in% landuse_classes)][max.col(data_cleaned[landuse_classes], "first")]
+data_cleaned["domprop"] <- data_cleaned[, ]
+data_cleaned["wetland"] <- data_cleaned$domclass == "wetlands"
+
+data_cleaned$VIR[data_cleaned$VIR < -1] <- -1
+
+baseline_all <- bind_rows(baseline_ppis)
+
+alpha_baseline <- 0.5
+alpha_ribbon <- 0.3
+
+data_cleaned %>%
+  # slice_sample(n = 2000) %>%
+  # filter(dist_urban < 10000) %>%
+  identity() %>%
+  ggplot() +
+  geom_pointdensity(aes(x = dist_urban, y = VIR, size = total_rcs), alpha = 0.05) +
+  # geom_point(aes(x = dist_urban, y = VIR, size = total_rcs), color = "gray80", shape = 1, alpha = 0.8,
+  #            data = data_cleaned %>% slice_sample(n = 10000)) +
+  # Horizontal lines
+  geom_hline(yintercept = disturbance_baseline, color = "blue", linetype = "dashed") +
+  geom_hline(yintercept = mean(data_cleaned$VIR), color = "red", linetype = "dashed") +
+  # Smooths Undisturbed
+  geom_ribbon(aes(x = dist_urban, y = VIR), data = baseline_ppis[[1]], method = "gam", stat = "smooth",
+              fill = "lightblue", alpha = alpha_ribbon) +
+  geom_line(aes(x = dist_urban, y = VIR), data = baseline_ppis[[1]], method = "gam", stat = "smooth", color = "blue", alpha = alpha_baseline) +
+  geom_ribbon(aes(x = dist_urban, y = VIR), data = baseline_ppis[[2]], method = "gam", stat = "smooth",
+              fill = "lightblue", alpha = alpha_ribbon) +
+  geom_line(aes(x = dist_urban, y = VIR), data = baseline_ppis[[2]], method = "gam", stat = "smooth", color = "blue", alpha = alpha_baseline) +
+  geom_ribbon(aes(x = dist_urban, y = VIR), data = baseline_ppis[[3]], method = "gam", stat = "smooth",
+              fill = "lightblue", alpha = alpha_ribbon) +
+  geom_line(aes(x = dist_urban, y = VIR), data = baseline_ppis[[3]], method = "gam", stat = "smooth", color = "blue", alpha = alpha_baseline) +
+  geom_ribbon(aes(x = dist_urban, y = VIR), data = baseline_ppis[[4]], method = "gam", stat = "smooth",
+              fill = "lightblue", alpha = alpha_ribbon) +
+  geom_line(aes(x = dist_urban, y = VIR), data = baseline_ppis[[4]], method = "gam", stat = "smooth", color = "blue", alpha = alpha_baseline) +
+  geom_ribbon(aes(x = dist_urban, y = VIR), data = baseline_ppis[[5]], method = "gam", stat = "smooth",
+              fill = "lightblue", alpha = alpha_ribbon) +
+  geom_line(aes(x = dist_urban, y = VIR), data = baseline_ppis[[5]], method = "gam", stat = "smooth", color = "blue", alpha = alpha_baseline) +
+  # geom_ribbon(aes(x = dist_urban, y = VIR), data = baseline_all, method = "gam", stat = "smooth",
+  #             fill = "lightblue", alpha = alpha_ribbon) +
+  # geom_line(aes(x = dist_urban, y = VIR), data = baseline_all, method = "gam", stat = "smooth", color = "blue", alpha = alpha_baseline) +
+  # Smooths disturbed
+  geom_ribbon(aes(x = dist_urban, y = VIR), method = "gam", stat = "smooth", fill = "red", alpha = 0.2) +
+  geom_line(aes(x = dist_urban, y = VIR), method = "gam", stat = "smooth", color = "red", alpha = 1) +
+  annotate("text", x = 15500, y = disturbance_baseline - 0.4, label = "Normal nights", hjust = 1, color = "blue", fontface = "bold") +
+  annotate("text", x = 15500, y = mean(data_cleaned$VIR) + 0.4, label = "NYE", hjust = 1, color = "red", fontface = "bold") +
+  scale_color_viridis_c(option = "inferno") +
+  # scale_color_grey() +
+  # scale_color_distiller(palette = "Greys", trans = "log10", direction = 1, values = c(0, 0.8)) +
+  # scale_color_gradient(low = "#C3C3C3", high = "#747474") +
+  # scale_color_discrete()
+  scale_y_continuous(labels = function(x) {10^x}, breaks = c(-1, 0, 1, 2, 3, 4, 5, 6)) +
+  scale_x_continuous(breaks = c(0, 5000, 10000, 15000)) +
+  # facet_wrap(vars(wetland)) +
+  theme_bw() +
+  labs(x = "Distance to residential area (m)", y = "VIR") +
+  guides(color = guide_colorbar("Density"),
+         size = guide_legend("Total RCS (cm2)")) +
+  coord_cartesian(expand = FALSE, ylim = c(-1, 6)) +
+  theme(legend.position = "bottom") -> p_response
+
+p_response
+```
+
+```{r}
+data_cleaned %>%
+  dplyr::select(agricultural:urban, domclass, dist_urban) %>%
+  pivot_longer(cols = -c(domclass, dist_urban)) %>%
+  filter(domclass == name) %>%
+  # ggplot() +
+  # geom_density(aes(x = dist_urban, group = domclass, fill = domclass), alpha = 0.5)
+  ggplot(aes(x = dist_urban, y = fct_reorder(domclass, dist_urban, .fun = median, .desc = TRUE),
+             fill = domclass)) +
+  geom_density_ridges(scale = 4, rel_min_height = .005, color = "#ffffff") +
+  scale_fill_manual(values = c("#73AF48", "#0F8554", "#EDAD08", "#1D6996", "#38A6A5")) +
+  scale_color_manual(values = c("#73AF48", "#0F8554", "#EDAD08", "#1D6996", "#38A6A5")) +
+  scale_x_continuous(limits = c(0, max(data_cleaned$dist_urban)), breaks = c(0, 5000, 10000, 15000)) +
+  scale_y_discrete(position = "left") +
+  coord_cartesian(expand = FALSE) +
+  theme_bw() +
+  theme(legend.position = "none") + 
+  labs(x = "Distance to residential area (m)", y = "Occurrence") -> p_landuse
+
+p_landuse
+```
+
+```{r}
+p_landuse / p_response +
+  plot_layout(heights = c(1, 2.5))
+```
+
+
+
+```{r}
+ggsave("data/plots/distance_effect_combined.pdf", width = 7, height = 6)
+```
+
+
+```{r}
+data_cleaned %>%
+  mutate(VIR = 10^VIR,
+         prop_flight = VIR / total_rcs,
+         # prop_flight = if_else(prop_flight < 0.01, 0.01, prop_flight),
+         prop_flight = log10(prop_flight)) %>%
+  identity() %>%
+  ggplot() +
+  geom_pointdensity(aes(x = dist_urban, y = prop_flight), alpha = 0.2) +
+  geom_smooth(aes(x = dist_urban, y = prop_flight), method = "gam") +
+  # scale_y_continuous(trans = "log", breaks = c(0, 0.25, 0.5, 0.75, 1, 10, 100, 1000))
+  # geom_pointdensity(aes(x = dist_urban, y = VIR, size = total_rcs), alpha = 0.2, position = position_jitter()) +
+  # # Horizontal lines
+  # geom_hline(yintercept = disturbance_baseline, color = "blue", linetype = "dashed") +
+  # geom_hline(yintercept = mean(data_cleaned$VIR), color = "red", linetype = "dashed") +
+  # # Smooths Undisturbed
+  # geom_ribbon(aes(x = dist_urban, y = VIR), data = baseline_ppis[[1]], method = "gam", stat = "smooth", 
+  #             fill = "lightblue", alpha = alpha_ribbon) +
+  # geom_line(aes(x = dist_urban, y = VIR), data = baseline_ppis[[1]], method = "gam", stat = "smooth", color = "blue", alpha = alpha_baseline) +
+  # geom_ribbon(aes(x = dist_urban, y = VIR), data = baseline_ppis[[2]], method = "gam", stat = "smooth", 
+  #             fill = "lightblue", alpha = alpha_ribbon) +
+  # geom_line(aes(x = dist_urban, y = VIR), data = baseline_ppis[[2]], method = "gam", stat = "smooth", color = "blue", alpha = alpha_baseline) +
+  # geom_ribbon(aes(x = dist_urban, y = VIR), data = baseline_ppis[[3]], method = "gam", stat = "smooth", 
+  #             fill = "lightblue", alpha = alpha_ribbon) +
+  # geom_line(aes(x = dist_urban, y = VIR), data = baseline_ppis[[3]], method = "gam", stat = "smooth", color = "blue", alpha = alpha_baseline) +
+  # geom_ribbon(aes(x = dist_urban, y = VIR), data = baseline_ppis[[4]], method = "gam", stat = "smooth", 
+  #             fill = "lightblue", alpha = alpha_ribbon) +
+  # geom_line(aes(x = dist_urban, y = VIR), data = baseline_ppis[[4]], method = "gam", stat = "smooth", color = "blue", alpha = alpha_baseline) +
+  # geom_ribbon(aes(x = dist_urban, y = VIR), data = baseline_ppis[[5]], method = "gam", stat = "smooth", 
+  #             fill = "lightblue", alpha = alpha_ribbon) +
+  # geom_line(aes(x = dist_urban, y = VIR), data = baseline_ppis[[5]], method = "gam", stat = "smooth", color = "blue", alpha = alpha_baseline) +
+  # # Smooths disturbed
+  # geom_ribbon(aes(x = dist_urban, y = VIR), method = "gam", stat = "smooth", fill = "red", alpha = 0.2) +
+  # geom_line(aes(x = dist_urban, y = VIR), method = "gam", stat = "smooth", color = "red", alpha = 1) +
+  # annotate("text", x = 15500, y = disturbance_baseline - 0.4, label = "Normal nights", hjust = 1, color = "blue", fontface = "bold") +
+  # annotate("text", x = 15500, y = mean(data_cleaned$VIR) + 0.4, label = "NYE", hjust = 1, color = "red", fontface = "bold") +
+  # scale_color_viridis_c() +
+  # # scale_color_discrete()
+  scale_y_continuous(labels = function(x) {10^x}, breaks = c(-6, -5, -4, -3, -2, -1, 0, 1, 2, 3))
+  # scale_x_continuous(breaks = c(0, 5000, 10000, 15000)) +
+  # # facet_wrap(vars(wetland)) +
+  # theme_bw() +
+  # labs(x = "Distance to residential area (m)", y = "VIR") +
+  # guides(color = guide_colorbar("Density (#)"),
+  #        size = guide_legend("Total RCS (cm2)")) +
+  # coord_cartesian(expand = FALSE)
+```
+
+```{r}
+add_prop_flight <- function(x) {
+  x %>%
+    mutate(VIR = 10^VIR,
+           prop_flight = VIR / total_rcs,
+           # prop_flight = if_else(prop_flight < 0.01, 0.01, prop_flight),
+           # prop_flight = log10(prop_flight),
+           VIR = log10(VIR)) %>%
+    identity()
+}
+
+baseline_ppis <- bind_rows(baseline_ppis)
+
+baseline_ppis <- add_prop_flight(baseline_ppis)
+
+
+data_cleaned %>%
+  mutate(VIR = 10^VIR,
+         prop_flight = VIR / total_rcs,
+         # prop_flight = if_else(prop_flight < 0.01, 0.01, prop_flight),
+         # prop_flight = log10(prop_flight),
+         VIR = log10(VIR)) %>%
+  identity() %>%
+  ggplot() +
+  geom_pointdensity(aes(x = dist_urban, y = prop_flight, size = total_rcs), alpha = 0.05) +
+  # geom_point(aes(x = dist_urban, y = VIR, size = total_rcs), color = "gray80", shape = 1, alpha = 0.8,
+  #            data = data_cleaned %>% slice_sample(n = 10000)) +
+  # Horizontal lines
+  # geom_hline(yintercept = disturbance_baseline, color = "blue", linetype = "dashed") +
+  # geom_hline(yintercept = mean(data_cleaned$prop_flight), color = "red", linetype = "dashed") +
+  # Smooths Undisturbed
+  geom_ribbon(aes(x = dist_urban, y = prop_flight, group = dt), data = baseline_ppis, method = "gam", stat = "smooth",
+              fill = "lightblue", alpha = alpha_ribbon) +
+  geom_line(aes(x = dist_urban, y = prop_flight, group = dt), data = baseline_ppis, method = "gam", stat = "smooth",
+            color = "blue", alpha = alpha_baseline) +
+  # Smooths disturbed
+  geom_ribbon(aes(x = dist_urban, y = prop_flight), method = "gam", stat = "smooth", fill = "red", alpha = 0.2) +
+  geom_line(aes(x = dist_urban, y = prop_flight), method = "gam", stat = "smooth", color = "red", alpha = 1) +
+  # annotate("text", x = 15500, y = disturbance_baseline - 0.4, label = "Normal nights", hjust = 1, color = "blue", fontface = "bold") +
+  # annotate("text", x = 15500, y = mean(data_cleaned$prop_flight) + 0.4, label = "NYE", hjust = 1, color = "red", fontface = "bold") +
+  scale_color_viridis_c(option = "inferno") +
+  # scale_color_grey() +
+  # scale_color_distiller(palette = "Greys", trans = "log10", direction = 1, values = c(0, 0.8)) +
+  # scale_color_gradient(low = "#C3C3C3", high = "#747474") +
+  # scale_color_discrete()
+  # scale_y_continuous(labels = function(x) {10^x}) +
+  scale_y_continuous(trans = "log10") +
+  # scale_y_continuous(trans = "log10") +
+  # scale_x_continuous(breaks = c(0, 5000, 10000, 15000)) +
+  # facet_wrap(vars(wetland)) +
+  theme_bw() +
+  labs(x = "Distance to residential area (m)", y = "Measured / Potential VIR (Total RCS)") +
+  guides(color = guide_colorbar("Density"),
+         size = guide_legend("Total RCS (cm2)")) +
+  coord_cartesian(expand = FALSE) +
+  theme(legend.position = "bottom") -> p_response
+
+p_response
+```
+
+
 ## Spatial autocorrelation
 
 Model residuals should not show strong autocorrelation as then the independency of errors assumption is violated (see for example [this](https://doi.org/10.1186/s41610-019-0118-3)). Additionally, a model with strong autocorrelation in the residuals suggests that it lacks a spatial component within the predictors. As it is computationally too difficult to calculate the spatial autocorrelation for the entire dataset at once, we subsample 20% of datapoints for these calculations. Results may thus vary to some degree.
