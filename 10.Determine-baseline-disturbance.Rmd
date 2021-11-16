@@ -32,7 +32,7 @@ data_baseline <- lapply(files_selected, function(x) {
 clean_data_baseline <- function(data, max_distance, pixels) {
   mdl_variables <- c("VIR", "dist_radar", "total_biomass", "total_crs",
                      "agricultural", "semiopen", "forests", "wetlands", "waterbodies", "urban",
-                     "dist_urban", "human_pop", "pixel", "coverage", "class", "x", "y", "dt")
+                     "dist_urban", "human_pop", "pixel", "coverage", "class", "x", "y", "dt", "VIDc")
   log10_variables <- c("dist_urban", "human_pop", "total_biomass", "dist_urban")
   
   data %>%
@@ -40,6 +40,8 @@ clean_data_baseline <- function(data, max_distance, pixels) {
     mutate(VIR = replace_na(VIR, 0.1),
            VIR = if_else(VIR == 0, 0.1, VIR),
            VIR = log10(VIR),
+           VIDc = (10^VIR) / weighted_mean_crs,
+           VIDc = if_else(VIDc > 10000000, 0, VIDc),
            dt = as.factor(dt)) %>%
     dplyr::select(all_of(mdl_variables)) %>%
     filter_all(all_vars(is.finite(.))) %>%
@@ -54,8 +56,9 @@ saveRDS(baseline_ppis, "data/processed/baseline_ppis.RDS")
 ```
 
 ```{r}
-baseline_response <- unlist(lapply(baseline_ppis, function(x) mean(x$VIR)))
-br <- mean(baseline_response)
+baseline_response_VIR <- unlist(lapply(baseline_ppis, function(x) mean(x$VIR)))
+baseline_response_VIDc <- unlist(lapply(baseline_ppis, function(x) mean(x$VIDc)))
+br <- c("VIR" = mean(baseline_response_VIR), "VIDc" = mean(baseline_response_VIDc))
 saveRDS(br, file = "data/processed/disturbance_baseline.RDS")
 br
 ```
