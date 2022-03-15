@@ -70,8 +70,9 @@ baseline_all %>%
 ```
 
 ```{r}
+prop_classes <- c("Geese", "Ducks", "Crows", "Pigeons", "Shorebirds", "Thrushes", "Finches", "Tits")
 wb <- readRDS("data/processed/sovon/wb_props.RDS") %>%
-  dplyr::select(total_birds, area_nr, Geese, Ducks, Crows, Pigeons, Waders, Thrushes, Finches, Tits) %>%
+  dplyr::select(total_birds, area_nr, Geese, Ducks, Crows, Pigeons, Shorebirds = Waders, Thrushes, Finches, Tits) %>%
   pivot_longer(cols = Geese:Tits, names_to = "family", values_to = "prop_family") %>%
   mutate(birds = round(total_birds * prop_family),
          family = fct_relevel(as.factor(family), rev(prop_classes))) %>%
@@ -85,7 +86,7 @@ wb <- readRDS("data/processed/sovon/wb_props.RDS") %>%
   identity()
 
 ptt <- readRDS("data/processed/sovon/ptt_props.RDS") %>%
-  dplyr::select(total_birds, route, Geese, Ducks, Crows, Pigeons, Waders, Thrushes, Finches, Tits) %>%
+  dplyr::select(total_birds, route, Geese, Ducks, Crows, Pigeons, Shorebirds = Waders, Thrushes, Finches, Tits) %>%
   pivot_longer(cols = Geese:Tits, names_to = "family", values_to = "prop_family") %>%
   mutate(birds = round(total_birds * prop_family),
          # family = as.factor(family),
@@ -102,13 +103,14 @@ ptt <- readRDS("data/processed/sovon/ptt_props.RDS") %>%
 wb %>%
   bind_rows(ptt) %>%
   ggplot() +
-  geom_density_ridges(aes(x = dist_urban, y = family, fill = family), scale = 2.5, bandwidth = 275, rel_min_height = 0.005, color = "#ffffff") +
+  geom_density_ridges(aes(x = dist_urban, y = family, fill = family), scale = 2.5, bandwidth = 275, rel_min_height = 0.005, color = "#ffffff", quantile_lines = TRUE, quantiles = 4) +
   scale_x_continuous(limits = c(0, max(data_cleaned$dist_urban)), breaks = c(0, 5000, 10000, 15000)) +
   scale_y_discrete(position = "left") +
+  scale_fill_cyclical(values = c("#E17C05", "#CC503E")) +
   coord_cartesian(expand = FALSE) +
-  theme_bw() +
+  theme_classic(base_size = 10) +
   theme(legend.position = "none") +
-  labs(x = "Distance to residential area (m)", y = "Rel. occurrence.") %>%
+  labs(x = "Distance to fireworks [m]", y = "Rel. occurrence") %>%
   identity() -> p_bird_families
 
 p_bird_families
@@ -121,15 +123,16 @@ data_cleaned %>%
   filter(domclass == name) %>%
   ggplot(aes(x = dist_urban, y = fct_reorder(domclass, dist_urban, .fun = median, .desc = TRUE),
              fill = domclass)) +
-  geom_density_ridges(scale = 4, rel_min_height = .005, color = "#ffffff") +
+  # geom_stream() +
+  geom_density_ridges(scale = 4, rel_min_height = .005, color = "#ffffff", quantile_lines = TRUE, quantiles = 4) +
   scale_fill_manual(values = c("#73AF48", "#0F8554", "#EDAD08", "#1D6996", "#38A6A5")) +
   scale_color_manual(values = c("#73AF48", "#0F8554", "#EDAD08", "#1D6996", "#38A6A5")) +
   scale_x_continuous(limits = c(0, max(data_cleaned$dist_urban)), breaks = c(0, 5000, 10000, 15000)) +
-  scale_y_discrete(position = "left") +
+  scale_y_discrete(position = "left", labels = function(x) stringr::str_to_sentence(x)) +
   coord_cartesian(expand = FALSE) +
-  theme_bw() +
+  theme_classic(base_size = 10) +
   theme(legend.position = "none") + 
-  labs(x = "Distance to residential area (m)", y = "Rel. Occurrence") -> p_landuse
+  labs(x = "Distance to fireworks [m]", y = "Rel. occurrence") -> p_landuse
 
 p_landuse
 ```
@@ -142,8 +145,11 @@ min_VID <- 0.01
 
 bppi <- lapply(baseline_ppis, function(x) {
   x %>%
-    mutate(VIDc = if_else(VIDc < min_VID, min_VID, VIDc, min_VID))
+    # mutate(VIDc = if_else(VIDc < min_VID, min_VID, VIDc, min_VID)) %>%
+    identity()
 })
+
+set.seed(42)
 
 db <- bind_rows(bppi)
 
@@ -151,13 +157,20 @@ disturbance_baseline <- mean(bind_rows(bppi)$VIDc, trim = 0.05)
 
 alpha_baseline <- 0.5
 alpha_ribbon <- 0.3
-# set.seed(2)
+
+color_normal <- "blue"
+color_disturbed <- "red"
+
+scientific_10 <- function(x) {
+  parse(text = str_replace(gsub("e", " %*% 10^", scales::scientific_format()(x)), "\\+", ""))
+}
 
 data_cleaned %>%
-  mutate(VIDc = if_else(VIDc < min_VID, min_VID, VIDc, min_VID)) %>%
+  # mutate(VIDc = if_else(VIDc < min_VID, min_VID, VIDc, min_VID)) %>%
   identity() %>%
   ggplot() +
-  geom_pointdensity(aes(x = dist_urban, y = VIDc, size = total_rcs), alpha = 0.05, adjust = 2.5, method = "default") +
+  # geom_pointdensity(aes(x = dist_urban, y = VIDc, size = total_rcs), alpha = 0.05, adjust = 2.5, method = "default") +
+  geom_point(aes(x = dist_urban, y = VIDc), data = . %>% sample_frac(1/5), alpha = 0.05, color = color_disturbed) +
   # geom_pointdensity(aes(x = dist_urban, y = VIR, size = total_rcs), alpha = 0.05) +
   # geom_point(aes(x = dist_urban, y = VIR, size = total_rcs), color = "gray80", shape = 20, alpha = 0.2,
   #            data = data_cleaned %>% slice_sample(n = 10000)) +
@@ -172,175 +185,53 @@ data_cleaned %>%
   # geom_hline(yintercept = disturbance_baseline, color = "blue", linetype = "dashed") +
   # geom_hline(yintercept = mean(data_cleaned$VIDc, trim = 0.25), color = "red", linetype = "dashed") +
   # Smooths Undisturbed
+  geom_point(aes(x = dist_urban, y = VIDc), data = db %>% dplyr::sample_frac(1/(5*length(bppi))), 
+             color = color_normal, alpha = 0.05) +
   geom_ribbon(aes(x = dist_urban, y = VIDc), data = bppi[[1]], method = "gam", stat = "smooth",
-              fill = "lightblue", alpha = alpha_ribbon) +
-  geom_line(aes(x = dist_urban, y = VIDc), data = bppi[[1]], method = "gam", stat = "smooth", color = "blue", alpha = alpha_baseline) +
+              fill = color_normal, alpha = alpha_ribbon, color = "white", size = 0.2) +
+  geom_line(aes(x = dist_urban, y = VIDc), data = bppi[[1]], method = "gam", stat = "smooth", color = color_normal, 
+            alpha = 1) +
   geom_ribbon(aes(x = dist_urban, y = VIDc), data = bppi[[2]], method = "gam", stat = "smooth",
-              fill = "lightblue", alpha = alpha_ribbon) +
-  geom_line(aes(x = dist_urban, y = VIDc), data = bppi[[2]], method = "gam", stat = "smooth", color = "blue", alpha = alpha_baseline) +
+              fill = color_normal, alpha = alpha_ribbon, color = "white", size = 0.2) +
+  geom_line(aes(x = dist_urban, y = VIDc), data = bppi[[2]], method = "gam", stat = "smooth", color = color_normal, 
+            alpha = 1) +
   geom_ribbon(aes(x = dist_urban, y = VIDc), data = bppi[[3]], method = "gam", stat = "smooth",
-              fill = "lightblue", alpha = alpha_ribbon) +
-  geom_line(aes(x = dist_urban, y = VIDc), data = bppi[[3]], method = "gam", stat = "smooth", color = "blue", alpha = alpha_baseline) +
+              fill = color_normal, alpha = alpha_ribbon, color = "white", size = 0.2) +
+  geom_line(aes(x = dist_urban, y = VIDc), data = bppi[[3]], method = "gam", stat = "smooth", color = color_normal, 
+            alpha = 1) +
   geom_ribbon(aes(x = dist_urban, y = VIDc), data = bppi[[4]], method = "gam", stat = "smooth",
-              fill = "lightblue", alpha = alpha_ribbon) +
-  geom_line(aes(x = dist_urban, y = VIDc), data = bppi[[4]], method = "gam", stat = "smooth", color = "blue", alpha = alpha_baseline) +
+              fill = color_normal, alpha = alpha_ribbon, color = "white", size = 0.2) +
+  geom_line(aes(x = dist_urban, y = VIDc), data = bppi[[4]], method = "gam", stat = "smooth", color = color_normal, 
+            alpha = 1) +
   geom_ribbon(aes(x = dist_urban, y = VIDc), data = bppi[[5]], method = "gam", stat = "smooth",
-              fill = "lightblue", alpha = alpha_ribbon) +
-  geom_line(aes(x = dist_urban, y = VIDc), data = bppi[[5]], method = "gam", stat = "smooth", color = "blue", alpha = alpha_baseline) +
+              fill = color_normal, alpha = alpha_ribbon, color = "white", size = 0.2) +
+  geom_line(aes(x = dist_urban, y = VIDc), data = bppi[[5]], method = "gam", stat = "smooth", color = color_normal, 
+            alpha = 1) +
   # annotate("text", x = 14500, y = disturbance_baseline - 0.4, label = "Normal nights", hjust = 1, color = "blue", fontface = "bold") +
   # Smooths disturbed
-  geom_ribbon(aes(x = dist_urban, y = VIDc), method = "gam", stat = "smooth", fill = "red", alpha = 0.2, color = "white") +
-  geom_line(aes(x = dist_urban, y = VIDc), method = "gam", stat = "smooth", color = "red", alpha = 1) +
+  geom_ribbon(aes(x = dist_urban, y = VIDc), method = "gam", stat = "smooth", fill = color_disturbed, alpha = 0.2, 
+              color = "white", size = 0.4) +
+  geom_line(aes(x = dist_urban, y = VIDc), method = "gam", stat = "smooth", color = color_disturbed, alpha = 1) +
   # annotate("text", x = 15500, y = mean(data_cleaned$VIDc) + 0.4, label = "NYE", hjust = 1, color = "red", fontface = "bold") +
   scale_color_viridis_c(option = "inferno") +
-  scale_y_continuous(trans = "log10", breaks = c(0.1, 1, 10, 100, 1000, 10000), 
-                     labels = c("0.1", "1", "10", "100", "1000", "10000")) +
+  scale_y_continuous(trans = "log10", breaks = c(0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000), 
+                     labels = c("0.0001", "0.001", "0.01", "0.1", "1", "10", "100", "1000", "10000")) +
   # scale_y_continuous(trans = scales::pseudo_log_trans(base = 10), labels = function(x) {10^x}, breaks = c(-1, 0, 1, 2, 3, 4, 5, 6)) +
   # scale_y_continuous(labels = function(x) {10^x}, breaks = c(-1, 0, 1, 2, 3, 4, 5, 6)) +
-  scale_x_continuous(breaks = c(0, 5000, 10000, 15000)) +
-  theme_bw() +
-  labs(x = "Distance to residential area (m)", y = "Nr. of birds in flight") +
+  scale_x_continuous(breaks = c(0, 5000, 10000, 15000), labels = c(0, 5000, 10000, 15000), expand = c(0, 0), limits = c(0, NA)) +
+  # scale_size_continuous(breaks = c(10, 100, 1000, 10000, 100000), labels = scientific_10) +
+  scale_size_continuous(breaks = c(100, 10000, 100000), labels = scales::label_number()) +
+  theme_classic(base_size = 10) +
+  # labs(x = "Distance to residential area [m]", y = expression(~Birds~"in"~flight~~"[individuals"~km^{-2}~"]")) +
+  labs(x = "Distance to fireworks [m]", y = expression("Birds in flight"~~group("[", individuals~km^{-2}, "]"))) +
   guides(color = guide_colorbar("Density"),
-         size = guide_legend("Total RCS (cm2)")) +
-  coord_cartesian(expand = FALSE, ylim = c(0.90e-2, 1e4)) +
-  theme(legend.position = "bottom") -> p_response
+         size = guide_legend(title = expression(Total~RCS~~group("[", cm^2, "]")))) +
+  coord_cartesian(ylim = c(0.90e-4, 1e4)) +
+  theme(legend.position = "right") -> p_response
 
 p_response
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```{r}
-alpha_baseline <- 0.5
-alpha_ribbon <- 0.3
-
-data_cleaned %>%
-  identity() %>%
-  ggplot(aes(x = dist_urban, y = VIR, size = total_rcs, alpha = after_stat(density))) +
-  # Scatterplot
-  geom_pointdensity()
-
-  # # geom_pointdensity(aes(x = dist_urban, y = VIR, size = total_rcs), alpha = 0.05) +
-  # # Horizontal lines
-  # geom_hline(yintercept = mean(baseline_all$VIR), color = "blue", linetype = "dashed") +
-  # geom_hline(yintercept = mean(data_cleaned$VIR), color = "red", linetype = "dashed") +
-  # # Smooths Undisturbed
-  # geom_ribbon(aes(x = dist_urban, y = VIR, group = dt), data = baseline_all, method = "gam", stat = "smooth", formula = y ~ s(x, bs = "cs"),
-  #             fill = "lightblue", alpha = alpha_ribbon) +
-  # geom_line(aes(x = dist_urban, y = VIR, group = dt), data = baseline_all, method = "gam", stat = "smooth", formula = y ~ s(x, bs = "cs"),
-  #           color = "blue", alpha = alpha_baseline) +
-  # # Smooths disturbed
-  # geom_ribbon(aes(x = dist_urban, y = VIR), method = "gam", stat = "smooth", fill = "red", alpha = 0.2, formula = y ~ s(x, bs = "cs")) +
-  # geom_line(aes(x = dist_urban, y = VIR), method = "gam", stat = "smooth", color = "red", alpha = 1, formula = y ~ s(x, bs = "cs")) +
-  # # Annotations
-  # annotate("text", x = 15500, y = mean(baseline_all$VIR) - 0.25, label = "Normal nights", hjust = 1, color = "blue", fontface = "bold") +
-  # annotate("text", x = 15500, y = mean(data_cleaned$VIR) + 0.25, label = "NYE", hjust = 1, color = "red", fontface = "bold") +
-  # # Theme & Styling
-  # scale_color_viridis_c(option = "inferno") +
-  # scale_y_continuous(labels = function(x) {10^x}, breaks = c(-1, 0, 1, 2, 3, 4, 5, 6)) +
-  # scale_x_continuous(breaks = c(0, 5000, 10000, 15000)) +
-  # theme_bw() +
-  # labs(x = "Distance to residential area (m)", y = "VIR") +
-  # guides(color = guide_colorbar("Density"),
-  #        size = guide_legend("Total RCS (cm2)")) +
-  # coord_cartesian(expand = FALSE, ylim = c(-1, 6)) -> p_response
-
-# data_cleaned %>%
-#   identity() %>%
-#   ggplot() +
-#   # Scatterplot
-#   stat_pointdensity(aes(x = dist_urban, y = VIR, size = total_rcs, alpha = after_stat(density))) +
-#   # geom_pointdensity(aes(x = dist_urban, y = VIR, size = total_rcs), alpha = 0.05) +
-#   # Horizontal lines
-#   geom_hline(yintercept = mean(baseline_all$VIR), color = "blue", linetype = "dashed") +
-#   geom_hline(yintercept = mean(data_cleaned$VIR), color = "red", linetype = "dashed") +
-#   # Smooths Undisturbed
-#   geom_ribbon(aes(x = dist_urban, y = VIR, group = dt), data = baseline_all, method = "gam", stat = "smooth", formula = y ~ s(x, bs = "cs"),
-#               fill = "lightblue", alpha = alpha_ribbon) +
-#   geom_line(aes(x = dist_urban, y = VIR, group = dt), data = baseline_all, method = "gam", stat = "smooth", formula = y ~ s(x, bs = "cs"),
-#             color = "blue", alpha = alpha_baseline) +
-#   # Smooths disturbed
-#   geom_ribbon(aes(x = dist_urban, y = VIR), method = "gam", stat = "smooth", fill = "red", alpha = 0.2, formula = y ~ s(x, bs = "cs")) +
-#   geom_line(aes(x = dist_urban, y = VIR), method = "gam", stat = "smooth", color = "red", alpha = 1, formula = y ~ s(x, bs = "cs")) +
-#   # Annotations
-#   annotate("text", x = 15500, y = mean(baseline_all$VIR) - 0.25, label = "Normal nights", hjust = 1, color = "blue", fontface = "bold") +
-#   annotate("text", x = 15500, y = mean(data_cleaned$VIR) + 0.25, label = "NYE", hjust = 1, color = "red", fontface = "bold") +
-#   # Theme & Styling
-#   scale_color_viridis_c(option = "inferno") +
-#   scale_y_continuous(labels = function(x) {10^x}, breaks = c(-1, 0, 1, 2, 3, 4, 5, 6)) +
-#   scale_x_continuous(breaks = c(0, 5000, 10000, 15000)) +
-#   theme_bw() +
-#   labs(x = "Distance to residential area (m)", y = "VIR") +
-#   guides(color = guide_colorbar("Density"),
-#          size = guide_legend("Total RCS (cm2)")) +
-#   coord_cartesian(expand = FALSE, ylim = c(-1, 6)) -> p_response
-
-# p_response
-```
-
-
-```{r}
-alpha_baseline <- 0.5
-alpha_ribbon <- 0.3
-
-baseline_all %>%
-  mutate(prop_flight = log10(prop_flight)) %>%
-  filter(is.finite(prop_flight)) %>%
-  identity() -> baseline
-
-data_cleaned %>%
-  mutate(VIR = 10^VIR,
-         prop_flight = VIR / total_rcs,
-         prop_flight = log10(prop_flight),
-         VIR = log10(VIR)) %>%
-  filter(is.finite(prop_flight)) %>%
-  identity() -> data_cleaned
-
-data_cleaned %>%
-  ggplot() +
-  # Scatterplot
-  geom_pointdensity(aes(x = dist_urban, y = prop_flight, size = total_rcs), alpha = 0.05) +
-  # Horizontal lines
-  geom_hline(yintercept = mean(baseline$prop_flight), color = "blue", linetype = "dashed") +
-  geom_hline(yintercept = mean(data_cleaned$prop_flight), color = "red", linetype = "dashed") +
-  # Smooths Undisturbed
-  geom_ribbon(aes(x = dist_urban, y = prop_flight, group = dt), data = baseline, method = "gam", stat = "smooth", 
-              formula = y ~ s(x, bs = "cs"), fill = "lightblue", alpha = alpha_ribbon) +
-  geom_line(aes(x = dist_urban, y = prop_flight, group = dt), data = baseline, method = "gam", stat = "smooth", 
-            formula = y ~ s(x, bs = "cs"), color = "blue", alpha = alpha_baseline) +
-  # Smooths disturbed
-  geom_ribbon(aes(x = dist_urban, y = prop_flight), method = "gam", stat = "smooth", fill = "red", alpha = 0.2, formula = y ~ s(x, bs = "cs")) +
-  geom_line(aes(x = dist_urban, y = prop_flight), method = "gam", stat = "smooth", color = "red", alpha = 1, formula = y ~ s(x, bs = "cs")) +
-  # Annotations
-  annotate("text", x = 15500, y = mean(baseline$prop_flight) - 0.25, label = "Normal nights", hjust = 1, color = "blue", fontface = "bold") +
-  annotate("text", x = 15500, y = mean(data_cleaned$prop_flight) + 0.25, label = "NYE", hjust = 1, color = "red", fontface = "bold") +
-  # Theme & Styling
-  scale_color_viridis_c(option = "inferno") +
-  scale_y_continuous(labels = function(x) 10^x, breaks = c(-5, -4, -3, -2, -1, 0, 1, 2), limits = c(-5, 2)) +
-  scale_x_continuous(breaks = c(0, 5000, 10000, 15000)) +
-  theme_bw() +
-  labs(x = "Distance to residential area (m)", y = "Measured / Potential VIR (Total RCS)") +
-  guides(color = guide_colorbar("Density"),
-         size = guide_legend("Total RCS (cm2)")) +
-  coord_cartesian(expand = FALSE) -> p_response_relative
-
-p_response_relative
-```
 
 ```{r}
 (p_landuse / p_response / p_bird_families +
@@ -356,6 +247,13 @@ ggsave("data/plots/distance_effect_absolute.pdf", width = 7, height = 7)
 ggsave("data/plots/distance_effect_relative.pdf", width = 7, height = 7)
 ```
 
+```{r}
+(p_landuse / p_bird_families / p_response  +
+  plot_layout(heights = c(1.5, 1.5, 2.5), guides = "collect"))
+
+ggsave(filename = "data/plots/paper/distance_effect_nrbirds.pdf", width = 11.4, height = 17, dpi = 300, units = "cm")
+
+```
 
 
 
@@ -478,3 +376,4 @@ birds %>%
 
 ggsave("data/plots/distances.pdf", width = 4, height = 4)
 ```
+
