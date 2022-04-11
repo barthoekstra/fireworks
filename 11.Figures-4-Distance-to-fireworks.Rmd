@@ -70,7 +70,58 @@ baseline_all %>%
 ```
 
 ```{r}
-prop_classes <- c("Geese", "Ducks", "Crows", "Pigeons", "Shorebirds", "Thrushes", "Finches", "Tits")
+readRDS("data/processed/sovon/ptt_props.RDS") %>%
+  dplyr::select(total_birds, route, Geese, Ducks, Crows, Pigeons, Shorebirds = Waders, Thrushes, Finches, Tits) %>%
+  pivot_longer(cols = Geese:Tits, names_to = "family", values_to = "prop_family") %>%
+  mutate(birds = round(total_birds * prop_family),
+         # family = as.factor(family),
+         family = fct_relevel(as.factor(family), rev(prop_classes))) %>%
+  filter(birds > 0) %>%
+  left_join(dplyr::select(data_cleaned, ptt_route, dist_urban), by = c("route" = "ptt_route")) %>%
+  drop_na() %>%
+  distinct(route, family, dist_urban, .keep_all = TRUE) %>%
+  # uncount(birds) %>%
+  # slice_sample(n = 1000000) %>%
+  # dplyr::select(family, dist_urban) %>%
+  identity()
+```
+
+```{r}
+readRDS("data/processed/sovon/ptt_props.RDS") %>%
+  dplyr::select(total_birds, route) %>%
+  filter(total_birds > 0) %>%
+  left_join(dplyr::select(data_cleaned, ptt_route, dist_urban), by = c("route" = "ptt_route")) %>%
+  drop_na() %>%
+  distinct(route, total_birds, dist_urban, .keep_all = TRUE) %>%
+  uncount(total_birds) %>%
+  # slice_sample(n = 2000000) %>%
+  mutate(family = "All") %>%
+  dplyr::select(family, dist_urban) %>%
+  identity() -> ptt_all
+
+readRDS("data/processed/sovon/wb_props.RDS") %>%
+  dplyr::select(total_birds, area_nr) %>%
+  filter(total_birds > 0) %>%
+  left_join(dplyr::select(data_cleaned, wb_area_nr, dist_urban), by = c("area_nr" = "wb_area_nr")) %>%
+  drop_na() %>%
+  distinct(area_nr, total_birds, dist_urban, .keep_all = TRUE) %>%
+  uncount(total_birds) %>%
+  # slice_sample(n = 2000000) %>%
+  mutate(family = "All") %>%
+  dplyr::select(family, dist_urban) %>%
+  identity() -> wb_all
+
+wb_all %>%
+  bind_rows(ptt_all) -> all
+a <- ecdf(all$dist_urban)
+a(2500)
+a(5000)
+```
+
+
+
+```{r}
+prop_classes <- c("Geese", "Ducks", "Crows", "Pigeons", "Shorebirds", "Thrushes", "Finches", "Tits", "All")
 wb <- readRDS("data/processed/sovon/wb_props.RDS") %>%
   dplyr::select(total_birds, area_nr, Geese, Ducks, Crows, Pigeons, Shorebirds = Waders, Thrushes, Finches, Tits) %>%
   pivot_longer(cols = Geese:Tits, names_to = "family", values_to = "prop_family") %>%
@@ -89,7 +140,6 @@ ptt <- readRDS("data/processed/sovon/ptt_props.RDS") %>%
   dplyr::select(total_birds, route, Geese, Ducks, Crows, Pigeons, Shorebirds = Waders, Thrushes, Finches, Tits) %>%
   pivot_longer(cols = Geese:Tits, names_to = "family", values_to = "prop_family") %>%
   mutate(birds = round(total_birds * prop_family),
-         # family = as.factor(family),
          family = fct_relevel(as.factor(family), rev(prop_classes))) %>%
   filter(birds > 0) %>%
   left_join(dplyr::select(data_cleaned, ptt_route, dist_urban), by = c("route" = "ptt_route")) %>%
@@ -102,6 +152,7 @@ ptt <- readRDS("data/processed/sovon/ptt_props.RDS") %>%
 
 wb %>%
   bind_rows(ptt) %>%
+  mutate(family = fct_relevel(as.factor(family), rev(prop_classes))) %>%
   ggplot() +
   geom_density_ridges(aes(x = dist_urban, y = family, fill = family), scale = 2.5, bandwidth = 275, rel_min_height = 0.005, color = "#ffffff", quantile_lines = TRUE, quantiles = 4) +
   scale_x_continuous(limits = c(0, max(data_cleaned$dist_urban)), breaks = c(0, 5000, 10000, 15000)) +

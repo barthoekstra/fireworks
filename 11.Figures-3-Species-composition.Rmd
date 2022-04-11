@@ -205,5 +205,5 @@ p_landscape_characterisation
 And we save it as .pdf for editing in Illustrator.
 
 ```{r}
-ggsave(filename = "data/plots/paper/fig2_landscape.pdf", plot = p_landscape_characterisation, width = 14, height = 25, dpi = 300, units = "cm")
+ggsave(filename = "data/plots/paper/fig2_landscape.pdf", plot = p_landscape_characterisation, width = 12, height = 18, dpi = 300, units = "cm")
 ```

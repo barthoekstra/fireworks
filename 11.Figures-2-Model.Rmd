@@ -133,7 +133,7 @@ x_labels <- c("urban" = "Urban",
               "total_rcs" = "Total RCS (g^(2/3))", 
               "dist_radar" = "Distance from radar (m)")
 limit_quantiles <- c("dist_urban", "total_rcs")
-manual_limits <- list("dist_urban" = c(min(data_cleaned$dist_urban), quantile(data_cleaned$dist_urban, probs = 0.975)),
+manual_limits <- list("dist_urban" = c(min(data_cleaned$dist_urban), max(data_cleaned$dist_urban)),
                       "total_rcs" = c(0, quantile(data_cleaned$total_rcs, probs = 0.975)))
 # ylims <- c(-1.8, 1.5) + modelci$model$offset
 ylims <- c(-1, 1)
@@ -224,7 +224,7 @@ plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims
     
     p <- p +
       geom_ribbon(aes(x = x, ymin = !!ymin, ymax = !!ymax, alpha = !!alphas[i]), fill = colors[which]) +
-      geom_line(aes(x = x, y = y), color = colors[which], size = 1.5, lineend = "round")
+      geom_line(aes(x = x, y = y), color = colors[which], size = 0.75, lineend = "round")
     
     if (offset) {
       p <- p + scale_y_continuous(labels = function(x) {10^x})
@@ -257,9 +257,9 @@ plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims
   p <- p +
     theme_classic(base_size = 10) +
     labs(x = xlabel, y = expression(paste("Flight response ", log[10], "(VIR)"))) +
-    theme(axis.line.y.left = element_line(color = colors[which], size = 1),
+    theme(axis.line.y.left = element_line(color = colors[which], size = 0.5),
           axis.line.y.right = element_line(color = "grey"),
-          axis.ticks.y.left = element_line(color = colors[which], size = 1),
+          axis.ticks.y.left = element_line(color = colors[which], size = 0.5),
           axis.ticks.y.right = element_line(color = "grey"),
           axis.title.y = element_text())
   
@@ -316,10 +316,10 @@ x_labels <- c("urban" = "Urban",
               "forests" = "Forests", 
               "wetlands" = "Wetlands", 
               "waterbodies" = "Water bodies", 
-              "dist_urban" = "Distance to fireworks (m)", 
-              "total_rcs" = "Total RCS (g^(2/3))", 
-              "dist_radar" = "Distance from radar (m)",
-              "acov" = "Residual autocovariate (VIR)")
+              "dist_urban" = "Distance to fireworks [m]", 
+              "total_rcs" = "Total RCS [cm^2]", 
+              "dist_radar" = "Distance from radar [m]",
+              "acov" = "Residual autocovariate [cm^2]")
 limit_quantiles <- c("dist_urban", "total_rcs")
 manual_limits <- list("dist_urban" = c(min(data_cleaned$dist_urban), max(data_cleaned$dist_urban)),
                       "total_rcs" = c(0, max(data_cleaned$total_rcs)),
@@ -610,7 +610,7 @@ plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims
   dens <- as.data.frame(list(as.matrix(dens$x), as.matrix(dens$y)))
   colnames(dens) <- c("x", "y")
   p <- p +
-    geom_line(aes(x = x, y = y), data =  dens, color = "grey50", lineend = "round", linetype = 3) +
+    geom_line(aes(x = x, y = y), data =  dens, color = "grey", lineend = "round", linetype = 3) +
     scale_y_continuous(sec.axis = sec_axis(~ ., name = "Predictor frequency", breaks = scale_lims, labels = c("min", "max")))
   
   ## Add horizontal line
@@ -631,7 +631,7 @@ plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims
     
     p <- p +
       geom_ribbon(aes(x = x, ymin = !!ymin, ymax = !!ymax, alpha = !!alphas[i]), fill = colors[which]) +
-      geom_line(aes(x = x, y = y), color = colors[which], size = 1.5, lineend = "round")
+      geom_line(aes(x = x, y = y), color = colors[which], size = 0.75, lineend = "round")
     
     if (offset) {
       p <- p + scale_y_continuous(labels = function(x) {10^x})
@@ -664,9 +664,9 @@ plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims
   p <- p +
     theme_classic(base_size = 10) +
     labs(x = xlabel, y = expression(paste("Flight response ", log[10], "(VIR)"))) +
-    theme(axis.line.y.left = element_line(color = colors[which], size = 1),
+    theme(axis.line.y.left = element_line(color = colors[which], size = 0.5),
           axis.line.y.right = element_line(color = "grey"),
-          axis.ticks.y.left = element_line(color = colors[which], size = 1),
+          axis.ticks.y.left = element_line(color = colors[which], size = 0.5),
           axis.ticks.y.right = element_line(color = "grey"),
           axis.title.y = element_text(),
           axis.title.y.right = element_blank())
@@ -717,13 +717,13 @@ x_labels <- c("urban" = "Urban",
               "wetlands" = "Wetlands", 
               "waterbodies" = "Water bodies", 
               "dist_urban" = "Distance to fireworks (m)", 
-              "total_rcs" = "Total RCS (g^(2/3))", 
+              "total_rcs" = "Total RCS (cm^2)", 
               "dist_radar" = "Distance from radar (m)")
 limit_quantiles <- c("dist_urban", "total_rcs")
-manual_limits <- list("dist_urban" = c(min(data_cleaned$dist_urban), quantile(data_cleaned$dist_urban, probs = 0.975)),
-                      "total_rcs" = c(0, quantile(data_cleaned$total_rcs, probs = 0.975)))
+manual_limits <- list("dist_urban" = c(min(data_cleaned$dist_urban), max(data_cleaned$dist_urban)),
+                      "total_rcs" = c(0, quantile(data_cleaned$total_rcs, probs = 0.995)))
 # ylims <- c(-1.8, 1.5) + modelci$model$offset
-ylims <- c(-1, 1)
+ylims <- c(-3, 1)
 
 plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims = ylims, varimp = NULL, offset = FALSE) {
   # Extract bootstrapped quantiles
@@ -790,7 +790,7 @@ plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims
   dens <- as.data.frame(list(as.matrix(dens$x), as.matrix(dens$y)))
   colnames(dens) <- c("x", "y")
   p <- p +
-    geom_line(aes(x = x, y = y), data =  dens, color = "grey50", lineend = "round", linetype = 3) +
+    geom_line(aes(x = x, y = y), data =  dens, color = "grey", lineend = "round", linetype = 3) +
     scale_y_continuous(sec.axis = sec_axis(~ ., name = "Predictor frequency", breaks = scale_lims, labels = c("min", "max")))
   
   ## Add horizontal line
@@ -811,7 +811,7 @@ plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims
     
     p <- p +
       geom_ribbon(aes(x = x, ymin = !!ymin, ymax = !!ymax, alpha = !!alphas[i]), fill = colors[which]) +
-      geom_line(aes(x = x, y = y), color = colors[which], size = 1.5, lineend = "round")
+      geom_line(aes(x = x, y = y), color = colors[which], size = 0.75, lineend = "round")
     
     if (offset) {
       p <- p + scale_y_continuous(labels = function(x) {10^x})
@@ -828,8 +828,8 @@ plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims
   if (which == "dist_urban") {
     xlabel <- x_labels[which]
     p <- p +
-      coord_cartesian(xlim = manual_limits$dist_urban, ylim = ylims, expand = FALSE)
-      # scale_x_continuous(breaks = c(0, 10000, 20000, 30000), labels = c(0, 10, 20, 30))
+      coord_cartesian(xlim = manual_limits$dist_urban, ylim = ylims, expand = FALSE) +
+      scale_x_continuous(breaks = c(0, 5000, 10000, 15000))
   } else if (which == "total_rcs") {
     xlabel <- x_labels[which]
     p <- p +
@@ -844,9 +844,9 @@ plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims
   p <- p +
     theme_classic(base_size = 10) +
     labs(x = xlabel, y = expression(paste("Flight response ", log[10], "(VIR)"))) +
-    theme(axis.line.y.left = element_line(color = colors[which], size = 1),
+    theme(axis.line.y.left = element_line(color = colors[which], size = 0.5),
           axis.line.y.right = element_line(color = "grey"),
-          axis.ticks.y.left = element_line(color = colors[which], size = 1),
+          axis.ticks.y.left = element_line(color = colors[which], size = 0.5),
           axis.ticks.y.right = element_line(color = "grey"),
           axis.title.y = element_text(),
           axis.title.y.right = element_blank())
