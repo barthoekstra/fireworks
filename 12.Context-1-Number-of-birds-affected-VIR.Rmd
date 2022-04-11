@@ -33,7 +33,7 @@ maxrange <- 66000
 ppis[[1]]$data$VIR[ppis[[1]]$data$dist_radar > maxrange] <- NA
 ppis[[1]]$data$land[ppis[[1]]$data$dist_radar > maxrange] <- NA
 ppis[[2]]$data$VIR[ppis[[2]]$data$dist_radar > maxrange] <- NA
-ppis[[2]]$data$land[ppis[[2]]$data$dist_radar > 66000] <- NA
+ppis[[2]]$data$land[ppis[[2]]$data$dist_radar > maxrange] <- NA
 
 cppi <- comp_ppi(ppis, param = c("VIR", "land"), method = c("max", "min"), res = c(500, 500), )
 cppi$data$VIR[cppi$data$land == 0] <- NA
@@ -44,10 +44,11 @@ We can now calculate the total `VIR` within the radar domain and the number of b
 
 ```{r output_bird_numbers, results='hold'}
 ptt_biomass <- readRDS("data/processed/sovon/ptt_biomass.RDS")
-paste0("Total VIR: ", format(sum(cppi$data$VIR, na.rm = TRUE), scientific = TRUE))
+total_vir <- sum(cppi$data$VIR, na.rm = TRUE) * 1/4  # Convert to sum of VIR/0.5km2
+paste0("Total VIR: ", format(total_vir, scientific = TRUE))
 paste0("Response assuming mean RCS of ", round(mean(ptt_biomass$weighted_mean_crs)), " cm^2: ", 
-       round(sum(cppi$data$VIR, na.rm = TRUE) / mean(ptt_biomass$weighted_mean_crs)), " birds.")
+       round(total_vir / mean(ptt_biomass$weighted_mean_crs)), " birds.")
 paste0("Response assuming median RCS of ", round(median(ptt_biomass$weighted_mean_crs)), " cm^2: ", 
-       round(sum(cppi$data$VIR, na.rm = TRUE) / median(ptt_biomass$weighted_mean_crs)), " birds.")
-paste0("Response assuming mean RCS of 11 cm^2: ", round(sum(cppi$data$VIR, na.rm = TRUE) / 11), " birds.")
+       round(total_vir / median(ptt_biomass$weighted_mean_crs)), " birds.")
+paste0("Response assuming mean RCS of 11 cm^2: ", round(total_vir / 11), " birds.")
 ```
