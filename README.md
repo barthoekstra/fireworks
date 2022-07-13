@@ -1,1 +1,5 @@
-# fireworks
+# Fireworks disturbance across bird communities
+Code repository for paper (to be submitted). See [this website](https://barthoekstra.github.io/fireworks) for a knitted bookdown version of all RMarkdown analysis notebooks.
+
+## Abstract
+Fireworks are important parts of celebrations and festivals globally, but little remains known about their effect on wildlife. The sudden synchronized lighting of fireworks on New Year's Eve causes a strong flight response in birds. We use weather radar and systematic bird counts to quantify how flight response differs across bird communities and determine the distance-dependence of this relationship. On average, approximately 1000 times more birds were in flight during New Year’s Eve than on regular nights. We found disturbance decreased up to 5km from fireworks, but flight activity remained elevated by a factor of 10. We found that communities of large-bodied species respond more strongly than those of smaller birds. Given the pervasive nature of this disturbance, mitigation should be achieved by establishing large firework-free zones or concentrating fireworks in urban centers. Conservation action should prioritize the most disturbance-prone, larger-bodied, bird communities.
