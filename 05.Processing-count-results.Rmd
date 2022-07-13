@@ -428,16 +428,12 @@ We store a lookup table of characteristic groups and scientific names as .csv fo
 ```{r}
 ptt %>%
   dplyr::select(species, scientificname, familyvernacular, mean_weight, mean_rcs = mean_crs) %>%
-  distinct(species, .keep_all = TRUE) %>%
+  distinct(scientificname, .keep_all = TRUE) %>%
   group_by(familyvernacular) %>%
   mutate(family_mean_weight = mean(mean_weight)) %>%
   ungroup() %>%
   arrange(desc(family_mean_weight), desc(mean_weight)) %>%
   write.csv("data/processed/sovon/lut_species_family.csv")
-# ptt %>%
-#   dplyr::select(species, scientificname, familyvernacular, mean_weight, mean_crs) %>%
-#   distinct(species, .keep_all = TRUE) %>%
-#   write.csv("data/processed/sovon/lut_species_family.csv")
 ```
 
 ## Summary statistics for WebPanel
