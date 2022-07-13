@@ -24,7 +24,8 @@ dhl <- readRDS("data/processed/final-ppis/RAD_NL61_VOL_NA_201712312305_ODIM.RDS"
 Composite the PPIs and log-transform `VIR` and `total_biomass` for improved visualisation.
 
 ```{r composite_and_logtransform, eval=full_repro}
-cppi <- comp_ppi(list(hrw, dhl), param = c("VIR", "total_crs"), res = 500, method = c("mean", "mean"))
+cppi <- comp_ppi(list(hrw, dhl), param = c("VIR", "total_crs", "dist_urban"), res = 500, 
+                 method = c("mean", "mean", "min"))
 cppi$data$VIR <- log10(cppi$data$VIR)
 cppi$data$VIR[is.infinite(cppi$data$VIR)] <- 0
 cppi$data$VIR[cppi$data$VIR == 0] <- NA
@@ -37,6 +38,7 @@ Make plots to confirm the composite and transformation works as intended.
 ```{r plot_to_verify, eval=full_repro}
 plot(cppi, param = "VIR", zlim = c(0, 10))
 plot(cppi, param = "total_crs", zlim = c(0, 6))
+plot(cppi, param = "dist_urban", zlim = c(0, 10000))
 ```
 
 And now we write out raster files containing these parameters, which we can then stitch together in QGIS and Adobe Illustrator.
@@ -44,4 +46,5 @@ And now we write out raster files containing these parameters, which we can then
 ```{r write_params_to_raster, eval=full_repro}
 raster::writeRaster(as(cppi$data["VIR"], "RasterLayer"), filename = "data/plots/paper/fig1_VIR.tif", overwrite = TRUE)
 raster::writeRaster(as(cppi$data["total_crs"], "RasterLayer"), filename = "data/plots/paper/fig1_total_crs.tif", overwrite = TRUE)
+raster::writeRaster(as(cppi$data["dist_urban"], "RasterLayer"), filename = "data/plots/paper/fig1_dist_urban.tif", overwrite = TRUE)
 ```
