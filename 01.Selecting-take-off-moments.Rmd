@@ -104,17 +104,42 @@ max_vir_deriv <- integrated_l %>%
 theme_set(theme_bw())
 ggplot(integrated_l, aes(x = datetime)) +
   geom_line(aes(y = value, colour = radar, linetype = variable)) +
-  scale_x_datetime(breaks = "10 min", date_labels = "%H:%M", expand = c(0, 0)) + 
+  scale_x_datetime(breaks = "10 min", date_labels = "%H:%M", expand = c(0, 0), timezone = "Europe/Amsterdam") + 
   scale_color_manual(values = c("blue", "red")) +
   scale_linetype_discrete(name = "Line type", labels = c("VIR", expression(paste(Delta,"VIR/scan")))) + 
   labs(title = "Time series of Vertically Integrated Reflectivities (VIR)",
        subtitle = "NYE 2017-2018",
-       x = "Time (CET)",
+       x = "Time",
        y = "VIR",
        colour = "Radar",
        linetype = "Linetype") +
   theme(axis.text.x = element_text(angle = -90),
         panel.grid.minor = element_blank())
+
+# integrated_l %>%
+#   filter(variable == "vir",
+#          datetime < "2018-01-01 00:30:00") %>%
+#   mutate(datetime = datetime + 2.5*60) %>%
+#   ggplot(aes(x = datetime)) +
+#   geom_rect(aes(xmin = as.POSIXct("2017-12-31 23:05:00"), xmax = as.POSIXct("2017-12-31 23:10:00"),
+#               ymin = -1000, ymax = 5000), fill = "lightgrey", alpha = 0.1, color = "grey50") +
+#   geom_line(aes(y = value, colour = radar)) +
+#   scale_x_datetime(breaks = "10 min", date_labels = "%H:%M", expand = c(0, 0), timezone = "Europe/Amsterdam") + 
+#   scale_color_manual(values = c("blue", "red")) +
+#   # scale_linetype_discrete(name = "Line type", labels = c("VIR", expression(paste(Delta,"VIR/scan")))) + 
+#   # scale_x_datetime(labels = date_format("%m/%d %H:%M", tz = "America/Toronto"))
+#   # labs(title = "Time series of Vertically Integrated Reflectivities (VIR)",
+#   #      subtitle = "NYE 2017-2018",
+#   labs(x = "Time",
+#        y = "VIR") +
+#   coord_cartesian(expand = FALSE, ylim = c(0, 2250)) +
+#   theme_classic(base_size = 15) +
+#   theme(axis.text.x = element_text(angle = -90),
+#         panel.grid.minor = element_blank(),
+#         legend.position = "none")
+#   
+
+# ggsave("data/plots/presentations/VIR-Timeseries.pdf", width = 8, height = 5)
 ```
 
 The plot shows a rapid increase in `VIR` in the first 15 and 20 minutes after midnight (23:00 CET) for the Den Helder and Herwijnen radar respectively. After that period, `VIR` starts to drop, faster for Den Helder than for Herwijnen, possibly as a result of birds dispersing from the North Holland mainland towards the IJsselmeer area, which we have deliberately excluded from the generation of the vertical profiles (by selecting azimuths that are above land).
