@@ -437,7 +437,7 @@ plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims
     
     p <- p +
       geom_ribbon(aes(x = x, ymin = !!ymin, ymax = !!ymax, alpha = !!alphas[i]), fill = colors[which]) +
-      geom_line(aes(x = x, y = y), color = colors[which], size = 1.5, lineend = "round")
+      geom_line(aes(x = x, y = y), color = colors[which], size = 0.75, lineend = "round")
     
     if (offset) {
       p <- p + scale_y_continuous(labels = function(x) {10^x})
@@ -478,9 +478,9 @@ plot_mboost_pdp <- function(modelci, data, which, confints, colors = NULL, ylims
   p <- p +
     theme_classic(base_size = 10) +
     labs(x = xlabel, y = expression(paste("Flight response ", log[10], "(VIR)"))) +
-    theme(axis.line.y.left = element_line(color = colors[which], size = 1),
+    theme(axis.line.y.left = element_line(color = colors[which], size = 0.5),
           axis.line.y.right = element_line(color = "grey"),
-          axis.ticks.y.left = element_line(color = colors[which], size = 1),
+          axis.ticks.y.left = element_line(color = colors[which], size = 0.5),
           axis.ticks.y.right = element_line(color = "grey"),
           axis.title.y = element_text())
   
