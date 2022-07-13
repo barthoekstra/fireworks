@@ -1,5 +1,7 @@
 # Determine baseline disturbance
 
+To compare the disturbance caused by fireworks against the flight activity of normal nights, we select (mostly) rain-free nights from the baseline dataset.
+
 ```{r setup_disturbance_baseline_environment, warning=FALSE, message=FALSE}
 library(ggplot2)
 library(dplyr)
@@ -7,6 +9,8 @@ library(readr)
 library(tidyr)
 library(bioRad)
 ```
+
+We have previously calculated the classes targets using the depolarization ratio [@kilambi_simple_2018] and can now visualise them.
 
 ```{r plot_baseline_ppis_scatter_class}
 files <- Sys.glob(file.path("data/processed/composite-ppis-baseline/500m", "*"))
@@ -16,9 +20,13 @@ lapply(files, function(x) {
 })
 ```
 
+Through visual inspection we've determined the following PPIs to be sufficient to serve as a disturbance baseline. They may still contain forms of non-meteorological clutter, but that is not a problem as long as the clutter does not intersect with the count sites.
+
 ```{r}
 files_selected <- files[c(2, 4, 6, 7, 8)]
 ```
+
+Process the baseline PPIs the same way the disturbed PPIs are processed.
 
 ```{r}
 data_disturbance <- readRDS("data/models/data_cleaned.RDS")
