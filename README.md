@@ -17,4 +17,4 @@ Land use data can be acquired via the Copernicus portal for the [CORINE Land Cov
 Life-history characteristics for birds can be downloaded from [Storchová & Hořák 2018](https://doi.org/10.1111/geb.12709) and should be extracted directly into the `data/raw/life-history-characteristics/` folder.
 
 ### Population density
-We have tested several proxies for disturbance caused by fireworks, including human population density. This data can be acquired from [Statistics Netherlands](https://www.cbs.nl/nl-nl/dossier/nederland-regionaal/geografische-data/kaart-van-500-meter-bij-500-meter-met-statistieken) and should be stored in `data/raw/population-density/`
+We have tested several proxies for disturbance caused by fireworks, including human population density. This data can be acquired from [Statistics Netherlands](https://www.cbs.nl/nl-nl/dossier/nederland-regionaal/geografische-data/kaart-van-500-meter-bij-500-meter-met-statistieken) ([direct link to file](https://www.cbs.nl/-/media/cbs/dossiers/nederland-regionaal/vierkanten/500/2022-cbs_vk500_2019_vol.zip)) and should be extracted in `data/raw/population-density/`.
