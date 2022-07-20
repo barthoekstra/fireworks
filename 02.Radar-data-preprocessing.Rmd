@@ -240,7 +240,7 @@ pvol_clutter_dynamic_dhl <- readRDS("data/processed/clutter_dynamic_dhl_avg.RDS"
 
 Let's see what that looks like on a basemap, using a `DBZH_AVG` threshold of $-10dbZ$, following [@dokter_bird_2011].
 
-```{r verify_dynamic_clutter_map, out.width='100%', message=FALSE}
+```{r verify_dynamic_clutter_map, out.width='100%', message=FALSE, warning=FALSE}
 scan_hrw <- pvol_clutter_dynamic_hrw$scans[[1]]
 scan_dhl <- pvol_clutter_dynamic_dhl$scans[[1]]
 
@@ -295,7 +295,7 @@ pvol_clutter_static_dhl <- readRDS("data/processed/clutter_static_dhl_avg.RDS")
 
 Once again, let's see what that looks like on a basemap, using a `DBZH_AVG` threshold of $-10dbZ$, following [@dokter_bird_2011].
 
-```{r verify_static_clutter_map, out.width='100%', message=FALSE}
+```{r verify_static_clutter_map, out.width='100%', message=FALSE, warning=FALSE}
 scan_hrw <- pvol_clutter_static_hrw$scans[[1]]
 scan_dhl <- pvol_clutter_static_dhl$scans[[1]]
 
