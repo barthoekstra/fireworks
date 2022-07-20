@@ -48,3 +48,29 @@ raster::writeRaster(as(cppi$data["VIR"], "RasterLayer"), filename = "data/plots/
 raster::writeRaster(as(cppi$data["total_crs"], "RasterLayer"), filename = "data/plots/paper/fig1_total_crs.tif", overwrite = TRUE)
 raster::writeRaster(as(cppi$data["dist_urban"], "RasterLayer"), filename = "data/plots/paper/fig1_dist_urban.tif", overwrite = TRUE)
 ```
+
+To visualize the disturbance event as a movie, let's generate raster files for each of the timestamps that we can then animate in AI/AE.
+
+```{r create_rasters_for_video, eval=full_repro}
+hrw_ppis <- Sys.glob(file.path("data/processed/final-ppis", "*NL62*"))
+dhl_ppis <- Sys.glob(file.path("data/processed/final-ppis", "*NL61*"))
+
+create_raster <- function(hrw_fp, dhl_fp) {
+  hrw <- readRDS(hrw_fp)
+  dhl <- readRDS(dhl_fp)
+  cppi <- comp_ppi(list(hrw, dhl), param = c("VIR"), res = 500, 
+                 method = c("mean"))
+  
+  cppi$data$VIR <- log10(cppi$data$VIR)
+  cppi$data$VIR[is.infinite(cppi$data$VIR)] <- 0
+  cppi$data$VIR[cppi$data$VIR == 0] <- NA
+  
+  filename <- paste("data/plots/vir-ppis-raster/", strftime(hrw$datetime, format = "%Y%m%d%H%M"), ".tif", sep = "")
+  
+  raster::writeRaster(as(cppi$data["VIR"], "RasterLayer"), filename = filename, overwrite = TRUE)
+}
+
+mapply(create_raster, hrw_ppis, dhl_ppis)
+
+```
+
