@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>10 Determine baseline disturbance | Fireworks</title>
+<meta name="author" content="Bart Hoekstra">
+<meta name="description" content="To compare the disturbance caused by fireworks against the flight activity of normal nights, we select (mostly) rain-free nights from the baseline dataset. library(ggplot2) library(dplyr)...">
+<meta name="generator" content="bookdown 0.24 with bs4_book()">
+<meta property="og:title" content="10 Determine baseline disturbance | Fireworks">
+<meta property="og:type" content="book">
+<meta property="og:description" content="To compare the disturbance caused by fireworks against the flight activity of normal nights, we select (mostly) rain-free nights from the baseline dataset. library(ggplot2) library(dplyr)...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="10 Determine baseline disturbance | Fireworks">
+<meta name="twitter:description" content="To compare the disturbance caused by fireworks against the flight activity of normal nights, we select (mostly) rain-free nights from the baseline dataset. library(ggplot2) library(dplyr)...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/header-attrs-2.11/header-attrs.js"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.3.1/transition.js"></script><script src="libs/bs3compat-0.3.1/tabs.js"></script><script src="libs/bs3compat-0.3.1/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS -->
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Fireworks</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Preface</a></li>
+<li class="book-part">Weather radar data</li>
+<li><a class="" href="selecting-firework-take-off-moment.html"><span class="header-section-number">1</span> Selecting firework take-off moment</a></li>
+<li><a class="" href="radar-data-preprocessing.html"><span class="header-section-number">2</span> Radar Data Preprocessing</a></li>
+<li class="book-part">Land use</li>
+<li><a class="" href="annotating-land-use.html"><span class="header-section-number">3</span> Annotating land use</a></li>
+<li class="book-part">Sovon counts</li>
+<li><a class="" href="annotating-count-areas.html"><span class="header-section-number">4</span> Annotating count areas</a></li>
+<li><a class="" href="processing-count-results.html"><span class="header-section-number">5</span> Processing count results</a></li>
+<li class="book-part">Composite PPIs</li>
+<li><a class="" href="apply-processing-to-all-ppis.html"><span class="header-section-number">6</span> Apply processing to all PPIs</a></li>
+<li><a class="" href="composite-all-ppis.html"><span class="header-section-number">7</span> Composite all PPIs</a></li>
+<li class="book-part">Fireworks disturbance</li>
+<li><a class="" href="modelling-fireworks-disturbance.html"><span class="header-section-number">8</span> Modelling fireworks disturbance</a></li>
+<li><a class="" href="quantifying-model-uncertainty.html"><span class="header-section-number">9</span> Quantifying model uncertainty</a></li>
+<li><a class="active" href="determine-baseline-disturbance.html"><span class="header-section-number">10</span> Determine baseline disturbance</a></li>
+<li class="book-part">Figures</li>
+<li><a class="" href="figure-1-data-overview.html"><span class="header-section-number">11</span> Figure 1: Data overview</a></li>
+<li><a class="" href="figure-2-model-output.html"><span class="header-section-number">12</span> Figure 2: Model output</a></li>
+<li><a class="" href="figure-3-species-composition.html"><span class="header-section-number">13</span> Figure 3: Species composition</a></li>
+<li><a class="" href="figure-4-distance-to-fireworks.html"><span class="header-section-number">14</span> Figure 4: Distance to fireworks</a></li>
+<li><a class="" href="context-1-number-of-birds-affected.html"><span class="header-section-number">15</span> Context 1: Number of birds affected</a></li>
+<li class="book-part">Appendix</li>
+<li><a class="" href="generating-vps-for-den-helder-radar.html"><span class="header-section-number">16</span> Generating vertical profiles for Den Helder radar</a></li>
+<li class="book-part">Other</li>
+<li><a class="" href="references.html"><span class="header-section-number">17</span> References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/barthoekstra/fireworks">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="determine-baseline-disturbance" class="section level1" number="10">
+<h1>
+<span class="header-section-number">10</span> Determine baseline disturbance<a class="anchor" aria-label="anchor" href="#determine-baseline-disturbance"><i class="fas fa-link"></i></a>
+</h1>
+<p>To compare the disturbance caused by fireworks against the flight activity of normal nights, we select (mostly) rain-free nights from the baseline dataset.</p>
+<div class="sourceCode" id="cb191"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://readr.tidyverse.org">readr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyr.tidyverse.org">tidyr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/adokter/bioRad">bioRad</a></span><span class="op">)</span></span></code></pre></div>
+<p>We have previously calculated the classes targets using the depolarization ratio <span class="citation">(<a href="references.html#ref-kilambi_simple_2018" role="doc-biblioref">Kilambi, Fabry, and Meunier 2018</a>)</span> and can now visualise them.</p>
+<div class="sourceCode" id="cb192"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">files</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.glob.html">Sys.glob</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="st">"data/processed/composite-ppis-baseline/500m"</span>, <span class="st">"*"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">files</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">ppi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/plot.html">plot</a></span><span class="op">(</span><span class="va">ppi</span>, param <span class="op">=</span> <span class="st">"class"</span>, zlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/basename.html">basename</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## [[1]]</code></pre>
+<div class="inline-figure"><img src="10.Determine-baseline-disturbance_files/figure-html/plot_baseline_ppis_scatter_class-1.png" width="672"></div>
+<pre><code>## 
+## [[2]]</code></pre>
+<div class="inline-figure"><img src="10.Determine-baseline-disturbance_files/figure-html/plot_baseline_ppis_scatter_class-2.png" width="672"></div>
+<pre><code>## 
+## [[3]]</code></pre>
+<div class="inline-figure"><img src="10.Determine-baseline-disturbance_files/figure-html/plot_baseline_ppis_scatter_class-3.png" width="672"></div>
+<pre><code>## 
+## [[4]]</code></pre>
+<div class="inline-figure"><img src="10.Determine-baseline-disturbance_files/figure-html/plot_baseline_ppis_scatter_class-4.png" width="672"></div>
+<pre><code>## 
+## [[5]]</code></pre>
+<div class="inline-figure"><img src="10.Determine-baseline-disturbance_files/figure-html/plot_baseline_ppis_scatter_class-5.png" width="672"></div>
+<pre><code>## 
+## [[6]]</code></pre>
+<div class="inline-figure"><img src="10.Determine-baseline-disturbance_files/figure-html/plot_baseline_ppis_scatter_class-6.png" width="672"></div>
+<pre><code>## 
+## [[7]]</code></pre>
+<div class="inline-figure"><img src="10.Determine-baseline-disturbance_files/figure-html/plot_baseline_ppis_scatter_class-7.png" width="672"></div>
+<pre><code>## 
+## [[8]]</code></pre>
+<div class="inline-figure"><img src="10.Determine-baseline-disturbance_files/figure-html/plot_baseline_ppis_scatter_class-8.png" width="672"></div>
+<pre><code>## 
+## [[9]]</code></pre>
+<div class="inline-figure"><img src="10.Determine-baseline-disturbance_files/figure-html/plot_baseline_ppis_scatter_class-9.png" width="672"></div>
+<pre><code>## 
+## [[10]]</code></pre>
+<div class="inline-figure"><img src="10.Determine-baseline-disturbance_files/figure-html/plot_baseline_ppis_scatter_class-10.png" width="672"></div>
+<p>Through visual inspection we’ve determined the following PPIs to be sufficient to serve as a disturbance baseline. They may still contain forms of non-meteorological clutter, but that is not a problem as long as the clutter does not intersect with the count sites.</p>
+<div class="sourceCode" id="cb203"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">files_selected</span> <span class="op">&lt;-</span> <span class="va">files</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">6</span>, <span class="fl">7</span>, <span class="fl">8</span><span class="op">)</span><span class="op">]</span></span></code></pre></div>
+<p>Process the baseline PPIs the same way the disturbed PPIs are processed.</p>
+<div class="sourceCode" id="cb204"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">data_disturbance</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="st">"data/models/data_cleaned.RDS"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">data_baseline</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">files_selected</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">readRDS</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">[[</span><span class="st">"data"</span><span class="op">]</span><span class="op">]</span><span class="op">@</span><span class="va">data</span></span>
+<span>  <span class="va">df</span><span class="op">[</span><span class="st">"dt"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/basename.html">basename</a></span><span class="op">(</span><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/fileutils.html">file_path_sans_ext</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">df</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">clean_data_baseline</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">max_distance</span>, <span class="va">pixels</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">mdl_variables</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"VIR"</span>, <span class="st">"dist_radar"</span>, <span class="st">"total_biomass"</span>, <span class="st">"total_crs"</span>,</span>
+<span>                     <span class="st">"agricultural"</span>, <span class="st">"semiopen"</span>, <span class="st">"forests"</span>, <span class="st">"wetlands"</span>, <span class="st">"waterbodies"</span>, <span class="st">"urban"</span>,</span>
+<span>                     <span class="st">"dist_urban"</span>, <span class="st">"human_pop"</span>, <span class="st">"pixel"</span>, <span class="st">"coverage"</span>, <span class="st">"class"</span>, <span class="st">"x"</span>, <span class="st">"y"</span>, <span class="st">"dt"</span>, <span class="st">"VIDc"</span><span class="op">)</span></span>
+<span>  <span class="va">log10_variables</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"dist_urban"</span>, <span class="st">"human_pop"</span>, <span class="st">"total_biomass"</span>, <span class="st">"dist_urban"</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="va">data</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">pixel</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="va">pixels</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>VIR <span class="op">=</span> <span class="fu"><a href="https://tidyr.tidyverse.org/reference/replace_na.html">replace_na</a></span><span class="op">(</span><span class="va">VIR</span>, <span class="fl">0.1</span><span class="op">)</span>,</span>
+<span>           VIR <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html">if_else</a></span><span class="op">(</span><span class="va">VIR</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fl">0.1</span>, <span class="va">VIR</span><span class="op">)</span>,</span>
+<span>           VIR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log10</a></span><span class="op">(</span><span class="va">VIR</span><span class="op">)</span>,</span>
+<span>           VIDc <span class="op">=</span> <span class="op">(</span><span class="fl">10</span><span class="op">^</span><span class="va">VIR</span><span class="op">)</span> <span class="op">/</span> <span class="va">weighted_mean_crs</span>,</span>
+<span>           VIDc <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html">if_else</a></span><span class="op">(</span><span class="va">VIDc</span> <span class="op">&gt;</span> <span class="fl">10000000</span>, <span class="fl">1e-6</span>, <span class="va">VIDc</span>, <span class="fl">1e-6</span><span class="op">)</span>,</span>
+<span>           dt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">as.factor</a></span><span class="op">(</span><span class="va">dt</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/all_of.html">all_of</a></span><span class="op">(</span><span class="va">mdl_variables</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter_all.html">filter_all</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/all_vars.html">all_vars</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/is.finite.html">is.finite</a></span><span class="op">(</span><span class="va">.</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>total_rcs <span class="op">=</span> <span class="va">total_crs</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/identity.html">identity</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">data_cleaned</span></span>
+<span>  </span>
+<span>  <span class="va">data_cleaned</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">baseline_ppis</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">data_baseline</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu">clean_data_baseline</span><span class="op">(</span><span class="va">x</span>, <span class="fl">66000</span>, <span class="va">data_disturbance</span><span class="op">$</span><span class="va">pixel</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">baseline_ppis</span>, <span class="st">"data/processed/baseline_ppis.RDS"</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb205"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">baseline_response_VIR</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">baseline_ppis</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">VIR</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">baseline_response_VIDc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">baseline_ppis</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">VIDc</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">br</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"VIR"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">baseline_response_VIR</span><span class="op">)</span>, <span class="st">"VIDc"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">baseline_response_VIDc</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">br</span>, file <span class="op">=</span> <span class="st">"data/processed/disturbance_baseline.RDS"</span><span class="op">)</span></span>
+<span><span class="va">br</span></span></code></pre></div>
+<pre><code>##        VIR       VIDc 
+## -0.3654903  2.7240716</code></pre>
+
+</div>
+
+
+
+  <div class="chapter-nav">
+<div class="prev"><a href="quantifying-model-uncertainty.html"><span class="header-section-number">9</span> Quantifying model uncertainty</a></div>
+<div class="next"><a href="figure-1-data-overview.html"><span class="header-section-number">11</span> Figure 1: Data overview</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav"><li><a class="nav-link" href="#determine-baseline-disturbance"><span class="header-section-number">10</span> Determine baseline disturbance</a></li></ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/barthoekstra/fireworks/blob/master/10.Determine-baseline-disturbance.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/barthoekstra/fireworks/edit/master/10.Determine-baseline-disturbance.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Fireworks</strong>" was written by Bart Hoekstra. It was last built on 2022-07-20.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

@@ -25,6 +25,7 @@ visualising-range-bias-correction
 range-corrected-ppi-of-herwijnen-radar
 range-corrected-ppi-of-den-helder-radar
 preprocess-additional-scans
+preprocess-baseline-disturbance-scans
 annotating-land-use
 processing-environment-2
 converting-the-land-use-map
@@ -54,6 +55,7 @@ linking-life-history-traits-to-species
 calculating-total-bird-biomass
 calculating-proportions-across-bird-families
 export-lookup-table-characteristic-groups
+summary-statistics-for-webpanel
 apply-processing-to-all-ppis
 processing-environment-5
 load-the-reference-ppis
@@ -81,6 +83,7 @@ bootstrapped-uncertainty-analysis
 determine-bootstrap-folds
 running-the-bootstrapping-procedure
 recombine-bootstrapped-results
+determine-baseline-disturbance
 figure-1-data-overview
 processing-environment-9
 workflow
