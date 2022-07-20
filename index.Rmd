@@ -11,15 +11,33 @@ monofontoptions: "Scale=0.7"
 site: bookdown::bookdown_site
 documentclass: book
 ---
+
 # Preface {-}
 
 ## Abstract {-}
 
-Fireworks are important parts of celebrations globally, but little remains known about their effect on wildlife. The synchronized and extraordinary use of fireworks on New Year's Eve causes a strong flight response in birds. We use weather radar and systematic bird counts to quantify how flight response differs across bird communities and determine the distance-dependence of this relationship. On average, approximately 1000 times more birds were in flight during New Year’s Eve than on regular nights. We found disturbance from fireworks decreases with distance, most strongly in the first 5 km, but overall flight activity remained elevated tenfold up to about 10 km. We found that communities of large-bodied species respond more strongly than those of smaller birds. Given the pervasive nature of this disturbance, mitigation should be achieved by establishing large firework-free zones or concentrating fireworks in urban centers. Conservation action should prioritize the most disturbance-prone, larger-bodied, bird communities.
+Fireworks are important parts of celebrations globally, but little remains known about their effect on wildlife. The synchronized and extraordinary use of fireworks on New Year's Eve causes a strong flight response in birds. We use weather radar and systematic bird counts to quantify how flight response differs across bird communities and determine the distance-dependence of this relationship. On average, approximately 1000 times more birds were in flight during New Year's Eve than on regular nights. We found disturbance from fireworks decreases with distance, most strongly in the first 5 km, but overall flight activity remained elevated tenfold up to about 10 km. We found that communities of large-bodied species respond more strongly than those of smaller birds. Given the pervasive nature of this disturbance, mitigation should be achieved by establishing large firework-free zones or centralizing fireworks in urban centers. Conservation action should prioritize the most disturbance-prone, larger-bodied, bird communities.
+
+## Authors {-}
+
+Bart Hoekstra<sup>1</sup>, Willem Bouten<sup>1</sup>, Adriaan Dokter<sup>1,2</sup>, Hans van Gasteren<sup>1,3</sup>, Chris van Turnhout<sup>4,5</sup>, Bart Kranstauber<sup>1</sup>, Emiel van Loon<sup>1</sup>, Hidde Leijnse<sup>6,7</sup>, Judy Shamoun-Baranes<sup>1</sup>
+
+<sup>1</sup> Institute for Biodiversity and Ecosystem Dynamics, University of Amsterdam, P.O. Box 94240, 1090 GE Amsterdam, The Netherlands<br />
+<sup>2</sup> Cornell Lab of Ornithology, Cornell University, 159 Sapsucker Woods Rd, Ithaca, NY 14850, United States of America<br />
+<sup>3</sup> Royal Netherlands Air Force, P.O Box 8762, 4820 BB Breda, The Netherlands<br />
+<sup>4</sup> Sovon Dutch Centre for Field Ornithology, P.O. Box 6521, 6503 GA Nijmegen, The Netherlands<br />
+<sup>5</sup> Department of Animal Ecology & Physiology, Institute for Biological and Environmental Sciences (RIBES), Radboud University, P.O. Box 9010, 6500 GL Nijmegen, The Netherlands<br />
+<sup>6</sup> R&D Observations and Data Technology, Royal Netherlands Meteorological Institute, De Bilt, The Netherlands<br />
+<sup>7</sup> Hydrology and Quantitative Water Management Group, Wageningen University & Research, Wageningen, The Netherlands<br />
 
 ## How to use this document {-}
 
+### Run interactively
+
+All RMarkdown notebook files should be run successively in order of the numbering, starting with `01.Selecting-take-off-moments.Rmd`. 
+
 ### Knit it {-}
+
 Use the following line in the console or click `Build Book` in RStudio.
 
 ```{r include=TRUE, eval=FALSE}
@@ -27,4 +45,5 @@ bookdown::render_book(input = "index.Rmd", output_format = "bookdown::bs4_book",
 ```
 
 ### Full-reproduction mode {-#full-repro-mode}
-In the spirit of reproducibility, the entire analysis, which happens to be contained in this book, can theoretically be reproduced at the push of a button. To facilitate faster reproduction, some code chunks are only run when `full-reproduction` mode is switched on. This can be done by setting the R variable `full_repro` to `TRUE` in `build_bookdown.R`.
+
+In the spirit of reproducibility, the entire analysis can theoretically be reproduced at the push of a button. To facilitate faster reproduction, some code chunks are only run when `full reproduction` mode is switched on. This can be done by setting the R variable `full_repro` to `TRUE` in `build_bookdown.R`.
