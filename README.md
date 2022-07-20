@@ -17,7 +17,7 @@ Bart Hoekstra<sup>1</sup>, Willem Bouten<sup>1</sup>, Adriaan Dokter<sup>1,2</su
 <sup>7</sup> Hydrology and Quantitative Water Management Group, Wageningen University & Research, Wageningen, The Netherlands<br />
 
 ## Data
-This repository contains all raw bird count data from Sovon. Other data should be downloaded separately using the instructions below. In addition, the analysis notebooks clearly show how files should be structured.
+This repository contains all raw bird count data from [Sovon](https://www.sovon.nl). Other data should be downloaded separately using the instructions below. In addition, the analysis notebooks clearly show how files should be structured.
 
 ### Weather radar
 Weather radar data can be acquired through the [KNMI Data Platform](https://dataplatform.knmi.nl). All files used in our analysis are listed in .txt files in folders in `data/raw/pvol/` and should be stored in their respective folders to run the scripts. Filenames in the .txt files are unique identifiers and can be used to directly query the KNMI API. See here for [Herwijnen](https://dataplatform.knmi.nl/dataset/radar-volume-full-herwijnen-1-0) and [Den Helder](https://dataplatform.knmi.nl/dataset/radar-volume-denhelder-2-0) radar data respectively.
