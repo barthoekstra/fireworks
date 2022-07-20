@@ -45,3 +45,4 @@ data
 _bookdown_files/
 *.md
 Fireworks.rds
+rosm.cache/
