@@ -32,7 +32,7 @@ Bart Hoekstra<sup>1</sup>, Willem Bouten<sup>1</sup>, Adriaan Dokter<sup>1,2</su
 
 ## How to use this document {-}
 
-### Run interactively
+### Run interactively {-}
 
 All RMarkdown notebook files should be run successively in order of the numbering, starting with `01.Selecting-take-off-moments.Rmd`. 
 
