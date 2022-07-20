@@ -158,6 +158,8 @@ species_lut[species_lut$lookupname == "Kleine Barmsijs", "scientificname"] <- "A
 species_lut[species_lut$lookupname == "Pontische Meeuw", "scientificname"] <- "Larus argentatus"  # Herring Gull
 species_lut[species_lut$lookupname == "Indische Gans", "scientificname"] <- "Anser albifrons"  # Greater White-fronted Goose
 species_lut[species_lut$lookupname == "Canadese Gans", "scientificname"] <- "Branta canadensis"  # Canada Goose
+species_lut[species_lut$lookupname == "Topper", "scientificname"] <- "Aythya marila"  # Greater Scaup
+species_lut[species_lut$lookupname == "Tafeleend", "scientificname"] <- "Aythya ferina"  # Greater Scaup
 
 # Change scientific name for same species to match with the LHT database
 species_lut[species_lut$lookupname == "Kleine Zwaan", "scientificname"] <- "Cygnus columbianus"  # Bewick's Swan
@@ -439,14 +441,14 @@ ptt %>%
 ## Summary statistics for WebPanel
 
 Number of PTT counts included
-```{r}
+```{r number_of_ptt_counts}
 ptt %>%
   distinct(count_id) %>%
   nrow()
 ```
 
 Number of waterbird counts included
-```{r}
+```{r number_of_waterbird_counts}
 wb %>%
   distinct(area_nr) %>%
   nrow()
