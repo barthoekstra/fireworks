@@ -110,7 +110,7 @@ r <- lapply(c(500, 1000, 2000), function(x) { generate_composites(hrw_ppis, dhl_
 
 We should also generate the composite PPIs for the baseline PPIs using the same procedure.
 
-```{r}
+```{r generate_baseline_composites, message=FALSE, warning=FALSE, eval=full_repro}
 hrw_ppis <- Sys.glob(file.path("data/processed/final-ppis-baseline", "NLHRW*"))
 dhl_ppis <- Sys.glob(file.path("data/processed/final-ppis-baseline", "NLDHL*"))
 
