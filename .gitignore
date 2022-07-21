@@ -39,10 +39,37 @@ vignettes/*.pdf
 .Renviron
 
 # Project-specific
-data
 .DS_Store
 /*.html
 _bookdown_files/
 *.md
 Fireworks.rds
 rosm.cache/
+
+## Raw files
+data/raw/pvol/**/*.h5
+
+## Model files
+data/models/**/*.RDS
+data/models/**/*.csv
+
+## Plots
+data/plots/**/*.pdf
+data/plots/**/*.tif
+data/plots/**/*.png
+data/plots/**/*.jpeg
+data/plots/**/*.gif
+data/plots/**/*.RDS
+data/plots/**/*.aux.xml
+
+## Intermediate data
+data/processed/**/*.RDS
+data/processed/**/*.RData
+data/processed/**/*.tif
+data/processed/**/*.aux.xml
+data/processed/**/ptt_convex_hulls*
+data/processed/**/*.csv
+data/processed/**/*.grd
+data/processed/**/*.gri
+data/processed/**/*.h5
+
