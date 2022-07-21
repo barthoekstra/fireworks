@@ -30,3 +30,6 @@ Life-history characteristics for birds can be downloaded from [Storchová & Hoř
 
 ### Population density
 We have tested several proxies for disturbance caused by fireworks, including human population density. This data can be acquired from [Statistics Netherlands](https://www.cbs.nl/nl-nl/dossier/nederland-regionaal/geografische-data/kaart-van-500-meter-bij-500-meter-met-statistieken) ([direct link to file](https://www.cbs.nl/-/media/cbs/dossiers/nederland-regionaal/vierkanten/500/2022-cbs_vk500_2019_vol.zip)) and should be extracted in `data/raw/population-density/`.
+
+### Land area in The Netherlands
+To filter out last remaining effects of sea clutter, we use the detailed land map of [Statistics Netherlands](https://www.cbs.nl/nl-nl/dossier/nederland-regionaal/geografische-data/wijk-en-buurtkaart-2020) ([direct link to file](https://www.cbs.nl/-/media/cbs/dossiers/nederland-regionaal/wijk-en-buurtstatistieken/wijkbuurtkaart_2020_v2.zip)), which should be extracted in `data/raw/municipalities/` or can be loaded [via WFS](https://www.nationaalgeoregister.nl/geonetwork/srv/dut/catalog.search#/metadata/f1859b4d-93be-4fc8-9e91-0ecc2fa0f3b3) as described in the respective code.
