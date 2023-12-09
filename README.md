@@ -1,12 +1,10 @@
 # Fireworks disturbance across bird communities
-Repository for paper the eponymous paper published in [Frontiers in Ecology and the Environment](https://doi.org/10.1002/fee.2694)). 
+Repository for the eponymous paper published in [Frontiers in Ecology and the Environment](https://doi.org/10.1002/fee.2694). 
 
-See [this website](https://barthoekstra.github.io/fireworks) for a knitted bookdown version of all RMarkdown analysis notebooks.
+See [this website](https://barthoekstra.github.io/fireworks) for a knitted bookdown version of all RMarkdown analysis notebooks used in this study.
 
 ## Abstract
 Fireworks are important elements of celebrations globally, but little is known about their effects on wildlife. The synchronized and extraordinary use of fireworks on New Year’s Eve triggers strong flight responses in birds. We used weather radar and systematic bird counts to quantify how flight responses differed across habitats and corresponding bird communities, and determined the distance-dependence of this relationship. On average, approximately 1000 times as many birds were in flight on New Year’s Eve than on other nights. We found that fireworks-related disturbance decreased with distance, most strongly in the first five kilometers, but overall flight activity remained elevated tenfold at distances up to about 10 km. Communities of large-bodied species displayed a stronger response than communities of small-bodied species. Given the pervasive nature of this disturbance, the establishment of large fireworks-free zones or centralizing fireworks within urban centers could help to mitigate their effects on birds. Conservation action should prioritize avian communities with the most disturbance-prone, large-bodied bird species.
-
-![Animation of birds taking flight directly after NYE countdown and fireworks displays commence](https://videoapi-muybridge.vimeocdn.com/animated-thumbnails/image/a51d95e2-958f-4984-a17c-47667074b4fe.gif?ClientID=vimeo-core-prod&Date=1702141048&Signature=d38df8f147e56a1c46429ee8c8e411ac23a63b70)
 
 ## Authors
 
@@ -19,6 +17,11 @@ Bart Hoekstra<sup>1</sup>, Willem Bouten<sup>1</sup>, Adriaan Dokter<sup>1,2</su
 <sup>5</sup> Department of Animal Ecology & Physiology, Institute for Biological and Environmental Sciences (RIBES), Radboud University, P.O. Box 9010, 6500 GL Nijmegen, The Netherlands<br />
 <sup>6</sup> R&D Observations and Data Technology, Royal Netherlands Meteorological Institute, De Bilt, The Netherlands<br />
 <sup>7</sup> Hydrology and Quantitative Water Management Group, Wageningen University & Research, Wageningen, The Netherlands<br />
+
+## Video
+[![Animation of birds taking flight directly after NYE countdown and fireworks displays commence](https://github.com/barthoekstra/fireworks/blob/master/docs/fireworks-animation.gif)](https://vimeo.com/887618127)
+
+The animation above ([click to see full version](https://vimeo.com/887618127)) of radar measurements from two Dutch weather radars shows the mass take-off of birds following the lighting of fireworks just after midnight on January 1st, 2018. In the study area (surrounded by the red arcs), no less than 384,000 birds immediately flee from fireworks.
 
 ## Data
 This repository contains all necessary raw bird count data from [Sovon](https://www.sovon.nl). Other data should be downloaded separately using the instructions below. The analysis notebooks clearly show how files should be structured for the analysis and the folder structure has been retained by adding empty `.gitkeep` files to this repository.
